@@ -14,8 +14,8 @@ export type AppRole = z.infer<typeof appRoleSchema>;
 export const roleHome: Record<AppRole, string> = {
   admin: "/admin",
   operator: "/admin",
-  pole_manager: "/admin",
-  team_manager: "/admin",
+  pole_manager: "/",
+  team_manager: "/",
   athlete: "/athlete",
   public: "/",
 };

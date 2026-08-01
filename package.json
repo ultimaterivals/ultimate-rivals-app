@@ -12,6 +12,7 @@
     "lint": "eslint src tests *.config.* next.config.ts --max-warnings=0",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
+    "test:integration": "vitest run --config vitest.integration.config.ts",
     "test:watch": "vitest",
     "test:e2e": "playwright test",
     "format": "prettier --write \"src/**/*.{ts,tsx,css}\" \"tests/**/*.ts\" \"docs/**/*.md\" README.md package.json \"*.config.*\"",
