@@ -7,7 +7,7 @@ export default async function AthleteLayout({
 }: {
   children: ReactNode;
 }) {
-  const user = await requireRole(["athlete"]);
+  const user = await requireRole("athlete");
   return (
     <PortalShell portal="Atleta" userLabel={user.email ?? "Atleta"}>
       {children}

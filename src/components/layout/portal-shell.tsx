@@ -1,4 +1,11 @@
-import { LayoutDashboard, LogOut, UserRound } from "lucide-react";
+import {
+  CalendarDays,
+  LayoutDashboard,
+  LogOut,
+  MapPin,
+  UserRound,
+  UsersRound,
+} from "lucide-react";
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { BrandMark } from "./brand-mark";
@@ -13,6 +20,15 @@ export function PortalShell({
   children: ReactNode;
 }) {
   const home = portal === "Atleta" ? "/athlete" : "/admin";
+  const links =
+    portal === "Atleta"
+      ? [{ href: "/athlete/profile", label: "Meu perfil", icon: UserRound }]
+      : [
+          { href: "/admin/athletes", label: "Atletas", icon: UserRound },
+          { href: "/admin/teams", label: "Equipes", icon: UsersRound },
+          { href: "/admin/poles", label: "Polos", icon: MapPin },
+          { href: "/admin/seasons", label: "Temporadas", icon: CalendarDays },
+        ];
   return (
     <div className="min-h-dvh lg:grid lg:grid-cols-[17rem_1fr]">
       <aside className="bg-ur-graphite border-b lg:min-h-dvh lg:border-r lg:border-b-0">
@@ -22,7 +38,10 @@ export function PortalShell({
             Portal {portal}
           </span>
         </div>
-        <nav aria-label="Navegação principal" className="hidden px-4 lg:block">
+        <nav
+          aria-label="Navegação principal"
+          className="hidden space-y-1 px-4 lg:block"
+        >
           <Link
             href={home}
             className="rounded-ur bg-ur-gold text-ur-black flex min-h-11 items-center gap-3 px-3 font-bold"
@@ -30,6 +49,16 @@ export function PortalShell({
             <LayoutDashboard size={18} aria-hidden="true" />
             Visão geral
           </Link>
+          {links.map(({ href, label, icon: Icon }) => (
+            <Link
+              key={href}
+              href={href}
+              className="rounded-ur flex min-h-11 items-center gap-3 px-3 font-medium text-zinc-300 transition-colors hover:bg-white/5 hover:text-white"
+            >
+              <Icon size={18} aria-hidden="true" />
+              {label}
+            </Link>
+          ))}
         </nav>
         <div className="hidden border-t p-4 lg:fixed lg:bottom-0 lg:block lg:w-[17rem]">
           <p className="flex items-center gap-2 truncate text-sm text-zinc-300">

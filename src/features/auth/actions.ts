@@ -19,6 +19,11 @@ export async function login(
   const supabase = await createClient();
   const { data, error } = await supabase.auth.signInWithPassword(parsed.data);
   if (error || !data.user) return { error: "E-mail ou senha inválidos." };
-  const role = appRoleSchema.catch("public").parse(data.user.app_metadata.role);
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("role")
+    .eq("id", data.user.id)
+    .single();
+  const role = appRoleSchema.catch("public").parse(profile?.role);
   redirect(roleHome[role]);
 }

@@ -1,6 +1,6 @@
 # Segurança
 
-- A autorização usa `app_metadata.role`, que não é editável pelo usuário. `user_metadata` nunca decide acesso.
+- A autorização usa `profiles.role` consultado no banco. `app_metadata` e `user_metadata` nunca decidem acesso.
 - A chave pública/publishable pode estar no cliente; `service_role` e secret keys nunca usam prefixo `NEXT_PUBLIC_`.
 - O Proxy renova a sessão e as áreas protegidas validam claims no servidor.
 - Toda futura tabela em schema exposto terá RLS habilitada, grants explícitos e políticas de propriedade/escopo. `TO authenticated` isolado não é autorização.
@@ -9,3 +9,14 @@
 - Auditoria, retenção, LGPD, revogação de sessão e duração de JWT ainda precisam de decisão formal.
 
 O Supabase passou a não expor automaticamente novas tabelas à Data API em novos projetos. Migrações futuras devem tratar `GRANT` e RLS como decisões separadas e verificáveis.
+
+## Sprint 2
+
+- Todas as 15 tabelas expostas habilitam e forçam RLS; `anon` não recebe grants.
+- Admin possui escrita; operator permanece read-only; gestores têm leitura limitada por `access_assignments`; atleta lê somente dados próprios/controlados.
+- Role, nível, vínculos e elencos são escritos apenas por admin nesta sprint.
+- Helpers `security definer` ficam em `private`, têm `search_path` vazio e execução revogada por padrão.
+- Audit triggers obtêm ator por `auth.uid()`; clientes não inserem, alteram ou apagam logs.
+- Constraints de exclusão impedem períodos ativos incompatíveis para vínculo e nível.
+
+RLS ainda precisa de teste de integração contra Postgres real porque Docker não está instalado nesta estação.

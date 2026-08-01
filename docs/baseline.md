@@ -42,7 +42,7 @@ npx playwright test
 
 - Clientes Supabase de navegador e servidor.
 - Renovação de cookies de sessão via Proxy do Next.js.
-- Validação de papel a partir de `app_metadata` controlado pelo servidor.
+- Naquele baseline, validação de papel partia de `app_metadata`; a Sprint 2 substituiu essa decisão por `profiles.role` consultado no banco.
 - Layouts responsivos, tokens UR e componentes UI fundamentais.
 - Configuração PWA inicial, Vitest e Playwright.
 

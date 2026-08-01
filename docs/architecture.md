@@ -14,6 +14,14 @@ Monólito modular Next.js com App Router. Componentes visuais ficam em `componen
 
 O navegador usa `createBrowserClient`; Server Components e actions usam `createServerClient`. `src/proxy.ts` renova cookies de sessão. No Next.js 16, Proxy é o nome atual do antigo Middleware.
 
+## Persistência e domínio
+
+Migrations pequenas em `supabase/migrations` definem identidade, estruturas esportivas, vínculos temporais, formações, auditoria, RLS, índices e grants. Repositories encapsulam Supabase; services validam comandos, autorização e invariantes de aplicação. Server Actions apenas adaptam formulário → service.
+
+`profiles.role` é a fonte de verdade. `access_assignments` dá escopo temporal a gestores de polo/equipe. O frontend nunca é autoridade; layouts, actions, services e RLS validam acesso no servidor/banco.
+
+Auditoria crítica usa triggers para não depender de um caminho específico de aplicação. Logs são append-only para roles comuns.
+
 ## Offline
 
 A operação de quadra será preparada com fila local, identificadores idempotentes, estados de sincronização e resolução explícita de conflitos. O service worker de dados não será criado antes dessas regras.

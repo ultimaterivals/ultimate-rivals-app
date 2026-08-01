@@ -1,13 +1,13 @@
 import type { ReactNode } from "react";
 import { PortalShell } from "@/components/layout/portal-shell";
-import { requireRole } from "@/lib/auth/session";
+import { requireAnyRole } from "@/lib/auth/session";
 
 export default async function AdminLayout({
   children,
 }: {
   children: ReactNode;
 }) {
-  const user = await requireRole([
+  const user = await requireAnyRole([
     "admin",
     "operator",
     "pole_manager",

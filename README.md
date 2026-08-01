@@ -1,6 +1,6 @@
 # Ultimate Rivals — Fundação técnica
 
-Base do aplicativo oficial do Ultimate Rivals. Este ciclo entrega infraestrutura, autenticação, papéis, portais vazios e design system; não implementa regras esportivas, pontuação ou dados reais.
+Base do aplicativo oficial do Ultimate Rivals. Inclui infraestrutura, identidade, domínio esportivo central, governança, RLS, auditoria e portais iniciais; não implementa partidas, pontuação, ranking ou dados reais.
 
 ## Requisitos
 
@@ -28,15 +28,30 @@ Preencha `NEXT_PUBLIC_SUPABASE_URL` e `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`. Nu
 - `npm run build`: build de produção
 - `npm run format`: Prettier
 
+## Supabase local
+
+O CLI está fixado nas dependências. Docker Desktop é necessário para executar o stack:
+
+```bash
+npx supabase start
+npx supabase db reset
+npx supabase db advisors
+npx supabase migration list --local
+```
+
+O reset aplica as migrations ordenadas e `supabase/seed.sql`, que contém apenas fixtures `[DEV]`. Nesta máquina, Docker não estava disponível; consulte `docs/sprint-2-handoff.md`.
+
 ## Rotas iniciais
 
 - `/`: página pública temporária
 - `/login`: autenticação
 - `/admin`: admin, operator, pole_manager e team_manager
+- `/admin/athletes`, `/admin/teams`, `/admin/poles`, `/admin/seasons`: cadastros centrais
 - `/athlete`: athlete
+- `/athlete/profile`: perfil esportivo read-only
 - `/api/health`: diagnóstico básico
 
-Os papéis devem ser gravados por processo administrativo seguro em `app_metadata.role`. Consulte [docs/security.md](docs/security.md).
+`profiles.role` é a fonte de verdade dos papéis e só pode ser alterado por processo administrativo seguro. Consulte [docs/security.md](docs/security.md).
 
 ## PWA e offline
 

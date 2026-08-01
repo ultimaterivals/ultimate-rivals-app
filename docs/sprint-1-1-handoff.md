@@ -9,7 +9,7 @@ A fundação está isolada em repositório próprio, com branch `main`, dependê
 - Não há chave secreta Supabase no código.
 - A chave publishable é fornecida por variável de ambiente.
 - Autorização de portal ocorre no servidor via `requireRole`.
-- O papel é lido de `app_metadata`, não de entrada do navegador ou `user_metadata`.
+- Na Sprint 1.1, o papel era lido de `app_metadata`; a Sprint 2 substituiu essa decisão por `profiles.role` como fonte de verdade.
 - Não existe endpoint para autopromoção de papel.
 - Componentes React não executam consultas ao banco nem regras esportivas.
 
