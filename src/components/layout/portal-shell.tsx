@@ -25,6 +25,7 @@ export function PortalShell({
     portal === "Atleta"
       ? [
           { href: "/athlete/profile", label: "Meu perfil", icon: UserRound },
+          { href: "/athlete/ur-play", label: "UR Play", icon: CalendarDays },
           {
             href: "/athlete/development",
             label: "Desenvolvimento",
@@ -48,6 +49,8 @@ export function PortalShell({
               label: "Avaliações",
               icon: CalendarDays,
             },
+            { href: "/admin/ur-play", label: "UR Play", icon: CalendarDays },
+            { href: "/ops/ur-play", label: "Court Ops", icon: MapPin },
           ];
   return (
     <div className="min-h-dvh lg:grid lg:grid-cols-[17rem_1fr]">

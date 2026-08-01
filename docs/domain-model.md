@@ -1,5 +1,7 @@
 # Modelo de domínio
 
+`ur_play_sessions` agrega quadras, escopos, inscrições, staff e notificações. Inscrições congelam equipe, polo e nível; check-ins têm registro idempotente próprio.
+
 `seasons` 1—3 `season_cycles`; atletas possuem processos de nivelamento, avaliações com scores estruturados, reviews de mudança, histórico em `athlete_levels` e proteções temporais.
 
 `teams` 1—N `team_manager_assignments`, `team_memberships`, `team_pole_assignments` e `team_rosters`. `team_rosters` 1—N `team_roster_members`. Membership e polo são temporais por temporada; registros encerrados permanecem históricos.

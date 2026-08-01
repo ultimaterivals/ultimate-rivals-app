@@ -1,5 +1,7 @@
 # Arquitetura
 
+UR Play usa Server Actions, services e repositories. Capacidade, promoção, check-in e walk-in ficam em RPCs transacionais PostgreSQL; RLS é a fronteira de autorização.
+
 Progressão usa RPCs `security invoker` para state machine e transações de nível. Critérios são dados configuráveis, não constantes de UI, e os scores estruturados permanecem separados das avaliações.
 
 O domínio de equipes segue UI → server actions → services → repositories/Supabase. Regras críticas também vivem em constraints e triggers Postgres. A troca de polo usa RPC `security invoker` transacional; helpers privilegiados ficam no schema `private`, têm `search_path` vazio e grants mínimos.

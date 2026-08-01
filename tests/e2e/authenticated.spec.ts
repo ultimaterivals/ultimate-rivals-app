@@ -148,3 +148,24 @@ test("athlete sees development journey without homologation controls", async ({
   await expect(page.getByRole("heading", { name: "Jornada" })).toBeVisible();
   await expect(page.getByRole("button", { name: /Homologar/ })).toHaveCount(0);
 });
+
+test("admin opens UR Play session management", async ({ page }) => {
+  await login(page, "admin@test.ur.local");
+  await page.goto("/admin/ur-play");
+  await expect(page.getByRole("heading", { name: "UR Play" })).toBeVisible();
+  await page.goto("/admin/ur-play/new");
+  await expect(page.getByRole("heading", { name: "Criar sessão" })).toBeVisible();
+});
+
+test("athlete opens UR Play registration portal", async ({ page }) => {
+  await login(page, "athlete@test.ur.local");
+  await page.goto("/athlete/ur-play");
+  await expect(page.getByRole("heading", { name: "UR Play" })).toBeVisible();
+  await expect(page.getByText(/Próximas sessões/)).toBeVisible();
+});
+
+test("operator opens mobile Court Ops", async ({ page }) => {
+  await login(page, "operator@test.ur.local");
+  await page.goto("/ops/ur-play");
+  await expect(page.getByRole("heading", { name: "Sessões de hoje" })).toBeVisible();
+});

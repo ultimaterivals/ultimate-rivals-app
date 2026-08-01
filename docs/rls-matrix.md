@@ -1,5 +1,7 @@
 # Matriz RLS
 
+UR Play: admin gerencia; staff acessa sessão atribuída; atleta acessa sessões publicadas e própria inscrição; gestores têm contexto de polo/equipe; anônimo não acessa.
+
 | Recurso Sprint 5  | Admin          | Operator                     | Pole manager       | Team manager       | Athlete            | Anon   |
 | ----------------- | -------------- | ---------------------------- | ------------------ | ------------------ | ------------------ | ------ |
 | Avaliações        | CRUD/validação | cria próprias, sem homologar | leitura do polo    | leitura da equipe  | próprias liberadas | negado |
