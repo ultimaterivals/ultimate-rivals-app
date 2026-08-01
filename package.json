@@ -1,0 +1,53 @@
+{
+  "name": "ultimate-rivals-platform",
+  "version": "0.1.0",
+  "private": true,
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint src tests *.config.* next.config.ts --max-warnings=0",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:e2e": "playwright test",
+    "format": "prettier --write \"src/**/*.{ts,tsx,css}\" \"tests/**/*.ts\" \"docs/**/*.md\" README.md package.json \"*.config.*\"",
+    "format:check": "prettier --check \"src/**/*.{ts,tsx,css}\" \"tests/**/*.ts\" \"docs/**/*.md\" README.md package.json \"*.config.*\""
+  },
+  "dependencies": {
+    "@hookform/resolvers": "5.2.2",
+    "@supabase/ssr": "0.12.4",
+    "@supabase/supabase-js": "2.111.0",
+    "@tanstack/react-query": "5.90.20",
+    "clsx": "2.1.1",
+    "lucide-react": "0.468.0",
+    "next": "16.2.12",
+    "react": "19.2.8",
+    "react-dom": "19.2.8",
+    "react-hook-form": "7.71.2",
+    "tailwind-merge": "3.5.0",
+    "zod": "4.3.6"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.62.1",
+    "@tailwindcss/postcss": "4.3.3",
+    "@testing-library/jest-dom": "6.9.1",
+    "@testing-library/react": "16.3.2",
+    "@types/node": "24.10.1",
+    "@types/react": "19.2.14",
+    "@types/react-dom": "19.2.3",
+    "@vitejs/plugin-react": "5.1.2",
+    "eslint": "9.39.2",
+    "eslint-config-next": "16.2.12",
+    "eslint-config-prettier": "10.1.8",
+    "jsdom": "27.4.0",
+    "prettier": "3.8.1",
+    "prettier-plugin-tailwindcss": "0.7.2",
+    "tailwindcss": "4.3.3",
+    "typescript": "5.9.3",
+    "vitest": "4.1.10"
+  }
+}

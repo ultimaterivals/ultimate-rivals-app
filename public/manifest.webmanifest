@@ -1,0 +1,10 @@
+{
+  "name": "Ultimate Rivals",
+  "short_name": "UR",
+  "description": "Plataforma oficial Ultimate Rivals",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#080808",
+  "theme_color": "#f4c430",
+  "icons": []
+}

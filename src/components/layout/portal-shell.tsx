@@ -1,0 +1,50 @@
+import { LayoutDashboard, LogOut, UserRound } from "lucide-react";
+import Link from "next/link";
+import type { ReactNode } from "react";
+import { BrandMark } from "./brand-mark";
+
+export function PortalShell({
+  portal,
+  userLabel,
+  children,
+}: {
+  portal: "Administração" | "Atleta";
+  userLabel: string;
+  children: ReactNode;
+}) {
+  const home = portal === "Atleta" ? "/athlete" : "/admin";
+  return (
+    <div className="min-h-dvh lg:grid lg:grid-cols-[17rem_1fr]">
+      <aside className="bg-ur-graphite border-b lg:min-h-dvh lg:border-r lg:border-b-0">
+        <div className="flex h-18 items-center justify-between px-5 lg:block lg:h-auto lg:p-6">
+          <BrandMark />
+          <span className="text-xs font-bold tracking-wider text-zinc-500 uppercase lg:mt-3 lg:block">
+            Portal {portal}
+          </span>
+        </div>
+        <nav aria-label="Navegação principal" className="hidden px-4 lg:block">
+          <Link
+            href={home}
+            className="rounded-ur bg-ur-gold text-ur-black flex min-h-11 items-center gap-3 px-3 font-bold"
+          >
+            <LayoutDashboard size={18} aria-hidden="true" />
+            Visão geral
+          </Link>
+        </nav>
+        <div className="hidden border-t p-4 lg:fixed lg:bottom-0 lg:block lg:w-[17rem]">
+          <p className="flex items-center gap-2 truncate text-sm text-zinc-300">
+            <UserRound size={16} aria-hidden="true" />
+            {userLabel}
+          </p>
+          <form action="/auth/signout" method="post">
+            <button className="rounded-ur mt-3 flex min-h-11 w-full cursor-pointer items-center gap-2 px-3 text-sm text-zinc-400 hover:bg-white/5 hover:text-white">
+              <LogOut size={16} aria-hidden="true" />
+              Sair
+            </button>
+          </form>
+        </div>
+      </aside>
+      <main className="min-w-0 p-5 sm:p-8 lg:p-10">{children}</main>
+    </div>
+  );
+}

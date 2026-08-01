@@ -1,0 +1,15 @@
+.next
+node_modules
+coverage
+playwright-report
+test-results
+Backups
+Design Site
+Ultimate
+UR
+UR 2026
+UR SIte
+ur-*
+_*
+*.html
+*.js
