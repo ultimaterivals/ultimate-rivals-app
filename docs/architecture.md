@@ -1,5 +1,7 @@
 # Arquitetura
 
+Atleta 360 mantém regras em validações, services e repositories. React coordena apresentação; busca, filtros e paginação executam no servidor, sem enviar PII desnecessária ao client.
+
 ## Visão
 
 Monólito modular Next.js com App Router. Componentes visuais ficam em `components`; casos de uso em `server/services`; acesso a dados em `server/repositories`; contratos de cada contexto em `features`. Componentes React não consultam o banco diretamente.

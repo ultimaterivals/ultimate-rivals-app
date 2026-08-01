@@ -1,5 +1,7 @@
 # Modelo de domínio
 
+Atleta possui código UR imutável, identidade esportiva, associação opcional a profile, histórico de nível, memberships e notas administrativas com visibilidade explícita.
+
 ## Princípios
 
 Identidade, cadastro esportivo, vínculos e autorização são conceitos separados. Vínculos e níveis possuem validade temporal; registros históricos são arquivados em vez de apagados; mudanças críticas são auditadas no banco.

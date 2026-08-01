@@ -1,5 +1,7 @@
 # Segurança
 
+Atleta 360 usa bucket privado, MIME/tamanho limitados, nomes UUID, RLS de ownership e trigger de proteção de campos. Managers e anon não leem a tabela privada de atletas.
+
 - A autorização usa `profiles.role` consultado no banco. `app_metadata` e `user_metadata` nunca decidem acesso.
 - A chave pública/publishable pode estar no cliente; `service_role` e secret keys nunca usam prefixo `NEXT_PUBLIC_`.
 - O Proxy renova a sessão e as áreas protegidas validam claims no servidor.

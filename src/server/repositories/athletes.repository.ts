@@ -40,7 +40,14 @@ export async function insertAthlete(
 }
 
 export interface AthleteProfileView {
+  id: string;
+  athleteCode: string;
   publicName: string;
+  bio: string | null;
+  avatarUrl: string | null;
+  heightCm: number | null;
+  dominantHand: string | null;
+  status: string;
   level: string | null;
   team: string | null;
   pole: string | null;
@@ -51,7 +58,9 @@ export async function getAthleteProfile(
 ): Promise<AthleteProfileView | null> {
   const { data: athlete, error } = await client
     .from("athletes")
-    .select("id,public_name")
+    .select(
+      "id,athlete_code,public_name,bio,avatar_url,height_cm,dominant_hand,status",
+    )
     .eq("profile_id", profileId)
     .maybeSingle();
   if (error) throw error;
@@ -79,7 +88,14 @@ export async function getAthleteProfile(
   const poleData = team?.poles;
   const pole = Array.isArray(poleData) ? poleData[0] : poleData;
   return {
+    id: athlete.id,
+    athleteCode: athlete.athlete_code,
     publicName: athlete.public_name,
+    bio: athlete.bio,
+    avatarUrl: athlete.avatar_url,
+    heightCm: athlete.height_cm,
+    dominantHand: athlete.dominant_hand,
+    status: athlete.status,
     level: level?.level ?? null,
     team: team?.name ?? null,
     pole: pole?.name ?? null,

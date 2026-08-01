@@ -1,5 +1,7 @@
 # Ultimate Rivals — Fundação técnica
 
+O módulo Atleta 360 oferece gestão em `/admin/athletes` e perfil mobile-first em `/athlete/profile`. Consulte `docs/athlete-domain.md`, `docs/athlete-privacy.md` e `docs/athlete-import.md`.
+
 Base do aplicativo oficial do Ultimate Rivals. Inclui infraestrutura, identidade, domínio esportivo central, governança, RLS, auditoria e portais iniciais; não implementa partidas, pontuação, ranking ou dados reais.
 
 ## Requisitos
