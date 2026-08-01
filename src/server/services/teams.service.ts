@@ -29,7 +29,6 @@ export async function createTeam(
   const { data: season, error: seasonError } = await client
     .from("seasons")
     .select("id")
-    .eq("status", "active")
     .order("starts_at", { ascending: false })
     .limit(1)
     .single();

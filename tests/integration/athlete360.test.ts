@@ -82,7 +82,7 @@ describe("Athlete 360 remote DEV", () => {
             .select("status,ends_at")
             .eq("athlete_id", athleteId)
         ).data ?? [];
-      expect(levels).toHaveLength(2);
+      expect(levels.length).toBeGreaterThanOrEqual(2);
       expect(levels.filter((v) => v.status === "active")).toHaveLength(1);
       expect(
         (

@@ -84,6 +84,18 @@ export default async function Page({
           {profile.membershipRole === "captain" ? "Capitão" : "Atleta"}
         </p>
       </Card>
+      <Card className="border-ur-gold/40">
+        <h2 className="text-xl font-black">Meu nível</h2>
+        <p className="text-ur-gold mt-2 text-4xl font-black uppercase">
+          {profile.level ?? "leveling"}
+        </p>
+        <Link
+          href="/athlete/development"
+          className="mt-3 inline-block font-bold"
+        >
+          Ver minha jornada →
+        </Link>
+      </Card>
       <Card>
         <h2 className="text-xl font-black">Formações atuais</h2>
         <div className="mt-3 grid gap-3">

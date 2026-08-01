@@ -117,3 +117,34 @@ test("athlete edits only permitted profile data", async ({ page }) => {
   await page.goto("/admin/athletes");
   await expect(page).toHaveURL(/\/athlete$/);
 });
+
+test("admin operates season and progression dashboards", async ({ page }) => {
+  await login(page, "admin@test.ur.local");
+  await page.goto("/admin/seasons");
+  await expect(
+    page.getByRole("heading", { name: /^Temporadas$/ }),
+  ).toBeVisible();
+  await page.goto("/admin/seasons/10000000-0000-4000-8000-000000000001");
+  await expect(
+    page.getByRole("heading", { name: /Ciclos mensais/ }),
+  ).toBeVisible();
+  await page.goto("/admin/leveling");
+  await expect(
+    page.getByRole("heading", { name: /^Nivelamento$/ }),
+  ).toBeVisible();
+  await page.goto("/admin/assessments");
+  await expect(page.getByRole("heading", { name: /^Avalia/ })).toBeVisible();
+  await expect(page.getByText(/TECHNICAL/)).toBeVisible();
+});
+
+test("athlete sees development journey without homologation controls", async ({
+  page,
+}) => {
+  await login(page, "athlete@test.ur.local");
+  await page.goto("/athlete/development");
+  await expect(
+    page.getByRole("heading", { name: "Desenvolvimento" }),
+  ).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Jornada" })).toBeVisible();
+  await expect(page.getByRole("button", { name: /Homologar/ })).toHaveCount(0);
+});

@@ -23,7 +23,14 @@ export function PortalShell({
     portal === "Atleta" ? "/athlete" : portal === "Equipe" ? "/team" : "/admin";
   const links =
     portal === "Atleta"
-      ? [{ href: "/athlete/profile", label: "Meu perfil", icon: UserRound }]
+      ? [
+          { href: "/athlete/profile", label: "Meu perfil", icon: UserRound },
+          {
+            href: "/athlete/development",
+            label: "Desenvolvimento",
+            icon: CalendarDays,
+          },
+        ]
       : portal === "Equipe"
         ? [
             { href: "/team/athletes", label: "Atletas", icon: UserRound },
@@ -35,6 +42,12 @@ export function PortalShell({
             { href: "/admin/teams", label: "Equipes", icon: UsersRound },
             { href: "/admin/poles", label: "Polos", icon: MapPin },
             { href: "/admin/seasons", label: "Temporadas", icon: CalendarDays },
+            { href: "/admin/leveling", label: "Nivelamento", icon: UserRound },
+            {
+              href: "/admin/assessments",
+              label: "Avaliações",
+              icon: CalendarDays,
+            },
           ];
   return (
     <div className="min-h-dvh lg:grid lg:grid-cols-[17rem_1fr]">

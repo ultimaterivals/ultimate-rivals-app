@@ -1,5 +1,7 @@
 # Segurança
 
+Somente admin homologa níveis, corrections e proteções. Operator cria avaliações, mas não aprova reviews. Managers têm leitura esportiva contextual; atleta lê somente avaliações e feedbacks explicitamente liberados.
+
 O bucket privado `team-logos` limita JPEG/PNG/WebP a 5 MB e usa a primeira pasta UUID como escopo da equipe. Admin gerencia qualquer escudo; gestor somente o próprio; atleta e gestor de polo têm leitura relevante. A atualização de `teams` por gestor é protegida por trigger e só aceita `logo_url`/`updated_at`.
 
 Atleta 360 usa bucket privado, MIME/tamanho limitados, nomes UUID, RLS de ownership e trigger de proteção de campos. Managers e anon não leem a tabela privada de atletas.

@@ -1,5 +1,11 @@
 # Matriz RLS
 
+| Recurso Sprint 5  | Admin          | Operator                     | Pole manager       | Team manager       | Athlete            | Anon   |
+| ----------------- | -------------- | ---------------------------- | ------------------ | ------------------ | ------------------ | ------ |
+| Avaliações        | CRUD/validação | cria próprias, sem homologar | leitura do polo    | leitura da equipe  | próprias liberadas | negado |
+| Reviews/proteções | CRUD/homologa  | leitura                      | leitura contextual | leitura contextual | próprias           | negado |
+| Ciclos/temporadas | CRUD/transição | leitura                      | leitura            | leitura            | leitura            | negado |
+
 | Recurso           | Admin                    | Team manager                   | Pole manager       | Athlete           | Anon   |
 | ----------------- | ------------------------ | ------------------------------ | ------------------ | ----------------- | ------ |
 | Equipe            | CRUD                     | leitura própria; logo próprio  | leitura do polo    | leitura vinculada | negado |
