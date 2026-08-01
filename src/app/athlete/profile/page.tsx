@@ -75,6 +75,33 @@ export default async function Page({
         ))}
       </div>
       <Card>
+        <h2 className="text-xl font-black">Minha equipe</h2>
+        <p className="mt-3 text-2xl font-black">
+          {profile.team ?? "Sem equipe"}
+        </p>
+        <p className="text-zinc-400">
+          {profile.pole ?? "Sem polo"} ·{" "}
+          {profile.membershipRole === "captain" ? "Capitão" : "Atleta"}
+        </p>
+      </Card>
+      <Card>
+        <h2 className="text-xl font-black">Formações atuais</h2>
+        <div className="mt-3 grid gap-3">
+          {profile.formations.length === 0 ? (
+            <p className="text-zinc-500">Nenhuma formação ativa.</p>
+          ) : (
+            profile.formations.map((item) => (
+              <div key={item.id} className="border-t pt-3">
+                <p className="font-black">{item.name ?? item.format}</p>
+                <p className="text-zinc-400">
+                  {item.format} · {item.category} · {item.level.toUpperCase()}
+                </p>
+              </div>
+            ))
+          )}
+        </div>
+      </Card>
+      <Card>
         <h2 className="text-xl font-black">Identidade esportiva</h2>
         <div className="mt-4 grid gap-3 sm:grid-cols-2">
           <p>

@@ -1,5 +1,7 @@
 # Arquitetura
 
+O domínio de equipes segue UI → server actions → services → repositories/Supabase. Regras críticas também vivem em constraints e triggers Postgres. A troca de polo usa RPC `security invoker` transacional; helpers privilegiados ficam no schema `private`, têm `search_path` vazio e grants mínimos.
+
 Atleta 360 mantém regras em validações, services e repositories. React coordena apresentação; busca, filtros e paginação executam no servidor, sem enviar PII desnecessária ao client.
 
 ## Visão

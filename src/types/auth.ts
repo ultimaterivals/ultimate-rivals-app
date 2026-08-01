@@ -15,7 +15,7 @@ export const roleHome: Record<AppRole, string> = {
   admin: "/admin",
   operator: "/admin",
   pole_manager: "/",
-  team_manager: "/",
+  team_manager: "/team",
   athlete: "/athlete",
   public: "/",
 };

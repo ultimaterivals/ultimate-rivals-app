@@ -15,20 +15,27 @@ export function PortalShell({
   userLabel,
   children,
 }: {
-  portal: "Administração" | "Atleta";
+  portal: "Administração" | "Atleta" | "Equipe";
   userLabel: string;
   children: ReactNode;
 }) {
-  const home = portal === "Atleta" ? "/athlete" : "/admin";
+  const home =
+    portal === "Atleta" ? "/athlete" : portal === "Equipe" ? "/team" : "/admin";
   const links =
     portal === "Atleta"
       ? [{ href: "/athlete/profile", label: "Meu perfil", icon: UserRound }]
-      : [
-          { href: "/admin/athletes", label: "Atletas", icon: UserRound },
-          { href: "/admin/teams", label: "Equipes", icon: UsersRound },
-          { href: "/admin/poles", label: "Polos", icon: MapPin },
-          { href: "/admin/seasons", label: "Temporadas", icon: CalendarDays },
-        ];
+      : portal === "Equipe"
+        ? [
+            { href: "/team/athletes", label: "Atletas", icon: UserRound },
+            { href: "/team/formations", label: "Formações", icon: UsersRound },
+            { href: "/team/roster", label: "Elenco", icon: UsersRound },
+          ]
+        : [
+            { href: "/admin/athletes", label: "Atletas", icon: UserRound },
+            { href: "/admin/teams", label: "Equipes", icon: UsersRound },
+            { href: "/admin/poles", label: "Polos", icon: MapPin },
+            { href: "/admin/seasons", label: "Temporadas", icon: CalendarDays },
+          ];
   return (
     <div className="min-h-dvh lg:grid lg:grid-cols-[17rem_1fr]">
       <aside className="bg-ur-graphite border-b lg:min-h-dvh lg:border-r lg:border-b-0">

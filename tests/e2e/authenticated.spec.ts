@@ -44,9 +44,43 @@ test("athlete signs in, sees own profile and cannot access admin", async ({
 
 test("team manager cannot access global admin", async ({ page }) => {
   await login(page, "teammanager@test.ur.local");
-  await expect(page).toHaveURL(/\/$/);
+  await expect(page).toHaveURL(/\/team$/);
+  await expect(page.getByText("Clube oficial")).toBeVisible();
+  await page.goto("/team/formations");
+  await expect(page.getByRole("heading", { name: /^Forma/ })).toBeVisible();
   await page.goto("/admin");
-  await expect(page).toHaveURL(/\/$/);
+  await expect(page).toHaveURL(/\/team$/);
+});
+
+test("admin creates a fictitious sports team", async ({ page }, testInfo) => {
+  await login(page, "admin@test.ur.local");
+  await page.goto("/admin/teams/new");
+  const suffix = `${testInfo.project.name}-${Date.now()}`.toLowerCase();
+  await page
+    .getByPlaceholder("Nome", { exact: true })
+    .fill(`[TEST] Team ${suffix}`);
+  await page.getByPlaceholder("slug-da-equipe").fill(`test-team-${suffix}`);
+  await page.getByRole("combobox").selectOption({ index: 1 });
+  await page.getByRole("button", { name: "Criar equipe" }).click();
+  await expect(page).toHaveURL(/\/admin\/teams\/[a-f0-9-]+$/, {
+    timeout: 20_000,
+  });
+  await expect(
+    page.getByRole("heading", { name: `[TEST] Team ${suffix}` }),
+  ).toBeVisible();
+  await expect(page.getByRole("heading", { name: /de polo$/ })).toBeVisible();
+});
+
+test("athlete sees team context but no edit controls", async ({ page }) => {
+  await login(page, "athlete@test.ur.local");
+  await page.goto("/athlete/profile");
+  await expect(
+    page.getByRole("heading", { name: "Minha equipe" }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("heading", { name: /^Forma.*atuais$/ }),
+  ).toBeVisible();
+  await expect(page.getByRole("button", { name: /Criar/i })).toHaveCount(0);
 });
 
 test("admin completes Athlete 360 lifecycle", async ({ page }, testInfo) => {

@@ -1,5 +1,7 @@
 # Modelo de domínio
 
+`teams` 1—N `team_manager_assignments`, `team_memberships`, `team_pole_assignments` e `team_rosters`. `team_rosters` 1—N `team_roster_members`. Membership e polo são temporais por temporada; registros encerrados permanecem históricos.
+
 Atleta possui código UR imutável, identidade esportiva, associação opcional a profile, histórico de nível, memberships e notas administrativas com visibilidade explícita.
 
 ## Princípios

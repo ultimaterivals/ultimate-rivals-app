@@ -1,5 +1,15 @@
 # Matriz RLS
 
+| Recurso           | Admin                    | Team manager                   | Pole manager       | Athlete           | Anon   |
+| ----------------- | ------------------------ | ------------------------------ | ------------------ | ----------------- | ------ |
+| Equipe            | CRUD                     | leitura própria; logo próprio  | leitura do polo    | leitura vinculada | negado |
+| Responsáveis      | CRUD                     | leitura própria                | negado             | negado            | negado |
+| Memberships       | CRUD                     | criar/encerrar na própria      | leitura do polo    | leitura própria   | negado |
+| Formações/membros | CRUD                     | criar/editar/encerrar próprias | leitura do polo    | leitura relevante | negado |
+| Histórico de polo | CRUD via fluxo admin     | leitura própria                | leitura do polo    | leitura vinculada | negado |
+| Escudos           | CRUD                     | CRUD da pasta própria          | leitura do polo    | leitura vinculada | negado |
+| Audit logs        | leitura, sem adulteração | leitura autorizada             | leitura autorizada | sem escrita       | negado |
+
 | Entidade                   | Admin                      | Operator           | Pole manager        | Team manager                         | Athlete                | Public |
 | -------------------------- | -------------------------- | ------------------ | ------------------- | ------------------------------------ | ---------------------- | ------ |
 | profiles                   | CRUD, exceto delete físico | próprio perfil (R) | próprio perfil (R)  | próprio perfil (R)                   | próprio perfil (R)     | negar  |

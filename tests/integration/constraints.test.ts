@@ -46,7 +46,7 @@ describe("database invariants", () => {
         await client.from("team_roster_members").insert({
           roster_id: ids.rosterA,
           athlete_id: ids.athleteA,
-          role: "reserve",
+          role: "starter",
           status: "active",
           joined_at: "2026-02-01T00:00:00Z",
         })
