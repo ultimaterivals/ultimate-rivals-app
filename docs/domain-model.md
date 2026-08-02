@@ -4,6 +4,8 @@
 
 `matches` agrega dois `match_sides` e seus `match_participants`; `match_queue_entries` representa disponibilidade por sessão.
 
+Cada lado pode agregar `match_squad_members`: quatro titulares e até três reservas em fours. A cadeia é `team_roster` (formação oficial) → `match_squad_members` (convocação) → `match_participants` (escalação/participação efetiva). Nenhuma dessas etapas implica automaticamente a seguinte.
+
 `seasons` 1—3 `season_cycles`; atletas possuem processos de nivelamento, avaliações com scores estruturados, reviews de mudança, histórico em `athlete_levels` e proteções temporais.
 
 `teams` 1—N `team_manager_assignments`, `team_memberships`, `team_pole_assignments` e `team_rosters`. `team_rosters` 1—N `team_roster_members`. Membership e polo são temporais por temporada; registros encerrados permanecem históricos.
@@ -54,3 +56,4 @@ Identidade, cadastro esportivo, vínculos e autorização são conceitos separad
 - Formação precisa pertencer a equipe/temporada coerentes com seus membros; validação cruzada adicional fica nos services.
 - Role, nível e vínculos não são alteráveis pelo próprio atleta.
 - Nenhuma tabela armazena pontuação ou ranking.
+- Reserva presente permanece fora de `match_participants` até promoção pré-jogo; start congela squad e quadra.

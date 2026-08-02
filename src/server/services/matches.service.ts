@@ -12,16 +12,23 @@ export async function createMatch(
   input: unknown,
 ) {
   const value = createMatchSchema.parse(input);
-  const { data, error } = await client.rpc("create_court_ops_match", {
-    target_session: value.sessionId,
-    target_court: value.courtId,
-    target_format: value.formatId,
-    target_category: value.categoryId,
-    target_level: value.level,
-    side_a: value.sideA,
-    side_b: value.sideB,
-    operation_id: value.operationId,
-  });
+  const { data, error } = await client.rpc(
+    "create_court_ops_match_with_squad",
+    {
+      target_session: value.sessionId,
+      target_court: value.courtId,
+      target_format: value.formatId,
+      target_category: value.categoryId,
+      target_level: value.level,
+      side_a: value.sideA,
+      side_b: value.sideB,
+      side_a_reserves: value.sideAReserves,
+      side_b_reserves: value.sideBReserves,
+      side_a_roster: value.sideARosterId,
+      side_b_roster: value.sideBRosterId,
+      operation_id: value.operationId,
+    },
+  );
   if (error) throw error;
   return data;
 }

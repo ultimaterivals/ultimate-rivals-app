@@ -1,5 +1,6 @@
 import { expect, test } from "@playwright/test";
 import type { Page } from "@playwright/test";
+import { createSquadE2EFixture } from "./squad-fixture";
 
 const password = process.env.UR_TEST_PASSWORD ?? "";
 if (!password)
@@ -181,6 +182,7 @@ test("operator opens mobile Court Ops", async ({ page }) => {
 test("operator mounts, calls, starts and abandons a Court Ops match", async ({
   page,
 }) => {
+  test.setTimeout(120_000);
   const sessionId = process.env.UR_TEST_COURT_OPS_SESSION_ID;
   if (!sessionId) throw new Error("UR_TEST_COURT_OPS_SESSION_ID is required.");
   await login(page, "operator@test.ur.local");
@@ -283,5 +285,165 @@ test("athlete reads session Court Ops state without edit controls", async ({
   await expect(page.getByRole("heading", { name: /Court Ops/ })).toBeVisible();
   await expect(
     page.getByRole("button", { name: /INICIAR JOGO|CHAMAR ATLETAS/ }),
+  ).toHaveCount(0);
+});
+
+test("operator completes fours, reserves, lineup and court workflow", async ({
+  page,
+}) => {
+  test.setTimeout(180_000);
+  const fixture = await createSquadE2EFixture();
+  const relogin = async (email: string) => {
+    await page.context().clearCookies();
+    await login(page, email);
+  };
+  const openBuilder = async (categoryId: string) => {
+    await page.goto(
+      `/ops/ur-play/${fixture.sessionId}/court-ops/new?court=${fixture.courts[0]}`,
+    );
+    await page.getByLabel("Formato").selectOption(fixture.foursId);
+    await page.getByLabel("Categoria").selectOption(categoryId);
+    await page.locator('select[name="level"]').selectOption(fixture.level);
+  };
+
+  await login(page, "operator@test.ur.local");
+  await openBuilder(fixture.femaleId);
+  const femaleIds = fixture.generated.filter((_, index) => index % 2 === 0);
+  for (const [index, athleteId] of femaleIds.slice(0, 4).entries())
+    await page
+      .locator('select[name="sideA"]')
+      .nth(index)
+      .selectOption(athleteId);
+  for (const [index, athleteId] of femaleIds.slice(4, 8).entries())
+    await page
+      .locator('select[name="sideB"]')
+      .nth(index)
+      .selectOption(athleteId);
+  await page.getByRole("button", { name: "CRIAR JOGO NA FILA" }).click();
+  await expect(page).toHaveURL(/\/ops\/matches\/[a-f0-9-]+$/, {
+    timeout: 20_000,
+  });
+  await expect(page.getByText("Nenhuma reserva convocada.")).toHaveCount(2);
+  await page
+    .getByPlaceholder("Motivo do cancelamento")
+    .fill("[TEST] female fours complete");
+  await page.getByRole("button", { name: "CANCELAR" }).click();
+  await expect(page.getByText("CANCELLED", { exact: true })).toBeVisible();
+
+  await openBuilder(fixture.mixedId);
+  const sideA = page.locator('select[name="sideA"]'),
+    sideB = page.locator('select[name="sideB"]');
+  for (const [index, athleteId] of [
+    fixture.generated[0]!,
+    fixture.generated[2]!,
+    fixture.generated[4]!,
+    fixture.generated[6]!,
+  ].entries())
+    await sideA.nth(index).selectOption(athleteId);
+  for (const [index, athleteId] of [
+    fixture.generated[1]!,
+    fixture.generated[3]!,
+    fixture.generated[5]!,
+    fixture.generated[7]!,
+  ].entries())
+    await sideB.nth(index).selectOption(athleteId);
+  await expect(
+    page.getByText(/composição mixed inválida/).first(),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("button", { name: "CRIAR JOGO NA FILA" }),
+  ).toBeDisabled();
+
+  for (const [index, athleteId] of fixture.generated.slice(0, 4).entries())
+    await sideA.nth(index).selectOption(athleteId);
+  for (const [index, athleteId] of fixture.generated.slice(4, 8).entries())
+    await sideB.nth(index).selectOption(athleteId);
+  await page
+    .getByText(/BANCO · 0\/3 reservas/)
+    .first()
+    .click();
+  for (let index = 0; index < 3; index++)
+    await page
+      .getByRole("button", { name: "ADICIONAR RESERVA" })
+      .first()
+      .click();
+  await page
+    .getByText(/BANCO · 0\/3 reservas/)
+    .first()
+    .click();
+  for (let index = 0; index < 3; index++)
+    await page
+      .getByRole("button", { name: "ADICIONAR RESERVA" })
+      .first()
+      .click();
+  const sideAReserves = page.locator('select[name="sideAReserves"]'),
+    sideBReserves = page.locator('select[name="sideBReserves"]');
+  for (const [index, athleteId] of [
+    fixture.athleteId,
+    fixture.generated[8],
+    fixture.generated[9],
+  ].entries())
+    await sideAReserves.nth(index).selectOption(athleteId);
+  for (const [index, athleteId] of fixture.generated.slice(10, 13).entries())
+    await sideBReserves.nth(index).selectOption(athleteId);
+  await page.getByRole("button", { name: "CRIAR JOGO NA FILA" }).click();
+  await expect(page).toHaveURL(/\/ops\/matches\/[a-f0-9-]+$/, {
+    timeout: 20_000,
+  });
+  const matchUrl = page.url();
+  await expect(
+    page.getByText(fixture.athleteName, { exact: false }).first(),
+  ).toBeVisible();
+
+  await relogin("athlete@test.ur.local");
+  await page.goto(`/athlete/ur-play/${fixture.sessionId}`);
+  await expect(page.getByText("VOCÊ FOI CONVOCADO")).toBeVisible();
+  await expect(page.getByText(/^RESERVA/)).toBeVisible();
+  await expect(
+    page.getByRole("button", { name: "COLOCAR EM QUADRA" }),
+  ).toHaveCount(0);
+
+  await relogin("operator@test.ur.local");
+  await page.goto(matchUrl);
+  let reserveCard = page
+    .getByText(fixture.athleteName, { exact: false })
+    .first()
+    .locator(
+      "xpath=ancestor::div[contains(@class,'border-zinc-800') and contains(@class,'grid')][1]",
+    );
+  await reserveCard.locator('select[name="presence"]').selectOption("present");
+  await reserveCard.getByRole("button", { name: "CONFIRMAR PRESENÇA" }).click();
+  reserveCard = page
+    .getByText(fixture.athleteName, { exact: false })
+    .first()
+    .locator(
+      "xpath=ancestor::div[contains(@class,'border-zinc-800') and contains(@class,'grid')][1]",
+    );
+  await reserveCard
+    .getByLabel("Titular que sai")
+    .selectOption({ label: fixture.sameGenderStarterName });
+  await reserveCard.getByRole("button", { name: "COLOCAR EM QUADRA" }).click();
+
+  await relogin("athlete@test.ur.local");
+  await page.goto(`/athlete/ur-play/${fixture.sessionId}`);
+  await expect(page.getByText("VOCÊ ESTÁ ESCALADO")).toBeVisible();
+  await expect(page.getByText("TITULAR", { exact: true })).toBeVisible();
+  await expect(
+    page.getByRole("button", { name: "ALTERAR QUADRA" }),
+  ).toHaveCount(0);
+
+  await relogin("operator@test.ur.local");
+  await page.goto(matchUrl);
+  await page.getByLabel("Alterar quadra").selectOption(fixture.courts[2]!);
+  await page.getByRole("button", { name: "ALTERAR QUADRA" }).click();
+  await expect(page.getByText("[TEST] E2E Squad Court 3")).toBeVisible();
+  for (const action of ["CHAMAR ATLETAS", "TODOS PRONTOS", "INICIAR JOGO"])
+    await page.getByRole("button", { name: action }).click();
+  await expect(page.getByText("READY FOR SCORING")).toBeVisible();
+  await expect(
+    page.getByRole("button", { name: "COLOCAR EM QUADRA" }),
+  ).toHaveCount(0);
+  await expect(
+    page.getByRole("button", { name: "ALTERAR QUADRA" }),
   ).toHaveCount(0);
 });

@@ -1,13 +1,20 @@
 import { describe, expect, it } from "vitest";
 import {
+  applyPreMatchSubstitution,
+  canAddReserve,
+  canChangeMatchCourt,
   canTransitionMatch,
   compatibleLevel,
+  confirmReservePresenceSchema,
   hasUniqueAthletes,
+  hasUniqueSquadAthletes,
+  promoteReserveToStarterSchema,
   requiredSideSize,
   restWarning,
   scoreCandidates,
   suggestSides,
   validMixedComposition,
+  validFoursSquad,
   validSideSizes,
 } from "./court-ops";
 
@@ -74,6 +81,24 @@ describe("Court Ops rules", () => {
     expect(result.sideB).toHaveLength(2);
     expect(result.warnings).toHaveLength(0);
   });
+  it("selects exactly eight active athletes for fours", () => {
+    const rows = Array.from({ length: 11 }, (_, index) => ({
+      athleteId: `fours-${index}`,
+      gamesPlayed: index < 8 ? 0 : 1,
+      queuedAt: `2026-01-01T${String(index).padStart(2, "0")}:00:00Z`,
+      lastMatchEndedAt: null,
+      recentPartners: [],
+      recentOpponents: [],
+    }));
+    const result = suggestSides(rows, "fours");
+    expect(result.sideA).toHaveLength(4);
+    expect(result.sideB).toHaveLength(4);
+    expect(
+      new Set([...result.sideA, ...result.sideB].map((row) => row.athleteId))
+        .size,
+    ).toBe(8);
+    expect(result.warnings).toHaveLength(0);
+  });
   it("avoids an immediate repeated partner when possible", () => {
     const rows = ["a", "b", "c", "d"].map((athleteId, index) => ({
       athleteId,
@@ -91,5 +116,63 @@ describe("Court Ops rules", () => {
         result.sideA.some((row) => row.athleteId === "c"),
     ).toBe(false);
     expect(partners).toHaveLength(4);
+  });
+  it.each([0, 1, 2, 3])(
+    "accepts a fours squad with four starters and %s reserves",
+    (reserveCount) =>
+      expect(validFoursSquad(["a", "b", "c", "d"], Array(reserveCount))).toBe(
+        true,
+      ),
+  );
+  it("rejects a fourth reserve and duplicate squad athlete", () => {
+    expect(canAddReserve(3)).toBe(false);
+    expect(validFoursSquad(["a", "b", "c", "d"], [1, 2, 3, 4])).toBe(false);
+    expect(
+      hasUniqueSquadAthletes(
+        ["a", "b", "c", "d"],
+        ["e", "f", "g", "h"],
+        ["i", "a"],
+        [],
+      ),
+    ).toBe(false);
+  });
+  it("promotes a reserve and moves the outgoing starter to the bench", () => {
+    expect(
+      applyPreMatchSubstitution(["a", "b", "c", "d"], ["r"], "b", "r"),
+    ).toEqual({
+      starters: ["a", "r", "c", "d"],
+      reserves: ["b"],
+    });
+  });
+  it("keeps mixed fours valid only after a gender-compatible substitution", () => {
+    expect(
+      validMixedComposition("fours", ["female", "female", "male", "male"]),
+    ).toBe(true);
+    expect(
+      validMixedComposition("fours", ["female", "male", "male", "male"]),
+    ).toBe(false);
+  });
+  it("distinguishes reserve presence from effective participation", () => {
+    expect(
+      confirmReservePresenceSchema.parse({
+        memberId: "10000000-0000-4000-8000-000000000001",
+        presence: "present",
+        reason: "Presença confirmada",
+        operationId: "10000000-0000-4000-8000-000000000002",
+      }).presence,
+    ).toBe("present");
+    expect(
+      promoteReserveToStarterSchema.parse({
+        reserveMemberId: "10000000-0000-4000-8000-000000000001",
+        participantId: "10000000-0000-4000-8000-000000000002",
+        outgoingDisposition: "bench",
+        reason: "Troca antes do início",
+        operationId: "10000000-0000-4000-8000-000000000003",
+      }).outgoingDisposition,
+    ).toBe("bench");
+  });
+  it("allows court reassignment and squad changes only before start", () => {
+    expect(canChangeMatchCourt("ready")).toBe(true);
+    expect(canChangeMatchCourt("in_progress")).toBe(false);
   });
 });
