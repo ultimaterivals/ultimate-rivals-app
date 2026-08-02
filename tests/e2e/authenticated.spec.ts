@@ -102,7 +102,15 @@ test("admin completes Athlete 360 lifecycle", async ({ page }, testInfo) => {
   await page.getByRole("button", { name: "Arquivar" }).click();
   await expect(page.getByRole("button", { name: "Reativar" })).toBeVisible();
   await page.getByRole("button", { name: "Reativar" }).click();
-  await expect(page.getByRole("button", { name: "Arquivar" })).toBeVisible();
+  await expect
+    .poll(
+      async () => {
+        await page.reload();
+        return page.getByRole("button", { name: "Arquivar" }).count();
+      },
+      { timeout: 20_000 },
+    )
+    .toBe(1);
 });
 
 test("athlete edits only permitted profile data", async ({ page }) => {
@@ -219,7 +227,7 @@ test("operator mounts, calls, starts and abandons a Court Ops match", async ({
     .poll(
       async () => {
         await page.reload();
-        return page.getByText("READY FOR SCORING").count();
+        return page.getByTestId("point-a").count();
       },
       { timeout: 20_000 },
     )
@@ -439,7 +447,7 @@ test("operator completes fours, reserves, lineup and court workflow", async ({
   await expect(page.getByText("[TEST] E2E Squad Court 3")).toBeVisible();
   for (const action of ["CHAMAR ATLETAS", "TODOS PRONTOS", "INICIAR JOGO"])
     await page.getByRole("button", { name: action }).click();
-  await expect(page.getByText("READY FOR SCORING")).toBeVisible();
+  await expect(page.getByTestId("point-a")).toBeVisible();
   await expect(
     page.getByRole("button", { name: "COLOCAR EM QUADRA" }),
   ).toHaveCount(0);

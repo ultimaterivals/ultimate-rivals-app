@@ -1,5 +1,15 @@
 # Matriz RLS
 
+| Papel               | Leitura de partida           | Registrar rally/ação | Homologar | Corrigir pós-homologação |
+| ------------------- | ---------------------------- | -------------------- | --------- | ------------------------ |
+| admin               | global                       | sim                  | sim       | sim                      |
+| session coordinator | sessão atribuída             | não                  | sim       | não                      |
+| session operator    | sessão atribuída             | sim                  | não       | não                      |
+| evaluator/media     | sessão atribuída             | sim, somente leitura | não       | não                      |
+| athlete             | própria partida              | não                  | não       | não                      |
+| team_manager        | partida de atleta gerenciado | não                  | não       | não                      |
+| anon                | não                          | não                  | não       | não                      |
+
 UR Play: admin gerencia; staff acessa sessão atribuída; atleta acessa sessões publicadas e própria inscrição; gestores têm contexto de polo/equipe; anônimo não acessa.
 
 Court Ops: admin e operator/coordinator atribuído operam; evaluator/media leem a sessão atribuída; atleta lê partidas próprias; team manager lê partidas de seus atletas; anon é negado.

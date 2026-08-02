@@ -1,5 +1,7 @@
 # Modelo de domínio
 
+O agregado de partida passou a incluir `match_scoring_rules`, rallies/correções append-only, ações técnicas versionadas, resultado e versões do resultado. O placar e as estatísticas são projeções reconstruíveis, não valores editáveis.
+
 `ur_play_sessions` agrega quadras, escopos, inscrições, staff e notificações. Inscrições congelam equipe, polo e nível; check-ins têm registro idempotente próprio.
 
 `matches` agrega dois `match_sides` e seus `match_participants`; `match_queue_entries` representa disponibilidade por sessão.

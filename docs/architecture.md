@@ -1,5 +1,7 @@
 # Arquitetura
 
+Scoring segue UI → Server Action → service → repository/RPC. Rallies são a fonte de verdade; views `security_invoker` derivam placar, game point, sequências e estatísticas. RPCs transacionais concentram lock, idempotência, revisão e homologação.
+
 UR Play usa Server Actions, services e repositories. Capacidade, promoção, check-in e walk-in ficam em RPCs transacionais PostgreSQL; RLS é a fronteira de autorização.
 
 Court Ops mantém sugestões puras no service e confirmações em RPC transacional. Índice parcial protege quadras e locks da fila protegem atletas sob concorrência.

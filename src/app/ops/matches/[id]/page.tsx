@@ -7,8 +7,11 @@ import {
   reservePresenceAction,
   transitionMatchAction,
 } from "@/features/court-ops/actions";
+import { ScoringConsole } from "@/features/scoring/scoring-console";
+import { requireUser } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
 import { getMatchPanel } from "@/server/repositories/court-ops.repository";
+import { getScoringPanel } from "@/server/repositories/scoring.repository";
 
 const next: Record<string, { status: string; label: string }> = {
   queued: { status: "called", label: "CHAMAR ATLETAS" },
@@ -26,6 +29,7 @@ type MatchParticipant = {
   id: string;
   athlete_id: string;
   position_order: number;
+  status: string;
   athletes: Athlete | Athlete[] | null;
 };
 type SquadMember = {
@@ -67,7 +71,9 @@ export default async function Page({
 }) {
   const { id } = await params,
     { error } = await searchParams,
-    match = await getMatchPanel(await createClient(), id),
+    client = await createClient(),
+    identity = await requireUser(),
+    match = await getMatchPanel(client, id),
     court = first(match.courts),
     format = first(match.competitive_formats),
     category = first(match.competitive_categories),
@@ -87,6 +93,37 @@ export default async function Page({
             sessionMatch.court_id === sessionCourt.court_id,
         ),
     );
+
+  const scoringEnabled = [
+      "in_progress",
+      "pending_review",
+      "completed",
+    ].includes(match.status),
+    scoring = scoringEnabled ? await getScoringPanel(client, id) : null,
+    { data: ownStaff } = await client
+      .from("ur_play_session_staff")
+      .select("role")
+      .eq("session_id", match.session_id)
+      .eq("profile_id", identity.userId)
+      .eq("status", "active"),
+    staffRoles = new Set((ownStaff ?? []).map((item) => item.role)),
+    canScore = identity.role === "admin" || staffRoles.has("operator"),
+    canHomologate = identity.role === "admin" || staffRoles.has("coordinator"),
+    scoringSides = sides.map((side) => ({
+      id: side.id,
+      side: side.side,
+      label:
+        first(side.teams)?.name ??
+        first(side.team_rosters)?.name ??
+        `Lado ${side.side}`,
+      participants: (side.match_participants ?? [])
+        .filter((participant) => participant.status === "active")
+        .map((participant) => ({
+          athleteId: participant.athlete_id,
+          name: first(participant.athletes)?.public_name ?? "Atleta",
+          code: first(participant.athletes)?.athlete_code ?? "—",
+        })),
+    }));
 
   return (
     <div className="grid gap-5">
@@ -350,6 +387,25 @@ export default async function Page({
       <strong className="text-center text-2xl">
         {match.status.toUpperCase()}
       </strong>
+      {scoring && (
+        <ScoringConsole
+          matchId={id}
+          matchStatus={match.status}
+          scoreboard={scoring.scoreboard}
+          sides={scoringSides}
+          rallies={scoring.rallies}
+          actions={scoring.actions}
+          result={scoring.result}
+          versions={scoring.versions}
+          summary={scoring.summary}
+          gamePointRallyNumber={
+            scoring.gamePoint?.game_point_rally_number ?? null
+          }
+          canScore={canScore}
+          canHomologate={canHomologate}
+          isAdmin={identity.role === "admin"}
+        />
+      )}
       {preStart && freeCourts.length > 0 && (
         <Card>
           <form
@@ -418,24 +474,21 @@ export default async function Page({
       )}
       {match.status === "in_progress" && (
         <>
-          <Card className="border-ur-gold">
-            <h2 className="font-black">REGISTRO DO JOGO</h2>
-            <p>Disponível na próxima etapa.</p>
-            <strong>READY FOR SCORING</strong>
-          </Card>
-          <form action={transitionMatchAction}>
-            <input type="hidden" name="matchId" value={id} />
-            <input type="hidden" name="sessionId" value={match.session_id} />
-            <input type="hidden" name="status" value="abandoned" />
-            <input
-              type="hidden"
-              name="reason"
-              value="Interrompida pela operação"
-            />
-            <Button type="submit" variant="secondary" className="w-full">
-              ABANDONAR PARTIDA
-            </Button>
-          </form>
+          {canScore && (
+            <form action={transitionMatchAction}>
+              <input type="hidden" name="matchId" value={id} />
+              <input type="hidden" name="sessionId" value={match.session_id} />
+              <input type="hidden" name="status" value="abandoned" />
+              <input
+                type="hidden"
+                name="reason"
+                value="Interrompida pela operação"
+              />
+              <Button type="submit" variant="secondary" className="w-full">
+                ABANDONAR PARTIDA
+              </Button>
+            </form>
+          )}
         </>
       )}
     </div>

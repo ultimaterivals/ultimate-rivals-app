@@ -26,7 +26,7 @@ export async function getCourtOpsDashboard(
     client
       .from("matches")
       .select(
-        "*,courts(name),competitive_formats(code,name),competitive_categories(code,name),match_sides(id,side,match_participants(id,athlete_id,position_order,athletes(athlete_code,public_name)),match_squad_members(id,athlete_id,squad_role,status,reserve_presence_status,position_order,athletes(athlete_code,public_name)))",
+        "*,courts(name),competitive_formats(code,name),competitive_categories(code,name),match_sides!match_sides_match_id_fkey(id,side,match_participants(id,athlete_id,position_order,athletes(athlete_code,public_name)),match_squad_members(id,athlete_id,squad_role,status,reserve_presence_status,position_order,athletes(athlete_code,public_name)))",
       )
       .eq("session_id", sessionId)
       .order("scheduled_order"),
@@ -52,7 +52,7 @@ export async function getMatchPanel(client: SupabaseClient, matchId: string) {
   const { data, error } = await client
     .from("matches")
     .select(
-      "*,courts(name),competitive_formats(code,name),competitive_categories(code,name),ur_play_sessions(name,ur_play_session_courts(court_id,status,courts(name))),match_sides(id,side,label,team_id,roster_id,teams(name),team_rosters(name),match_participants(id,athlete_id,registration_id,position_order,athletes(athlete_code,public_name,gender)),match_squad_members(id,athlete_id,registration_id,roster_id,initial_squad_role,squad_role,status,reserve_presence_status,position_order,called_at,confirmed_at,athletes(athlete_code,public_name,gender)))",
+      "*,courts(name),competitive_formats(code,name),competitive_categories(code,name),ur_play_sessions(name,ur_play_session_courts(court_id,status,courts(name))),match_sides!match_sides_match_id_fkey(id,side,label,team_id,roster_id,teams(name),team_rosters(name),match_participants(id,athlete_id,registration_id,status,position_order,athletes(athlete_code,public_name,gender)),match_squad_members(id,athlete_id,registration_id,roster_id,initial_squad_role,squad_role,status,reserve_presence_status,position_order,called_at,confirmed_at,athletes(athlete_code,public_name,gender)))",
     )
     .eq("id", matchId)
     .single();

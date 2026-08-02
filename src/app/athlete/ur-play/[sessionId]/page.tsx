@@ -25,7 +25,7 @@ export default async function Page({
       ? await c
           .from("match_queue_entries")
           .select(
-            "status,queued_at,current_match_id,matches(match_code,status,courts(name),match_sides(side,match_participants(athlete_id,athletes(public_name)),match_squad_members(athlete_id,initial_squad_role,squad_role,status,reserve_presence_status)))",
+            "status,queued_at,current_match_id,matches(match_code,status,courts(name),match_sides!match_sides_match_id_fkey(side,match_participants(athlete_id,athletes(public_name)),match_squad_members(athlete_id,initial_squad_role,squad_role,status,reserve_presence_status)))",
           )
           .eq("session_id", sessionId)
           .eq("athlete_id", athlete.id)
