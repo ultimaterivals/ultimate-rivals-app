@@ -28,6 +28,10 @@ Identidade, cadastro esportivo, vínculos e autorização são conceitos separad
 
 `profiles.role` é a fonte de verdade. `app_metadata` não decide autorização. Helpers server-side e RLS consultam o banco, evitando claims obsoletos e divergência silenciosa.
 
+## Athlete notifications
+
+`notifications` pertence a exatamente um atleta e referencia o fato gerador por `source_type`/`source_id`. A chave Ãºnica de idempotÃªncia garante no mÃ¡ximo uma entrega por fato. NotificaÃ§Ãµes sÃ£o eventos de apresentaÃ§Ã£o; partidas, inscriÃ§Ãµes, avaliaÃ§Ãµes, nÃ­veis, vÃ­nculos e rankings continuam como fontes de verdade.
+
 ## Estrutura esportiva
 
 - `seasons`: calendário controlado, sem regra de ranking.

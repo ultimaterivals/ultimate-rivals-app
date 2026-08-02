@@ -1,5 +1,13 @@
 # Matriz RLS
 
+## Sprint 11 notifications
+
+| Recurso                       | Admin               | Athlete owner              | Outro athlete | Team manager  | Pole manager  | Anon            |
+| ----------------------------- | ------------------- | -------------------------- | ------------- | ------------- | ------------- | --------------- |
+| `notifications` SELECT        | Leitura operacional | PrÃ³prias linhas           | Negado        | Nenhuma linha | Nenhuma linha | Sem privilÃ©gio |
+| `notifications` UPDATE        | Sem fluxo client    | Somente `read_at` prÃ³prio | Negado        | Negado        | Negado        | Negado          |
+| `notifications` INSERT/DELETE | Trigger/sistema     | Negado                     | Negado        | Negado        | Negado        | Negado          |
+
 ## Sprint 10
 
 | Recurso            | Admin           | Operator | Pole manager | Team manager   | Athlete  | Anon    |

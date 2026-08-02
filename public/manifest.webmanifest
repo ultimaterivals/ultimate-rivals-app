@@ -1,10 +1,19 @@
 {
   "name": "Ultimate Rivals",
-  "short_name": "UR",
-  "description": "Plataforma oficial Ultimate Rivals",
-  "start_url": "/",
+  "short_name": "Ultimate Rivals",
+  "description": "Sua carreira esportiva no Ultimate Rivals",
+  "start_url": "/athlete",
+  "scope": "/",
   "display": "standalone",
   "background_color": "#080808",
   "theme_color": "#f4c430",
-  "icons": []
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/icons/app-icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
 }

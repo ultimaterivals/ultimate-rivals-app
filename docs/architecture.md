@@ -36,6 +36,10 @@ Migrations pequenas em `supabase/migrations` definem identidade, estruturas espo
 
 Auditoria crítica usa triggers para não depender de um caminho específico de aplicação. Logs são append-only para roles comuns.
 
+## Athlete experience aggregation
+
+O shell do atleta permanece server-rendered. `athlete-experience.service` resolve a identidade uma vez e agrega leituras Supabase independentes em paralelo, evitando waterfalls sequenciais e N+1 de participantes. As pÃ¡ginas consomem projeÃ§Ãµes tipadas; componentes client ficam limitados ao estado da navegaÃ§Ã£o, instalaÃ§Ã£o opcional e formulÃ¡rios de Server Actions.
+
 ## Offline
 
 A operação de quadra será preparada com fila local, identificadores idempotentes, estados de sincronização e resolução explícita de conflitos. O service worker de dados não será criado antes dessas regras.

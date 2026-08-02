@@ -14,6 +14,14 @@ const hands: Record<string, string> = {
   right: "Direita",
   ambidextrous: "Ambidestra",
 };
+const profileLinks = [
+  ["Minha equipe", "/athlete/profile"],
+  ["Desenvolvimento", "/athlete/development"],
+  ["Jornada", "/athlete/journey"],
+  ["Pontos", "/athlete/points"],
+  ["Jogos", "/athlete/matches"],
+  ["ConfiguraÃ§Ãµes", "/athlete/profile/edit"],
+] as const;
 export default async function Page({
   searchParams,
 }: {
@@ -127,6 +135,29 @@ export default async function Page({
               : "Não informada"}
           </p>
         </div>
+      </Card>
+      <Card>
+        <h2 className="text-xl font-black">Minha carreira</h2>
+        <nav
+          aria-label="OpÃ§Ãµes do perfil"
+          className="mt-4 grid gap-2 sm:grid-cols-2"
+        >
+          {profileLinks.map(([label, href]) => (
+            <Link
+              key={label}
+              href={href}
+              className="rounded-ur flex min-h-12 items-center justify-between border px-4 font-bold text-zinc-300 hover:border-zinc-500 hover:text-white"
+            >
+              {label}
+              <span aria-hidden="true">â†’</span>
+            </Link>
+          ))}
+        </nav>
+        <form action="/auth/signout" method="post" className="mt-3">
+          <button className="min-h-11 cursor-pointer font-black text-zinc-400 hover:text-white">
+            SAIR
+          </button>
+        </form>
       </Card>
     </div>
   );

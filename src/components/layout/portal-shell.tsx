@@ -9,16 +9,26 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import type { ReactNode } from "react";
+import {
+  AthleteDesktopNavigation,
+  AthleteMobileNavigation,
+  NotificationLink,
+} from "@/components/athlete/athlete-navigation";
+import { InstallAppPrompt } from "@/components/athlete/install-app-prompt";
 import { BrandMark } from "./brand-mark";
 
 export function PortalShell({
   portal,
   userLabel,
   children,
+  notificationCount = 0,
+  athleteIdentity,
 }: {
   portal: "Administração" | "Atleta" | "Equipe";
   userLabel: string;
   children: ReactNode;
+  notificationCount?: number;
+  athleteIdentity?: { publicName: string; athleteCode: string } | null;
 }) {
   const home =
     portal === "Atleta" ? "/athlete" : portal === "Equipe" ? "/team" : "/admin";
@@ -71,28 +81,32 @@ export function PortalShell({
             Portal {portal}
           </span>
         </div>
-        <nav
-          aria-label="Navegação principal"
-          className="hidden space-y-1 px-4 lg:block"
-        >
-          <Link
-            href={home}
-            className="rounded-ur bg-ur-gold text-ur-black flex min-h-11 items-center gap-3 px-3 font-bold"
+        {portal === "Atleta" ? (
+          <AthleteDesktopNavigation />
+        ) : (
+          <nav
+            aria-label="Navegação principal"
+            className="hidden space-y-1 px-4 lg:block"
           >
-            <LayoutDashboard size={18} aria-hidden="true" />
-            Visão geral
-          </Link>
-          {links.map(({ href, label, icon: Icon }) => (
             <Link
-              key={href}
-              href={href}
-              className="rounded-ur flex min-h-11 items-center gap-3 px-3 font-medium text-zinc-300 transition-colors hover:bg-white/5 hover:text-white"
+              href={home}
+              className="rounded-ur bg-ur-gold text-ur-black flex min-h-11 items-center gap-3 px-3 font-bold"
             >
-              <Icon size={18} aria-hidden="true" />
-              {label}
+              <LayoutDashboard size={18} aria-hidden="true" />
+              Visão geral
             </Link>
-          ))}
-        </nav>
+            {links.map(({ href, label, icon: Icon }) => (
+              <Link
+                key={href}
+                href={href}
+                className="rounded-ur flex min-h-11 items-center gap-3 px-3 font-medium text-zinc-300 transition-colors hover:bg-white/5 hover:text-white"
+              >
+                <Icon size={18} aria-hidden="true" />
+                {label}
+              </Link>
+            ))}
+          </nav>
+        )}
         <div className="hidden border-t p-4 lg:fixed lg:bottom-0 lg:block lg:w-[17rem]">
           <p className="flex items-center gap-2 truncate text-sm text-zinc-300">
             <UserRound size={16} aria-hidden="true" />
@@ -106,7 +120,36 @@ export function PortalShell({
           </form>
         </div>
       </aside>
-      <main className="min-w-0 p-5 sm:p-8 lg:p-10">{children}</main>
+      <div className="min-w-0">
+        {portal === "Atleta" && (
+          <header className="sticky top-0 z-30 flex min-h-16 items-center justify-between border-b border-zinc-900 bg-[#080808]/95 px-4 backdrop-blur sm:px-8 lg:px-10">
+            <div className="min-w-0">
+              <p className="truncate text-sm font-black">
+                {athleteIdentity?.publicName ?? "Atleta"}
+              </p>
+              <p className="text-[.65rem] font-bold tracking-[.16em] text-zinc-500 uppercase">
+                {athleteIdentity?.athleteCode ?? "Ultimate Rivals"}
+              </p>
+            </div>
+            <NotificationLink count={notificationCount} />
+          </header>
+        )}
+        <main
+          className={
+            portal === "Atleta"
+              ? "min-w-0 p-4 pb-24 sm:p-8 sm:pb-24 lg:p-10"
+              : "min-w-0 p-5 sm:p-8 lg:p-10"
+          }
+        >
+          {children}
+        </main>
+      </div>
+      {portal === "Atleta" && (
+        <>
+          <AthleteMobileNavigation />
+          <InstallAppPrompt />
+        </>
+      )}
     </div>
   );
 }

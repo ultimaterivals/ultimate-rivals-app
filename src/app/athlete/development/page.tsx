@@ -3,6 +3,7 @@ import { requireRole } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
 import { getDevelopment } from "@/server/repositories/progression.repository";
 import { redirect } from "next/navigation";
+import Link from "next/link";
 export default async function Page() {
   const a = await requireRole("athlete"),
     c = await createClient(),
@@ -21,7 +22,7 @@ export default async function Page() {
         title="Desenvolvimento"
         description="Evolução esportiva homologada pela comissão técnica."
       />
-      <Card className="bg-gradient-to-br from-amber-400/20 to-black">
+      <Card className="ranking-hero border-ur-gold/40">
         <p className="text-ur-gold text-sm font-bold uppercase">Meu nível</p>
         <strong className="text-5xl uppercase">
           {current?.level ?? "leveling"}
@@ -43,6 +44,12 @@ export default async function Page() {
           <span>↓</span>
           <span>N1 Elite</span>
         </div>
+        <Link
+          href="/athlete/journey"
+          className="text-ur-gold mt-5 inline-flex min-h-11 items-center font-black"
+        >
+          VER TIMELINE COMPLETA â†’
+        </Link>
       </Card>
       <Card>
         <h2 className="text-xl font-black">Feedbacks liberados</h2>

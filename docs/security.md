@@ -24,6 +24,12 @@ Atleta 360 usa bucket privado, MIME/tamanho limitados, nomes UUID, RLS de owners
 
 O Supabase passou a não expor automaticamente novas tabelas à Data API em novos projetos. Migrações futuras devem tratar `GRANT` e RLS como decisões separadas e verificáveis.
 
+## Athlete experience privacy
+
+A Home usa a sessÃ£o autenticada e seleciona somente campos utilizados. O e-mail de login e campos privados do Atleta 360 nÃ£o sÃ£o enviados ao shell. O detalhe de jogo nasce das participaÃ§Ãµes do atleta logado, portanto um UUID arbitrÃ¡rio nÃ£o contorna a RLS.
+
+`notifications` tem RLS forÃ§ada, nenhum grant para anon, ownership por `private.current_athlete_id()` e permissÃ£o de UPDATE limitada Ã  coluna `read_at`. FunÃ§Ãµes privadas de enqueue nÃ£o podem ser executadas por public, anon ou authenticated.
+
 ## Sprint 2
 
 - Todas as 15 tabelas expostas habilitam e forçam RLS; `anon` não recebe grants.

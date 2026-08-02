@@ -143,7 +143,9 @@ test.describe.serial("Sprint 8 scoring journey", () => {
     await expect(
       page.getByRole("heading", { name: "HISTÓRICO" }),
     ).toBeVisible();
-    await expect(page.getByText(fixture.athleteName).first()).toHaveCount(0);
+    await expect(
+      page.getByRole("main").getByText(fixture.athleteName).first(),
+    ).toHaveCount(0);
     await expect(page.getByRole("table")).toHaveCount(0);
     await expect(
       page.getByRole("button", { name: /REPROCESSAR|EDITAR|AJUSTAR/ }),

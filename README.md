@@ -1,5 +1,9 @@
 # Ultimate Rivals — Fundação técnica
 
+## Athlete Experience (Sprint 11)
+
+O portal autenticado agora possui Home contextual, central de performance, histÃ³rico e detalhe pessoal de partidas, timeline de jornada, inbox privada, navegaÃ§Ã£o mobile definitiva e shell PWA instalÃ¡vel. Todos os indicadores continuam derivados dos domÃ­nios homologados de temporadas, Court Ops, scoring, progressÃ£o, elencos, ledger e rankings.
+
 ## Rankings oficiais (Sprint 10)
 
 Classificações públicas e autenticadas estão em `/rankings`, `/admin/rankings`, `/athlete/ranking` e `/team/ranking`. Consulte `docs/ranking-classification.md`, `docs/ranking-tiebreakers.md`, `docs/ranking-snapshots.md`, `docs/public-rankings.md` e `docs/team-pole-rankings.md`.

@@ -25,6 +25,19 @@ body {
   font-family: var(--font-sans);
 }
 
+html {
+  background: var(--color-ur-black);
+  overscroll-behavior-y: none;
+}
+
+button,
+a,
+input,
+select,
+textarea {
+  touch-action: manipulation;
+}
+
 .ranking-hero {
   background:
     radial-gradient(
