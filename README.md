@@ -1,5 +1,9 @@
 # Ultimate Rivals — Fundação técnica
 
+## Rankings oficiais (Sprint 10)
+
+Classificações públicas e autenticadas estão em `/rankings`, `/admin/rankings`, `/athlete/ranking` e `/team/ranking`. Consulte `docs/ranking-classification.md`, `docs/ranking-tiebreakers.md`, `docs/ranking-snapshots.md`, `docs/public-rankings.md` e `docs/team-pole-rankings.md`.
+
 O Scoring Engine registra rallies, deriva o placar até 11, permite ações técnicas opcionais e conduz revisão/homologação com histórico auditável. Consulte `docs/scoring-engine.md`, `docs/rally-model.md` e `docs/match-homologation.md`.
 
 UR Play oferece sessões, inscrições, waitlist, check-in e presença. Consulte `docs/ur-play-domain.md` e `docs/sprint-6-handoff.md`.

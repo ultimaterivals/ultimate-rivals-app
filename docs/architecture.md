@@ -1,5 +1,7 @@
 # Arquitetura
 
+Ranking usa `ranking_transactions` append-only como fonte privada e uma projeção relacional sanitizada/reconstruível para leituras frequentes sem N+1. Processamentos atualizam temporada e ciclos; snapshots são append-only. Views `security_invoker` expõem a projeção, nunca o ledger.
+
 Scoring segue UI → Server Action → service → repository/RPC. Rallies são a fonte de verdade; views `security_invoker` derivam placar, game point, sequências e estatísticas. RPCs transacionais concentram lock, idempotência, revisão e homologação.
 
 UR Play usa Server Actions, services e repositories. Capacidade, promoção, check-in e walk-in ficam em RPCs transacionais PostgreSQL; RLS é a fronteira de autorização.

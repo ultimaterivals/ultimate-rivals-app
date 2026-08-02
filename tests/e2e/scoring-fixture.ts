@@ -67,13 +67,21 @@ export async function createScoringE2EFixture(underReview: boolean) {
     .select("id")
     .eq("code", "mixed")
     .single();
+  const { data: seasonCycle } = await admin
+    .from("season_cycles")
+    .select("id")
+    .eq("season_id", reference.season)
+    .order("cycle_number")
+    .limit(1)
+    .single();
   if (
     !operatorProfile?.id ||
     !coordinatorProfile?.id ||
     !athlete?.id ||
     !level?.level ||
     !format?.id ||
-    !category?.id
+    !category?.id ||
+    !seasonCycle?.id
   )
     throw new Error("Scoring E2E reference data is incomplete.");
 
@@ -133,6 +141,7 @@ export async function createScoringE2EFixture(underReview: boolean) {
     await admin.from("ur_play_sessions").insert({
       id: sessionId,
       season_id: reference.season,
+      season_cycle_id: seasonCycle.id,
       pole_id: reference.pole,
       venue_id: venueId,
       name: `[TEST] Sprint 8 E2E ${sessionId.slice(0, 6)}`,

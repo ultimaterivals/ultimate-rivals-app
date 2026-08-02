@@ -9,10 +9,10 @@ export default function HomePage() {
       <header className="mx-auto flex max-w-7xl items-center justify-between px-5 py-5 sm:px-8">
         <BrandMark />
         <Link
-          href="/login"
+          href="/rankings"
           className="rounded-ur border-ur-line hover:border-ur-gold inline-flex min-h-11 items-center border px-4 text-sm font-bold tracking-wider uppercase transition-colors"
         >
-          Entrar
+          Rankings
         </Link>
       </header>
       <section className="mx-auto grid max-w-7xl gap-10 px-5 py-20 sm:px-8 lg:grid-cols-[1.4fr_.6fr] lg:items-end lg:py-32">
@@ -27,10 +27,10 @@ export default function HomePage() {
             preparada para atletas, equipes, polos e operações.
           </p>
           <Link
-            href="/login"
+            href="/rankings"
             className="rounded-ur bg-ur-gold text-ur-black hover:bg-ur-gold-strong mt-8 inline-flex min-h-12 items-center gap-3 px-6 font-bold tracking-wider uppercase transition-colors"
           >
-            Acessar plataforma <ArrowRight size={18} aria-hidden="true" />
+            Ver rankings <ArrowRight size={18} aria-hidden="true" />
           </Link>
         </div>
         <Card className="border-ur-gold/20">

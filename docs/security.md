@@ -1,5 +1,7 @@
 # Segurança
 
+`anon` lê apenas projeções sanitizadas de ranking. Ledger bruto, contribuições, snapshots e operações permanecem revogados. Tabelas novas têm RLS habilitada/forçada. Escritas exigem admin; correções retroativas exigem motivo auditado.
+
 Scoring é mutado somente por RPC autenticada. Admin controla revisão/correção; operator pontua apenas sessão atribuída; coordinator homologa apenas sessão atribuída; evaluator/media, atleta e team manager são leitura escopada; anon é negado. Tabelas de eventos têm RLS forçada, grants mínimos e triggers append-only/auditoria.
 
 No UR Play, operadores atuam apenas em sessão atribuída, atletas acessam a própria inscrição e todas as tabelas usam RLS forçada e auditoria.

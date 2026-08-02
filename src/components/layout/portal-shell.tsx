@@ -28,6 +28,7 @@ export function PortalShell({
           { href: "/athlete/profile", label: "Meu perfil", icon: UserRound },
           { href: "/athlete/ur-play", label: "UR Play", icon: CalendarDays },
           { href: "/athlete/points", label: "Meus pontos", icon: Trophy },
+          { href: "/athlete/ranking", label: "Meu ranking", icon: Trophy },
           {
             href: "/athlete/development",
             label: "Desenvolvimento",
@@ -39,6 +40,7 @@ export function PortalShell({
             { href: "/team/athletes", label: "Atletas", icon: UserRound },
             { href: "/team/formations", label: "Formações", icon: UsersRound },
             { href: "/team/roster", label: "Elenco", icon: UsersRound },
+            { href: "/team/ranking", label: "Ranking", icon: Trophy },
           ]
         : [
             { href: "/admin/athletes", label: "Atletas", icon: UserRound },
@@ -57,6 +59,7 @@ export function PortalShell({
               label: "Motor de pontos",
               icon: Trophy,
             },
+            { href: "/admin/rankings", label: "Rankings", icon: Trophy },
             { href: "/ops/ur-play", label: "Court Ops", icon: MapPin },
           ];
   return (

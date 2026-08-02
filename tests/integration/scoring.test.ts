@@ -45,12 +45,20 @@ describe("Sprint 8 scoring on remote DEV", () => {
       .select("id")
       .eq("code", "mixed")
       .single();
+    const { data: seasonCycle } = await admin
+      .from("season_cycles")
+      .select("id")
+      .eq("season_id", ids.season)
+      .order("cycle_number")
+      .limit(1)
+      .single();
     expect(operatorProfile?.id, "operator profile").toBeTruthy();
     expect(coordinatorProfile?.id, "coordinator profile").toBeTruthy();
     expect(existingAthletes?.length, "linked athlete").toBe(1);
     expect(athleteLevel?.level, "linked athlete level").toBeTruthy();
     expect(format?.id, "doubles format").toBeTruthy();
     expect(mixed?.id, "mixed category").toBeTruthy();
+    expect(seasonCycle?.id, "season cycle").toBeTruthy();
 
     const genderA = existingAthletes![0]!.gender,
       athletes = [ids.athleteA, generated[0], generated[1], generated[2]],
@@ -123,6 +131,7 @@ describe("Sprint 8 scoring on remote DEV", () => {
         await admin.from("ur_play_sessions").insert({
           id: sessionId,
           season_id: ids.season,
+          season_cycle_id: seasonCycle!.id,
           pole_id: ids.poleA,
           venue_id: venueId,
           name: `[TEST] Sprint 8 ${sessionId.slice(0, 6)}`,

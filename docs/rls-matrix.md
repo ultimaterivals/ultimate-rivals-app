@@ -1,5 +1,15 @@
 # Matriz RLS
 
+## Sprint 10
+
+| Recurso            | Admin           | Operator | Pole manager | Team manager   | Athlete  | Anon    |
+| ------------------ | --------------- | -------- | ------------ | -------------- | -------- | ------- |
+| Ranking sanitizado | leitura/RPC     | leitura  | leitura      | leitura        | leitura  | leitura |
+| Contribuições      | todas           | todas    | próprio polo | própria equipe | próprias | nenhuma |
+| Snapshots          | captura/leitura | leitura  | próprio polo | própria equipe | próprios | nenhuma |
+| Operações          | leitura/escrita | nenhuma  | nenhuma      | nenhuma        | nenhuma  | nenhuma |
+| Ledger bruto       | tudo            | contexto | próprio polo | própria equipe | próprio  | nenhuma |
+
 | Papel               | Leitura de partida           | Registrar rally/ação | Homologar | Corrigir pós-homologação |
 | ------------------- | ---------------------------- | -------------------- | --------- | ------------------------ |
 | admin               | global                       | sim                  | sim       | sim                      |
