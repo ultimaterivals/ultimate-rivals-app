@@ -2,6 +2,8 @@
 
 UR Play: admin gerencia; staff acessa sessão atribuída; atleta acessa sessões publicadas e própria inscrição; gestores têm contexto de polo/equipe; anônimo não acessa.
 
+Court Ops: admin e operator/coordinator atribuído operam; evaluator/media leem a sessão atribuída; atleta lê partidas próprias; team manager lê partidas de seus atletas; anon é negado.
+
 | Recurso Sprint 5  | Admin          | Operator                     | Pole manager       | Team manager       | Athlete            | Anon   |
 | ----------------- | -------------- | ---------------------------- | ------------------ | ------------------ | ------------------ | ------ |
 | Avaliações        | CRUD/validação | cria próprias, sem homologar | leitura do polo    | leitura da equipe  | próprias liberadas | negado |

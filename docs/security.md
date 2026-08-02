@@ -2,6 +2,8 @@
 
 No UR Play, operadores atuam apenas em sessão atribuída, atletas acessam a própria inscrição e todas as tabelas usam RLS forçada e auditoria.
 
+Em Court Ops, apenas admin ou staff operacional atribuído muta via RPC. Atleta e gestor possuem somente leitura contextual; anônimo não recebe grants.
+
 Somente admin homologa níveis, corrections e proteções. Operator cria avaliações, mas não aprova reviews. Managers têm leitura esportiva contextual; atleta lê somente avaliações e feedbacks explicitamente liberados.
 
 O bucket privado `team-logos` limita JPEG/PNG/WebP a 5 MB e usa a primeira pasta UUID como escopo da equipe. Admin gerencia qualquer escudo; gestor somente o próprio; atleta e gestor de polo têm leitura relevante. A atualização de `teams` por gestor é protegida por trigger e só aceita `logo_url`/`updated_at`.

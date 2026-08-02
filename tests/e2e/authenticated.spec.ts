@@ -152,20 +152,136 @@ test("athlete sees development journey without homologation controls", async ({
 test("admin opens UR Play session management", async ({ page }) => {
   await login(page, "admin@test.ur.local");
   await page.goto("/admin/ur-play");
-  await expect(page.getByRole("heading", { name: "UR Play" })).toBeVisible();
+  await expect(
+    page.getByRole("heading", { name: "UR Play", exact: true }),
+  ).toBeVisible();
   await page.goto("/admin/ur-play/new");
-  await expect(page.getByRole("heading", { name: "Criar sessão" })).toBeVisible();
+  await expect(
+    page.getByRole("heading", { name: "Criar sessão" }),
+  ).toBeVisible();
 });
 
 test("athlete opens UR Play registration portal", async ({ page }) => {
   await login(page, "athlete@test.ur.local");
   await page.goto("/athlete/ur-play");
-  await expect(page.getByRole("heading", { name: "UR Play" })).toBeVisible();
+  await expect(
+    page.getByRole("heading", { name: "UR Play", exact: true }),
+  ).toBeVisible();
   await expect(page.getByText(/Próximas sessões/)).toBeVisible();
 });
 
 test("operator opens mobile Court Ops", async ({ page }) => {
   await login(page, "operator@test.ur.local");
   await page.goto("/ops/ur-play");
-  await expect(page.getByRole("heading", { name: "Sessões de hoje" })).toBeVisible();
+  await expect(
+    page.getByRole("heading", { name: "Sessões de hoje" }),
+  ).toBeVisible();
+});
+
+test("operator mounts, calls, starts and abandons a Court Ops match", async ({
+  page,
+}) => {
+  const sessionId = process.env.UR_TEST_COURT_OPS_SESSION_ID;
+  if (!sessionId) throw new Error("UR_TEST_COURT_OPS_SESSION_ID is required.");
+  await login(page, "operator@test.ur.local");
+  await page.goto(`/ops/ur-play/${sessionId}/court-ops`);
+  await expect(page.getByRole("heading", { name: "Court Ops" })).toBeVisible();
+  await page.getByRole("link", { name: "MONTAR JOGO" }).first().click();
+  await page.getByLabel("Categoria").selectOption({ label: "Misto" });
+  await page.locator('select[name="level"]').selectOption("n2");
+  const athleteSelects = page.getByLabel(/LADO [AB] · atleta/);
+  const playerValue = async (number: number) =>
+    athleteSelects
+      .first()
+      .locator("option")
+      .filter({ hasText: `Player ${number}` })
+      .getAttribute("value");
+  await athleteSelects.nth(0).selectOption((await playerValue(5))!);
+  await athleteSelects.nth(1).selectOption((await playerValue(6))!);
+  await athleteSelects.nth(2).selectOption((await playerValue(7))!);
+  await athleteSelects.nth(3).selectOption((await playerValue(8))!);
+  await page.getByRole("button", { name: "CRIAR JOGO NA FILA" }).click();
+  await expect(page).toHaveURL(/\/ops\/matches\/[a-f0-9-]+$/, {
+    timeout: 20_000,
+  });
+  await page.getByRole("button", { name: "CHAMAR ATLETAS" }).click();
+  await expect(
+    page.getByRole("button", { name: "TODOS PRONTOS" }),
+  ).toBeVisible();
+  await page.getByRole("button", { name: "TODOS PRONTOS" }).click();
+  await expect(
+    page.getByRole("button", { name: "INICIAR JOGO" }),
+  ).toBeVisible();
+  await page.getByRole("button", { name: "INICIAR JOGO" }).click();
+  await expect
+    .poll(
+      async () => {
+        await page.reload();
+        return page.getByText("READY FOR SCORING").count();
+      },
+      { timeout: 20_000 },
+    )
+    .toBe(1);
+  await page.getByRole("button", { name: "ABANDONAR PARTIDA" }).click();
+  await expect
+    .poll(
+      async () => {
+        await page.reload();
+        return page.getByText("ABANDONED", { exact: true }).count();
+      },
+      { timeout: 20_000 },
+    )
+    .toBe(1);
+});
+
+test("admin views Court Ops operation on desktop", async ({ page }) => {
+  const sessionId = process.env.UR_TEST_COURT_OPS_SESSION_ID;
+  if (!sessionId) throw new Error("UR_TEST_COURT_OPS_SESSION_ID is required.");
+  await login(page, "admin@test.ur.local");
+  await page.goto(`/ops/ur-play/${sessionId}/court-ops`);
+  await expect(page.getByRole("heading", { name: "Court Ops" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "AGUARDANDO" })).toBeVisible();
+});
+
+test("operator reviews and confirms deterministic match suggestion", async ({
+  page,
+}) => {
+  const sessionId = process.env.UR_TEST_COURT_OPS_SESSION_ID;
+  if (!sessionId) throw new Error("UR_TEST_COURT_OPS_SESSION_ID is required.");
+  await login(page, "operator@test.ur.local");
+  await page.goto(`/ops/ur-play/${sessionId}/court-ops`);
+  await page.locator('select[name="level"]').selectOption("n2");
+  await page.getByRole("button", { name: "GERAR SUGESTÃO" }).click();
+  await expect(page.getByText(/Sugestão baseada em/)).toBeVisible();
+  await page.getByRole("button", { name: "CONFIRMAR SUGESTÃO" }).click();
+  await expect(page).toHaveURL(/\/ops\/matches\/[a-f0-9-]+$/, {
+    timeout: 20_000,
+  });
+  await expect(page.getByText("QUEUED", { exact: true })).toBeVisible();
+  await page
+    .getByPlaceholder("Motivo do cancelamento")
+    .fill("[TEST] suggestion cleanup");
+  await page.getByRole("button", { name: "CANCELAR" }).click();
+  await expect
+    .poll(
+      async () => {
+        await page.reload();
+        return page.getByText("CANCELLED", { exact: true }).count();
+      },
+      { timeout: 20_000 },
+    )
+    .toBe(1);
+});
+
+test("athlete reads session Court Ops state without edit controls", async ({
+  page,
+}) => {
+  const sessionId = process.env.UR_TEST_COURT_OPS_SESSION_ID;
+  if (!sessionId) throw new Error("UR_TEST_COURT_OPS_SESSION_ID is required.");
+  await login(page, "athlete@test.ur.local");
+  await page.goto(`/athlete/ur-play/${sessionId}`);
+  await expect(page.getByRole("heading", { name: /Court Ops/ })).toBeVisible();
+  await expect(
+    page.getByRole("button", { name: /INICIAR JOGO|CHAMAR ATLETAS/ }),
+  ).toHaveCount(0);
 });

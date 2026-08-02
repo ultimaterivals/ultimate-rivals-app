@@ -1,4 +1,5 @@
 import { Button, Card, PageHeader } from "@/components/ui";
+import Link from "next/link";
 import {
   addWalkInAction,
   checkinUrPlayAction,
@@ -41,6 +42,14 @@ export default async function Page({
         title={d.session.name}
         description={`${present} / ${d.session.capacity} PRESENTES · ${d.registrations.filter((r) => r.attendance_status === "expected").length} A CAMINHO · ${d.registrations.filter((r) => r.registration_status === "waitlisted").length} LISTA DE ESPERA`}
       />
+      {d.session.ready_for_matchmaking && (
+        <Link
+          href={`/ops/ur-play/${id}/court-ops`}
+          className="rounded-ur bg-ur-gold text-ur-black min-h-14 px-5 py-4 text-center font-black"
+        >
+          ABRIR COURT OPS
+        </Link>
+      )}
       <form>
         <input
           name="q"

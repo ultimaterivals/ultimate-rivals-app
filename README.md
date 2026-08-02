@@ -2,6 +2,8 @@
 
 UR Play oferece sessões, inscrições, waitlist, check-in e presença. Consulte `docs/ur-play-domain.md` e `docs/sprint-6-handoff.md`.
 
+Court Ops acrescenta fila, montagem manual/assistida, lados e alocação de quadras. Consulte `docs/court-ops-domain.md` e `docs/sprint-7-handoff.md`.
+
 Temporadas trimestrais, nivelamento, avaliações e progressão estão disponíveis em `/admin/seasons`, `/admin/leveling`, `/admin/assessments` e `/athlete/development`.
 
 Os módulos Atleta 360 e Equipes oferecem gestão esportiva em `/admin/athletes` e `/admin/teams`, portal do gestor em `/team` e perfil mobile-first em `/athlete/profile`. Consulte `docs/team-domain.md`, `docs/team-roster-rules.md` e `docs/team-pole-model.md`.

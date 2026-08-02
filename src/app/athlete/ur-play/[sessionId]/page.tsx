@@ -20,7 +20,17 @@ export default async function Page({
       .eq("profile_id", a.userId)
       .single(),
     d = await getUrPlaySession(c, sessionId),
-    mine = d.registrations.find((r) => r.athlete_id === athlete?.id);
+    mine = d.registrations.find((r) => r.athlete_id === athlete?.id),
+    { data: queueEntry } = athlete
+      ? await c
+          .from("match_queue_entries")
+          .select(
+            "status,queued_at,current_match_id,matches(match_code,status,courts(name),match_sides(side,match_participants(athlete_id,athletes(public_name))))",
+          )
+          .eq("session_id", sessionId)
+          .eq("athlete_id", athlete.id)
+          .maybeSingle()
+      : { data: null };
   return (
     <div className="grid gap-6">
       <PageHeader eyebrow="UR Play" title={d.session.name} />
@@ -65,6 +75,46 @@ export default async function Page({
           <strong>INSCRIÇÕES ENCERRADAS</strong>
         )}
       </Card>
+      {queueEntry && (
+        <Card className="border-ur-gold">
+          <p className="text-xs font-bold text-zinc-500 uppercase">Court Ops</p>
+          <h2 className="text-2xl font-black">
+            {queueEntry.status === "playing"
+              ? "EM JOGO"
+              : queueEntry.current_match_id
+                ? "PRÓXIMO JOGO"
+                : "VOCÊ ESTÁ NA FILA"}
+          </h2>
+          {!queueEntry.current_match_id && <p>Aguardando próximo jogo</p>}
+          {queueEntry.matches && (
+            <p>
+              {
+                (Array.isArray(queueEntry.matches)
+                  ? queueEntry.matches[0]
+                  : queueEntry.matches
+                )?.match_code
+              }
+              {" · "}
+              {
+                (Array.isArray(queueEntry.matches)
+                  ? queueEntry.matches[0]
+                  : queueEntry.matches
+                )?.courts
+                  ? Array.isArray(
+                      (Array.isArray(queueEntry.matches)
+                        ? queueEntry.matches[0]
+                        : queueEntry.matches)?.courts,
+                    )
+                    ? (Array.isArray(queueEntry.matches)
+                        ? queueEntry.matches[0]
+                        : queueEntry.matches)?.courts?.[0]?.name
+                    : undefined
+                  : undefined
+              }
+            </p>
+          )}
+        </Card>
+      )}
     </div>
   );
 }
