@@ -72,6 +72,16 @@ test.describe.serial("Sprint 8 scoring journey", () => {
     await expect(
       page.getByRole("button", { name: /PONTO|HOMOLOGAR/ }),
     ).toHaveCount(0);
+    await page.goto("/athlete/points");
+    await expect(
+      page.getByRole("heading", { name: "Meus pontos" }),
+    ).toBeVisible();
+    await expect(
+      page.getByText("Pontos da temporada", { exact: true }),
+    ).toBeVisible();
+    await expect(
+      page.getByRole("button", { name: /REPROCESSAR|EDITAR/ }),
+    ).toHaveCount(0);
   });
 
   test("coordinator homologates the reviewed result", async ({
@@ -104,5 +114,39 @@ test.describe.serial("Sprint 8 scoring journey", () => {
     await page.getByTestId("homologate-result").click();
     await expect(page.getByTestId("match-review")).toContainText("homologated");
     await expect(page.getByText(/^v[2-9]/).first()).toBeVisible();
+    await page.goto("/admin/ranking-engine");
+    await expect(
+      page.getByRole("heading", { name: "Motor de pontuação" }),
+    ).toBeVisible();
+    await page.goto(`/admin/ranking-engine/matches/${fixture.matchId}`);
+    await expect(
+      page.getByRole("heading", { name: "TRANSAÇÕES" }),
+    ).toBeVisible();
+    const before = await page.getByTestId("ranking-transaction").count();
+    await page.getByRole("button", { name: "REPROCESSAR PONTUAÇÃO" }).click();
+    await expect(
+      page.getByText("Sem duplicação: entrada inalterada."),
+    ).toBeVisible();
+    const after = await page.getByTestId("ranking-transaction").count();
+    expect(after).toBe(before);
+  });
+
+  test("athlete reads homologated points on desktop without ranking position", async ({
+    page,
+  }, testInfo) => {
+    test.skip(testInfo.project.name !== "chromium");
+    await login(page, "athlete@test.ur.local");
+    await page.goto("/athlete/points");
+    await expect(
+      page.getByRole("heading", { name: "Meus pontos" }),
+    ).toBeVisible();
+    await expect(
+      page.getByRole("heading", { name: "HISTÓRICO" }),
+    ).toBeVisible();
+    await expect(page.getByText(fixture.athleteName).first()).toHaveCount(0);
+    await expect(page.getByRole("table")).toHaveCount(0);
+    await expect(
+      page.getByRole("button", { name: /REPROCESSAR|EDITAR|AJUSTAR/ }),
+    ).toHaveCount(0);
   });
 });

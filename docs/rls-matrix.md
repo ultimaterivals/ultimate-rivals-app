@@ -58,3 +58,12 @@ Court Ops: admin e operator/coordinator atribuído operam; evaluator/media leem 
 - Escrita de team/pole managers é conservadoramente adiada até haver casos de uso homologados.
 - Policies usam role e escopo consultados no banco; nunca confiam em role enviado pelo browser.
 - O Data API não recebe política ampla “authenticated can do everything”.
+
+# Sprint 9
+
+| Recurso                     | Admin              | Coordinator                       | Operator                  | Athlete                 | Team manager                        | Pole manager                     | Anon   |
+| --------------------------- | ------------------ | --------------------------------- | ------------------------- | ----------------------- | ----------------------------------- | -------------------------------- | ------ |
+| Ledger                      | leitura/reprocessa | lê e processa na sessão atribuída | somente leitura na sessão | somente próprias linhas | contribuições do snapshot da equipe | agregado/contribuições do polo   | negado |
+| Runs                        | todos              | sessão atribuída                  | sessão atribuída          | negado                  | negado                              | somente se coordinator atribuído | negado |
+| Regras                      | gestão versionada  | leitura                           | leitura                   | leitura                 | leitura                             | leitura                          | negado |
+| Reconhecimentos/disciplinas | gestão             | leitura no jogo                   | leitura no jogo           | próprios/permitidos     | escopo permitido                    | escopo permitido                 | negado |

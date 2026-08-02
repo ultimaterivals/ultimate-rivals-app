@@ -3,6 +3,7 @@ import {
   LayoutDashboard,
   LogOut,
   MapPin,
+  Trophy,
   UserRound,
   UsersRound,
 } from "lucide-react";
@@ -26,6 +27,7 @@ export function PortalShell({
       ? [
           { href: "/athlete/profile", label: "Meu perfil", icon: UserRound },
           { href: "/athlete/ur-play", label: "UR Play", icon: CalendarDays },
+          { href: "/athlete/points", label: "Meus pontos", icon: Trophy },
           {
             href: "/athlete/development",
             label: "Desenvolvimento",
@@ -50,6 +52,11 @@ export function PortalShell({
               icon: CalendarDays,
             },
             { href: "/admin/ur-play", label: "UR Play", icon: CalendarDays },
+            {
+              href: "/admin/ranking-engine",
+              label: "Motor de pontos",
+              icon: Trophy,
+            },
             { href: "/ops/ur-play", label: "Court Ops", icon: MapPin },
           ];
   return (

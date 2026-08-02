@@ -72,3 +72,7 @@ O manifesto e os tokens responsivos estão configurados. Cache offline mutável 
 ## Documentação
 
 Arquitetura, domínio, segurança, fluxo de desenvolvimento e a decisão de stack estão em `docs/`.
+
+# Ranking engine (Sprint 9)
+
+Resultados homologados do UR Play alimentam um ledger append-only versionado. O painel administrativo está em `/admin/ranking-engine` e o histórico individual em `/athlete/points`. Consulte `docs/ranking-engine.md` e `docs/ranking-ledger.md`.

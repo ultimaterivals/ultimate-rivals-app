@@ -32,3 +32,7 @@ O Supabase passou a não expor automaticamente novas tabelas à Data API em novo
 - Constraints de exclusão impedem períodos ativos incompatíveis para vínculo e nível.
 
 RLS ainda precisa de teste de integração contra Postgres real porque Docker não está instalado nesta estação.
+
+# Segurança do ledger
+
+O client recebe apenas chave publicável. O ledger não possui policies de INSERT/UPDATE/DELETE e uma trigger rejeita mutação direta mesmo por admin. Funções `security definer` usam `search_path = ''`, autorização explícita e grants restritos; anon não recebe acesso. Views de totais usam `security_invoker` e preservam as policies da tabela base.

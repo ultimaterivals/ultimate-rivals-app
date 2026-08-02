@@ -442,12 +442,189 @@ describe("Sprint 8 scoring on remote DEV", () => {
     ).toBe("42501");
     expect(
       (
+        await admin
+          .from("ranking_transactions")
+          .select("id")
+          .eq("match_id", matchId)
+      ).data,
+    ).toHaveLength(0);
+    const invalidRun = await admin.rpc("process_homologated_match", {
+      target_match: matchId,
+      operation_id: crypto.randomUUID(),
+    });
+    expect(invalidRun.error).not.toBeNull();
+    expect(
+      (
+        await admin
+          .from("ranking_processing_runs")
+          .select("id")
+          .eq("source_id", matchId)
+      ).data,
+    ).toHaveLength(0);
+    expect(
+      (
         await coordinator.rpc("homologate_match_result", {
           target_match: matchId,
           operation_id: crypto.randomUUID(),
         })
       ).error,
     ).toBeNull();
+
+    const firstLedger = await admin
+      .from("ranking_transactions")
+      .select("*")
+      .eq("match_id", matchId)
+      .order("created_at");
+    expect(firstLedger.error).toBeNull();
+    expect(firstLedger.data).toHaveLength(13);
+    expect(
+      firstLedger.data!.filter(
+        (transaction) => transaction.rule_code === "PARTICIPATION",
+      ),
+    ).toHaveLength(4);
+    expect(
+      firstLedger.data!.filter(
+        (transaction) => transaction.rule_code === "WIN",
+      ),
+    ).toHaveLength(2);
+    expect(
+      firstLedger.data!.filter(
+        (transaction) => transaction.rule_code === "LOSS",
+      ),
+    ).toHaveLength(2);
+    expect(
+      firstLedger.data!.filter(
+        (transaction) => transaction.rule_code === "ACE",
+      ),
+    ).toHaveLength(1);
+    expect(
+      firstLedger.data!.filter(
+        (transaction) => transaction.rule_code === "ATTACK",
+      ),
+    ).toHaveLength(1);
+    expect(
+      firstLedger.data!.filter(
+        (transaction) => transaction.rule_code === "BLOCK",
+      ),
+    ).toHaveLength(1);
+    expect(
+      firstLedger.data!.filter(
+        (transaction) => transaction.rule_code === "DEFENSE",
+      ),
+    ).toHaveLength(1);
+    expect(
+      firstLedger.data!.filter(
+        (transaction) => transaction.rule_code === "ASSIST",
+      ),
+    ).toHaveLength(1);
+    expect(
+      firstLedger.data!.filter(
+        (transaction) => transaction.athlete_id === reserve,
+      ),
+    ).toHaveLength(0);
+    expect(
+      new Set(firstLedger.data!.map((transaction) => transaction.season_id)),
+    ).toEqual(new Set([ids.season]));
+    expect(
+      firstLedger.data!.every(
+        (transaction) =>
+          transaction.rule_version === 1 &&
+          transaction.points === transaction.points_applied,
+      ),
+    ).toBe(true);
+
+    const participantSnapshot = (
+      await admin
+        .from("match_participants")
+        .select("team_snapshot_id,pole_snapshot_id")
+        .eq("match_id", matchId)
+        .eq("athlete_id", ids.athleteA)
+        .single()
+    ).data!;
+    const athleteLedger = firstLedger.data!.filter(
+      (transaction) => transaction.athlete_id === ids.athleteA,
+    );
+    expect(
+      athleteLedger.every(
+        (transaction) =>
+          transaction.team_id === participantSnapshot.team_snapshot_id,
+      ),
+    ).toBe(true);
+    expect(
+      athleteLedger.every(
+        (transaction) =>
+          transaction.pole_id === participantSnapshot.pole_snapshot_id,
+      ),
+    ).toBe(true);
+
+    const beforeReprocessCount = firstLedger.data!.length;
+    const noOpRun = await coordinator.rpc("process_homologated_match", {
+      target_match: matchId,
+      operation_id: crypto.randomUUID(),
+    });
+    expect(noOpRun.error).toBeNull();
+    expect(noOpRun.data.transaction_count).toBe(0);
+    expect(noOpRun.data.metadata.no_op).toBe(true);
+    expect(
+      (
+        await admin
+          .from("ranking_transactions")
+          .select("id")
+          .eq("match_id", matchId)
+      ).data,
+    ).toHaveLength(beforeReprocessCount);
+    expect(
+      (
+        await operator.rpc("process_homologated_match", {
+          target_match: matchId,
+          operation_id: crypto.randomUUID(),
+        })
+      ).error,
+    ).not.toBeNull();
+
+    const athleteVisible = await athleteClient
+      .from("ranking_transactions")
+      .select("athlete_id")
+      .eq("match_id", matchId);
+    expect(athleteVisible.error).toBeNull();
+    expect(athleteVisible.data!.length).toBeGreaterThan(0);
+    expect(
+      athleteVisible.data!.every(
+        (transaction) => transaction.athlete_id === ids.athleteA,
+      ),
+    ).toBe(true);
+    expect(
+      (
+        await athleteClient.from("ranking_transactions").insert({
+          season_id: ids.season,
+          athlete_id: ids.athleteA,
+        })
+      ).error,
+    ).not.toBeNull();
+    expect(
+      (
+        await admin
+          .from("ranking_transactions")
+          .update({ points: 999, points_applied: 999 })
+          .eq("id", firstLedger.data![0]!.id)
+      ).error,
+    ).not.toBeNull();
+    expect(
+      (
+        await admin
+          .from("ranking_transactions")
+          .delete()
+          .eq("id", firstLedger.data![0]!.id)
+      ).error,
+    ).not.toBeNull();
+    expect(
+      (
+        await anon
+          .from("ranking_transactions")
+          .select("id")
+          .eq("match_id", matchId)
+      ).error,
+    ).not.toBeNull();
 
     const result = await operator
       .from("match_results")
@@ -520,6 +697,25 @@ describe("Sprint 8 scoring on remote DEV", () => {
         })
       ).error,
     ).toBeNull();
+    const afterCorrection = (
+      await admin
+        .from("ranking_transactions")
+        .select("id,points,transaction_type,related_transaction_id")
+        .eq("match_id", matchId)
+    ).data!;
+    expect(
+      afterCorrection.filter(
+        (transaction) => transaction.transaction_type === "reversal",
+      ),
+    ).toHaveLength(firstLedger.data!.length);
+    expect(
+      afterCorrection.reduce((sum, transaction) => sum + transaction.points, 0),
+    ).toBe(
+      firstLedger.data!.reduce(
+        (sum, transaction) => sum + transaction.points,
+        0,
+      ),
+    );
     const versions = await admin
       .from("match_result_versions")
       .select("version_number")
@@ -551,6 +747,20 @@ describe("Sprint 8 scoring on remote DEV", () => {
           .single()
       ).data?.result_status,
     ).toBe("void");
+    const voidLedger = (
+      await admin
+        .from("ranking_transactions")
+        .select("points,transaction_type")
+        .eq("match_id", matchId)
+    ).data!;
+    expect(
+      voidLedger.reduce((sum, transaction) => sum + transaction.points, 0),
+    ).toBe(0);
+    expect(
+      voidLedger.filter(
+        (transaction) => transaction.transaction_type === "reversal",
+      ).length,
+    ).toBe(firstLedger.data!.length * 2);
     const audit = await admin
       .from("audit_logs")
       .select("id,entity_type")
@@ -560,6 +770,8 @@ describe("Sprint 8 scoring on remote DEV", () => {
         "match_technical_actions",
         "match_results",
         "match_result_versions",
+        "ranking_processing_runs",
+        "ranking_transactions",
       ]);
     expect(audit.data!.length).toBeGreaterThan(10);
   }, 120_000);

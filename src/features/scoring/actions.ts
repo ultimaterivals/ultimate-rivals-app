@@ -10,6 +10,8 @@ import * as technical from "@/server/services/technical-actions.service";
 const refresh = (matchId: string) => {
   revalidatePath(`/ops/matches/${matchId}`);
   revalidatePath("/athlete/ur-play");
+  revalidatePath("/athlete/points");
+  revalidatePath("/admin/ranking-engine");
 };
 
 export async function recordRallyAction(input: {

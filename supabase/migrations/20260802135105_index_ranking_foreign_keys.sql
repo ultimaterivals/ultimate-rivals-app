@@ -1,0 +1,17 @@
+create index disciplinary_events_created_by on public.disciplinary_events(created_by);
+create index disciplinary_events_homologated_by on public.disciplinary_events(homologated_by)
+where homologated_by is not null;
+create index match_recognitions_created_by on public.match_recognitions(created_by);
+create index match_recognitions_homologated_by on public.match_recognitions(homologated_by)
+where homologated_by is not null;
+create index ranking_processing_runs_created_by on public.ranking_processing_runs(created_by)
+where created_by is not null;
+create index ranking_rules_created_by on public.ranking_rules(created_by)
+where created_by is not null;
+create index ranking_transactions_created_by on public.ranking_transactions(created_by)
+where created_by is not null;
+create index ranking_transactions_homologated_by on public.ranking_transactions(homologated_by)
+where homologated_by is not null;
+create index ranking_transactions_season on public.ranking_transactions(season_id);
+create index ranking_transactions_session on public.ranking_transactions(session_id)
+where session_id is not null;

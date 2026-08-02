@@ -59,3 +59,7 @@ Identidade, cadastro esportivo, vínculos e autorização são conceitos separad
 - Role, nível e vínculos não são alteráveis pelo próprio atleta.
 - Nenhuma tabela armazena pontuação ou ranking.
 - Reserva presente permanece fora de `match_participants` até promoção pré-jogo; start congela squad e quadra.
+
+# Ranking engine
+
+`ranking_rules` 1—N `ranking_transactions`; `ranking_processing_runs` 1—N `ranking_transactions`. Cada transação pode apontar para atleta, equipe, polo, roster e lado congelados, além de temporada/ciclo, partida/sessão e origem. Reversals apontam para a transação original e nunca a substituem.

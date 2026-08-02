@@ -41,3 +41,7 @@ A operação de quadra será preparada com fila local, identificadores idempoten
 ## Observabilidade
 
 `/api/health` é apenas um liveness check. Logs estruturados, tracing e métricas entram com os primeiros serviços de domínio.
+
+# Sprint 9 — mérito e pontuação
+
+O domínio de pontuação usa `ranking_transactions` como ledger append-only. A homologação de resultado e o processamento acontecem atomicamente no PostgreSQL; serviços Next.js apenas invocam a operação autorizada e apresentam projeções `security_invoker`. Regras são dados versionados e snapshots históricos impedem que uma troca posterior de equipe altere contribuições passadas.
