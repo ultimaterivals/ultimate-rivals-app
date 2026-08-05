@@ -17,3 +17,7 @@ Private trigger functions enqueue notifications with `ON CONFLICT (idempotency_k
 - Client sessions cannot insert or delete notifications.
 
 The inbox groups unread and previous items and supports individual or bulk read receipts.
+
+## Season 1 final types
+
+The enum also supports the final internal inbox categories for tournaments, eligibility, Series, Cup, Legends, training, development review, Hunter, payment verified, Market offer/redemption, wallet earn/spend, and repass announced. These remain internal inbox notifications; no external push was implemented.
