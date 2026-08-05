@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { Card, PageHeader, StatCard } from "@/components/ui";
+import { requireAnyRole } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
 import { getAdminCommandCenter } from "@/server/repositories/wallet-media-reports.repository";
 
@@ -30,6 +31,7 @@ const quickActions: {
 ];
 
 export default async function AdminPage() {
+  await requireAnyRole(["admin", "operator"]);
   const command = await getAdminCommandCenter(await createClient());
 
   return (

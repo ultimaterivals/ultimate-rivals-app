@@ -5,6 +5,27 @@ test("public foundation loads", async ({ page }) => {
   await expect(
     page.getByRole("heading", { name: /a liga continua/i }),
   ).toBeVisible();
+  await expect(page.getByRole("link", { name: /calendario/i })).toBeVisible();
+  await expect(page.getByRole("link", { name: /equipes/i })).toBeVisible();
+});
+
+test("public calendar uses published DEV data only", async ({ page }) => {
+  await page.goto("/calendar");
+  await expect(
+    page.getByRole("heading", { name: /calendario ultimate rivals/i }),
+  ).toBeVisible();
+  await expect(page.getByText(/ur play dev publico/i)).toBeVisible();
+  await expect(page.getByText(/email|telefone/i)).toHaveCount(0);
+});
+
+test("public teams page hides operational private data", async ({ page }) => {
+  await page.goto("/teams");
+  await expect(
+    page.getByRole("heading", { name: /times ultimate rivals/i }),
+  ).toBeVisible();
+  await expect(page.getByText(/email|telefone|wallet|pagamentos/i)).toHaveCount(
+    0,
+  );
 });
 
 test("login loads", async ({ page }) => {
