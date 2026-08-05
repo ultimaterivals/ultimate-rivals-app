@@ -160,18 +160,49 @@ After that migration, application schema comparison for `public` shows:
 - critical `SECURITY_DRIFT`: 0 for `anon` and `authenticated`
 - `DEV_SCHEMA_ALIGNMENT_PASS_FOR_APPLICATION_SCHEMA`
 
-Remaining issue:
+## Final feature-freeze architecture decision
 
-The exact migration history is still not fully reconciled because DEV has historical remote versions that differ from local file versions, especially around the older timestamped migrations and the finance/prizes/repasses iterative sequence. The current available Supabase connector can apply SQL but does not provide a safe local-timestamp-preserving `migration repair` or `db push` operation. Using `apply_migration` for the local no-op hardening migration would generate another remote timestamp and increase history drift.
+The migration gate has been reclassified for application release.
+
+`CANONICAL_MIGRATION_SOURCE`: repository local migration chain.
+
+`FRESH_REPLAY`: `PASS`.
+
+`DEV_SCHEMA_ALIGNMENT`: `PASS`.
+
+`DEV_HISTORY_ALIGNMENT`: `DIVERGENT_DOCUMENTED`.
+
+`DEV_HISTORY_REPAIR`: `DEFERRED`.
+
+Reason:
+
+- GitHub Actions proved that the versioned repository migration chain can build a fresh database from zero.
+- Fresh replay and DEV application schema are equivalent after the stale tournament policy hardening migration.
+- The remaining DEV difference is historical migration metadata, not unresolved application schema drift.
+- The current tooling available in this execution does not offer safe migration-history repair preserving the intended local timestamps.
+
+Impact:
+
+- No impact for new environments, including future PROD, because they must be created from the canonical local migration chain.
+- The historical DEV database remains a documented divergent-history environment with equivalent final schema.
+- Future PROD must not copy DEV's divergent migration history.
+
+Rules:
+
+- Do not execute migration repair now.
+- Do not fabricate remote timestamps.
+- Do not create empty migrations only to match counts.
+- Do not edit applied migrations.
+- Do not require local migration count to equal DEV migration count for application release.
 
 ## Final status
 
 `FRESH_MIGRATION_REPLAY_PASS`
 
-`DEV_SCHEMA_ALIGNMENT_PASS_FOR_APPLICATION_SCHEMA`
+`DEV_SCHEMA_ALIGNMENT_PASS`
 
-`MIGRATION_HISTORY_RECONCILIATION_PENDING`
+`DEV_HISTORY_ALIGNMENT`: `DIVERGENT_DOCUMENTED`
 
-`MIGRATION_SEQUENCE_REPRODUCIBLE`: not fully declared yet for DEV history.
+`MIGRATION_SEQUENCE_REPRODUCIBLE`: `PASS`
 
-Fase B Demand/Booking/Acquisition and Fase C RC2 verification must not start until the exact DEV migration history strategy is completed with timestamp-preserving tooling or an explicit manual decision.
+Fase B Demand/Booking/Acquisition and Fase C RC2 verification may proceed. The remaining DEV migration-history divergence is documented and deferred; it is not a P0 blocker for application release.

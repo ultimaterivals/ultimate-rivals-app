@@ -26,10 +26,22 @@ Status as of 2026-08-05:
 
 - Fresh replay via GitHub Actions: `PASS`
 - Workflow run: `https://github.com/ultimaterivals/ultimate-rivals-app/actions/runs/31047123055`
-- Application schema alignment against DEV: `PASS_FOR_PUBLIC_SCHEMA`
+- Canonical migration source: repository local migration chain
+- Application schema alignment against DEV: `PASS`
 - Critical RLS/security drift for `anon`/`authenticated`: `0`
+- DEV migration history alignment: `DIVERGENT_DOCUMENTED`
+- DEV history repair: `DEFERRED`
 - Production touched: no
 - Real data inserted: no
-- Remaining blocker before Season 1 READY: `MIGRATION_HISTORY_RECONCILIATION_PENDING`
 
-Do not begin production deployment until the exact DEV migration-history reconciliation strategy is completed.
+Decision:
+
+- `MIGRATION_SEQUENCE_REPRODUCIBLE = PASS` for application release because fresh replay and schema equivalence are proven.
+- Do not repair DEV history now.
+- Do not fabricate timestamps or create empty migrations to match counts.
+- Future PROD must be created from the canonical repository migration chain, not by copying DEV's divergent migration history.
+
+Deployment impact:
+
+- DEV history divergence is not a P0 application-release blocker.
+- Production deployment still requires normal manual pre-prod gates: PROD provisioning, Auth dashboard settings, HTTPS/PWA installability smoke, backups, and real-data onboarding controls.
