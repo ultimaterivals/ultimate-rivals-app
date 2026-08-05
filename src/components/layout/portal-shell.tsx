@@ -1,8 +1,10 @@
 import {
   CalendarDays,
+  HandCoins,
   LayoutDashboard,
   LogOut,
   MapPin,
+  ReceiptText,
   ShieldCheck,
   Trophy,
   UserRound,
@@ -83,6 +85,16 @@ export function PortalShell({
               href: "/admin/payments",
               label: "Pagamentos",
               icon: ShieldCheck,
+            },
+            {
+              href: "/admin/prizes",
+              label: "PremiaÃ§Ãµes",
+              icon: HandCoins,
+            },
+            {
+              href: "/admin/finance",
+              label: "Financeiro",
+              icon: ReceiptText,
             },
             {
               href: "/admin/ranking-engine",
