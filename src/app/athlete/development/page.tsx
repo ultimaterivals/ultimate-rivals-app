@@ -1,9 +1,13 @@
 import { Card, PageHeader } from "@/components/ui";
 import { requireRole } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
+import { getAthleteDevelopmentExperience } from "@/server/repositories/development.repository";
 import { getDevelopment } from "@/server/repositories/progression.repository";
 import { redirect } from "next/navigation";
 import Link from "next/link";
+function first<T>(value: T | T[] | null | undefined): T | null {
+  return Array.isArray(value) ? (value[0] ?? null) : (value ?? null);
+}
 export default async function Page() {
   const a = await requireRole("athlete"),
     c = await createClient(),
@@ -14,6 +18,7 @@ export default async function Page() {
       .single();
   if (!athlete) redirect("/athlete");
   const d = await getDevelopment(c, athlete.id),
+    seasonDevelopment = await getAthleteDevelopmentExperience(c, athlete.id),
     current = d.levels.find((x) => x.status === "active");
   return (
     <div className="grid gap-6">
@@ -50,6 +55,75 @@ export default async function Page() {
         >
           VER TIMELINE COMPLETA â†’
         </Link>
+      </Card>
+      <Card>
+        <h2 className="text-xl font-black">Plano individual</h2>
+        {seasonDevelopment.summary?.plan_id ? (
+          <div className="mt-3 grid gap-3">
+            <p>
+              <strong>Prioridades:</strong>{" "}
+              {[
+                seasonDevelopment.summary.priority_1,
+                seasonDevelopment.summary.priority_2,
+                seasonDevelopment.summary.priority_3,
+              ]
+                .filter(Boolean)
+                .join(" • ")}
+            </p>
+            <p>
+              <strong>Meta 30 dias:</strong>{" "}
+              {seasonDevelopment.summary.goal_30_days ?? "A definir"}
+            </p>
+            <p>
+              <strong>Hunter:</strong>{" "}
+              {seasonDevelopment.summary.hunter_mission ??
+                seasonDevelopment.summary.hunter_goal ??
+                "Sem missão ativa"}
+            </p>
+          </div>
+        ) : (
+          <p className="mt-3 text-zinc-500">
+            Nenhum PID ativo. A comissão técnica pode criar um plano versionado
+            com prioridades e revisão.
+          </p>
+        )}
+      </Card>
+      <Card>
+        <h2 className="text-xl font-black">Treinos UR</h2>
+        {seasonDevelopment.training.length ? (
+          seasonDevelopment.training.map((item) => {
+            const session = first(item.training_sessions);
+            return (
+              <p key={`${session?.id ?? "training"}-${item.status}`}>
+                {session?.focus ?? "Treino"} · {item.status}
+              </p>
+            );
+          })
+        ) : (
+          <p className="text-zinc-500">
+            Nenhum treino registrado. Metodologia: Preparar → Desenvolver →
+            Resolver → Competir.
+          </p>
+        )}
+      </Card>
+      <Card>
+        <h2 className="text-xl font-black">Hunter Q1</h2>
+        <p className="text-zinc-500">
+          Missão atual:{" "}
+          {seasonDevelopment.summary?.hunter_mission ??
+            seasonDevelopment.summary?.hunter_theme ??
+            "a definir"}
+        </p>
+        <div className="mt-3 flex flex-wrap gap-2">
+          {seasonDevelopment.hunterThemes.slice(0, 12).map((theme) => (
+            <span
+              key={theme.code}
+              className="rounded-full border px-3 py-1 text-xs"
+            >
+              {theme.week_number}. {theme.name}
+            </span>
+          ))}
+        </div>
       </Card>
       <Card>
         <h2 className="text-xl font-black">Feedbacks liberados</h2>
