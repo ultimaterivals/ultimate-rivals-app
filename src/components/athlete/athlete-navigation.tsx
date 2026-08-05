@@ -9,6 +9,7 @@ import {
   House,
   ListChecks,
   Medal,
+  ShoppingBag,
   Settings,
   Shield,
   Trophy,
@@ -30,6 +31,7 @@ const secondary = [
   { href: "/athlete/matches", label: "Meus jogos", icon: ListChecks },
   { href: "/athlete/journey", label: "Minha jornada", icon: Compass },
   { href: "/athlete/development", label: "Desenvolvimento", icon: Medal },
+  { href: "/athlete/market", label: "UR Market", icon: ShoppingBag },
   { href: "/athlete/points", label: "Meus pontos", icon: Shield },
   { href: "/athlete/profile", label: "ConfiguraÃ§Ãµes", icon: Settings },
 ];

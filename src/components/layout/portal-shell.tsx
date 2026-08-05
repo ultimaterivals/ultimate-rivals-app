@@ -1,9 +1,11 @@
 import {
   CalendarDays,
   HandCoins,
+  Handshake,
   LayoutDashboard,
   LogOut,
   MapPin,
+  Package,
   ReceiptText,
   ShieldCheck,
   Trophy,
@@ -62,6 +64,7 @@ export function PortalShell({
             { href: "/admin/athletes", label: "Atletas", icon: UserRound },
             { href: "/admin/teams", label: "Equipes", icon: UsersRound },
             { href: "/admin/poles", label: "Polos", icon: MapPin },
+            { href: "/admin/venues", label: "Venues", icon: MapPin },
             { href: "/admin/seasons", label: "Temporadas", icon: CalendarDays },
             {
               href: "/admin/calendar",
@@ -80,6 +83,21 @@ export function PortalShell({
               href: "/admin/tournaments",
               label: "Torneios",
               icon: Trophy,
+            },
+            {
+              href: "/admin/events",
+              label: "UR Events",
+              icon: CalendarDays,
+            },
+            {
+              href: "/admin/sponsors",
+              label: "Sponsors",
+              icon: Handshake,
+            },
+            {
+              href: "/admin/market",
+              label: "Market",
+              icon: Package,
             },
             {
               href: "/admin/payments",
