@@ -20,6 +20,7 @@ import { cn } from "@/lib/utils";
 const primary = [
   { href: "/athlete", label: "InÃ­cio", icon: House, exact: true },
   { href: "/athlete/ur-play", label: "UR Play", icon: CalendarDays },
+  { href: "/athlete/competitions", label: "Comp.", icon: Medal },
   { href: "/athlete/ranking", label: "Ranking", icon: Trophy },
   { href: "/athlete/performance", label: "Performance", icon: Activity },
   { href: "/athlete/profile", label: "Perfil", icon: CircleUserRound },

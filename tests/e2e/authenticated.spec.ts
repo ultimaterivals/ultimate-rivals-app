@@ -262,6 +262,7 @@ test("operator reviews and confirms deterministic match suggestion", async ({
   await page.goto(`/ops/ur-play/${sessionId}/court-ops`);
   await page.locator('select[name="level"]').selectOption("n2");
   await page.getByRole("button", { name: "GERAR SUGESTÃO" }).click();
+  await page.waitForURL(/suggest=1/, { timeout: 20_000 });
   await expect(page.getByText(/Sugestão baseada em/)).toBeVisible();
   await page.getByRole("button", { name: "CONFIRMAR SUGESTÃO" }).click();
   await expect(page).toHaveURL(/\/ops\/matches\/[a-f0-9-]+$/, {

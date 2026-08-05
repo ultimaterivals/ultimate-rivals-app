@@ -1,5 +1,9 @@
 # Ultimate Rivals — Fundação técnica
 
+## Tournament Engine (Sprint 12)
+
+UR Series, UR Cup e UR Legends agora possuem base aditiva de torneios, divisoes, inscricoes, elegibilidade, seeding, agenda, standings, qualificacao e paginas admin/operator/atleta/publico. Consulte `docs/tournament-engine.md` e `docs/sprint-12-handoff.md`.
+
 ## Athlete Experience (Sprint 11)
 
 O portal autenticado agora possui Home contextual, central de performance, histÃ³rico e detalhe pessoal de partidas, timeline de jornada, inbox privada, navegaÃ§Ã£o mobile definitiva e shell PWA instalÃ¡vel. Todos os indicadores continuam derivados dos domÃ­nios homologados de temporadas, Court Ops, scoring, progressÃ£o, elencos, ledger e rankings.

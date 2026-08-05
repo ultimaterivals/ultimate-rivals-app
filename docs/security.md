@@ -44,3 +44,13 @@ RLS ainda precisa de teste de integração contra Postgres real porque Docker n�
 # Segurança do ledger
 
 O client recebe apenas chave publicável. O ledger não possui policies de INSERT/UPDATE/DELETE e uma trigger rejeita mutação direta mesmo por admin. Funções `security definer` usam `search_path = ''`, autorização explícita e grants restritos; anon não recebe acesso. Views de totais usam `security_invoker` e preservam as policies da tabela base.
+
+## Sprint 12 — Tournament RLS closeout
+
+- Projeto validado: `ultimate-rivals-dev` (`jrzmqlhfkhaejvmiyxzy`).
+- Nenhuma migration foi aplicada em outros projetos Supabase.
+- Tabelas de torneio mantêm RLS e FORCE RLS.
+- Views públicas/operacionais de torneio usam `security_invoker`.
+- Policies genéricas de torneio foram reconciliadas para reduzir acesso amplo por `authenticated`.
+- `tournament_results` é append-only por trigger.
+- `service_role` permanece proibido no client e não é usado para mascarar falhas de RLS.

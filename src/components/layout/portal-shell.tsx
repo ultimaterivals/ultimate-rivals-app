@@ -65,6 +65,11 @@ export function PortalShell({
             },
             { href: "/admin/ur-play", label: "UR Play", icon: CalendarDays },
             {
+              href: "/admin/tournaments",
+              label: "Torneios",
+              icon: Trophy,
+            },
+            {
               href: "/admin/ranking-engine",
               label: "Motor de pontos",
               icon: Trophy,

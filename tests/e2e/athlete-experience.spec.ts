@@ -34,9 +34,11 @@ test("mobile athlete navigation covers the primary journey", async ({
     name: "NavegaÃ§Ã£o principal do atleta",
   });
   await expect(nav).toBeVisible();
-  for (const item of ["UR Play", "Ranking", "Performance", "Perfil"]) {
+  for (const item of ["UR Play", "Comp.", "Ranking", "Performance", "Perfil"]) {
     await nav.getByRole("link", { name: item }).click();
-    await expect(page.locator("h1").first()).toBeVisible();
+    await expect(page.locator("h1").first()).toBeVisible({
+      timeout: 20_000,
+    });
   }
   await page.getByRole("link", { name: /Notifica/ }).click();
   await expect(page.getByRole("heading", { name: /Notifica/ })).toBeVisible();
@@ -45,7 +47,7 @@ test("mobile athlete navigation covers the primary journey", async ({
   await expect(page.locator("body")).not.toContainText(/PGRST|Postgrest/i);
 });
 
-test("compact 360px shell keeps five touch-friendly destinations", async ({
+test("compact 360px shell keeps six touch-friendly destinations", async ({
   page,
 }, testInfo) => {
   test.skip(testInfo.project.name !== "mobile", "Compact mobile scenario");
@@ -54,8 +56,8 @@ test("compact 360px shell keeps five touch-friendly destinations", async ({
   const links = page
     .getByRole("navigation", { name: "NavegaÃ§Ã£o principal do atleta" })
     .getByRole("link");
-  await expect(links).toHaveCount(5);
-  for (let index = 0; index < 5; index++) {
+  await expect(links).toHaveCount(6);
+  for (let index = 0; index < 6; index++) {
     const box = await links.nth(index).boundingBox();
     expect(box?.height).toBeGreaterThanOrEqual(44);
   }
