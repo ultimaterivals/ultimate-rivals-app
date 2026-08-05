@@ -1,0 +1,107 @@
+name: Migration replay
+
+on:
+  push:
+    branches:
+      - feature/season-1-app-completion
+    paths:
+      - ".github/workflows/migration-replay.yml"
+      - "scripts/schema-manifest.cjs"
+      - "supabase/**"
+      - "package-lock.json"
+      - "package.json"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  fresh-migration-replay:
+    name: Fresh migration replay
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Verify deterministic Supabase CLI
+        run: |
+          npx --no-install supabase --version
+          test "$(npx --no-install supabase --version)" = "2.111.0"
+
+      - name: Verify Docker runner
+        run: |
+          docker version
+          docker info
+
+      - name: Start disposable Supabase local stack
+        run: npx --no-install supabase start
+
+      - name: Replay all migrations from an empty local database
+        run: npx --no-install supabase db reset --local --yes --debug
+
+      - name: Generate fresh schema manifest
+        run: node scripts/schema-manifest.cjs --local --out fresh-schema-manifest.json
+
+      - name: Validate manifest minimum coverage
+        run: |
+          node - <<'NODE'
+          const fs = require("node:fs");
+          const manifest = JSON.parse(fs.readFileSync("fresh-schema-manifest.json", "utf8"));
+          const required = [
+            "schemas",
+            "tables",
+            "columns",
+            "constraints",
+            "indexes",
+            "enums",
+            "functions",
+            "views",
+            "triggers",
+            "policies",
+            "grants",
+          ];
+          for (const key of required) {
+            if (!Array.isArray(manifest[key])) {
+              throw new Error(`Manifest key ${key} is missing or not an array`);
+            }
+          }
+          if (!manifest.schemas.includes("public")) {
+            throw new Error("Manifest does not include public schema");
+          }
+          if (manifest.tables.length === 0) {
+            throw new Error("Manifest has no tables");
+          }
+          const publicTablesWithoutRls = manifest.tables.filter(
+            (table) => table.schema_name === "public" && !table.rls_enabled,
+          );
+          if (publicTablesWithoutRls.length > 0) {
+            throw new Error(
+              `Public tables without RLS: ${publicTablesWithoutRls
+                .map((table) => table.table_name)
+                .join(", ")}`,
+            );
+          }
+          console.log("FRESH_MIGRATION_REPLAY_PASS");
+          NODE
+
+      - name: Upload fresh schema manifest
+        uses: actions/upload-artifact@v4
+        with:
+          name: fresh-schema-manifest
+          path: fresh-schema-manifest.json
+          if-no-files-found: error
+
+      - name: Stop Supabase local stack
+        if: always()
+        run: npx --no-install supabase stop --no-backup
