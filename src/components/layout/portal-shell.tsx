@@ -52,6 +52,8 @@ export function PortalShell({
             { href: "/team/athletes", label: "Atletas", icon: UserRound },
             { href: "/team/formations", label: "Formações", icon: UsersRound },
             { href: "/team/roster", label: "Elenco", icon: UsersRound },
+            { href: "/team/competitions", label: "Competições", icon: Trophy },
+            { href: "/team/calendar", label: "Calendário", icon: CalendarDays },
             { href: "/team/ranking", label: "Ranking", icon: Trophy },
           ]
         : [
