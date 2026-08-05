@@ -5,6 +5,7 @@ import {
   getAthleteHistory,
   getAthletePrivateView,
 } from "@/server/repositories/athlete360.repository";
+import { getAthleteEngagement } from "@/server/repositories/demand.repository";
 import {
   assignAthleteProfileAction,
   assignAthleteLevelAction,
@@ -25,7 +26,10 @@ export default async function Page({
   } catch {
     return notFound();
   }
-  const history = await getAthleteHistory(client, id);
+  const [history, engagement] = await Promise.all([
+    getAthleteHistory(client, id),
+    getAthleteEngagement(client, id),
+  ]);
   const { data: seasons } = await client
     .from("seasons")
     .select("id,name")
@@ -145,6 +149,42 @@ export default async function Page({
       </Card>
       <Card>
         <h2 className="mb-4 text-xl font-bold">Observações</h2>
+        <h3 className="mb-4 text-lg font-bold">Engagement privado</h3>
+        <div className="mb-6 grid gap-3 md:grid-cols-4">
+          <PrivateMetric label="Source" value={engagement?.source ?? "—"} />
+          <PrivateMetric
+            label="Signup"
+            value={formatDate(engagement?.signup_at)}
+          />
+          <PrivateMetric
+            label="Last activity"
+            value={formatDate(engagement?.last_activity_at)}
+          />
+          <PrivateMetric
+            label="Last participation"
+            value={formatDate(engagement?.last_participation_at)}
+          />
+          <PrivateMetric
+            label="First interest"
+            value={formatDate(engagement?.first_interest_at)}
+          />
+          <PrivateMetric
+            label="First booking"
+            value={formatDate(engagement?.first_booking_at)}
+          />
+          <PrivateMetric
+            label="30d participations"
+            value={String(engagement?.participations_30d ?? 0)}
+          />
+          <PrivateMetric
+            label="Days since last"
+            value={String(engagement?.days_since_last_participation ?? "—")}
+          />
+        </div>
+        <p className="mb-6 text-xs text-zinc-500">
+          Dados de aquisição, retenção e analytics são privados do admin e não
+          entram no perfil público.
+        </p>
         <form action={createAthleteNoteAction} className="grid gap-3">
           <input type="hidden" name="athleteId" value={id} />
           <select
@@ -180,4 +220,17 @@ export default async function Page({
       </Card>
     </div>
   );
+}
+
+function PrivateMetric({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="rounded-ur border border-zinc-800 p-3">
+      <p className="text-xs text-zinc-500 uppercase">{label}</p>
+      <strong>{value}</strong>
+    </div>
+  );
+}
+
+function formatDate(value: string | null | undefined) {
+  return value ? new Date(value).toLocaleDateString("pt-BR") : "—";
 }

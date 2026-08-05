@@ -170,6 +170,31 @@ test("admin opens UR Play session management", async ({ page }) => {
   ).toBeVisible();
 });
 
+test("admin opens demand and acquisition command layers", async ({ page }) => {
+  await login(page, "admin@test.ur.local");
+  await page.goto("/admin/demand");
+  await expect(
+    page.getByRole("heading", { name: "Demanda, formação e capacidade" }),
+  ).toBeVisible();
+  await expect(page.getByText("Criar oportunidade")).toBeVisible();
+  await page.goto("/admin/acquisition");
+  await expect(
+    page.getByRole("heading", { name: "Aquisição first-party" }),
+  ).toBeVisible();
+  await expect(page.getByText("Visit → signup")).toBeVisible();
+});
+
+test("athlete opens agenda without public PII leakage", async ({ page }) => {
+  await login(page, "athlete@test.ur.local");
+  await page.goto("/athlete/agenda");
+  await expect(
+    page.getByRole("heading", { name: "Interesse, formação e reserva" }),
+  ).toBeVisible();
+  await expect(page.locator("main")).not.toContainText(
+    /@test\.ur\.local|Telefone|Data de nascimento|service_role/i,
+  );
+});
+
 test("athlete opens UR Play registration portal", async ({ page }) => {
   await login(page, "athlete@test.ur.local");
   await page.goto("/athlete/ur-play");

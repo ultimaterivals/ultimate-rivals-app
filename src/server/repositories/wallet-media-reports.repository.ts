@@ -137,6 +137,9 @@ export async function getAdminCommandCenter(client: SupabaseClient) {
     marketRedemptions,
     financeObligations,
     reportOperations,
+    demandToday,
+    demandWeek,
+    growthRows,
   ] = await Promise.all([
     client
       .from("ur_play_sessions")
@@ -173,6 +176,20 @@ export async function getAdminCommandCenter(client: SupabaseClient) {
       .select("id", { count: "exact", head: true })
       .in("status", ["projected", "approved", "announced"]),
     listReportOperations(client),
+    client
+      .from("admin_demand_dashboard")
+      .select("id,demand_signal,interested_count,waitlist_count")
+      .gte("starts_at", today.toISOString())
+      .lt("starts_at", tomorrow.toISOString()),
+    client
+      .from("admin_demand_dashboard")
+      .select("id,demand_signal,interested_count,waitlist_count")
+      .gte("starts_at", today.toISOString())
+      .lt(
+        "starts_at",
+        new Date(today.getTime() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+      ),
+    client.from("admin_acquisition_dashboard").select("*"),
   ]);
 
   const safeCount = (response: { count: number | null; error: unknown }) =>
@@ -197,6 +214,49 @@ export async function getAdminCommandCenter(client: SupabaseClient) {
       teamReports: reportOperations.teamReports.length,
       venueReports: reportOperations.venueReports.length,
       sponsorReports: reportOperations.sponsorReports.length,
+    },
+    demand: {
+      today: demandToday.error ? [] : (demandToday.data ?? []),
+      week: demandWeek.error ? [] : (demandWeek.data ?? []),
+      forming: (demandToday.data ?? []).filter(
+        (item) => item.demand_signal === "FORMING",
+      ).length,
+      almostFull: (demandToday.data ?? []).filter(
+        (item) => item.demand_signal === "ALMOST_FULL",
+      ).length,
+      confirmed: (demandToday.data ?? []).filter(
+        (item) => item.demand_signal === "SESSION_CONFIRMED",
+      ).length,
+      secondCourt: (demandWeek.data ?? []).filter(
+        (item) => item.demand_signal === "SECOND_COURT_OPPORTUNITY",
+      ).length,
+      waitlist: (demandWeek.data ?? []).reduce(
+        (sum, item) => sum + Number(item.waitlist_count ?? 0),
+        0,
+      ),
+    },
+    growth: {
+      visitors: (growthRows.data ?? []).reduce(
+        (sum, row) => sum + Number(row.visitors ?? 0),
+        0,
+      ),
+      signups: (growthRows.data ?? []).reduce(
+        (sum, row) => sum + Number(row.signups ?? 0),
+        0,
+      ),
+      firstParticipation: (growthRows.data ?? []).reduce(
+        (sum, row) => sum + Number(row.first_participation ?? 0),
+        0,
+      ),
+      secondParticipation: (growthRows.data ?? []).reduce(
+        (sum, row) => sum + Number(row.second_participation ?? 0),
+        0,
+      ),
+      returning: (growthRows.data ?? []).reduce(
+        (sum, row) => sum + Number(row.returning ?? 0),
+        0,
+      ),
+      topSource: (growthRows.data ?? [])[0]?.source ?? "direct",
     },
   };
 }

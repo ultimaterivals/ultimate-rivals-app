@@ -6,6 +6,7 @@ import {
   HandCoins,
   ListChecks,
   ShieldCheck,
+  TrendingUp,
   Trophy,
   type LucideIcon,
 } from "lucide-react";
@@ -21,6 +22,8 @@ const quickActions: {
   icon: LucideIcon;
 }[] = [
   { href: "/admin/ur-play/new", label: "Criar UR Play", icon: CalendarDays },
+  { href: "/admin/demand", label: "Abrir Demand", icon: CalendarDays },
+  { href: "/admin/acquisition", label: "Ver Acquisition", icon: TrendingUp },
   { href: "/admin/tournaments/new", label: "Criar torneio", icon: Trophy },
   { href: "/admin/payments", label: "Registrar pagamento", icon: HandCoins },
   { href: "/admin/market", label: "Criar oferta Market", icon: Coins },
@@ -120,6 +123,64 @@ export default async function AdminPage() {
                 command.season.venueReports + command.season.sponsorReports
               }
             />
+          </div>
+        </Card>
+      </section>
+
+      <section className="grid gap-4 xl:grid-cols-[1fr_1fr]">
+        <Card>
+          <div className="flex items-center gap-3">
+            <CalendarDays className="text-ur-gold" aria-hidden="true" />
+            <h2 className="font-display text-xl font-black uppercase">
+              Demanda
+            </h2>
+          </div>
+          <div className="mt-5 grid gap-3 sm:grid-cols-2">
+            <PendingItem label="Forming hoje" value={command.demand.forming} />
+            <PendingItem
+              label="Almost full hoje"
+              value={command.demand.almostFull}
+            />
+            <PendingItem
+              label="Confirmadas hoje"
+              value={command.demand.confirmed}
+            />
+            <PendingItem
+              label="Second court 7d"
+              value={command.demand.secondCourt}
+            />
+            <PendingItem label="Waitlist 7d" value={command.demand.waitlist} />
+            <PendingItem label="Demand 7d" value={command.demand.week.length} />
+          </div>
+        </Card>
+
+        <Card>
+          <div className="flex items-center gap-3">
+            <TrendingUp className="text-ur-gold" aria-hidden="true" />
+            <h2 className="font-display text-xl font-black uppercase">
+              Growth
+            </h2>
+          </div>
+          <div className="mt-5 grid gap-3 sm:grid-cols-2">
+            <PendingItem label="Visitors" value={command.growth.visitors} />
+            <PendingItem label="Signups" value={command.growth.signups} />
+            <PendingItem
+              label="First participation"
+              value={command.growth.firstParticipation}
+            />
+            <PendingItem
+              label="Second participation"
+              value={command.growth.secondParticipation}
+            />
+            <PendingItem label="Returning" value={command.growth.returning} />
+            <div className="rounded-ur border p-4">
+              <p className="text-xs font-black tracking-[.16em] text-zinc-500 uppercase">
+                Top source
+              </p>
+              <strong className="font-display mt-2 block text-3xl">
+                {command.growth.topSource}
+              </strong>
+            </div>
           </div>
         </Card>
       </section>

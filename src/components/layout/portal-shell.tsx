@@ -42,6 +42,7 @@ export function PortalShell({
     portal === "Atleta"
       ? [
           { href: "/athlete/profile", label: "Meu perfil", icon: UserRound },
+          { href: "/athlete/agenda", label: "Agenda UR", icon: CalendarDays },
           { href: "/athlete/ur-play", label: "UR Play", icon: CalendarDays },
           { href: "/athlete/billing", label: "Pagamentos", icon: ShieldCheck },
           { href: "/athlete/points", label: "Meus pontos", icon: Trophy },
@@ -80,6 +81,12 @@ export function PortalShell({
               icon: CalendarDays,
             },
             { href: "/admin/ur-play", label: "UR Play", icon: CalendarDays },
+            { href: "/admin/demand", label: "Demand", icon: CalendarDays },
+            {
+              href: "/admin/acquisition",
+              label: "Acquisition",
+              icon: PanelsTopLeft,
+            },
             {
               href: "/admin/tournaments",
               label: "Torneios",

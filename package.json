@@ -14,7 +14,7 @@
     "test": "vitest run",
     "test:integration": "vitest run --config vitest.integration.config.ts",
     "test:watch": "vitest",
-    "test:e2e": "playwright test",
+    "test:e2e": "next build && playwright test",
     "format": "prettier --write \"src/**/*.{ts,tsx,css}\" \"tests/**/*.ts\" \"docs/**/*.md\" README.md package.json \"*.config.*\"",
     "format:check": "prettier --check \"src/**/*.{ts,tsx,css}\" \"tests/**/*.ts\" \"docs/**/*.md\" README.md package.json \"*.config.*\""
   },

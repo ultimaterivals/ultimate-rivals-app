@@ -34,7 +34,14 @@ test("mobile athlete navigation covers the primary journey", async ({
     name: "NavegaÃ§Ã£o principal do atleta",
   });
   await expect(nav).toBeVisible();
-  for (const item of ["UR Play", "Comp.", "Ranking", "Performance", "Perfil"]) {
+  for (const item of [
+    "Agenda",
+    "UR Play",
+    "Comp.",
+    "Ranking",
+    "Performance",
+    "Perfil",
+  ]) {
     await nav.getByRole("link", { name: item }).click();
     await expect(page.locator("h1").first()).toBeVisible({
       timeout: 20_000,
@@ -47,7 +54,7 @@ test("mobile athlete navigation covers the primary journey", async ({
   await expect(page.locator("body")).not.toContainText(/PGRST|Postgrest/i);
 });
 
-test("compact 360px shell keeps six touch-friendly destinations", async ({
+test("compact 360px shell keeps touch-friendly destinations", async ({
   page,
 }, testInfo) => {
   test.skip(testInfo.project.name !== "mobile", "Compact mobile scenario");
@@ -56,8 +63,8 @@ test("compact 360px shell keeps six touch-friendly destinations", async ({
   const links = page
     .getByRole("navigation", { name: "NavegaÃ§Ã£o principal do atleta" })
     .getByRole("link");
-  await expect(links).toHaveCount(6);
-  for (let index = 0; index < 6; index++) {
+  await expect(links).toHaveCount(7);
+  for (let index = 0; index < 7; index++) {
     const box = await links.nth(index).boundingBox();
     expect(box?.height).toBeGreaterThanOrEqual(44);
   }
@@ -81,13 +88,15 @@ test("desktop athlete shell exposes career navigation and key centers", async ({
   const nav = page.getByRole("navigation", { name: "NavegaÃ§Ã£o do atleta" });
   await expect(nav).toBeVisible();
   await nav.getByRole("link", { name: "Performance" }).click();
-  await expect(
-    page.getByRole("heading", { name: "Performance" }),
-  ).toBeVisible();
+  await expect(page).toHaveURL(/\/athlete\/performance/, { timeout: 20_000 });
+  await expect(page.getByRole("heading", { name: "Performance" })).toBeVisible({
+    timeout: 20_000,
+  });
   await nav.getByRole("link", { name: "Ranking", exact: true }).click();
-  await expect(
-    page.getByRole("heading", { name: "Meu ranking" }),
-  ).toBeVisible();
+  await expect(page).toHaveURL(/\/athlete\/ranking/, { timeout: 20_000 });
+  await expect(page.getByRole("heading", { name: "Meu ranking" })).toBeVisible({
+    timeout: 20_000,
+  });
   await page.getByRole("link", { name: /Notifica/ }).click();
   await expect(page.getByRole("heading", { name: /Notifica/ })).toBeVisible();
 });

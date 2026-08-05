@@ -21,6 +21,7 @@ import { cn } from "@/lib/utils";
 
 const primary = [
   { href: "/athlete", label: "InÃ­cio", icon: House, exact: true },
+  { href: "/athlete/agenda", label: "Agenda", icon: CalendarDays },
   { href: "/athlete/ur-play", label: "UR Play", icon: CalendarDays },
   { href: "/athlete/competitions", label: "Comp.", icon: Medal },
   { href: "/athlete/ranking", label: "Ranking", icon: Trophy },
@@ -95,7 +96,7 @@ export function AthleteMobileNavigation() {
       aria-label="NavegaÃ§Ã£o principal do atleta"
       className="fixed inset-x-0 bottom-0 z-40 border-t border-zinc-800 bg-[#0b0b0b]/[.98] pb-[env(safe-area-inset-bottom)] backdrop-blur lg:hidden"
     >
-      <div className="mx-auto grid max-w-lg grid-cols-5">
+      <div className="mx-auto grid max-w-lg grid-cols-7">
         {primary.map(({ href, label, icon: Icon, exact }) => {
           const isActive = active(pathname, href, exact);
           return (
