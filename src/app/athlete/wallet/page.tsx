@@ -1,0 +1,119 @@
+import { Badge, Card, EmptyState, PageHeader, StatCard } from "@/components/ui";
+import { requireRole } from "@/lib/auth/session";
+import { createClient } from "@/lib/supabase/server";
+import { getAthleteWallet } from "@/server/repositories/wallet-media-reports.repository";
+import { Coins, ShieldCheck, Trophy } from "lucide-react";
+
+const date = (value: string) =>
+  new Date(value).toLocaleDateString("pt-BR", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  });
+
+export default async function AthleteWalletPage() {
+  const identity = await requireRole("athlete");
+  const { projection, transactions, activeRules } = await getAthleteWallet(
+    await createClient(),
+    identity.userId,
+  );
+
+  const credits = transactions
+    .filter((transaction) => transaction.direction === "credit")
+    .reduce((sum, transaction) => sum + Number(transaction.amount ?? 0), 0);
+  const debits = transactions
+    .filter((transaction) => transaction.direction === "debit")
+    .reduce((sum, transaction) => sum + Number(transaction.amount ?? 0), 0);
+
+  return (
+    <div className="grid gap-8">
+      <PageHeader
+        eyebrow="UR Coins"
+        title="Minha wallet"
+        description="Saldo derivado de ledger append-only. UR Coins nÃ£o sÃ£o pontos de ranking e nÃ£o alteram classificaÃ§Ã£o oficial."
+      />
+
+      <div className="grid gap-4 md:grid-cols-3">
+        <StatCard
+          label="Saldo"
+          value={`${projection?.balance ?? 0} URC`}
+          hint="Calculado pelo ledger"
+          icon={Coins}
+        />
+        <StatCard
+          label="Ganhos"
+          value={`+${credits} URC`}
+          hint="CrÃ©ditos homologados"
+          icon={Trophy}
+        />
+        <StatCard
+          label="Gastos"
+          value={`-${debits} URC`}
+          hint="DÃ©bitos e redemptions"
+          icon={ShieldCheck}
+        />
+      </div>
+
+      <Card>
+        <h2 className="font-display text-xl font-black uppercase">
+          Regras Q1 ativas
+        </h2>
+        <div className="mt-4 grid gap-3 md:grid-cols-3">
+          {activeRules.map((rule) => (
+            <div key={rule.code} className="rounded-ur border p-4">
+              <Badge>{rule.source_type}</Badge>
+              <p className="mt-3 font-bold">{rule.name}</p>
+              <p className="text-ur-gold mt-2 text-2xl font-black">
+                {rule.direction === "credit" ? "+" : "-"}
+                {rule.amount} URC
+              </p>
+            </div>
+          ))}
+        </div>
+      </Card>
+
+      <Card>
+        <h2 className="font-display text-xl font-black uppercase">
+          HistÃ³rico
+        </h2>
+        {transactions.length ? (
+          <div className="mt-4 grid gap-3">
+            {transactions.map((transaction) => (
+              <div key={transaction.id} className="rounded-ur border p-4">
+                <div className="flex flex-wrap items-start justify-between gap-3">
+                  <div>
+                    <p className="font-bold">
+                      {transaction.ur_coin_rules?.name ?? transaction.reason}
+                    </p>
+                    <p className="text-sm text-zinc-400">
+                      {date(transaction.created_at)} â€¢{" "}
+                      {transaction.source_type}
+                    </p>
+                  </div>
+                  <strong
+                    className={
+                      transaction.direction === "credit"
+                        ? "text-ur-gold"
+                        : "text-zinc-300"
+                    }
+                  >
+                    {transaction.direction === "credit" ? "+" : "-"}
+                    {transaction.amount} URC
+                  </strong>
+                </div>
+                <p className="mt-2 text-sm text-zinc-500">
+                  {transaction.reason}
+                </p>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <EmptyState
+            title="Wallet ainda sem movimentaÃ§Ãµes"
+            description="ParticipaÃ§Ã£o, vitÃ³rias, grants administrativos e resgates auditados aparecerÃ£o aqui."
+          />
+        )}
+      </Card>
+    </div>
+  );
+}

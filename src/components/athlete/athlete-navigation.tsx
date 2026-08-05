@@ -5,6 +5,7 @@ import {
   Bell,
   CalendarDays,
   CircleUserRound,
+  Coins,
   Compass,
   House,
   ListChecks,
@@ -32,6 +33,7 @@ const secondary = [
   { href: "/athlete/journey", label: "Minha jornada", icon: Compass },
   { href: "/athlete/development", label: "Desenvolvimento", icon: Medal },
   { href: "/athlete/market", label: "UR Market", icon: ShoppingBag },
+  { href: "/athlete/wallet", label: "Wallet URC", icon: Coins },
   { href: "/athlete/points", label: "Meus pontos", icon: Shield },
   { href: "/athlete/profile", label: "ConfiguraÃ§Ãµes", icon: Settings },
 ];

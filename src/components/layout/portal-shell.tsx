@@ -6,6 +6,7 @@ import {
   LogOut,
   MapPin,
   Package,
+  PanelsTopLeft,
   ReceiptText,
   ShieldCheck,
   Trophy,
@@ -98,6 +99,16 @@ export function PortalShell({
               href: "/admin/market",
               label: "Market",
               icon: Package,
+            },
+            {
+              href: "/admin/media",
+              label: "Midia",
+              icon: PanelsTopLeft,
+            },
+            {
+              href: "/admin/reports",
+              label: "Relatorios",
+              icon: ReceiptText,
             },
             {
               href: "/admin/payments",

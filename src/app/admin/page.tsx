@@ -1,26 +1,155 @@
-import { ShieldCheck } from "lucide-react";
-import { EmptyState, PageHeader, StatCard } from "@/components/ui";
+import {
+  AlertTriangle,
+  CalendarDays,
+  CheckCircle2,
+  Coins,
+  HandCoins,
+  ListChecks,
+  ShieldCheck,
+  Trophy,
+  type LucideIcon,
+} from "lucide-react";
+import Link from "next/link";
+import { Card, PageHeader, StatCard } from "@/components/ui";
+import { createClient } from "@/lib/supabase/server";
+import { getAdminCommandCenter } from "@/server/repositories/wallet-media-reports.repository";
 
-export default function AdminPage() {
+const quickActions: {
+  href: string;
+  label: string;
+  icon: LucideIcon;
+}[] = [
+  { href: "/admin/ur-play/new", label: "Criar UR Play", icon: CalendarDays },
+  { href: "/admin/tournaments/new", label: "Criar torneio", icon: Trophy },
+  { href: "/admin/payments", label: "Registrar pagamento", icon: HandCoins },
+  { href: "/admin/market", label: "Criar oferta Market", icon: Coins },
+  { href: "/admin/sponsors", label: "Ativacao sponsor", icon: ShieldCheck },
+  { href: "/admin/events", label: "Criar UR Event", icon: CalendarDays },
+  { href: "/admin/reports", label: "Abrir relatorios", icon: ListChecks },
+  { href: "/ops/ur-play", label: "Court Ops", icon: Trophy },
+];
+
+export default async function AdminPage() {
+  const command = await getAdminCommandCenter(await createClient());
+
   return (
     <div className="grid gap-8">
       <PageHeader
-        eyebrow="Operação"
+        eyebrow="Operacao hoje"
         title="Central administrativa"
-        description="A estrutura está pronta para receber os módulos operacionais quando suas regras forem especificadas."
+        description="Cockpit da Temporada 1: agenda, pendencias, sinais de temporada e acoes rapidas sem depender de dashboard decorativo."
       />
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <StatCard
-          label="Ambiente"
-          value="Base"
-          hint="Sem dados de produção"
+          label="UR Play hoje"
+          value={String(command.today.sessions)}
+          hint="Sessoes entre 00:00 e 23:59"
+          icon={CalendarDays}
+        />
+        <StatCard
+          label="Treinos hoje"
+          value={String(command.today.training)}
+          hint="Training calendar"
+          icon={ListChecks}
+        />
+        <StatCard
+          label="Partidas abertas"
+          value={String(command.today.matches)}
+          hint="Fila, chamada, em jogo ou revisao"
+          icon={Trophy}
+        />
+        <StatCard
+          label="Staff alocado"
+          value={String(command.today.staff)}
+          hint="Escalas operacionais"
           icon={ShieldCheck}
         />
       </div>
-      <EmptyState
-        title="Módulos em preparação"
-        description="Atletas, equipes, polos, sessões e partidas serão adicionados nas próximas etapas, com regras validadas."
-      />
+
+      <section className="grid gap-4 xl:grid-cols-[1fr_1fr]">
+        <Card>
+          <div className="flex items-center gap-3">
+            <AlertTriangle className="text-ur-gold" aria-hidden="true" />
+            <h2 className="font-display text-xl font-black uppercase">
+              Pendencias
+            </h2>
+          </div>
+          <div className="mt-5 grid gap-3 sm:grid-cols-2">
+            <PendingItem label="Pagamentos" value={command.pending.payments} />
+            <PendingItem
+              label="Deliveries sponsor"
+              value={command.pending.sponsorDeliveries}
+            />
+            <PendingItem
+              label="Market redemptions"
+              value={command.pending.marketRedemptions}
+            />
+            <PendingItem
+              label="Obrigacoes financeiras"
+              value={command.pending.financeObligations}
+            />
+          </div>
+        </Card>
+
+        <Card>
+          <div className="flex items-center gap-3">
+            <CheckCircle2 className="text-ur-gold" aria-hidden="true" />
+            <h2 className="font-display text-xl font-black uppercase">
+              Temporada
+            </h2>
+          </div>
+          <div className="mt-5 grid gap-3 sm:grid-cols-2">
+            <PendingItem
+              label="Atletas ativos"
+              value={command.season.activeAthletes}
+            />
+            <PendingItem
+              label="Reports temporada"
+              value={command.season.reports}
+            />
+            <PendingItem
+              label="Reports equipes"
+              value={command.season.teamReports}
+            />
+            <PendingItem
+              label="Reports quadras/sponsors"
+              value={
+                command.season.venueReports + command.season.sponsorReports
+              }
+            />
+          </div>
+        </Card>
+      </section>
+
+      <Card>
+        <h2 className="font-display text-xl font-black uppercase">
+          Quick actions
+        </h2>
+        <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+          {quickActions.map(({ href, label, icon: Icon }) => (
+            <Link
+              key={href}
+              href={href}
+              className="rounded-ur hover:border-ur-gold/40 flex min-h-12 items-center gap-3 border p-4 font-black text-zinc-200 transition-colors hover:text-white"
+            >
+              <Icon size={18} className="text-ur-gold" aria-hidden="true" />
+              {label}
+            </Link>
+          ))}
+        </div>
+      </Card>
+    </div>
+  );
+}
+
+function PendingItem({ label, value }: { label: string; value: number }) {
+  return (
+    <div className="rounded-ur border p-4">
+      <p className="text-xs font-black tracking-[.16em] text-zinc-500 uppercase">
+        {label}
+      </p>
+      <strong className="font-display mt-2 block text-3xl">{value}</strong>
     </div>
   );
 }
