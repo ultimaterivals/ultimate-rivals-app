@@ -3,6 +3,7 @@ import {
   LayoutDashboard,
   LogOut,
   MapPin,
+  ShieldCheck,
   Trophy,
   UserRound,
   UsersRound,
@@ -62,6 +63,7 @@ export function PortalShell({
               label: "Calendário",
               icon: CalendarDays,
             },
+            { href: "/admin/staff", label: "Staff", icon: ShieldCheck },
             { href: "/admin/leveling", label: "Nivelamento", icon: UserRound },
             {
               href: "/admin/assessments",
