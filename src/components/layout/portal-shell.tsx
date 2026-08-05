@@ -38,6 +38,7 @@ export function PortalShell({
       ? [
           { href: "/athlete/profile", label: "Meu perfil", icon: UserRound },
           { href: "/athlete/ur-play", label: "UR Play", icon: CalendarDays },
+          { href: "/athlete/billing", label: "Pagamentos", icon: ShieldCheck },
           { href: "/athlete/points", label: "Meus pontos", icon: Trophy },
           { href: "/athlete/ranking", label: "Meu ranking", icon: Trophy },
           {
@@ -75,6 +76,11 @@ export function PortalShell({
               href: "/admin/tournaments",
               label: "Torneios",
               icon: Trophy,
+            },
+            {
+              href: "/admin/payments",
+              label: "Pagamentos",
+              icon: ShieldCheck,
             },
             {
               href: "/admin/ranking-engine",
