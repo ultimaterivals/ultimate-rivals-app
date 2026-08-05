@@ -57,6 +57,11 @@ export function PortalShell({
             { href: "/admin/teams", label: "Equipes", icon: UsersRound },
             { href: "/admin/poles", label: "Polos", icon: MapPin },
             { href: "/admin/seasons", label: "Temporadas", icon: CalendarDays },
+            {
+              href: "/admin/calendar",
+              label: "Calendário",
+              icon: CalendarDays,
+            },
             { href: "/admin/leveling", label: "Nivelamento", icon: UserRound },
             {
               href: "/admin/assessments",
