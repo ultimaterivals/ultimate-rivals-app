@@ -135,8 +135,43 @@ Required before production:
 
 ## Final status
 
-`MIGRATION_RECOVERY_NEEDS_MANUAL_DECISION`
+## RC1.2 update
 
-`MIGRATION_SEQUENCE_REPRODUCIBLE` was not achieved in this environment.
+RC1.2 added a GitHub Actions replay workflow because the Windows environment does not have Docker/Postgres.
 
-Fase B Demand/Booking/Acquisition and Fase C RC2 verification must not start until this gate is green.
+Workflow:
+
+- `.github/workflows/migration-replay.yml`
+
+Successful replay:
+
+- Run: `https://github.com/ultimaterivals/ultimate-rivals-app/actions/runs/31047123055`
+- Commit: `42d7f99e3c37585bc364fd7a8afbebf2eb28cd3b`
+- Result: `FRESH_MIGRATION_REPLAY_PASS`
+- Artifact digest: `sha256:7e5e37b5cc40f4d188d55dd4dd77052d466016655cd30277c95ded4d21c9bf14`
+
+The first replay proved the migrations could create a fresh database, but also exposed stale broad tournament policies that existed in fresh replay and not in DEV. The safe reconciliation was to harden fresh replay by adding:
+
+- `20260805210438_drop_stale_tournament_policies.sql`
+
+After that migration, application schema comparison for `public` shows:
+
+- `SCHEMA_DRIFT`: 0
+- critical `SECURITY_DRIFT`: 0 for `anon` and `authenticated`
+- `DEV_SCHEMA_ALIGNMENT_PASS_FOR_APPLICATION_SCHEMA`
+
+Remaining issue:
+
+The exact migration history is still not fully reconciled because DEV has historical remote versions that differ from local file versions, especially around the older timestamped migrations and the finance/prizes/repasses iterative sequence. The current available Supabase connector can apply SQL but does not provide a safe local-timestamp-preserving `migration repair` or `db push` operation. Using `apply_migration` for the local no-op hardening migration would generate another remote timestamp and increase history drift.
+
+## Final status
+
+`FRESH_MIGRATION_REPLAY_PASS`
+
+`DEV_SCHEMA_ALIGNMENT_PASS_FOR_APPLICATION_SCHEMA`
+
+`MIGRATION_HISTORY_RECONCILIATION_PENDING`
+
+`MIGRATION_SEQUENCE_REPRODUCIBLE`: not fully declared yet for DEV history.
+
+Fase B Demand/Booking/Acquisition and Fase C RC2 verification must not start until the exact DEV migration history strategy is completed with timestamp-preserving tooling or an explicit manual decision.

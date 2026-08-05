@@ -60,3 +60,24 @@ RC1 explicitly forbids rewriting already applied migrations or hiding drift. The
 `MIGRATION_SEQUENCE_NOT_REPRODUCIBLE`
 
 RC1 launch verification must stop before READY until migration history is reconciled safely. Acceptable next actions are a deliberate migration-history reconciliation plan, not product feature work, not PROD access, and not rewriting applied DEV migrations.
+
+## RC1.2 UPDATE
+
+RC1.2 created a GitHub Actions replay workflow and proved fresh replay on a hosted Linux runner:
+
+- Workflow: `.github/workflows/migration-replay.yml`
+- Successful run: `https://github.com/ultimaterivals/ultimate-rivals-app/actions/runs/31047123055`
+- Commit: `42d7f99e3c37585bc364fd7a8afbebf2eb28cd3b`
+- Result: `FRESH_MIGRATION_REPLAY_PASS`
+
+A schema drift was found and corrected in local migrations by adding:
+
+- `20260805210438_drop_stale_tournament_policies.sql`
+
+After that correction, fresh replay and DEV match for application schema object counts in `public`, including RLS policy count.
+
+Remaining blocker:
+
+`MIGRATION_HISTORY_RECONCILIATION_PENDING`
+
+The DEV schema is aligned for the application, but the exact local-vs-DEV migration history still needs a safe timestamp-preserving reconciliation path before RC1.2 can advance to Demand/Booking/Acquisition.

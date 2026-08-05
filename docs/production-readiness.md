@@ -19,3 +19,17 @@ Status desta completion run: somente DEV homologado. Nenhuma operacao foi execut
 - Advisors nao estao expostos no conector atual.
 - CLI local nao esta autenticado com `SUPABASE_ACCESS_TOKEN`; usar dashboard/CLI autenticado no go-live.
 - Nenhum dado real deve ser importado ate a matriz de privacidade ser revisada.
+
+## RC1.2 migration replay gate
+
+Status as of 2026-08-05:
+
+- Fresh replay via GitHub Actions: `PASS`
+- Workflow run: `https://github.com/ultimaterivals/ultimate-rivals-app/actions/runs/31047123055`
+- Application schema alignment against DEV: `PASS_FOR_PUBLIC_SCHEMA`
+- Critical RLS/security drift for `anon`/`authenticated`: `0`
+- Production touched: no
+- Real data inserted: no
+- Remaining blocker before Season 1 READY: `MIGRATION_HISTORY_RECONCILIATION_PENDING`
+
+Do not begin production deployment until the exact DEV migration-history reconciliation strategy is completed.
