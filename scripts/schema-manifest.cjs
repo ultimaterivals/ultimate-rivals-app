@@ -216,6 +216,7 @@ if (!hasArg("--local")) {
 function run(command, commandArgs, options = {}) {
   return execFileSync(command, commandArgs, {
     encoding: "utf8",
+    maxBuffer: 64 * 1024 * 1024,
     stdio: ["pipe", "pipe", "pipe"],
     ...options,
   });
