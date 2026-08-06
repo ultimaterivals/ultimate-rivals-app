@@ -19,6 +19,8 @@ jobs:
     name: Production baseline replay
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    env:
+      SUPABASE_INTERNAL_IMAGE_REGISTRY: ghcr.io
 
     steps:
       - name: Checkout
@@ -40,6 +42,7 @@ jobs:
 
       - name: Verify Docker runner
         run: |
+          echo "Supabase image registry: $SUPABASE_INTERNAL_IMAGE_REGISTRY"
           docker version
           docker info
 
