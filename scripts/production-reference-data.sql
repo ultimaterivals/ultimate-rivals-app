@@ -67,7 +67,8 @@ values
   ('FAIR_PLAY', 'Fair Play', 'Reconhecimento manual homologado, sem seleção automática.', 'ur_play', 'athlete', 'bonus', 5, true, '2026-01-01', 1, '{"source":"match_recognition"}'),
   ('YELLOW_CARD', 'Cartão amarelo', 'Penalidade disciplinar homologada.', 'ur_play', 'athlete', 'penalty', -5, true, '2026-01-01', 1, '{"source":"disciplinary_event"}'),
   ('RED_CARD', 'Cartão vermelho', 'Penalidade disciplinar homologada.', 'ur_play', 'athlete', 'penalty', -20, true, '2026-01-01', 1, '{"source":"disciplinary_event"}'),
-  ('SQUAD_RESERVE_PRESENT', 'Reserva presente', 'Mérito por presença de reserva preparado, sem atribuição automática no UR Play.', 'ur_play', 'athlete', 'participation', 0, false, '2026-01-01', 1, '{"distribution":"disabled"}');
+  ('SQUAD_RESERVE_PRESENT', 'Reserva presente', 'Mérito por presença de reserva preparado, sem atribuição automática no UR Play.', 'ur_play', 'athlete', 'participation', 0, false, '2026-01-01', 1, '{"distribution":"disabled"}')
+on conflict (season_id, rule_code, event_context, version) do nothing;
 
 -- Source: 20260805154400_season_calendar_operations.sql
 -- purpose: SYSTEM_REQUIRED or REFERENCE_DATA; idempotency: ON CONFLICT / SELECT-safe source statement; environment safety: PROD_ALLOWED.
