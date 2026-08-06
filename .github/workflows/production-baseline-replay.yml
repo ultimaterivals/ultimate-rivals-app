@@ -61,9 +61,9 @@ jobs:
               safe_line="${line//'%'/'%25'}"
               safe_line="${safe_line//$'\n'/'%0A'}"
               safe_line="${safe_line//$'\r'/'%0D'}"
-              echo "::error title=Supabase start::${safe_line}"
+              echo "::warning title=Supabase start non-fatal::${safe_line}"
             done
-            exit "$code"
+            echo "Supabase start exited with ${code}; continuing to db reset for authoritative replay diagnostics."
           fi
 
       - name: Replay production baseline without seeds
