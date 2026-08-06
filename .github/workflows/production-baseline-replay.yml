@@ -46,8 +46,13 @@ jobs:
       - name: Static baseline audit
         run: node scripts/audit-production-baseline.cjs
 
+      - name: Disable DEV seed for production-like local stack
+        run: |
+          perl -0pi -e 's/\[db\.seed\]\nenabled = true/[db.seed]\nenabled = false/' supabase/config.toml
+          grep -A3 '^\[db.seed\]' supabase/config.toml
+
       - name: Start Supabase local
-        run: npx --no-install supabase start
+        run: npx --no-install supabase start --debug
 
       - name: Replay production baseline without seeds
         run: npx --no-install supabase db reset --local --no-seed --yes --debug
