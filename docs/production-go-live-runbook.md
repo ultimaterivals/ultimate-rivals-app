@@ -1,6 +1,6 @@
 # Production go-live runbook — Season 1
 
-Production release plan status: `APPROVED_READY`.
+Production release plan status: `BLOCKED_BY_PRODUCTION_BASELINE_CI`.
 
 This runbook is not authorization to execute PROD operations.
 

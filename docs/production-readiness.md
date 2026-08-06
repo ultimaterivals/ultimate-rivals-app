@@ -1,8 +1,8 @@
 # Production readiness
 
-Status: `PRODUCTION_RELEASE_PLAN_APPROVED_READY`.
+Status: `PRODUCTION_RELEASE_PLAN_BLOCKED_BY_PRODUCTION_BASELINE_CI`.
 
-Production baseline: `READY`.
+Production baseline: `READY_STATIC_AUDIT_PASS_CI_REPLAY_BLOCKED`.
 
 Deployment target: `VERCEL_MANUAL_LINK_REQUIRED`.
 

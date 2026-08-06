@@ -2,7 +2,7 @@
 
 Application status: `READY_FOR_SEASON_1`.
 
-Production release plan: `APPROVED_READY`.
+Production release plan: `BLOCKED_BY_PRODUCTION_BASELINE_CI`.
 
 This is a technical pre-implantation audit. No PROD project was accessed,
 created or modified. No real data was inserted. No feature development was
@@ -46,7 +46,16 @@ Resolved on `release/season-1-v1`:
 - deployment target is Vercel.
 
 Manual Vercel account linking remains required because the local Vercel token is
-invalid. This is a manual account gate, not a product or baseline blocker.
+invalid. This is a manual account gate, not a product blocker.
+
+The remaining technical blocker is the GitHub Actions production baseline replay
+job. It passes static baseline audit, Docker verification and CLI verification,
+but fails because the Supabase local stack is not running before `db reset`:
+
+- workflow: Production Baseline Replay;
+- latest observed run: `#7`;
+- failing stage: production baseline replay in CI;
+- public annotation: `supabase start is not running`.
 
 ## Owner decisions required
 
@@ -80,6 +89,7 @@ Do not create the final tag before approval.
 
 ## Status separation
 
-`READY_FOR_SEASON_1` and `PRODUCTION_RELEASE_PLAN = APPROVED_READY` can coexist
-with manual go-live gates such as creating Supabase PROD, setting production
-environment variables, configuring DNS and onboarding real data.
+`READY_FOR_SEASON_1` can coexist with
+`PRODUCTION_RELEASE_PLAN = BLOCKED_BY_PRODUCTION_BASELINE_CI`. Manual go-live
+gates such as creating Supabase PROD, setting production environment variables,
+configuring DNS and onboarding real data still remain after CI is green.
