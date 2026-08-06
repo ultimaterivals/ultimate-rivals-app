@@ -56,7 +56,21 @@ jobs:
       - name: Start Supabase local
         run: |
           set +e
-          npx --no-install supabase start --debug --exclude gotrue,realtime,storage-api,imgproxy,kong,mailpit,postgrest,postgres-meta,studio,edge-runtime,logflare,vector,supavisor 2>&1 | tee supabase-start.log
+          npx --no-install supabase start --debug \
+            --exclude gotrue \
+            --exclude realtime \
+            --exclude storage-api \
+            --exclude imgproxy \
+            --exclude kong \
+            --exclude mailpit \
+            --exclude postgrest \
+            --exclude postgres-meta \
+            --exclude studio \
+            --exclude edge-runtime \
+            --exclude logflare \
+            --exclude vector \
+            --exclude supavisor \
+            2>&1 | tee supabase-start.log
           code=${PIPESTATUS[0]}
           if [ "$code" -ne 0 ]; then
             {
