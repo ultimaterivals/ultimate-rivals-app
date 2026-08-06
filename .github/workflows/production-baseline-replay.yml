@@ -8,6 +8,7 @@ on:
     paths:
       - "supabase/migrations/**"
       - "supabase/migrations_legacy/**"
+      - "supabase/config.toml"
       - "scripts/production-reference-data.sql"
       - "scripts/production-fixture-audit.sql"
       - "scripts/audit-production-baseline.cjs"
