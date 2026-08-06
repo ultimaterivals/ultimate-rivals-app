@@ -56,7 +56,7 @@ jobs:
       - name: Start Supabase local
         run: |
           set +e
-          npx --no-install supabase start --debug 2>&1 | tee supabase-start.log
+          npx --no-install supabase start --debug --exclude studio,imgproxy,edge-runtime,logflare,vector,supavisor,realtime 2>&1 | tee supabase-start.log
           code=${PIPESTATUS[0]}
           if [ "$code" -ne 0 ]; then
             tail_text="$(tail -n 120 supabase-start.log)"
