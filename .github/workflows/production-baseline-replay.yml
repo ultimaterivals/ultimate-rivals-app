@@ -52,7 +52,19 @@ jobs:
           grep -A3 '^\[db.seed\]' supabase/config.toml
 
       - name: Start Supabase local
-        run: npx --no-install supabase start --debug --ignore-health-check
+        run: |
+          set +e
+          npx --no-install supabase start --debug --ignore-health-check 2>&1 | tee supabase-start.log
+          code=${PIPESTATUS[0]}
+          if [ "$code" -ne 0 ]; then
+            tail -n 80 supabase-start.log | while IFS= read -r line; do
+              safe_line="${line//'%'/'%25'}"
+              safe_line="${safe_line//$'\n'/'%0A'}"
+              safe_line="${safe_line//$'\r'/'%0D'}"
+              echo "::error title=Supabase start::${safe_line}"
+            done
+            exit "$code"
+          fi
 
       - name: Replay production baseline without seeds
         run: npx --no-install supabase db reset --local --no-seed --yes --debug
