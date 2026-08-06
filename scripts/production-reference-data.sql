@@ -204,10 +204,7 @@ join (
     ('q1_ur_legends_cash_prizes', 'mvp', 'MVP', 500.00::numeric, 4::smallint)
 ) as item(template_code, award_code, award_label, amount, sort_order)
   on item.template_code = tpl.code
-on conflict (template_id, award_code) do update
-set award_label = excluded.award_label,
-    amount = excluded.amount,
-    sort_order = excluded.sort_order;
+on conflict (template_id, award_code) do nothing;
 
 -- Source: 20260805165852_season_prizes_repasses_finance.sql
 -- purpose: SYSTEM_REQUIRED or REFERENCE_DATA; idempotency: ON CONFLICT / SELECT-safe source statement; environment safety: PROD_ALLOWED.
