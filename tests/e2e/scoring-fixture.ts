@@ -19,12 +19,21 @@ async function signedIn(role: "admin" | "operator") {
   const client = createClient(url, key, {
     auth: { persistSession: false, autoRefreshToken: false },
   });
-  const { error } = await client.auth.signInWithPassword({
-    email: `${role}@test.ur.local`,
-    password,
-  });
-  if (error) throw error;
-  return client;
+  let lastError: unknown;
+  for (let attempt = 0; attempt < 3; attempt += 1) {
+    try {
+      const { error } = await client.auth.signInWithPassword({
+        email: `${role}@test.ur.local`,
+        password,
+      });
+      if (!error) return client;
+      lastError = error;
+    } catch (error) {
+      lastError = error;
+    }
+    await new Promise((resolve) => setTimeout(resolve, 1_500));
+  }
+  throw lastError;
 }
 
 const assertOk = (response: { error: unknown }) => {

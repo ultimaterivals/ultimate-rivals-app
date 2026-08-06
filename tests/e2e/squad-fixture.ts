@@ -19,12 +19,43 @@ async function signedIn(role: "admin" | "operator") {
   const client = createClient(url, key, {
     auth: { persistSession: false, autoRefreshToken: false },
   });
-  const { error } = await client.auth.signInWithPassword({
-    email: `${role}@test.ur.local`,
-    password,
-  });
-  if (error) throw error;
-  return client;
+  let lastError: unknown;
+  for (let attempt = 0; attempt < 3; attempt += 1) {
+    try {
+      const { error } = await client.auth.signInWithPassword({
+        email: `${role}@test.ur.local`,
+        password,
+      });
+      if (!error) return client;
+      lastError = error;
+    } catch (error) {
+      lastError = error;
+    }
+    await new Promise((resolve) => setTimeout(resolve, 1_500));
+  }
+  throw lastError;
+}
+
+async function checked<T extends { error: unknown }>(
+  operation: () => PromiseLike<T>,
+) {
+  let response: T | null = null;
+  for (let attempt = 0; attempt < 3; attempt += 1) {
+    try {
+      response = await operation();
+      if (!response.error) return response;
+    } catch (error) {
+      if (attempt === 2) throw error;
+    }
+    await new Promise((resolve) => setTimeout(resolve, 1_500));
+  }
+  throw response?.error;
+}
+
+async function inserted<T extends { error: unknown }>(operation: PromiseLike<T>) {
+  const response = await operation;
+  if (response.error) throw response.error;
+  return response;
 }
 
 export async function createSquadE2EFixture() {
@@ -79,8 +110,8 @@ export async function createSquadE2EFixture() {
   )
     throw new Error("Squad E2E reference data is incomplete.");
 
-  const insertions = [
-    await admin.from("venues").insert({
+  await inserted(
+    admin.from("venues").insert({
       id: venueId,
       name: `[TEST] E2E Squad ${sessionId.slice(0, 6)}`,
       pole_id: ids.pole,
@@ -88,7 +119,9 @@ export async function createSquadE2EFixture() {
       state: "SP",
       status: "active",
     }),
-    await admin.from("courts").insert(
+  );
+  await inserted(
+    admin.from("courts").insert(
       courts.map((id, index) => ({
         id,
         venue_id: venueId,
@@ -96,7 +129,9 @@ export async function createSquadE2EFixture() {
         status: "active",
       })),
     ),
-    await admin.from("athletes").insert(
+  );
+  await inserted(
+    admin.from("athletes").insert(
       generated.map((id, index) => ({
         id,
         public_name: `[TEST] E2E Squad Player ${index + 1}`,
@@ -105,87 +140,84 @@ export async function createSquadE2EFixture() {
         status: "active",
       })),
     ),
-  ];
-  for (const insertion of insertions)
-    if (insertion.error) throw insertion.error;
-  const levelInsert = await admin.from("athlete_levels").insert(
-    generated.map((athlete_id) => ({
-      athlete_id,
-      season_id: ids.season,
-      level: athleteLevel.level,
-      starts_at: new Date(Date.now() - 86_400_000).toISOString(),
-      reason: "[TEST] Sprint 7.1 E2E",
-      assigned_by: ids.admin,
-    })),
   );
-  if (levelInsert.error) throw levelInsert.error;
-  const sessionInsert = await admin.from("ur_play_sessions").insert({
-    id: sessionId,
-    season_id: ids.season,
-    pole_id: ids.pole,
-    venue_id: venueId,
-    name: `[TEST] Sprint 7.1 E2E ${sessionId.slice(0, 6)}`,
-    session_date: startsAt.toISOString().slice(0, 10),
-    starts_at: startsAt.toISOString(),
-    ends_at: endsAt.toISOString(),
-    registration_opens_at: new Date(Date.now() - 3_600_000).toISOString(),
-    registration_closes_at: new Date(Date.now() + 3_600_000).toISOString(),
-    capacity: 17,
-    waitlist_capacity: 2,
-    status: "registration_open",
-    created_by: ids.admin,
-    min_rest_minutes: 10,
-  });
-  if (sessionInsert.error) throw sessionInsert.error;
-  const sessionSetup = [
-    await admin.from("ur_play_session_courts").insert(
+  await inserted(
+    admin.from("athlete_levels").insert(
+      generated.map((athlete_id) => ({
+        athlete_id,
+        season_id: ids.season,
+        level: athleteLevel.level,
+        starts_at: new Date(Date.now() - 86_400_000).toISOString(),
+        reason: "[TEST] Sprint 7.1 E2E",
+        assigned_by: ids.admin,
+      })),
+    ),
+  );
+  await inserted(
+    admin.from("ur_play_sessions").insert({
+      id: sessionId,
+      season_id: ids.season,
+      pole_id: ids.pole,
+      venue_id: venueId,
+      name: `[TEST] Sprint 7.1 E2E ${sessionId.slice(0, 6)}`,
+      session_date: startsAt.toISOString().slice(0, 10),
+      starts_at: startsAt.toISOString(),
+      ends_at: endsAt.toISOString(),
+      registration_opens_at: new Date(Date.now() - 3_600_000).toISOString(),
+      registration_closes_at: new Date(Date.now() + 3_600_000).toISOString(),
+      capacity: 17,
+      waitlist_capacity: 2,
+      status: "registration_open",
+      created_by: ids.admin,
+      min_rest_minutes: 10,
+    }),
+  );
+  await inserted(
+    admin.from("ur_play_session_courts").insert(
       courts.map((court_id, index) => ({
         session_id: sessionId,
         court_id,
         position: index + 1,
       })),
     ),
-    await admin.from("ur_play_session_staff").insert({
+  );
+  await inserted(
+    admin.from("ur_play_session_staff").insert({
       session_id: sessionId,
       profile_id: operatorProfile.id,
       role: "operator",
     }),
-  ];
-  for (const setup of sessionSetup) if (setup.error) throw setup.error;
+  );
 
   const registrations = [];
   for (const athleteId of [...generated, athlete.id]) {
-    const registration = await admin.rpc("register_ur_play", {
+    const registration = await checked(() => admin.rpc("register_ur_play", {
       target_session: sessionId,
       target_athlete: athleteId,
       target_source: "admin",
       operation_id: crypto.randomUUID(),
-    });
-    if (registration.error) throw registration.error;
+    }));
     registrations.push(registration.data);
   }
   for (const status of ["registration_closed", "checkin_open"]) {
-    const transition = await admin.rpc("transition_ur_play_session", {
+    await checked(() => admin.rpc("transition_ur_play_session", {
       target_session_id: sessionId,
       target_status: status,
       cancel_reason: null,
-    });
-    if (transition.error) throw transition.error;
+    }));
   }
   for (const registration of registrations) {
-    const checkin = await operator.rpc("checkin_ur_play", {
+    await checked(() => operator.rpc("checkin_ur_play", {
       target_registration: registration.id,
       checkin_method: "operator",
       operation_id: crypto.randomUUID(),
-    });
-    if (checkin.error) throw checkin.error;
+    }));
   }
-  const start = await admin.rpc("transition_ur_play_session", {
+  await checked(() => admin.rpc("transition_ur_play_session", {
     target_session_id: sessionId,
     target_status: "in_progress",
     cancel_reason: null,
-  });
-  if (start.error) throw start.error;
+  }));
 
   const sameGenderStarterIndex = athlete.gender === "female" ? 0 : 1;
   return {

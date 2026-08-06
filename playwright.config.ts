@@ -5,7 +5,12 @@ export default defineConfig({
   fullyParallel: false,
   workers: 1,
   reporter: "html",
-  use: { baseURL: "http://127.0.0.1:3000", trace: "on-first-retry" },
+  use: {
+    baseURL: "http://127.0.0.1:3000",
+    screenshot: "only-on-failure",
+    trace: "retain-on-failure",
+    video: "retain-on-failure",
+  },
   webServer: {
     command: "next start",
     url: "http://127.0.0.1:3000",

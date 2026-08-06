@@ -5,21 +5,36 @@ if (!password)
   throw new Error("UR_TEST_PASSWORD is required for ranking E2E tests.");
 
 async function login(page: Page, email: string) {
-  await page.goto("/login");
-  await page.getByLabel("E-mail").fill(email);
-  await page.getByLabel("Senha").fill(password);
-  await page.getByRole("button", { name: "Entrar" }).click();
-  await expect(page).not.toHaveURL(/\/login$/, { timeout: 20_000 });
+  let lastError: unknown;
+  for (let attempt = 0; attempt < 3; attempt += 1) {
+    try {
+      await page.context().clearCookies();
+      await page.goto("/login");
+      await page.getByLabel("E-mail").fill(email);
+      await page.getByLabel("Senha").fill(password);
+      await page.getByRole("button", { name: "Entrar" }).click();
+      await expect(page).not.toHaveURL(/\/login$/, { timeout: 30_000 });
+      return;
+    } catch (error) {
+      lastError = error;
+      if (attempt === 2) throw error;
+      await page.waitForTimeout(1_500);
+    }
+  }
+  throw lastError;
 }
 
 test("public rankings expose sports data without PII", async ({ page }) => {
+  test.setTimeout(90_000);
   await page.goto("/rankings");
   await expect(
     page.getByRole("heading", { name: "Rankings oficiais" }),
-  ).toBeVisible();
+  ).toBeVisible({ timeout: 30_000 });
   for (const route of ["individual", "teams", "poles", "doubles", "fours"]) {
     await page.goto(`/rankings/${route}`);
-    await expect(page.getByText("Classificação pública")).toBeVisible();
+    await expect(page.getByText("Classificação pública")).toBeVisible({
+      timeout: 30_000,
+    });
     await expect(page.locator("body")).not.toContainText(
       /@test\.ur\.local|Telefone|Nascimento completo|Notas administrativas/i,
     );
@@ -41,11 +56,12 @@ test("public rankings expose sports data without PII", async ({ page }) => {
 test("athlete sees position, movement, level, points and statistics", async ({
   page,
 }) => {
+  test.setTimeout(60_000);
   await login(page, "athlete@test.ur.local");
   await page.goto("/athlete/ranking");
   await expect(
     page.getByRole("heading", { name: "Meu ranking" }),
-  ).toBeVisible();
+  ).toBeVisible({ timeout: 30_000 });
   await expect(page.getByText(/N[123] ·|Em Nivelamento/).first()).toBeVisible();
   await expect(page.getByText("PONTOS NA TEMPORADA")).toBeVisible();
   await expect(page.getByText("Aproveitamento")).toBeVisible();

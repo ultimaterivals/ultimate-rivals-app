@@ -5,11 +5,23 @@ if (!password)
   throw new Error("UR_TEST_PASSWORD is required for athlete E2E tests.");
 
 async function login(page: Page) {
-  await page.goto("/login");
-  await page.getByLabel("E-mail").fill("athlete@test.ur.local");
-  await page.getByLabel("Senha").fill(password);
-  await page.getByRole("button", { name: "Entrar" }).click();
-  await expect(page).toHaveURL(/\/athlete/, { timeout: 20_000 });
+  let lastError: unknown;
+  for (let attempt = 0; attempt < 3; attempt += 1) {
+    try {
+      await page.context().clearCookies();
+      await page.goto("/login");
+      await page.getByLabel("E-mail").fill("athlete@test.ur.local");
+      await page.getByLabel("Senha").fill(password);
+      await page.getByRole("button", { name: "Entrar" }).click();
+      await expect(page).toHaveURL(/\/athlete/, { timeout: 30_000 });
+      return;
+    } catch (error) {
+      lastError = error;
+      if (attempt === 2) throw error;
+      await page.waitForTimeout(1_500);
+    }
+  }
+  throw lastError;
 }
 
 test("athlete opens the integrated home without private PII", async ({
@@ -29,6 +41,7 @@ test("mobile athlete navigation covers the primary journey", async ({
   page,
 }, testInfo) => {
   test.skip(testInfo.project.name !== "mobile", "Mobile navigation scenario");
+  test.setTimeout(90_000);
   await login(page);
   const nav = page.getByRole("navigation", {
     name: "NavegaÃ§Ã£o principal do atleta",

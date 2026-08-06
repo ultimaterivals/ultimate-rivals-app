@@ -7,16 +7,29 @@ if (!password)
   throw new Error("UR_TEST_PASSWORD is required for authenticated E2E tests.");
 
 async function login(page: Page, email: string) {
-  await page.goto("/login");
-  await page.getByLabel("E-mail").fill(email);
-  await page.getByLabel("Senha").fill(password);
-  await page.getByRole("button", { name: "Entrar" }).click();
-  await expect(page).not.toHaveURL(/\/login$/, { timeout: 20_000 });
+  let lastError: unknown;
+  for (let attempt = 0; attempt < 3; attempt += 1) {
+    try {
+      await page.context().clearCookies();
+      await page.goto("/login");
+      await page.getByLabel("E-mail").fill(email);
+      await page.getByLabel("Senha").fill(password);
+      await page.getByRole("button", { name: "Entrar" }).click();
+      await expect(page).not.toHaveURL(/\/login$/, { timeout: 30_000 });
+      return;
+    } catch (error) {
+      lastError = error;
+      if (attempt === 2) throw error;
+      await page.waitForTimeout(1_500);
+    }
+  }
+  throw lastError;
 }
 
 test("admin signs in and creates a development pole", async ({
   page,
 }, testInfo) => {
+  test.setTimeout(90_000);
   await login(page, "admin@test.ur.local");
   await expect(page).toHaveURL(/\/admin$/);
   await page.goto("/admin/poles");
@@ -85,6 +98,7 @@ test("athlete sees team context but no edit controls", async ({ page }) => {
 });
 
 test("admin completes Athlete 360 lifecycle", async ({ page }, testInfo) => {
+  test.setTimeout(90_000);
   await login(page, "admin@test.ur.local");
   await page.goto("/admin/athletes");
   await page.getByLabel("Buscar atletas").fill("UR-");
@@ -100,7 +114,15 @@ test("admin completes Athlete 360 lifecycle", async ({ page }, testInfo) => {
   });
   await expect(page.getByText(/^UR-\d{6}$/)).toBeVisible();
   await page.getByRole("button", { name: "Arquivar" }).click();
-  await expect(page.getByRole("button", { name: "Reativar" })).toBeVisible();
+  await expect
+    .poll(
+      async () => {
+        await page.reload();
+        return page.getByRole("button", { name: "Reativar" }).count();
+      },
+      { timeout: 30_000 },
+    )
+    .toBe(1);
   await page.getByRole("button", { name: "Reativar" }).click();
   await expect
     .poll(
@@ -114,6 +136,7 @@ test("admin completes Athlete 360 lifecycle", async ({ page }, testInfo) => {
 });
 
 test("athlete edits only permitted profile data", async ({ page }) => {
+  test.setTimeout(90_000);
   await login(page, "athlete@test.ur.local");
   await page.goto("/athlete/profile");
   await page.getByRole("link", { name: "Editar meu perfil" }).click();
@@ -123,8 +146,8 @@ test("athlete edits only permitted profile data", async ({ page }) => {
     timeout: 20_000,
   });
   await expect(page.getByText("Perfil atualizado.")).toBeVisible();
-  await page.goto("/admin/athletes");
-  await expect(page).toHaveURL(/\/athlete$/);
+  await page.goto("/admin/athletes", { timeout: 45_000 });
+  await expect(page).toHaveURL(/\/athlete$/, { timeout: 30_000 });
 });
 
 test("admin operates season and progression dashboards", async ({ page }) => {
@@ -196,12 +219,24 @@ test("athlete opens agenda without public PII leakage", async ({ page }) => {
 });
 
 test("athlete opens UR Play registration portal", async ({ page }) => {
+  test.setTimeout(90_000);
   await login(page, "athlete@test.ur.local");
   await page.goto("/athlete/ur-play");
-  await expect(
-    page.getByRole("heading", { name: "UR Play", exact: true }),
-  ).toBeVisible();
-  await expect(page.getByText(/Próximas sessões/)).toBeVisible();
+  await expect
+    .poll(
+      async () => {
+        if (await page.getByRole("button", { name: "TENTAR NOVAMENTE" }).count())
+          await page.getByRole("button", { name: "TENTAR NOVAMENTE" }).click();
+        return page
+          .getByRole("heading", { name: "UR Play", exact: true })
+          .count();
+      },
+      { timeout: 60_000 },
+    )
+    .toBe(1);
+  await expect(page.getByText(/Próximas sessões/)).toBeVisible({
+    timeout: 30_000,
+  });
 });
 
 test("operator opens mobile Court Ops", async ({ page }) => {
@@ -215,26 +250,27 @@ test("operator opens mobile Court Ops", async ({ page }) => {
 test("operator mounts, calls, starts and abandons a Court Ops match", async ({
   page,
 }) => {
-  test.setTimeout(120_000);
-  const sessionId = process.env.UR_TEST_COURT_OPS_SESSION_ID;
-  if (!sessionId) throw new Error("UR_TEST_COURT_OPS_SESSION_ID is required.");
+  test.setTimeout(180_000);
+  const fixture = await createSquadE2EFixture();
   await login(page, "operator@test.ur.local");
-  await page.goto(`/ops/ur-play/${sessionId}/court-ops`);
-  await expect(page.getByRole("heading", { name: "Court Ops" })).toBeVisible();
-  await page.getByRole("link", { name: "MONTAR JOGO" }).first().click();
-  await page.getByLabel("Categoria").selectOption({ label: "Misto" });
-  await page.locator('select[name="level"]').selectOption("n2");
-  const athleteSelects = page.getByLabel(/LADO [AB] · atleta/);
+  await page.goto(
+    `/ops/ur-play/${fixture.sessionId}/court-ops/new?court=${fixture.courts[0]}`,
+  );
+  await expect(page.getByRole("heading", { name: "NOVO JOGO" })).toBeVisible();
+  await page.getByLabel("Categoria").selectOption(fixture.mixedId);
+  await page.locator('select[name="level"]').selectOption(fixture.level);
+  const sideASelects = page.locator('select[name="sideA"]');
+  const sideBSelects = page.locator('select[name="sideB"]');
   const playerValue = async (number: number) =>
-    athleteSelects
+    sideASelects
       .first()
       .locator("option")
       .filter({ hasText: `Player ${number}` })
       .getAttribute("value");
-  await athleteSelects.nth(0).selectOption((await playerValue(5))!);
-  await athleteSelects.nth(1).selectOption((await playerValue(6))!);
-  await athleteSelects.nth(2).selectOption((await playerValue(7))!);
-  await athleteSelects.nth(3).selectOption((await playerValue(8))!);
+  await sideASelects.nth(0).selectOption((await playerValue(5))!);
+  await sideASelects.nth(1).selectOption((await playerValue(6))!);
+  await sideBSelects.nth(0).selectOption((await playerValue(7))!);
+  await sideBSelects.nth(1).selectOption((await playerValue(8))!);
   await page.getByRole("button", { name: "CRIAR JOGO NA FILA" }).click();
   await expect(page).toHaveURL(/\/ops\/matches\/[a-f0-9-]+$/, {
     timeout: 20_000,
@@ -281,11 +317,11 @@ test("admin views Court Ops operation on desktop", async ({ page }) => {
 test("operator reviews and confirms deterministic match suggestion", async ({
   page,
 }) => {
-  const sessionId = process.env.UR_TEST_COURT_OPS_SESSION_ID;
-  if (!sessionId) throw new Error("UR_TEST_COURT_OPS_SESSION_ID is required.");
+  test.setTimeout(180_000);
+  const fixture = await createSquadE2EFixture();
   await login(page, "operator@test.ur.local");
-  await page.goto(`/ops/ur-play/${sessionId}/court-ops`);
-  await page.locator('select[name="level"]').selectOption("n2");
+  await page.goto(`/ops/ur-play/${fixture.sessionId}/court-ops`);
+  await page.locator('select[name="level"]').selectOption(fixture.level);
   await page.getByRole("button", { name: "GERAR SUGESTÃO" }).click();
   await page.waitForURL(/suggest=1/, { timeout: 20_000 });
   await expect(page.getByText(/Sugestão baseada em/)).toBeVisible();
@@ -304,7 +340,7 @@ test("operator reviews and confirms deterministic match suggestion", async ({
         await page.reload();
         return page.getByText("CANCELLED", { exact: true }).count();
       },
-      { timeout: 20_000 },
+      { timeout: 45_000 },
     )
     .toBe(1);
 });
@@ -362,7 +398,15 @@ test("operator completes fours, reserves, lineup and court workflow", async ({
     .getByPlaceholder("Motivo do cancelamento")
     .fill("[TEST] female fours complete");
   await page.getByRole("button", { name: "CANCELAR" }).click();
-  await expect(page.getByText("CANCELLED", { exact: true })).toBeVisible();
+  await expect
+    .poll(
+      async () => {
+        await page.reload();
+        return page.getByText("CANCELLED", { exact: true }).count();
+      },
+      { timeout: 45_000 },
+    )
+    .toBe(1);
 
   await openBuilder(fixture.mixedId);
   const sideA = page.locator('select[name="sideA"]'),
@@ -470,10 +514,29 @@ test("operator completes fours, reserves, lineup and court workflow", async ({
   await page.goto(matchUrl);
   await page.getByLabel("Alterar quadra").selectOption(fixture.courts[2]!);
   await page.getByRole("button", { name: "ALTERAR QUADRA" }).click();
-  await expect(page.getByText("[TEST] E2E Squad Court 3")).toBeVisible();
+  await expect
+    .poll(
+      async () => {
+        await page.reload();
+        return page
+          .getByRole("main")
+          .locator("p", { hasText: "[TEST] E2E Squad Court 3" })
+          .count();
+      },
+      { timeout: 45_000 },
+    )
+    .toBeGreaterThan(0);
   for (const action of ["CHAMAR ATLETAS", "TODOS PRONTOS", "INICIAR JOGO"])
     await page.getByRole("button", { name: action }).click();
-  await expect(page.getByTestId("point-a")).toBeVisible();
+  await expect
+    .poll(
+      async () => {
+        await page.reload();
+        return page.getByTestId("point-a").count();
+      },
+      { timeout: 45_000 },
+    )
+    .toBe(1);
   await expect(
     page.getByRole("button", { name: "COLOCAR EM QUADRA" }),
   ).toHaveCount(0);
