@@ -59,7 +59,28 @@ jobs:
           npx --no-install supabase start --debug --exclude studio,imgproxy,edge-runtime,logflare,vector,supavisor,realtime 2>&1 | tee supabase-start.log
           code=${PIPESTATUS[0]}
           if [ "$code" -ne 0 ]; then
-            tail_text="$(tail -n 120 supabase-start.log)"
+            {
+              echo "## Supabase start failure diagnostics"
+              echo
+              echo "### CLI error lines"
+              grep -inE 'error|failed|panic|fatal|syntax|cannot|does not exist|already exists|permission denied|violates|constraint|relation|column|function|operator' supabase-start.log || true
+              echo
+              echo "### Supabase containers"
+              docker ps -a --filter "name=supabase_" || true
+              echo
+              echo "### Database container logs"
+              db_container="$(docker ps -a --filter "name=supabase_db_" --format "{{.Names}}" | head -n 1)"
+              if [ -n "$db_container" ]; then
+                docker logs --tail 220 "$db_container" || true
+              else
+                echo "No Supabase database container found."
+              fi
+              echo
+              echo "### Supabase start tail"
+              tail -n 180 supabase-start.log
+            } > supabase-start-root-cause.txt
+            cat supabase-start-root-cause.txt >> "$GITHUB_STEP_SUMMARY"
+            tail_text="$(tail -n 180 supabase-start-root-cause.txt)"
             safe_text="${tail_text//'%'/'%25'}"
             safe_text="${safe_text//$'\n'/'%0A'}"
             safe_text="${safe_text//$'\r'/'%0D'}"
@@ -105,6 +126,7 @@ jobs:
         run: |
           mkdir -p production-baseline-start-diagnostics
           cp supabase-start.log production-baseline-start-diagnostics/supabase-start.log 2>/dev/null || true
+          cp supabase-start-root-cause.txt production-baseline-start-diagnostics/supabase-start-root-cause.txt 2>/dev/null || true
           cp supabase-reset.log production-baseline-start-diagnostics/supabase-reset.log 2>/dev/null || true
           docker ps -a > production-baseline-start-diagnostics/docker-ps-a.txt 2>&1 || true
           docker images > production-baseline-start-diagnostics/docker-images.txt 2>&1 || true
