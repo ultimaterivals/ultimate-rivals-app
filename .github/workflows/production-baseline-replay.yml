@@ -46,9 +46,11 @@ jobs:
       - name: Static baseline audit
         run: node scripts/audit-production-baseline.cjs
 
-      - name: Disable DEV seed for production-like local stack
+      - name: Prepare production-like local stack config
         run: |
           perl -0pi -e 's/\[db\.seed\]\nenabled = true/[db.seed]\nenabled = false/' supabase/config.toml
+          perl -0pi -e 's/health_timeout = "2m"/health_timeout = "10m"/' supabase/config.toml
+          grep 'health_timeout' supabase/config.toml
           grep -A3 '^\[db.seed\]' supabase/config.toml
 
       - name: Start Supabase local
