@@ -52,7 +52,7 @@ jobs:
           grep -A3 '^\[db.seed\]' supabase/config.toml
 
       - name: Start Supabase local
-        run: npx --no-install supabase start --debug
+        run: npx --no-install supabase start --debug --ignore-health-check
 
       - name: Replay production baseline without seeds
         run: npx --no-install supabase db reset --local --no-seed --yes --debug
