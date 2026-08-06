@@ -53,32 +53,19 @@ jobs:
 
       - name: Start Supabase local
         run: |
-          set +e
-          npx --no-install supabase start --debug --ignore-health-check 2>&1 | tee supabase-start.log
-          code=${PIPESTATUS[0]}
-          if [ "$code" -ne 0 ]; then
-            tail -n 80 supabase-start.log | while IFS= read -r line; do
-              safe_line="${line//'%'/'%25'}"
-              safe_line="${safe_line//$'\n'/'%0A'}"
-              safe_line="${safe_line//$'\r'/'%0D'}"
-              echo "::warning title=Supabase start non-fatal::${safe_line}"
-            done
-            echo "Supabase start exited with ${code}; continuing to db reset for authoritative replay diagnostics."
-          fi
+          set -o pipefail
+          npx --no-install supabase start --debug 2>&1 | tee supabase-start.log
+
+      - name: Confirm Supabase stack status after start
+        run: npx --no-install supabase status
 
       - name: Replay production baseline without seeds
         run: |
-          set +e
+          set -o pipefail
           npx --no-install supabase db reset --local --no-seed --yes --debug 2>&1 | tee supabase-reset.log
-          code=${PIPESTATUS[0]}
-          if [ "$code" -ne 0 ]; then
-            tail_text="$(tail -n 120 supabase-reset.log)"
-            safe_text="${tail_text//'%'/'%25'}"
-            safe_text="${safe_text//$'\n'/'%0A'}"
-            safe_text="${safe_text//$'\r'/'%0D'}"
-            echo "::error title=Supabase db reset tail::${safe_text}"
-            exit "$code"
-          fi
+
+      - name: Confirm Supabase stack status after reset
+        run: npx --no-install supabase status
 
       - name: Apply production reference data twice
         env:
@@ -100,6 +87,31 @@ jobs:
         with:
           name: production-baseline-schema-manifest
           path: production-baseline-schema-manifest.json
+          if-no-files-found: error
+
+      - name: Collect Supabase failure diagnostics
+        if: failure()
+        run: |
+          mkdir -p production-baseline-start-diagnostics
+          cp supabase-start.log production-baseline-start-diagnostics/supabase-start.log 2>/dev/null || true
+          cp supabase-reset.log production-baseline-start-diagnostics/supabase-reset.log 2>/dev/null || true
+          docker ps -a > production-baseline-start-diagnostics/docker-ps-a.txt 2>&1 || true
+          docker images > production-baseline-start-diagnostics/docker-images.txt 2>&1 || true
+          npx --no-install supabase status > production-baseline-start-diagnostics/supabase-status.txt 2>&1 || true
+          docker ps -a --filter "name=supabase_" --format "{{.Names}}" > production-baseline-start-diagnostics/supabase-containers.txt 2>&1 || true
+          while IFS= read -r container; do
+            if [ -n "$container" ]; then
+              docker logs --tail 300 "$container" > "production-baseline-start-diagnostics/${container}.log" 2>&1 || true
+            fi
+          done < production-baseline-start-diagnostics/supabase-containers.txt
+
+      - name: Upload Supabase failure diagnostics
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: production-baseline-start-diagnostics
+          path: production-baseline-start-diagnostics/
+          if-no-files-found: warn
 
       - name: Stop Supabase local stack
         if: always()
