@@ -1,35 +1,35 @@
 # Production migration plan — Season 1
 
-Status: `PRODUCTION_RELEASE_PLAN_BLOCKED` until PROD-forbidden DEV fixtures are
-removed from, or safely gated outside, the canonical production replay path.
+Status: `PRODUCTION_BASELINE_READY`.
 
 ## Canonical chain rule
 
-- Git repository migrations are the canonical source.
-- GitHub Actions Migration Replay is the replay proof.
-- DEV history remains `DIVERGENT_DOCUMENTED`.
+- On `release/season-1-v1`, `supabase/migrations/` is the production canonical
+  chain.
+- The first active migration is
+  `20260806000000_season_1_v1_production_baseline.sql`.
+- The historical Season 1 development chain is preserved in
+  `supabase/migrations_legacy/season-1-development/` and indexed in
+  `docs/legacy-migration-index.md`.
+- DEV history remains `LEGACY_DEV_ENVIRONMENT`.
 - Do not synchronize PROD from DEV history.
 - Do not clone DEV schema manually.
-- PROD must start empty and receive the canonical repository chain only after
-  the PROD-forbidden seed issue below is resolved.
+- PROD must start empty and receive the baseline v1 chain plus
+  `scripts/production-reference-data.sql`.
 
-## Blocker
+## Former blocker resolution
 
-The canonical chain currently contains migrations that insert explicit DEV/fake
-fixtures:
+The development chain previously contained DEV-only records in:
 
 - `20260805175800_season_partner_market_views_seed_rls.sql`
 - `20260805184816_seed_public_calendar_dev_events.sql`
 - `20260805185130_seed_public_calendar_any_dev_pole.sql`
 
-These create fake partners, offers and public calendar events. They are
-excellent for DEV but must not create real production content. Because applied
-migrations must not be edited casually, the safe production strategy is:
+They are no longer in the active production migration directory. They are
+preserved in the legacy archive and copied into DEV/test seed files only.
 
-1. create a new additive migration/script that moves DEV fixture creation behind
-   an explicit environment guard or extracts it to DEV-only seed execution;
-2. prove fresh replay again;
-3. only then provision PROD from the canonical chain.
+`PRODUCTION_BASELINE_FAKE_DATA = ZERO` is enforced by
+`scripts/audit-production-baseline.cjs`.
 
 ## Ordered migration map
 

@@ -2,7 +2,7 @@
 
 Application status: `READY_FOR_SEASON_1`.
 
-Production release plan: `BLOCKED`.
+Production release plan: `APPROVED_READY`.
 
 This is a technical pre-implantation audit. No PROD project was accessed,
 created or modified. No real data was inserted. No feature development was
@@ -34,14 +34,19 @@ Latest homologated baseline:
 
 ## Technical blockers
 
-1. PROD-forbidden DEV fixtures are present in the canonical migration chain:
-   - partner/market fake DEV offers;
-   - public calendar DEV events.
-2. Deployment target is not configured in the repository. No Vercel/Netlify/etc.
-   project metadata was found locally.
+Resolved on `release/season-1-v1`:
 
-The first item blocks PROD migration replay. The second item blocks actual
-deployment execution but not the application code status.
+- the historical development migration chain was archived under
+  `supabase/migrations_legacy/season-1-development/`;
+- the active production chain now starts with
+  `20260806000000_season_1_v1_production_baseline.sql`;
+- production reference data is explicit and idempotent in
+  `scripts/production-reference-data.sql`;
+- DEV/test fixtures were moved to `supabase/seeds/`;
+- deployment target is Vercel.
+
+Manual Vercel account linking remains required because the local Vercel token is
+invalid. This is a manual account gate, not a product or baseline blocker.
 
 ## Owner decisions required
 
@@ -75,6 +80,6 @@ Do not create the final tag before approval.
 
 ## Status separation
 
-`READY_FOR_SEASON_1` can remain true while `PRODUCTION_RELEASE_PLAN` is blocked.
-The blocker is deployment hygiene around PROD replay data, not missing product
-functionality.
+`READY_FOR_SEASON_1` and `PRODUCTION_RELEASE_PLAN = APPROVED_READY` can coexist
+with manual go-live gates such as creating Supabase PROD, setting production
+environment variables, configuring DNS and onboarding real data.

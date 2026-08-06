@@ -1,20 +1,25 @@
 # Production go-live runbook — Season 1
 
+Production release plan status: `APPROVED_READY`.
+
 This runbook is not authorization to execute PROD operations.
 
 ## Deployment target
 
-No deployment host configuration was found in the repository. There is no local
-evidence of Vercel, Netlify, Render, Railway, Fly.io or equivalent project
-metadata.
+Deployment target: `VERCEL`.
 
-Recommended compatible target for the current Next.js app:
+Vercel account/project linking remains manual because the local Vercel token is
+invalid in this workstation. Follow `docs/vercel-deployment-setup.md`.
 
+Expected settings:
+
+- Framework: Next.js
 - Node.js: 22+
 - Install command: `npm ci`
 - Build command: `npm run build`
-- Start command: `npm run start`
-- Required env: see `docs/environment-matrix.md`
+- Production branch: future `main`
+- Preview branch: `release/season-1-v1`
+- Required env: see `docs/vercel-environment-matrix.md`
 
 ## Domain and HTTPS
 

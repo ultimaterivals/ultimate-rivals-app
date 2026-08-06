@@ -1,5 +1,11 @@
 # Production readiness
 
+Status: `PRODUCTION_RELEASE_PLAN_APPROVED_READY`.
+
+Production baseline: `READY`.
+
+Deployment target: `VERCEL_MANUAL_LINK_REQUIRED`.
+
 Status desta completion run: somente DEV homologado. Nenhuma operacao foi executada em PROD.
 
 ## Antes de PROD

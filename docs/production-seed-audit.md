@@ -1,12 +1,25 @@
 # Production seed audit — Season 1
 
+Status: `PRODUCTION_SEED_AUDIT_READY`.
+
+Production replay uses no DEV/test seed. Required system/reference records are
+kept in `scripts/production-reference-data.sql` and must be applied explicitly
+after the production baseline.
+
+DEV/test records are physically separated under:
+
+- `supabase/seeds/dev.sql`
+- `supabase/seeds/test.sql`
+
+Never run `supabase db push --include-seed` against PROD.
+
 No real data was inserted during this gate.
 
 ## Classifications
 
 | Source                                                                                                      | Classification               | PROD decision                                                                                           |
 | ----------------------------------------------------------------------------------------------------------- | ---------------------------- | ------------------------------------------------------------------------------------------------------- |
-| `supabase/seed.sql`                                                                                         | `DEV_ONLY`                   | Never run against PROD. Contains `[DEV]` seasons/poles and test data.                                   |
+| `supabase/seeds/dev.sql` and `supabase/seeds/test.sql`                                                      | `DEV_ONLY` / `TEST_ONLY`     | Never run against PROD. Contains `[DEV]` records and non-production public data.                        |
 | E2E/integration fixtures in `tests/`                                                                        | `TEST_ONLY`                  | Never run against PROD except a separately approved controlled smoke with cleanup.                      |
 | `20260801175746_core_entities.sql` competitive categories/formats                                           | `SAFE_REFERENCE_DATA`        | Safe. Official domain constants.                                                                        |
 | `20260805154400_season_calendar_operations.sql` Q1 templates                                                | `SAFE_REFERENCE_DATA`        | Safe templates; owner config still required.                                                            |
