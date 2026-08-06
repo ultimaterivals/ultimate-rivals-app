@@ -67,7 +67,18 @@ jobs:
           fi
 
       - name: Replay production baseline without seeds
-        run: npx --no-install supabase db reset --local --no-seed --yes --debug
+        run: |
+          set +e
+          npx --no-install supabase db reset --local --no-seed --yes --debug 2>&1 | tee supabase-reset.log
+          code=${PIPESTATUS[0]}
+          if [ "$code" -ne 0 ]; then
+            tail_text="$(tail -n 120 supabase-reset.log)"
+            safe_text="${tail_text//'%'/'%25'}"
+            safe_text="${safe_text//$'\n'/'%0A'}"
+            safe_text="${safe_text//$'\r'/'%0D'}"
+            echo "::error title=Supabase db reset tail::${safe_text}"
+            exit "$code"
+          fi
 
       - name: Apply production reference data twice
         env:
