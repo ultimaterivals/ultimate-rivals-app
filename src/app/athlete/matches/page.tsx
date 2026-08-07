@@ -19,8 +19,8 @@ export default async function AthleteMatchesPage() {
     <div className="mx-auto grid max-w-5xl gap-6">
       <PageHeader
         eyebrow="Minha carreira"
-        title="HistÃ³rico de jogos"
-        description="Resultados, estatÃ­sticas e pontuaÃ§Ãµes das suas partidas."
+        title="Histórico de jogos"
+        description="Resultados, estatísticas e pontuações das suas partidas."
       />
       {matches.length ? (
         <div className="grid gap-3">
@@ -50,17 +50,17 @@ export default async function AthleteMatchesPage() {
                   >
                     {match.resultStatus === "homologated"
                       ? match.won
-                        ? "VITÃ“RIA"
+                        ? "VITÓRIA"
                         : "DERROTA"
                       : match.status === "in_progress"
                         ? "EM ANDAMENTO"
-                        : "RESULTADO EM REVISÃƒO"}
+                        : "RESULTADO EM REVISÃO"}
                   </strong>
                   <p className="mt-1 text-2xl font-black">
-                    {match.scoreA ?? "â€”"} Ã— {match.scoreB ?? "â€”"}
+                    {match.scoreA ?? "—"} × {match.scoreB ?? "—"}
                   </p>
                   <p className="text-xs font-bold text-zinc-500 uppercase">
-                    {match.level?.toUpperCase()} Â· {match.formatName} Â·{" "}
+                    {match.level?.toUpperCase()} · {match.formatName} ·{" "}
                     {match.categoryName}
                   </p>
                 </div>
@@ -79,7 +79,7 @@ export default async function AthleteMatchesPage() {
       ) : (
         <EmptyState
           title="Ainda sem jogos"
-          description="Seu histÃ³rico comeÃ§a no primeiro UR Play."
+          description="Seu histórico começa no primeiro UR Play."
           action={
             <Link
               href="/athlete/ur-play"

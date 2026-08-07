@@ -3,9 +3,9 @@ import { getDevelopment } from "@/server/repositories/progression.repository";
 import { getAthleteRanking } from "@/server/repositories/rankings.repository";
 
 export const athleteLevels = {
-  leveling: { short: "NÃVEL", name: "Em nivelamento" },
+  leveling: { short: "NÍVEL", name: "Em nivelamento" },
   n3: { short: "N3", name: "Desenvolvimento" },
-  n2: { short: "N2", name: "AvanÃ§ado" },
+  n2: { short: "N2", name: "Avançado" },
   n1: { short: "N1", name: "Elite" },
 } as const;
 
@@ -36,9 +36,9 @@ export function rankingTargetLabel(
   position: number | null | undefined,
   target: { pointsBehind: number } | null,
 ) {
-  if (position === 1) return "LÃDER DO RANKING";
+  if (position === 1) return "LÍDER DO RANKING";
   if (!target) return null;
-  return `${target.pointsBehind} pts para a prÃ³xima posiÃ§Ã£o`;
+  return `${target.pointsBehind} pts para a próxima posição`;
 }
 
 export function percentageChange(current: number, previous?: number | null) {
@@ -82,7 +82,7 @@ export function canReadPrivateAthleteContent(
 }
 
 export function usefulError() {
-  return "NÃ£o foi possÃ­vel carregar sua experiÃªncia agora. Tente novamente em instantes.";
+  return "Não foi possível carregar sua experiência agora. Tente novamente em instantes.";
 }
 
 const one = <T>(value: T | T[] | null | undefined): T | null =>
@@ -514,7 +514,7 @@ export async function getAthleteDashboard(
       .map((match) => ({
         key: `match:${match.id}`,
         title: "Resultado homologado",
-        detail: `${match.won ? "VitÃ³ria" : "Partida"} ${match.scoreA} Ã— ${match.scoreB}${match.points !== null ? ` Â· +${match.points} pts` : ""}`,
+        detail: `${match.won ? "Vitória" : "Partida"} ${match.scoreA} × ${match.scoreB}${match.points !== null ? ` · +${match.points} pts` : ""}`,
         href: `/athlete/matches/${match.id}`,
         occurredAt: match.playedAt,
         unread: false,

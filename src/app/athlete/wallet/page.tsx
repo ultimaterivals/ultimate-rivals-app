@@ -30,7 +30,7 @@ export default async function AthleteWalletPage() {
       <PageHeader
         eyebrow="UR Coins"
         title="Minha wallet"
-        description="Saldo derivado de ledger append-only. UR Coins nÃ£o sÃ£o pontos de ranking e nÃ£o alteram classificaÃ§Ã£o oficial."
+        description="Saldo derivado de ledger append-only. UR Coins não são pontos de ranking e não alteram classificação oficial."
       />
 
       <div className="grid gap-4 md:grid-cols-3">
@@ -43,13 +43,13 @@ export default async function AthleteWalletPage() {
         <StatCard
           label="Ganhos"
           value={`+${credits} URC`}
-          hint="CrÃ©ditos homologados"
+          hint="Créditos homologados"
           icon={Trophy}
         />
         <StatCard
           label="Gastos"
           value={`-${debits} URC`}
-          hint="DÃ©bitos e redemptions"
+          hint="Débitos e redemptions"
           icon={ShieldCheck}
         />
       </div>
@@ -74,7 +74,7 @@ export default async function AthleteWalletPage() {
 
       <Card>
         <h2 className="font-display text-xl font-black uppercase">
-          HistÃ³rico
+          Histórico
         </h2>
         {transactions.length ? (
           <div className="mt-4 grid gap-3">
@@ -86,7 +86,7 @@ export default async function AthleteWalletPage() {
                       {transaction.ur_coin_rules?.name ?? transaction.reason}
                     </p>
                     <p className="text-sm text-zinc-400">
-                      {date(transaction.created_at)} â€¢{" "}
+                      {date(transaction.created_at)} •{" "}
                       {transaction.source_type}
                     </p>
                   </div>
@@ -109,8 +109,8 @@ export default async function AthleteWalletPage() {
           </div>
         ) : (
           <EmptyState
-            title="Wallet ainda sem movimentaÃ§Ãµes"
-            description="ParticipaÃ§Ã£o, vitÃ³rias, grants administrativos e resgates auditados aparecerÃ£o aqui."
+            title="Wallet ainda sem movimentações"
+            description="Participação, vitórias, grants administrativos e resgates auditados aparecerão aqui."
           />
         )}
       </Card>

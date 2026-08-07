@@ -12,10 +12,10 @@ export default function AthleteError({
     <div className="mx-auto flex min-h-[50vh] max-w-lg flex-col items-center justify-center text-center">
       <AlertTriangle className="text-ur-gold" size={36} />
       <h1 className="font-display mt-5 text-3xl font-black uppercase">
-        Sua experiÃªncia nÃ£o carregou
+        Sua experiência não carregou
       </h1>
       <p className="mt-2 text-zinc-400">
-        NÃ£o foi possÃ­vel buscar seus dados agora. Sua conta e seus resultados
+        Não foi possível buscar seus dados agora. Sua conta e seus resultados
         continuam seguros.
       </p>
       <button

@@ -36,23 +36,23 @@ export default async function AthleteMatchDetailPage({
         title={
           match.resultStatus === "homologated"
             ? match.won
-              ? "VitÃ³ria"
+              ? "Vitória"
               : "Partida homologada"
             : match.status === "in_progress"
               ? "Partida em andamento"
-              : "Resultado em revisÃ£o"
+              : "Resultado em revisão"
         }
-        description={`${match.sessionName ?? "UR Play"} Â· ${new Date(match.playedAt).toLocaleDateString("pt-BR")}`}
+        description={`${match.sessionName ?? "UR Play"} · ${new Date(match.playedAt).toLocaleDateString("pt-BR")}`}
       />
       <Card className="border-ur-gold/40 text-center">
         <p className="text-xs font-black text-zinc-500 uppercase">Placar</p>
         <strong className="font-display mt-2 block text-7xl">
-          {match.scoreA ?? "â€”"} <span className="text-ur-gold">Ã—</span>{" "}
-          {match.scoreB ?? "â€”"}
+          {match.scoreA ?? "—"} <span className="text-ur-gold">×</span>{" "}
+          {match.scoreB ?? "—"}
         </strong>
         {match.resultStatus !== "homologated" && (
           <p className="mt-3 font-bold text-amber-300">
-            RESULTADO EM REVISÃƒO Â· PONTOS AINDA NÃƒO EXIBIDOS
+            RESULTADO EM REVISÃO · PONTOS AINDA NÃO EXIBIDOS
           </p>
         )}
       </Card>
@@ -64,7 +64,7 @@ export default async function AthleteMatchDetailPage({
           >
             <p className="text-xs font-black text-zinc-500 uppercase">
               Lado {side.side}
-              {side.id === match.ownSideId ? " Â· Seu lado" : ""}
+              {side.id === match.ownSideId ? " · Seu lado" : ""}
             </p>
             <h2 className="mt-3 text-xl font-black">
               {side.label ??
@@ -74,8 +74,8 @@ export default async function AthleteMatchDetailPage({
               {side.athletes.map((athlete) => (
                 <p key={athlete.id} className="border-t pt-2 text-sm">
                   {athlete.name}
-                  {athlete.id === athleteId ? " (vocÃª)" : ""}{" "}
-                  <span className="text-zinc-500">Â· {athlete.role}</span>
+                  {athlete.id === athleteId ? " (você)" : ""}{" "}
+                  <span className="text-zinc-500">· {athlete.role}</span>
                 </p>
               ))}
             </div>
@@ -92,13 +92,13 @@ export default async function AthleteMatchDetailPage({
           <Swords className="text-ur-gold" />
           <p className="mt-3 text-xs text-zinc-500 uppercase">Formato</p>
           <strong>
-            {match.formatName} Â· {match.categoryName}
+            {match.formatName} · {match.categoryName}
           </strong>
         </Card>
         <Card>
           <ShieldCheck className="text-ur-gold" />
           <p className="mt-3 text-xs text-zinc-500 uppercase">
-            NÃ­vel da partida
+            Nível da partida
           </p>
           <strong>{match.level?.toUpperCase()}</strong>
         </Card>
@@ -116,7 +116,7 @@ export default async function AthleteMatchDetailPage({
       </Card>
       {match.resultStatus === "homologated" && (
         <Card className="border-ur-gold/30">
-          <h2 className="text-xl font-black">PONTUAÃ‡ÃƒO</h2>
+          <h2 className="text-xl font-black">PONTUAÇÃO</h2>
           {match.ledger.length ? (
             <div className="mt-4 divide-y">
               {match.ledger.map((line, index) => (
@@ -142,7 +142,7 @@ export default async function AthleteMatchDetailPage({
             </div>
           ) : (
             <p className="mt-3 text-sm text-zinc-500">
-              Nenhuma transaÃ§Ã£o de ranking aplicÃ¡vel a esta partida.
+              Nenhuma transação de ranking aplicável a esta partida.
             </p>
           )}
         </Card>

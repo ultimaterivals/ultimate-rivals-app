@@ -17,14 +17,14 @@ export default async function AthleteJourneyPage() {
       key: "joined",
       date: data.athlete.created_at,
       title: "Entrou no Ultimate Rivals",
-      detail: "InÃ­cio da sua identidade esportiva oficial.",
+      detail: "Início da sua identidade esportiva oficial.",
       icon: Flag,
     },
     ...[...data.development.levels].reverse().map((level) => ({
       key: `level-${level.starts_at}`,
       date: level.starts_at,
-      title: `${formatAthleteLevel(level.level).short} Â· ${formatAthleteLevel(level.level).name}`,
-      detail: level.reason ?? "NÃ­vel homologado pela operaÃ§Ã£o.",
+      title: `${formatAthleteLevel(level.level).short} · ${formatAthleteLevel(level.level).name}`,
+      detail: level.reason ?? "Nível homologado pela operação.",
       icon: Medal,
     })),
     ...data.matches
@@ -34,7 +34,7 @@ export default async function AthleteJourneyPage() {
         key: `match-${match.id}`,
         date: match.playedAt,
         title: "Primeiro jogo homologado",
-        detail: `${match.formatName} Â· ${match.level?.toUpperCase()}`,
+        detail: `${match.formatName} · ${match.level?.toUpperCase()}`,
         icon: Check,
       })),
   ].sort((a, b) => a.date.localeCompare(b.date));
@@ -43,11 +43,11 @@ export default async function AthleteJourneyPage() {
       <PageHeader
         eyebrow="Minha carreira"
         title="Jornada"
-        description="Marcos reais da sua evoluÃ§Ã£o no Ultimate Rivals. Nenhuma conquista Ã© criada sem evidÃªncia homologada."
+        description="Marcos reais da sua evolução no Ultimate Rivals. Nenhuma conquista é criada sem evidência homologada."
       />
       <Card className="border-ur-gold/30">
         <p className="text-xs font-black text-zinc-500 uppercase">
-          NÃ­vel atual
+          Nível atual
         </p>
         <strong className="text-ur-gold font-display mt-2 block text-5xl uppercase">
           {formatAthleteLevel(data.level).short}{" "}
@@ -76,7 +76,7 @@ export default async function AthleteJourneyPage() {
               <p className="mt-1 text-sm text-zinc-400">{event.detail}</p>
               {index === events.length - 1 && (
                 <p className="text-ur-gold mt-3 flex items-center gap-2 text-xs font-black">
-                  <CircleDot size={14} /> VOCÃŠ ESTÃ AQUI
+                  <CircleDot size={14} /> VOCÊ ESTÁ AQUI
                 </p>
               )}
             </li>

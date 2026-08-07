@@ -15,9 +15,9 @@ export default async function AdminReportsPage() {
   return (
     <div className="grid gap-8">
       <PageHeader
-        eyebrow="RelatÃ³rios"
+        eyebrow="Relatórios"
         title="Read models da Temporada 1"
-        description="Dashboards resumidos para atleta, equipe, quadra, sponsor e temporada. CSV/PDF ficam como operaÃ§Ã£o posterior se necessÃ¡rio."
+        description="Dashboards resumidos para atleta, equipe, quadra, sponsor e temporada. CSV/PDF ficam como operação posterior se necessário."
       />
 
       <div className="grid gap-4 md:grid-cols-4">
@@ -30,13 +30,13 @@ export default async function AdminReportsPage() {
         <StatCard
           label="Equipes"
           value={String(teamReports.length)}
-          hint="rosters e inscriÃ§Ãµes"
+          hint="rosters e inscrições"
           icon={UsersRound}
         />
         <StatCard
           label="Quadras"
           value={String(venueReports.length)}
-          hint="sessÃµes e financeiro"
+          hint="sessões e financeiro"
           icon={Building2}
         />
         <StatCard
@@ -53,7 +53,7 @@ export default async function AdminReportsPage() {
           rows={athleteReports.map((row) => ({
             id: row.athlete_id,
             name: row.public_name,
-            detail: `${row.games} jogos â€¢ ${row.ur_coin_balance} URC`,
+            detail: `${row.games} jogos • ${row.ur_coin_balance} URC`,
           }))}
         />
         <ReportCard
@@ -61,7 +61,7 @@ export default async function AdminReportsPage() {
           rows={teamReports.map((row) => ({
             id: row.team_id,
             name: row.name,
-            detail: `${row.active_athletes} atletas â€¢ ${row.rosters} elencos`,
+            detail: `${row.active_athletes} atletas • ${row.rosters} elencos`,
           }))}
         />
         <ReportCard
@@ -69,7 +69,7 @@ export default async function AdminReportsPage() {
           rows={venueReports.map((row) => ({
             id: row.venue_id,
             name: row.name,
-            detail: `${row.ur_play_sessions} sessÃµes â€¢ ${row.partner_events} eventos`,
+            detail: `${row.ur_play_sessions} sessões • ${row.partner_events} eventos`,
           }))}
         />
         <ReportCard
@@ -77,7 +77,7 @@ export default async function AdminReportsPage() {
           rows={seasonReports.map((row) => ({
             id: row.season_id,
             name: row.name,
-            detail: `${row.active_athletes} atletas â€¢ ${row.matches} partidas`,
+            detail: `${row.active_athletes} atletas • ${row.matches} partidas`,
           }))}
         />
       </section>
@@ -107,7 +107,7 @@ function ReportCard({
       ) : (
         <EmptyState
           title={`Sem dados em ${title}`}
-          description="O read model existe, mas ainda nÃ£o hÃ¡ fixture visÃ­vel para este recorte."
+          description="O read model existe, mas ainda não há fixture visível para este recorte."
         />
       )}
     </Card>

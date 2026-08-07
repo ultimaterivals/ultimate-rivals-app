@@ -2,7 +2,7 @@ export default function AthleteLoading() {
   return (
     <div
       className="mx-auto grid max-w-7xl animate-pulse gap-5"
-      aria-label="Carregando experiÃªncia do atleta"
+      aria-label="Carregando experiência do atleta"
     >
       <div className="h-16 rounded-xl bg-zinc-900" />
       <div className="grid gap-5 lg:grid-cols-[1.45fr_.85fr]">

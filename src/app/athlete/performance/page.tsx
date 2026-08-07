@@ -20,7 +20,7 @@ import {
 const filters = [
   { value: "season", label: "Temporada" },
   { value: "cycle", label: "Ciclo atual" },
-  { value: "last", label: "Ãšltimos jogos" },
+  { value: "last", label: "Últimos jogos" },
 ] as const;
 
 export default async function AthletePerformancePage({
@@ -46,15 +46,15 @@ export default async function AthletePerformancePage({
   const stat = performance.total;
   const statCards: [string, string | number, LucideIcon][] = [
     ["Jogos", stat.games, Swords],
-    ["VitÃ³rias", stat.wins, Award],
+    ["Vitórias", stat.wins, Award],
     ["Derrotas", stat.losses, ShieldCheck],
     [
-      "MÃ©dia de pontos",
+      "Média de pontos",
       stat.games
         ? (stat.rankingPoints / stat.games).toLocaleString("pt-BR", {
             maximumFractionDigits: 1,
           })
-        : "â€”",
+        : "—",
       TrendingUp,
     ],
     ["Aces", stat.aces, Target],
@@ -67,10 +67,10 @@ export default async function AthletePerformancePage({
       <PageHeader
         eyebrow="Meu jogo"
         title="Performance"
-        description="EstatÃ­sticas homologadas, preservadas no contexto em que cada partida foi disputada."
+        description="Estatísticas homologadas, preservadas no contexto em que cada partida foi disputada."
       />
       <nav
-        aria-label="PerÃ­odo da performance"
+        aria-label="Período da performance"
         className="flex gap-2 overflow-x-auto pb-1"
       >
         {filters.map((filter) => (
@@ -87,8 +87,8 @@ export default async function AthletePerformancePage({
       </nav>
       {!stat.games ? (
         <EmptyState
-          title="Ainda sem jogos neste perÃ­odo"
-          description="Escolha outro perÃ­odo ou participe do prÃ³ximo UR Play."
+          title="Ainda sem jogos neste período"
+          description="Escolha outro período ou participe do próximo UR Play."
           action={
             <Link href="/athlete/ur-play" className="text-ur-gold font-black">
               ENCONTRAR UR PLAY
@@ -109,7 +109,7 @@ export default async function AthletePerformancePage({
                 %
               </strong>
               <p className="mt-3 text-zinc-400">
-                {stat.wins} vitÃ³rias em {stat.games} jogos homologados
+                {stat.wins} vitórias em {stat.games} jogos homologados
               </p>
             </div>
             <div className="sm:text-right">
@@ -157,10 +157,10 @@ export default async function AthletePerformancePage({
           </section>
           <section className="grid gap-4">
             <h2 className="font-display text-2xl font-black uppercase">
-              HistÃ³rico por nÃ­vel
+              Histórico por nível
             </h2>
             <p className="text-sm text-zinc-400">
-              Jogos antigos permanecem atribuÃ­dos ao nÃ­vel registrado na
+              Jogos antigos permanecem atribuídos ao nível registrado na
               partida.
             </p>
             <div className="grid gap-4 md:grid-cols-3">

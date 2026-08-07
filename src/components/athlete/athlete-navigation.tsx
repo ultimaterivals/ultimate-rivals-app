@@ -20,7 +20,7 @@ import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 
 const primary = [
-  { href: "/athlete", label: "InÃ­cio", icon: House, exact: true },
+  { href: "/athlete", label: "Início", icon: House, exact: true },
   { href: "/athlete/agenda", label: "Agenda", icon: CalendarDays },
   { href: "/athlete/ur-play", label: "UR Play", icon: CalendarDays },
   { href: "/athlete/competitions", label: "Comp.", icon: Medal },
@@ -36,7 +36,7 @@ const secondary = [
   { href: "/athlete/market", label: "UR Market", icon: ShoppingBag },
   { href: "/athlete/wallet", label: "Wallet URC", icon: Coins },
   { href: "/athlete/points", label: "Meus pontos", icon: Shield },
-  { href: "/athlete/profile", label: "ConfiguraÃ§Ãµes", icon: Settings },
+  { href: "/athlete/profile", label: "Configurações", icon: Settings },
 ];
 
 function active(pathname: string, href: string, exact?: boolean) {
@@ -49,7 +49,7 @@ export function AthleteDesktopNavigation() {
   const pathname = usePathname();
   return (
     <nav
-      aria-label="NavegaÃ§Ã£o do atleta"
+      aria-label="Navegação do atleta"
       className="hidden space-y-6 px-4 lg:block"
     >
       <div className="space-y-1">
@@ -93,7 +93,7 @@ export function AthleteMobileNavigation() {
   const pathname = usePathname();
   return (
     <nav
-      aria-label="NavegaÃ§Ã£o principal do atleta"
+      aria-label="Navegação principal do atleta"
       className="fixed inset-x-0 bottom-0 z-40 border-t border-zinc-800 bg-[#0b0b0b]/[.98] pb-[env(safe-area-inset-bottom)] backdrop-blur lg:hidden"
     >
       <div className="mx-auto grid max-w-lg grid-cols-7">
@@ -127,7 +127,7 @@ export function NotificationLink({ count }: { count: number }) {
   return (
     <Link
       href="/athlete/notifications"
-      aria-label={`NotificaÃ§Ãµes${count ? `, ${count} nÃ£o lidas` : ""}`}
+      aria-label={`Notificações${count ? `, ${count} não lidas` : ""}`}
       className="relative flex size-11 cursor-pointer items-center justify-center rounded-full border border-zinc-800 bg-zinc-950 text-zinc-300 transition-colors hover:border-zinc-600 hover:text-white"
     >
       <Bell size={20} aria-hidden="true" />

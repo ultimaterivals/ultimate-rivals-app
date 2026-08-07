@@ -109,12 +109,12 @@ export function PortalShell({
             },
             {
               href: "/admin/media",
-              label: "Midia",
+              label: "Mídia",
               icon: PanelsTopLeft,
             },
             {
               href: "/admin/reports",
-              label: "Relatorios",
+              label: "Relatórios",
               icon: ReceiptText,
             },
             {
@@ -124,7 +124,7 @@ export function PortalShell({
             },
             {
               href: "/admin/prizes",
-              label: "PremiaÃ§Ãµes",
+              label: "Premiações",
               icon: HandCoins,
             },
             {

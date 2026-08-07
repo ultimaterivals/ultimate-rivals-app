@@ -48,7 +48,7 @@ export function InstallAppPrompt() {
       <div className="min-w-0 flex-1">
         <strong className="block text-sm">Instalar Ultimate Rivals</strong>
         <span className="text-xs text-zinc-400">
-          Acesso rÃ¡pido, em tela cheia.
+          Acesso rápido, em tela cheia.
         </span>
       </div>
       <button
@@ -59,7 +59,7 @@ export function InstallAppPrompt() {
       </button>
       <button
         onClick={dismiss}
-        aria-label="Agora nÃ£o"
+        aria-label="Agora não"
         className="flex size-11 cursor-pointer items-center justify-center rounded-lg text-zinc-500 hover:text-white"
       >
         <X size={18} />

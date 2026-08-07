@@ -3,25 +3,29 @@ import { Card, EmptyState, PageHeader } from "@/components/ui";
 import { requireRole } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
 import { getAthleteProfile } from "@/server/repositories/athletes.repository";
+
 const levels: Record<string, string> = {
   leveling: "Em Nivelamento",
   n3: "N3 Desenvolvimento",
   n2: "N2 Avançado",
   n1: "N1 Elite",
 };
+
 const hands: Record<string, string> = {
   left: "Esquerda",
   right: "Direita",
   ambidextrous: "Ambidestra",
 };
+
 const profileLinks = [
   ["Minha equipe", "/athlete/profile"],
   ["Desenvolvimento", "/athlete/development"],
   ["Jornada", "/athlete/journey"],
   ["Pontos", "/athlete/points"],
   ["Jogos", "/athlete/matches"],
-  ["ConfiguraÃ§Ãµes", "/athlete/profile/edit"],
+  ["Configurações", "/athlete/profile/edit"],
 ] as const;
+
 export default async function Page({
   searchParams,
 }: {
@@ -33,6 +37,7 @@ export default async function Page({
     await createClient(),
     identity.userId,
   );
+
   if (!profile)
     return (
       <EmptyState
@@ -40,6 +45,7 @@ export default async function Page({
         description="A operação ainda precisa associar sua conta a um atleta."
       />
     );
+
   return (
     <div className="grid gap-6">
       {query.updated === "1" && (
@@ -139,7 +145,7 @@ export default async function Page({
       <Card>
         <h2 className="text-xl font-black">Minha carreira</h2>
         <nav
-          aria-label="OpÃ§Ãµes do perfil"
+          aria-label="Opções do perfil"
           className="mt-4 grid gap-2 sm:grid-cols-2"
         >
           {profileLinks.map(([label, href]) => (
@@ -149,7 +155,7 @@ export default async function Page({
               className="rounded-ur flex min-h-12 items-center justify-between border px-4 font-bold text-zinc-300 hover:border-zinc-500 hover:text-white"
             >
               {label}
-              <span aria-hidden="true">â†’</span>
+              <span aria-hidden="true">→</span>
             </Link>
           ))}
         </nav>

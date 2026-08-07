@@ -1,6 +1,6 @@
 # Mobile navigation and PWA
 
-The athlete shell is mobile-first. Its fixed bottom navigation contains exactly five destinations: InÃ­cio, UR Play, Ranking, Performance, and Perfil. Notifications remain in the consistent header. Career routes live in the desktop secondary navigation and the profile menu.
+The athlete shell is mobile-first. Its fixed bottom navigation contains exactly five destinations: Início, UR Play, Ranking, Performance, and Perfil. Notifications remain in the consistent header. Career routes live in the desktop secondary navigation and the profile menu.
 
 The shell accounts for device safe areas, reserves bottom content space, uses visible focus states, and keeps primary touch targets at least 44 pixels high. Desktop receives a dedicated sidebar instead of a stretched mobile layout.
 

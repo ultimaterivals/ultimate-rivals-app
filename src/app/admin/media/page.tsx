@@ -10,9 +10,9 @@ export default async function AdminMediaPage() {
   return (
     <div className="grid gap-8">
       <PageHeader
-        eyebrow="MÃ­dia e vÃ­deo"
-        title="OperaÃ§Ã£o de assets"
-        description="Metadados, vÃ­nculos de partida, highlights e sugestÃµes de anÃ¡lise. VÃ­deo bruto fica fora do Postgres."
+        eyebrow="Mídia e vídeo"
+        title="Operação de assets"
+        description="Metadados, vínculos de partida, highlights e sugestões de análise. Vídeo bruto fica fora do Postgres."
       />
 
       <div className="grid gap-4 md:grid-cols-3">
@@ -23,13 +23,13 @@ export default async function AdminMediaPage() {
           icon={Clapperboard}
         />
         <StatCard
-          label="VÃ­nculos"
+          label="Vínculos"
           value={String(links.length)}
-          hint="MÃ­dia ligada a partidas"
+          hint="Mídia ligada a partidas"
           icon={Tags}
         />
         <StatCard
-          label="SugestÃµes"
+          label="Sugestões"
           value={String(suggestions.length)}
           hint="Manual/AI readiness"
           icon={Sparkles}
@@ -51,11 +51,11 @@ export default async function AdminMediaPage() {
                           asset.storage_path}
                       </p>
                       <p className="text-sm text-zinc-400">
-                        {asset.asset_type} â€¢{" "}
+                        {asset.asset_type} •{" "}
                         {asset.athletes?.public_name ??
                           asset.teams?.name ??
                           asset.venues?.name ??
-                          "OperaÃ§Ã£o UR"}
+                          "Operação UR"}
                       </p>
                     </div>
                     <Badge>{asset.status}</Badge>
@@ -66,14 +66,14 @@ export default async function AdminMediaPage() {
           ) : (
             <EmptyState
               title="Sem assets"
-              description="Registre URLs externas ou paths de storage privado quando a operaÃ§Ã£o de mÃ­dia iniciar."
+              description="Registre URLs externas ou paths de storage privado quando a operação de mídia iniciar."
             />
           )}
         </Card>
 
         <Card>
           <h2 className="font-display text-xl font-black uppercase">
-            Highlights e anÃ¡lises
+            Highlights e análises
           </h2>
           <div className="mt-4 grid gap-3">
             {[...highlights, ...annotations, ...suggestions]
@@ -96,8 +96,8 @@ export default async function AdminMediaPage() {
               !annotations.length &&
               !suggestions.length && (
                 <EmptyState
-                  title="Sem marcaÃ§Ãµes"
-                  description="AI suggestions nunca alimentam ranking sem revisÃ£o e aprovaÃ§Ã£o."
+                  title="Sem marcações"
+                  description="AI suggestions nunca alimentam ranking sem revisão e aprovação."
                 />
               )}
           </div>

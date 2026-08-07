@@ -32,9 +32,9 @@ describe("athlete experience rules", () => {
   it("formats levels and ranking targets without inventing a target", () => {
     expect(formatAthleteLevel("n2")).toEqual({
       short: "N2",
-      name: "AvanÃ§ado",
+      name: "Avançado",
     });
-    expect(rankingTargetLabel(1, null)).toBe("LÃDER DO RANKING");
+    expect(rankingTargetLabel(1, null)).toBe("LÍDER DO RANKING");
     expect(rankingTargetLabel(8, null)).toBeNull();
     expect(rankingTargetLabel(8, { pointsBehind: 32 })).toContain("32 pts");
   });

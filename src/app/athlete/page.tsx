@@ -68,8 +68,8 @@ export default async function AthletePage() {
             {data.athlete.public_name}
           </h1>
           <p className="text-sm font-bold text-zinc-400">
-            {level.short} <span aria-hidden="true">Â·</span> {level.name}{" "}
-            {data.team ? `Â· ${data.team.name}` : ""}
+            {level.short} <span aria-hidden="true">·</span> {level.name}{" "}
+            {data.team ? `· ${data.team.name}` : ""}
           </p>
         </div>
       </section>
@@ -82,12 +82,12 @@ export default async function AthletePage() {
           <div className="bg-ur-gold text-ur-black flex items-center justify-between px-5 py-3 text-xs font-black tracking-[.15em] uppercase">
             <span>
               {data.reserveState
-                ? "VocÃª foi convocado"
+                ? "Você foi convocado"
                 : data.currentMatch.status === "called"
-                  ? "VocÃª foi chamado"
+                  ? "Você foi chamado"
                   : data.currentMatch.status === "in_progress"
                     ? "Partida em andamento"
-                    : "Sua prÃ³xima partida"}
+                    : "Sua próxima partida"}
             </span>
             <span>
               {data.reserveState
@@ -151,10 +151,10 @@ export default async function AthletePage() {
                   </p>
                   <p className="mt-1 text-sm font-bold text-zinc-400">
                     {ranking.position_change > 0
-                      ? `â†‘ ${ranking.position_change} posiÃ§Ãµes`
+                      ? `↑ ${ranking.position_change} posições`
                       : ranking.position_change < 0
-                        ? `â†“ ${Math.abs(ranking.position_change)} posiÃ§Ãµes`
-                        : "PosiÃ§Ã£o estÃ¡vel"}
+                        ? `↓ ${Math.abs(ranking.position_change)} posições`
+                        : "Posição estável"}
                   </p>
                 </div>
                 {targetLabel && (
@@ -177,8 +177,8 @@ export default async function AthletePage() {
             </Card>
           ) : (
             <EmptyState
-              title="Seu ranking comeÃ§a apÃ³s sua primeira pontuaÃ§Ã£o homologada"
-              description="Jogue um UR Play e acompanhe sua entrada na classificaÃ§Ã£o oficial."
+              title="Seu ranking começa após sua primeira pontuação homologada"
+              description="Jogue um UR Play e acompanhe sua entrada na classificação oficial."
               action={
                 <Link
                   href="/athlete/ur-play"
@@ -194,7 +194,7 @@ export default async function AthletePage() {
             <div className="flex items-center justify-between gap-3">
               <div>
                 <p className="text-xs font-black tracking-[.18em] text-zinc-500 uppercase">
-                  Este mÃªs
+                  Este mês
                 </p>
                 <h2 className="font-display mt-1 text-2xl font-black uppercase">
                   Performance recente
@@ -205,7 +205,7 @@ export default async function AthletePage() {
             <div className="mt-5 grid grid-cols-2 gap-x-4 gap-y-5 sm:grid-cols-3">
               {[
                 ["Jogos", month?.games_played ?? 0],
-                ["VitÃ³rias", month?.wins ?? 0],
+                ["Vitórias", month?.wins ?? 0],
                 [
                   "Aproveitamento",
                   `${Number(month?.win_rate ?? 0).toLocaleString("pt-BR", { maximumFractionDigits: 0 })}%`,
@@ -237,7 +237,7 @@ export default async function AthletePage() {
               <p className="text-ur-gold text-xs font-black tracking-[.18em] uppercase">
                 {next.registration_status === "waitlisted"
                   ? "Lista de espera"
-                  : "PrÃ³ximo UR Play"}
+                  : "Próximo UR Play"}
               </p>
               <div className="mt-4 flex items-center gap-4">
                 <div className="border-ur-gold/40 min-w-16 rounded-lg border p-3 text-center">
@@ -255,7 +255,7 @@ export default async function AthletePage() {
                   <h2 className="text-xl font-black">{next.session!.name}</h2>
                   <p className="text-sm text-zinc-400">
                     {time(next.session!.starts_at)}{" "}
-                    <span aria-hidden="true">Â·</span>{" "}
+                    <span aria-hidden="true">·</span>{" "}
                     {related(next.session!.venues)?.name ?? "Local a confirmar"}
                   </p>
                 </div>
@@ -270,15 +270,15 @@ export default async function AthletePage() {
                 href={`/athlete/ur-play/${next.session!.id}`}
                 className="mt-4 flex min-h-11 items-center gap-2 font-black"
               >
-                VER SESSÃƒO <ArrowRight size={16} />
+                VER SESSÃO <ArrowRight size={16} />
               </Link>
             </Card>
           ) : (
             <Card>
               <CalendarDays className="text-ur-gold" />
-              <h2 className="mt-3 text-xl font-black">PrÃ³ximas sessÃµes</h2>
+              <h2 className="mt-3 text-xl font-black">Próximas sessões</h2>
               <p className="mt-1 text-sm text-zinc-400">
-                Encontre seu prÃ³ximo UR Play.
+                Encontre seu próximo UR Play.
               </p>
               <Link
                 href="/athlete/ur-play"
@@ -298,7 +298,7 @@ export default async function AthletePage() {
                 {new Date(data.season.starts_at)
                   .toLocaleDateString("pt-BR", { month: "long" })
                   .toUpperCase()}{" "}
-                â€”{" "}
+                —{" "}
                 {new Date(data.season.ends_at)
                   .toLocaleDateString("pt-BR", { month: "long" })
                   .toUpperCase()}
@@ -316,7 +316,7 @@ export default async function AthletePage() {
                   Ciclo atual: {data.currentCycle?.name ?? "A definir"}
                 </span>
                 <span>
-                  MÃªs {data.currentCycle?.cycle_number ?? 1} de{" "}
+                  Mês {data.currentCycle?.cycle_number ?? 1} de{" "}
                   {Math.max(1, data.season.season_cycles.length)}
                 </span>
               </div>
@@ -330,7 +330,7 @@ export default async function AthletePage() {
           <div className="grid gap-5 sm:grid-cols-[1fr_auto] sm:items-center">
             <div>
               <p className="text-xs font-black tracking-[.18em] text-zinc-500 uppercase">
-                Ãšltimo jogo <span aria-hidden="true">Â·</span>{" "}
+                Último jogo <span aria-hidden="true">·</span>{" "}
                 {date(last.playedAt)}
               </p>
               <div className="mt-2 flex flex-wrap items-baseline gap-4">
@@ -339,19 +339,19 @@ export default async function AthletePage() {
                 >
                   {last.resultStatus === "homologated"
                     ? last.won
-                      ? "VITÃ“RIA"
+                      ? "VITÓRIA"
                       : "DERROTA"
-                    : "RESULTADO EM REVISÃƒO"}
+                    : "RESULTADO EM REVISÃO"}
                 </h2>
                 <strong className="text-3xl">
-                  {last.scoreA} Ã— {last.scoreB}
+                  {last.scoreA} × {last.scoreB}
                 </strong>
                 {last.points !== null && (
                   <strong className="text-ur-gold">+{last.points} PTS</strong>
                 )}
               </div>
               <p className="mt-2 text-sm text-zinc-400">
-                {last.statistics.aces} aces <span aria-hidden="true">Â·</span>{" "}
+                {last.statistics.aces} aces <span aria-hidden="true">·</span>{" "}
                 {last.statistics.attacks} ataques
               </p>
             </div>
@@ -366,7 +366,7 @@ export default async function AthletePage() {
       ) : (
         <EmptyState
           title="Ainda sem jogos"
-          description="Seu histÃ³rico comeÃ§a no primeiro UR Play."
+          description="Seu histórico começa no primeiro UR Play."
           action={
             <Link href="/athlete/ur-play" className="text-ur-gold font-black">
               ENCONTRAR UR PLAY
@@ -387,20 +387,20 @@ export default async function AthletePage() {
           {data.team ? (
             <>
               <p className="mt-3 text-sm text-zinc-400">
-                Ranking #{data.team.ranking?.current_position ?? "â€”"}{" "}
-                <span aria-hidden="true">Â·</span>{" "}
+                Ranking #{data.team.ranking?.current_position ?? "—"}{" "}
+                <span aria-hidden="true">·</span>{" "}
                 {data.team.ranking?.total_points ?? 0} pts
               </p>
               {data.team.contribution !== null && (
                 <p className="text-sm text-zinc-400">
-                  Minha contribuiÃ§Ã£o: {data.team.contribution} pts
+                  Minha contribuição: {data.team.contribution} pts
                 </p>
               )}
             </>
           ) : (
             <p className="mt-2 text-sm text-zinc-400">
-              VocÃª ainda nÃ£o representa uma equipe. Continue construindo sua
-              trajetÃ³ria.
+              Você ainda não representa uma equipe. Continue construindo sua
+              trajetória.
             </p>
           )}
         </Card>
@@ -414,14 +414,14 @@ export default async function AthletePage() {
           </h2>
           {data.pole && (
             <p className="mt-3 text-sm text-zinc-400">
-              Ranking de polos #{data.pole.ranking?.current_position ?? "â€”"}
+              Ranking de polos #{data.pole.ranking?.current_position ?? "—"}
             </p>
           )}
         </Card>
         <Card>
           <UsersRound className="text-ur-gold" aria-hidden="true" />
           <p className="mt-3 text-xs font-black text-zinc-500 uppercase">
-            Minhas formaÃ§Ãµes
+            Minhas formações
           </p>
           {data.formations.length ? (
             <div className="mt-3 grid gap-3">
@@ -434,15 +434,15 @@ export default async function AthletePage() {
                   <p className="text-sm text-zinc-400">
                     {String(formation.role).toUpperCase()}{" "}
                     {formation.ranking?.current_position
-                      ? `Â· #${formation.ranking.current_position}`
-                      : "Â· Ainda sem ranking qualificado"}
+                      ? `· #${formation.ranking.current_position}`
+                      : "· Ainda sem ranking qualificado"}
                   </p>
                 </div>
               ))}
             </div>
           ) : (
             <p className="mt-2 text-sm text-zinc-400">
-              Nenhuma formaÃ§Ã£o ativa.
+              Nenhuma formação ativa.
             </p>
           )}
         </Card>
@@ -488,7 +488,7 @@ export default async function AthletePage() {
           </div>
         ) : (
           <p className="text-sm text-zinc-500">
-            Seus acontecimentos esportivos aparecerÃ£o aqui.
+            Seus acontecimentos esportivos aparecerão aqui.
           </p>
         )}
       </section>
@@ -497,9 +497,9 @@ export default async function AthletePage() {
         <div className="flex items-start gap-3">
           <Medal className="text-ur-gold shrink-0" />
           <div>
-            <h2 className="font-black">PrÃ³ximo degrau</h2>
+            <h2 className="font-black">Próximo degrau</h2>
             <p className="text-sm text-zinc-400">
-              Acompanhe avaliaÃ§Ãµes, feedbacks e proteÃ§Ãµes da sua evoluÃ§Ã£o.
+              Acompanhe avaliações, feedbacks e proteções da sua evolução.
             </p>
           </div>
         </div>

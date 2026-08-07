@@ -17,7 +17,7 @@ export async function markNotificationRead(formData: FormData) {
     .eq("id", id)
     .is("read_at", null);
   if (error)
-    throw new Error("NÃ£o foi possÃ­vel marcar a notificaÃ§Ã£o como lida.");
+    throw new Error("Não foi possível marcar a notificação como lida.");
   revalidatePath("/athlete", "layout");
 }
 
@@ -29,6 +29,6 @@ export async function markAllNotificationsRead() {
     .update({ read_at: new Date().toISOString() })
     .is("read_at", null);
   if (error)
-    throw new Error("NÃ£o foi possÃ­vel atualizar suas notificaÃ§Ãµes.");
+    throw new Error("Não foi possível atualizar suas notificações.");
   revalidatePath("/athlete", "layout");
 }

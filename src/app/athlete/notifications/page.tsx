@@ -22,15 +22,15 @@ export default async function AthleteNotificationsPage() {
     .order("occurred_at", { ascending: false })
     .limit(50);
   if (error)
-    throw new Error("NÃ£o foi possÃ­vel carregar suas notificaÃ§Ãµes.");
+    throw new Error("Não foi possível carregar suas notificações.");
   const fresh = (data ?? []).filter((item) => !item.read_at);
   const previous = (data ?? []).filter((item) => item.read_at);
   return (
     <div className="mx-auto grid max-w-4xl gap-6">
       <PageHeader
         eyebrow="Inbox interna"
-        title="NotificaÃ§Ãµes"
-        description="Chamadas e acontecimentos esportivos que pedem sua atenÃ§Ã£o."
+        title="Notificações"
+        description="Chamadas e acontecimentos esportivos que pedem sua atenção."
         action={
           fresh.length ? (
             <form action={markAllNotificationsRead}>
@@ -49,7 +49,7 @@ export default async function AthleteNotificationsPage() {
       ) : (
         <EmptyState
           title="Tudo em dia"
-          description="Novas chamadas, resultados e mudanÃ§as no ranking aparecerÃ£o aqui."
+          description="Novas chamadas, resultados e mudanças no ranking aparecerão aqui."
         />
       )}
     </div>
