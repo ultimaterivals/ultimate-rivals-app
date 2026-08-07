@@ -1,5 +1,5 @@
 name: Production Baseline Replay
-# Season 1 final release HEAD replay trigger
+# Season 1 final release HEAD replay trigger - manual
 
 on:
   workflow_dispatch:
