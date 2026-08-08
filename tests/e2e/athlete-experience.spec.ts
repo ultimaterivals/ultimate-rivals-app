@@ -24,47 +24,43 @@ async function login(page: Page) {
   throw lastError;
 }
 
-test("athlete opens the integrated home without private PII", async ({
+test("athlete season hub opens without private PII", async ({
   page,
-}) => {
+}, testInfo) => {
   await login(page);
   await page.goto("/athlete");
-  await expect(page.locator("h1")).toBeVisible();
-  await expect(page.getByText(/Ranking N[123]/).first()).toBeVisible();
-  await expect(page.getByText(/Performance recente/i)).toBeVisible();
+  await expect(page.getByText(/season hub/i)).toBeVisible();
+  await expect(page.getByText(/seu próximo passo/i)).toBeVisible();
+  await expect(page.getByText(/ranking como competição viva/i)).toBeVisible();
   await expect(page.locator("body")).not.toContainText(
-    /@test\.ur\.local|Telefone|Data de nascimento|service_role/i,
+    /@test\.ur\.local|Telefone|Data de nascimento|service_role|storage_path|signed_url/i,
   );
+  await page.screenshot({
+    path: testInfo.outputPath(`athlete-home-${testInfo.project.name}.png`),
+    fullPage: true,
+  });
 });
 
-test("mobile athlete navigation covers the primary journey", async ({
+test("mobile athlete navigation covers five primary destinations", async ({
   page,
 }, testInfo) => {
   test.skip(testInfo.project.name !== "mobile", "Mobile navigation scenario");
   test.setTimeout(90_000);
   await login(page);
   const nav = page.getByRole("navigation", {
-    name: "NavegaÃ§Ã£o principal do atleta",
+    name: "Navegação principal do atleta",
   });
   await expect(nav).toBeVisible();
-  for (const item of [
-    "Agenda",
-    "UR Play",
-    "Comp.",
-    "Ranking",
-    "Performance",
-    "Perfil",
-  ]) {
+  const expected = ["Início", "Agenda", "Ranking", "Temporada", "Perfil"];
+  await expect(nav.getByRole("link")).toHaveCount(expected.length);
+  for (const item of expected) {
     await nav.getByRole("link", { name: item }).click();
-    await expect(page.locator("h1").first()).toBeVisible({
-      timeout: 20_000,
-    });
+    await expect(page.locator("h1").first()).toBeVisible({ timeout: 20_000 });
   }
-  await page.getByRole("link", { name: /Notifica/ }).click();
-  await expect(page.getByRole("heading", { name: /Notifica/ })).toBeVisible();
-  const read = page.getByRole("button", { name: "MARCAR COMO LIDA" }).first();
-  if (await read.count()) await read.click();
-  await expect(page.locator("body")).not.toContainText(/PGRST|Postgrest/i);
+  await page.screenshot({
+    path: testInfo.outputPath("mobile-primary-navigation.png"),
+    fullPage: true,
+  });
 });
 
 test("compact 360px shell keeps touch-friendly destinations", async ({
@@ -74,10 +70,10 @@ test("compact 360px shell keeps touch-friendly destinations", async ({
   await page.setViewportSize({ width: 360, height: 800 });
   await login(page);
   const links = page
-    .getByRole("navigation", { name: "NavegaÃ§Ã£o principal do atleta" })
+    .getByRole("navigation", { name: "Navegação principal do atleta" })
     .getByRole("link");
-  await expect(links).toHaveCount(7);
-  for (let index = 0; index < 7; index++) {
+  await expect(links).toHaveCount(5);
+  for (let index = 0; index < 5; index++) {
     const box = await links.nth(index).boundingBox();
     expect(box?.height).toBeGreaterThanOrEqual(44);
   }
@@ -90,7 +86,7 @@ test("compact 360px shell keeps touch-friendly destinations", async ({
   ).toBe(true);
 });
 
-test("desktop athlete shell exposes career navigation and key centers", async ({
+test("desktop athlete shell exposes season centers", async ({
   page,
 }, testInfo) => {
   test.skip(
@@ -98,18 +94,43 @@ test("desktop athlete shell exposes career navigation and key centers", async ({
     "Desktop navigation scenario",
   );
   await login(page);
-  const nav = page.getByRole("navigation", { name: "NavegaÃ§Ã£o do atleta" });
+  const nav = page.getByRole("navigation", { name: "Navegação do atleta" });
   await expect(nav).toBeVisible();
-  await nav.getByRole("link", { name: "Performance" }).click();
-  await expect(page).toHaveURL(/\/athlete\/performance/, { timeout: 20_000 });
-  await expect(page.getByRole("heading", { name: "Performance" })).toBeVisible({
-    timeout: 20_000,
+
+  await nav.getByRole("link", { name: "Agenda", exact: true }).click();
+  await expect(page).toHaveURL(/\/athlete\/agenda/, { timeout: 20_000 });
+  await expect(
+    page.getByRole("heading", { name: /Minha agenda e calendário/i }),
+  ).toBeVisible({ timeout: 20_000 });
+  await page.screenshot({
+    path: testInfo.outputPath("agenda-desktop.png"),
+    fullPage: true,
   });
+
   await nav.getByRole("link", { name: "Ranking", exact: true }).click();
   await expect(page).toHaveURL(/\/athlete\/ranking/, { timeout: 20_000 });
   await expect(page.getByRole("heading", { name: "Meu ranking" })).toBeVisible({
     timeout: 20_000,
   });
-  await page.getByRole("link", { name: /Notifica/ }).click();
-  await expect(page.getByRole("heading", { name: /Notifica/ })).toBeVisible();
+  await page.screenshot({
+    path: testInfo.outputPath("ranking-desktop.png"),
+    fullPage: true,
+  });
+
+  await nav.getByRole("link", { name: "Temporada", exact: true }).click();
+  await expect(page).toHaveURL(/\/athlete\/season/, { timeout: 20_000 });
+  await expect(
+    page.getByRole("heading", { name: /Da primeira reserva/i }),
+  ).toBeVisible({ timeout: 20_000 });
+  await page.screenshot({
+    path: testInfo.outputPath("season-desktop.png"),
+    fullPage: true,
+  });
+
+  await nav.getByRole("link", { name: "Perfil", exact: true }).click();
+  await expect(page).toHaveURL(/\/athlete\/profile/, { timeout: 20_000 });
+  await page.screenshot({
+    path: testInfo.outputPath("profile-desktop.png"),
+    fullPage: true,
+  });
 });
