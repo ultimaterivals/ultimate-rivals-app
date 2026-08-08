@@ -1,12 +1,16 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
+import { AthleteAvatar } from "@/components/athlete/athlete-avatar";
 import { BrandMark } from "@/components/layout/brand-mark";
 import { Card, PageHeader } from "@/components/ui";
+import { EngagementViewEvent } from "@/features/engagement/engagement-client";
 import { createClient } from "@/lib/supabase/server";
 import { getPublicAthlete } from "@/server/repositories/rankings.repository";
 import { levelLabel } from "@/server/services/ranking-classification.service";
+
 export const metadata: Metadata = { robots: { index: false, follow: false } };
+
 export default async function PublicAthletePage({
   params,
 }: {
@@ -18,23 +22,42 @@ export default async function PublicAthletePage({
   const r = data.ranking;
   return (
     <main className="mx-auto min-h-dvh max-w-4xl px-5 py-6 sm:px-8">
+      <EngagementViewEvent
+        eventName="athlete_profile_viewed"
+        athleteId={data.profile.athlete_id}
+        objectType="athlete"
+        objectId={data.profile.athlete_id}
+        metadata={{
+          route: `/athletes/${athleteCode}`,
+          source: "public_ranking_profile",
+        }}
+        dedupKey={`public-athlete:${data.profile.athlete_id}`}
+      />
       <header className="mb-12 flex items-center justify-between">
         <BrandMark />
         <Link href="/rankings/individual" className="font-bold">
           Ranking
         </Link>
       </header>
-      <PageHeader
-        eyebrow={data.profile.athlete_code}
-        title={data.profile.public_name}
-        description={
-          r
-            ? [levelLabel(r.level), r.team_name, r.pole_name]
-                .filter(Boolean)
-                .join(" · ")
-            : "Perfil esportivo público"
-        }
-      />
+      <div className="grid gap-5 sm:grid-cols-[auto_1fr] sm:items-center">
+        <AthleteAvatar
+          publicName={data.profile.public_name}
+          imageUrl={data.profile.avatar_url}
+          size="xl"
+          priority
+        />
+        <PageHeader
+          eyebrow={data.profile.athlete_code}
+          title={data.profile.public_name}
+          description={
+            r
+              ? [levelLabel(r.level), r.team_name, r.pole_name]
+                  .filter(Boolean)
+                  .join(" · ")
+              : "Perfil esportivo público"
+          }
+        />
+      </div>
       {r && (
         <div className="mt-8 grid gap-4 sm:grid-cols-2">
           <Card className="ranking-hero border-ur-gold/50">

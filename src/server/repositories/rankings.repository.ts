@@ -37,7 +37,7 @@ export async function listRankings(
   query = filters.after ? query.gt("current_position", filters.after) : query;
   const { data, error } = await query;
   if (error) throw error;
-  return data ?? [];
+  return withSignedRankingAvatars(client, data ?? []);
 }
 
 export async function getRankingContext(client: SupabaseClient) {
@@ -95,7 +95,7 @@ export async function getAthleteRanking(
       .maybeSingle(),
     client
       .from("individual_ranking")
-      .select("current_position,display_name,total_points")
+      .select("current_position,display_name,total_points,avatar_url,entity_id")
       .eq("season_id", current.season_id)
       .eq("level", current.level)
       .is("cycle_id", null)
@@ -182,9 +182,38 @@ export async function getPublicAthlete(
           athlete_id: ranking.entity_id,
           athlete_code: ranking.entity_code,
           public_name: ranking.display_name,
-          avatar_url: null,
+          avatar_url: ranking.avatar_url
+            ? (
+                await client.storage
+                  .from("athlete-avatars")
+                  .createSignedUrl(ranking.avatar_url, 60 * 10)
+              ).data?.signedUrl ?? null
+            : null,
         },
         ranking,
       }
     : null;
+}
+
+async function withSignedRankingAvatars<T extends { avatar_url?: string | null }>(
+  client: SupabaseClient,
+  rows: T[],
+) {
+  const paths = rows
+    .map((row) => row.avatar_url)
+    .filter((value): value is string => Boolean(value));
+  if (!paths.length) return rows;
+  const uniquePaths = [...new Set(paths)];
+  const { data } = await client.storage
+    .from("athlete-avatars")
+    .createSignedUrls(uniquePaths, 60 * 10);
+  const signedByPath = new Map(
+    (data ?? []).flatMap((item) =>
+      item.path && item.signedUrl ? [[item.path, item.signedUrl] as const] : [],
+    ),
+  );
+  return rows.map((row) => ({
+    ...row,
+    avatar_signed_url: row.avatar_url ? signedByPath.get(row.avatar_url) ?? null : null,
+  }));
 }

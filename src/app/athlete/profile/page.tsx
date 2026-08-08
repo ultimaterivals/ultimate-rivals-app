@@ -3,6 +3,9 @@ import { Card, EmptyState, PageHeader } from "@/components/ui";
 import { requireRole } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
 import { getAthleteProfile } from "@/server/repositories/athletes.repository";
+import { EngagementViewEvent } from "@/features/engagement/engagement-client";
+import { ProfilePhotoCard } from "@/features/athlete-profile/profile-photo-card";
+import { setAthletePhotoVisibilityAction } from "@/features/athlete-profile/photo-actions";
 
 const levels: Record<string, string> = {
   leveling: "Em Nivelamento",
@@ -48,6 +51,14 @@ export default async function Page({
 
   return (
     <div className="grid gap-6">
+      <EngagementViewEvent
+        eventName="athlete_profile_viewed"
+        athleteId={profile.id}
+        objectType="athlete"
+        objectId={profile.id}
+        metadata={{ route: "/athlete/profile", source: "profile" }}
+        dedupKey={`athlete-profile:${profile.id}`}
+      />
       {query.updated === "1" && (
         <p
           role="status"
@@ -75,6 +86,32 @@ export default async function Page({
           Editar meu perfil
         </Link>
       </section>
+      <ProfilePhotoCard
+        athleteId={profile.id}
+        publicName={profile.publicName}
+        currentPhotoUrl={profile.avatarSignedUrl}
+        currentPhotoPath={profile.avatarPath}
+      />
+      <Card>
+        <h2 className="text-xl font-black">Privacidade da foto</h2>
+        <p className="mt-2 text-sm text-zinc-400">
+          Sua foto pode existir sem aparecer publicamente. O ranking público só
+          usa a imagem quando esta preferência estiver ativa.
+        </p>
+        <form action={setAthletePhotoVisibilityAction} className="mt-4 flex flex-wrap items-center gap-3">
+          <label className="flex items-center gap-2 text-sm text-zinc-300">
+            <input
+              name="showProfilePhotoPublicly"
+              type="checkbox"
+              defaultChecked={profile.showProfilePhotoPublicly}
+            />
+            Mostrar minha foto no ranking público
+          </label>
+          <button className="rounded-ur bg-ur-gold min-h-10 px-4 text-sm font-black text-black">
+            Salvar privacidade
+          </button>
+        </form>
+      </Card>
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
         {[
           ["Nível", profile.level ? levels[profile.level] : "Não atribuído"],

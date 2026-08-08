@@ -45,6 +45,9 @@ export interface AthleteProfileView {
   publicName: string;
   bio: string | null;
   avatarUrl: string | null;
+  avatarPath: string | null;
+  avatarSignedUrl: string | null;
+  showProfilePhotoPublicly: boolean;
   heightCm: number | null;
   dominantHand: string | null;
   status: string;
@@ -68,7 +71,7 @@ export async function getAthleteProfile(
   const { data: athlete, error } = await client
     .from("athletes")
     .select(
-      "id,athlete_code,public_name,bio,avatar_url,height_cm,dominant_hand,status",
+      "id,athlete_code,public_name,bio,avatar_url,avatar_storage_path,show_profile_photo_publicly,height_cm,dominant_hand,status",
     )
     .eq("profile_id", profileId)
     .maybeSingle();
@@ -104,12 +107,21 @@ export async function getAthleteProfile(
   const team = Array.isArray(teamData) ? teamData[0] : teamData;
   const poleData = team?.poles;
   const pole = Array.isArray(poleData) ? poleData[0] : poleData;
+  const avatarPath = athlete.avatar_storage_path ?? athlete.avatar_url ?? null;
+  const { data: signedAvatar } = avatarPath
+    ? await client.storage
+        .from("athlete-avatars")
+        .createSignedUrl(avatarPath, 60 * 10)
+    : { data: null };
   return {
     id: athlete.id,
     athleteCode: athlete.athlete_code,
     publicName: athlete.public_name,
     bio: athlete.bio,
     avatarUrl: athlete.avatar_url,
+    avatarPath,
+    avatarSignedUrl: signedAvatar?.signedUrl ?? null,
+    showProfilePhotoPublicly: Boolean(athlete.show_profile_photo_publicly),
     heightCm: athlete.height_cm,
     dominantHand: athlete.dominant_hand,
     status: athlete.status,

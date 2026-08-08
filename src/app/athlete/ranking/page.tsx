@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { Award, ShieldCheck, Swords, Target } from "lucide-react";
 import { RankingMovement } from "@/components/ranking/ranking-movement";
 import { Card, EmptyState, PageHeader, StatCard } from "@/components/ui";
+import { EngagementViewEvent } from "@/features/engagement/engagement-client";
 import { requireRole } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
 import { getAthleteRanking } from "@/server/repositories/rankings.repository";
@@ -31,6 +32,31 @@ export default async function AthleteRankingPage() {
   const target = nextPositionTarget(r, data.peers);
   return (
     <div className="grid gap-7">
+      <EngagementViewEvent
+        eventName="ranking_viewed"
+        athleteId={athlete.id}
+        objectType="ranking"
+        metadata={{
+          ranking_scope: "individual",
+          route: "/athlete/ranking",
+          source: "athlete_portal",
+          is_self: true,
+        }}
+        dedupKey={`athlete-ranking:${athlete.id}`}
+      />
+      <EngagementViewEvent
+        eventName="ranking_own_position_viewed"
+        athleteId={athlete.id}
+        objectType="athlete"
+        objectId={athlete.id}
+        metadata={{
+          ranking_scope: "individual",
+          route: "/athlete/ranking",
+          position: r.current_position ?? null,
+          is_self: true,
+        }}
+        dedupKey={`athlete-ranking-own:${athlete.id}:${r.current_position}`}
+      />
       <PageHeader
         eyebrow="Disputa oficial"
         title="Meu ranking"
