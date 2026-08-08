@@ -69,6 +69,33 @@ on conflict (id) do update set
   status = excluded.status,
   updated_at = now();
 
+insert into public.seasons (
+  id,
+  name,
+  code,
+  starts_at,
+  ends_at,
+  ranking_cutoff_at,
+  status
+)
+values (
+  '10000000-0000-4000-8000-000000000001',
+  '[QA] Season 1',
+  'qa-season-1',
+  '2026-01-01 00:00:00+00',
+  '2026-12-31 23:59:59+00',
+  '2026-12-31 23:59:59+00',
+  'active'
+)
+on conflict (id) do update set
+  name = excluded.name,
+  code = excluded.code,
+  starts_at = excluded.starts_at,
+  ends_at = excluded.ends_at,
+  ranking_cutoff_at = excluded.ranking_cutoff_at,
+  status = excluded.status,
+  updated_at = now();
+
 insert into public.poles (id, name, slug, city, state, status)
 values
   ('20000000-0000-4000-8000-000000000001','[QA] Polo A','qa-polo-a','Belo Horizonte','MG','active'),
