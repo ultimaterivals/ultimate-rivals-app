@@ -1,6 +1,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { getDevelopment } from "@/server/repositories/progression.repository";
 import { getAthleteRanking } from "@/server/repositories/rankings.repository";
+import { getAthleteWallet } from "@/server/repositories/wallet-media-reports.repository";
 
 export const athleteLevels = {
   leveling: { short: "NÍVEL", name: "Em nivelamento" },
@@ -69,6 +70,285 @@ export function athleteEmptyStates(input: {
     ranking: !input.hasRanking,
     team: !input.hasTeam,
   };
+}
+
+export interface AthleteNextAction {
+  type:
+    | "current_match"
+    | "reservation"
+    | "waitlist"
+    | "formation"
+    | "notification"
+    | "ranking"
+    | "agenda";
+  title: string;
+  description: string;
+  cta: string;
+  href: string;
+  priority: number;
+  context: Record<string, string | number | boolean | null>;
+}
+
+export function getAthleteNextAction(input: {
+  currentMatch?: {
+    id: string;
+    status: string;
+    courtName?: string | null;
+  } | null;
+  reserveState?: boolean;
+  nextRegistration?: {
+    id: string;
+    registration_status: string;
+    waitlist_position: number | null;
+    session?: { name?: string | null; starts_at?: string | null } | null;
+  } | null;
+  formations?: { id: string; name: string | null; ranking?: unknown }[];
+  ranking?: {
+    current_position?: number | null;
+    total_points?: number | null;
+  } | null;
+  target?: { pointsBehind: number; current_position?: number | null } | null;
+  unreadCount?: number;
+}): AthleteNextAction {
+  if (input.currentMatch) {
+    return {
+      type: "current_match",
+      title: input.reserveState
+        ? "Você foi chamado como reserva"
+        : "Sua partida está na fila",
+      description: input.currentMatch.courtName
+        ? `Quadra: ${input.currentMatch.courtName}`
+        : "Acompanhe a chamada da quadra em tempo real.",
+      cta: "Abrir partida",
+      href: `/athlete/matches/${input.currentMatch.id}`,
+      priority: 100,
+      context: {
+        source_state: input.currentMatch.status,
+        destination: `/athlete/matches/${input.currentMatch.id}`,
+      },
+    };
+  }
+  if (input.nextRegistration?.registration_status === "confirmed") {
+    return {
+      type: "reservation",
+      title: "Você tem uma reserva confirmada",
+      description:
+        input.nextRegistration.session?.name ??
+        "Veja horário, local e status da sua próxima atividade.",
+      cta: "Ver agenda",
+      href: "/athlete/agenda",
+      priority: 90,
+      context: {
+        source_state: "reservation_confirmed",
+        destination: "/athlete/agenda",
+      },
+    };
+  }
+  if (input.nextRegistration?.registration_status === "waitlisted") {
+    return {
+      type: "waitlist",
+      title: "Você está na lista de espera",
+      description: input.nextRegistration.waitlist_position
+        ? `Posição ${input.nextRegistration.waitlist_position} na espera.`
+        : "Acompanhe a evolução da atividade.",
+      cta: "Acompanhar",
+      href: "/athlete/agenda",
+      priority: 80,
+      context: { source_state: "waitlisted", destination: "/athlete/agenda" },
+    };
+  }
+  if (input.formations?.length === 0) {
+    return {
+      type: "formation",
+      title: "Monte sua formação",
+      description:
+        "Declare interesse, encontre parceiros compatíveis e avance para uma reserva quando houver capacidade.",
+      cta: "Explorar agenda",
+      href: "/athlete/agenda",
+      priority: 70,
+      context: {
+        source_state: "no_active_formation",
+        destination: "/athlete/agenda",
+      },
+    };
+  }
+  if ((input.unreadCount ?? 0) > 0) {
+    return {
+      type: "notification",
+      title: "Há novidades para você",
+      description: `${input.unreadCount} atualização(ões) operacional(is) pendente(s).`,
+      cta: "Abrir notificações",
+      href: "/athlete/notifications",
+      priority: 60,
+      context: {
+        source_state: "unread_notifications",
+        destination: "/athlete/notifications",
+      },
+    };
+  }
+  if (input.ranking) {
+    return {
+      type: "ranking",
+      title: "Veja sua disputa no ranking",
+      description: input.target
+        ? `${input.target.pointsBehind} pontos para #${input.target.current_position}.`
+        : "Acompanhe sua posição e seus rivais próximos.",
+      cta: "Abrir ranking",
+      href: "/athlete/ranking",
+      priority: 50,
+      context: {
+        source_state: "ranking_available",
+        destination: "/athlete/ranking",
+        position: input.ranking.current_position ?? null,
+      },
+    };
+  }
+  return {
+    type: "agenda",
+    title: "Encontre sua próxima atividade",
+    description:
+      "Interesse não reserva vaga. Reserva não é check-in. Comece pela agenda.",
+    cta: "Explorar agenda",
+    href: "/athlete/agenda",
+    priority: 10,
+    context: { source_state: "onboarding", destination: "/athlete/agenda" },
+  };
+}
+
+export type AthleteSeasonStageCode =
+  | "inicio"
+  | "ur_play"
+  | "series"
+  | "cup"
+  | "legends"
+  | "virada";
+
+export interface AthleteSeasonStage {
+  code: AthleteSeasonStageCode;
+  label: string;
+  status:
+    | "active"
+    | "completed"
+    | "registered"
+    | "available"
+    | "locked"
+    | "upcoming";
+  evidence: string;
+  href: string;
+}
+
+export function getAthleteSeasonStages(input: {
+  hasRanking: boolean;
+  matchCount: number;
+  hasUpcomingUrPlay: boolean;
+  seasonStatus?: string | null;
+  competitions?: {
+    tournament_registrations?: {
+      status?: string | null;
+      tournament_divisions?: {
+        tournaments?: {
+          product?: string | null;
+          status?: string | null;
+        } | null;
+      } | null;
+    } | null;
+  }[];
+}): AthleteSeasonStage[] {
+  const competitions = input.competitions ?? [];
+  const productState = (product: string) => {
+    const item = competitions.find((row) => {
+      const tournament =
+        row.tournament_registrations?.tournament_divisions?.tournaments;
+      return tournament?.product === product;
+    });
+    const registration = item?.tournament_registrations;
+    const tournament = registration?.tournament_divisions?.tournaments;
+    if (registration?.status) return registration.status;
+    if (tournament?.status) return tournament.status;
+    return null;
+  };
+  const competitiveStage = (
+    code: Extract<AthleteSeasonStageCode, "series" | "cup" | "legends">,
+    label: string,
+  ): AthleteSeasonStage => {
+    const state = productState(code);
+    if (["confirmed", "registered", "approved"].includes(state ?? "")) {
+      return {
+        code,
+        label,
+        status: "registered",
+        evidence: `Inscrição ${state}.`,
+        href: "/athlete/competitions",
+      };
+    }
+    if (["open", "registration_open", "published"].includes(state ?? "")) {
+      return {
+        code,
+        label,
+        status: "available",
+        evidence: "Competição disponível nos torneios.",
+        href: "/athlete/competitions",
+      };
+    }
+    if (["completed", "closed"].includes(state ?? "")) {
+      return {
+        code,
+        label,
+        status: "completed",
+        evidence: "Etapa encerrada por dado oficial.",
+        href: "/athlete/competitions",
+      };
+    }
+    return {
+      code,
+      label,
+      status: "locked",
+      evidence: "Sem elegibilidade ou inscrição registrada ainda.",
+      href: "/athlete/competitions",
+    };
+  };
+
+  return [
+    {
+      code: "inicio",
+      label: "Início",
+      status: input.hasRanking || input.matchCount > 0 ? "completed" : "active",
+      evidence:
+        input.hasRanking || input.matchCount > 0
+          ? "Ranking ou jogo homologado já existe."
+          : "Comece pela agenda e pelas primeiras reservas.",
+      href: "/athlete",
+    },
+    {
+      code: "ur_play",
+      label: "UR Play",
+      status: input.hasUpcomingUrPlay
+        ? "registered"
+        : input.matchCount > 0
+          ? "completed"
+          : "active",
+      evidence: input.hasUpcomingUrPlay
+        ? "Há reserva ou lista de espera futura."
+        : input.matchCount > 0
+          ? "Há jogos vinculados ao atleta."
+          : "Disponível pela agenda operacional.",
+      href: "/athlete/agenda",
+    },
+    competitiveStage("series", "UR Series"),
+    competitiveStage("cup", "UR Cup"),
+    competitiveStage("legends", "UR Legends"),
+    {
+      code: "virada",
+      label: "Virada",
+      status: ["completed", "closed"].includes(input.seasonStatus ?? "")
+        ? "completed"
+        : "upcoming",
+      evidence: ["completed", "closed"].includes(input.seasonStatus ?? "")
+        ? "Temporada encerrada por status oficial."
+        : "Aguardando evolução real da temporada.",
+      href: "/athlete/season",
+    },
+  ];
 }
 
 export function canReadPrivateAthleteContent(
@@ -269,7 +549,9 @@ export async function getAthleteDashboard(
 ) {
   const { data: athlete, error } = await client
     .from("athletes")
-    .select("id,athlete_code,public_name,avatar_url,created_at")
+    .select(
+      "id,athlete_code,public_name,avatar_url,avatar_storage_path,created_at",
+    )
     .eq("profile_id", profileId)
     .maybeSingle();
   if (error) throw error;
@@ -287,6 +569,7 @@ export async function getAthleteDashboard(
     notifications,
     matches,
     squadAssignments,
+    wallet,
   ] = await Promise.all([
     client
       .from("athlete_levels")
@@ -346,6 +629,7 @@ export async function getAthleteDashboard(
       )
       .eq("athlete_id", athlete.id)
       .eq("status", "active"),
+    getAthleteWallet(client, athlete.id),
   ]);
   for (const response of [
     level,
@@ -520,9 +804,44 @@ export async function getAthleteDashboard(
         unread: false,
       })),
   ]).sort((a, b) => b.occurredAt.localeCompare(a.occurredAt));
+  const avatarPath = athlete.avatar_storage_path ?? athlete.avatar_url ?? null;
+  const { data: signedAvatar } = avatarPath
+    ? await client.storage
+        .from("athlete-avatars")
+        .createSignedUrl(avatarPath, 60 * 10)
+    : { data: null };
+  const target = ranking.current
+    ? (() => {
+        const next = (ranking.peers ?? []).find(
+          (peer) =>
+            Number(peer.current_position) ===
+            Number(ranking.current!.current_position) - 1,
+        );
+        return next
+          ? {
+              pointsBehind: Math.max(
+                Number(next.total_points ?? 0) -
+                  Number(ranking.current!.total_points ?? 0),
+                0,
+              ),
+              current_position: next.current_position,
+            }
+          : null;
+      })()
+    : null;
+  const nextAction = getAthleteNextAction({
+    currentMatch,
+    reserveState,
+    nextRegistration: futureRegistrations[0] ?? null,
+    formations,
+    ranking: ranking.current,
+    target,
+    unreadCount: (notifications.data ?? []).filter((item) => !item.read_at)
+      .length,
+  });
 
   return {
-    athlete,
+    athlete: { ...athlete, avatarSignedUrl: signedAvatar?.signedUrl ?? null },
     level: level.data?.level ?? "leveling",
     levelSince: level.data?.starts_at ?? athlete.created_at,
     season: season.data,
@@ -556,6 +875,13 @@ export async function getAthleteDashboard(
       : null,
     formations,
     activity,
+    wallet,
+    nextAction,
+    seasonPhase:
+      currentCycle?.status ??
+      currentCycle?.name ??
+      season.data?.status ??
+      "upcoming",
     unreadCount: (notifications.data ?? []).filter((item) => !item.read_at)
       .length,
     priority: dashboardPriority({

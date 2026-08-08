@@ -1,5 +1,5 @@
-import { notFound } from "next/navigation";
 import { Award, ShieldCheck, Swords, Target } from "lucide-react";
+import { notFound } from "next/navigation";
 import { RankingMovement } from "@/components/ranking/ranking-movement";
 import { Card, EmptyState, PageHeader, StatCard } from "@/components/ui";
 import { EngagementViewEvent } from "@/features/engagement/engagement-client";
@@ -30,6 +30,12 @@ export default async function AthleteRankingPage() {
     );
   const r = data.current;
   const target = nextPositionTarget(r, data.peers);
+  const nearby = data.peers.filter((peer) => {
+    const distance =
+      Number(peer.current_position ?? 0) - Number(r.current_position ?? 0);
+    return distance >= -2 && distance <= 2;
+  });
+
   return (
     <div className="grid gap-7">
       <EngagementViewEvent
@@ -60,7 +66,7 @@ export default async function AthleteRankingPage() {
       <PageHeader
         eyebrow="Disputa oficial"
         title="Meu ranking"
-        description="Sua posição ao vivo na temporada e o caminho até o próximo adversário."
+        description="Sua posição ao vivo na temporada, seus rivais próximos e o delta bruto para a próxima colocação."
       />
       <Card className="ranking-hero border-ur-gold/50 overflow-hidden">
         <div className="grid gap-8 sm:grid-cols-[1fr_auto] sm:items-end">
@@ -131,6 +137,34 @@ export default async function AthleteRankingPage() {
           <strong className="mt-2 block text-xl">Você lidera este nível</strong>
         </Card>
       )}
+
+      <Card>
+        <p className="text-xs font-black text-zinc-500 uppercase">
+          Rivais próximos
+        </p>
+        <div className="mt-3 grid gap-2">
+          {nearby.map((peer) => {
+            const isSelf = peer.entity_id === athlete.id;
+            return (
+              <div
+                key={`${peer.current_position}-${peer.entity_id}`}
+                className={`rounded-ur flex items-center justify-between border p-3 ${
+                  isSelf
+                    ? "border-ur-gold bg-ur-gold/10 text-ur-gold"
+                    : "border-white/10"
+                }`}
+              >
+                <span className="font-bold">
+                  #{peer.current_position} · {peer.display_name}
+                  {isSelf ? " · você" : ""}
+                </span>
+                <strong>{peer.total_points} pts</strong>
+              </div>
+            );
+          })}
+        </div>
+      </Card>
+
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard
           label="Jogos"
@@ -158,7 +192,7 @@ export default async function AthleteRankingPage() {
         />
       </div>
       <section>
-        <h2 className="mb-3 text-xl font-black">HISTÓRICO DE POSIÇÕES</h2>
+        <h2 className="mb-3 text-xl font-black">Histórico de posições</h2>
         {data.history.length ? (
           <div className="grid gap-3">
             {data.history.map((h, i) => (

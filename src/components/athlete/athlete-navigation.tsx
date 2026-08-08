@@ -22,14 +22,15 @@ import { cn } from "@/lib/utils";
 const primary = [
   { href: "/athlete", label: "Início", icon: House, exact: true },
   { href: "/athlete/agenda", label: "Agenda", icon: CalendarDays },
-  { href: "/athlete/ur-play", label: "UR Play", icon: CalendarDays },
-  { href: "/athlete/competitions", label: "Comp.", icon: Medal },
   { href: "/athlete/ranking", label: "Ranking", icon: Trophy },
-  { href: "/athlete/performance", label: "Performance", icon: Activity },
+  { href: "/athlete/season", label: "Temporada", icon: Medal },
   { href: "/athlete/profile", label: "Perfil", icon: CircleUserRound },
 ];
 
 const secondary = [
+  { href: "/athlete/ur-play", label: "UR Play", icon: CalendarDays },
+  { href: "/athlete/competitions", label: "Competições", icon: Medal },
+  { href: "/athlete/performance", label: "Performance", icon: Activity },
   { href: "/athlete/matches", label: "Meus jogos", icon: ListChecks },
   { href: "/athlete/journey", label: "Minha jornada", icon: Compass },
   { href: "/athlete/development", label: "Desenvolvimento", icon: Medal },
@@ -72,7 +73,7 @@ export function AthleteDesktopNavigation() {
       </div>
       <div className="border-t pt-5">
         <p className="mb-2 px-3 text-[.65rem] font-black tracking-[.2em] text-zinc-600 uppercase">
-          Carreira
+          Jornada e carreira
         </p>
         {secondary.map(({ href, label, icon: Icon }) => (
           <Link
@@ -96,7 +97,7 @@ export function AthleteMobileNavigation() {
       aria-label="Navegação principal do atleta"
       className="fixed inset-x-0 bottom-0 z-40 border-t border-zinc-800 bg-[#0b0b0b]/[.98] pb-[env(safe-area-inset-bottom)] backdrop-blur lg:hidden"
     >
-      <div className="mx-auto grid max-w-lg grid-cols-7">
+      <div className="mx-auto grid max-w-lg grid-cols-5">
         {primary.map(({ href, label, icon: Icon, exact }) => {
           const isActive = active(pathname, href, exact);
           return (

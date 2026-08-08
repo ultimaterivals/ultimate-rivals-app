@@ -166,6 +166,7 @@ left join public.teams t on t.id = tm.team_id
 where si.status = 'active';
 
 drop policy if exists athlete_avatar_select on storage.objects;
+drop policy if exists athlete_avatar_public_select on storage.objects;
 drop policy if exists athlete_avatar_insert on storage.objects;
 drop policy if exists athlete_avatar_update on storage.objects;
 drop policy if exists athlete_avatar_delete on storage.objects;
@@ -235,6 +236,12 @@ alter table public.acquisition_events
     'reservation_cancelled','waitlist_joined','payment_submitted','payment_verified','check_in','ur_play_participated',
     'training_interest_created','training_participated','competition_view','competition_registration','market_view',
     'market_redemption','first_participation','second_participation','return_participation',
+    'athlete_home_viewed','season_hub_viewed','next_action_viewed','next_action_clicked',
+    'calendar_viewed','calendar_filter_changed','activity_viewed',
+    'interest_started','interest_completed','interest_cancelled',
+    'reservation_started','reservation_completed','reservation_waitlisted','reservation_cancelled',
+    'formation_viewed','formation_action_clicked','competition_viewed','competition_interest_registered',
+    'season_stage_viewed','notification_opened',
     'athlete_profile_viewed','athlete_photo_upload_started','athlete_photo_upload_completed','athlete_photo_upload_failed',
     'athlete_photo_updated','athlete_photo_removed','athlete_photo_visibility_changed',
     'ranking_viewed','ranking_podium_viewed','ranking_athlete_clicked','ranking_own_position_viewed','ranking_filter_changed'

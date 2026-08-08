@@ -55,12 +55,18 @@ export default async function PublicRankingTypePage({
         description="Somente nome esportivo, contexto competitivo e estatísticas homologadas. Nenhum dado administrativo é publicado."
       />
       <div className="mt-8 grid gap-8">
-        <RankingPodium
-          rows={rows}
-          context={{ type: value.type, route: `/rankings/${key}` }}
-        />
+        {value.type === "individual" && (
+          <RankingPodium
+            rows={rows}
+            context={{ type: value.type, route: `/rankings/${key}` }}
+          />
+        )}
         <RankingTable
-          rows={rows.filter((row) => Number(row.current_position ?? 0) > 3)}
+          rows={
+            value.type === "individual"
+              ? rows.filter((row) => Number(row.current_position ?? 0) > 3)
+              : rows
+          }
           publicProfiles={value.type === "individual"}
         />
       </div>

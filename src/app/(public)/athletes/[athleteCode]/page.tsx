@@ -24,7 +24,6 @@ export default async function PublicAthletePage({
     <main className="mx-auto min-h-dvh max-w-4xl px-5 py-6 sm:px-8">
       <EngagementViewEvent
         eventName="athlete_profile_viewed"
-        athleteId={data.profile.athlete_id}
         objectType="athlete"
         objectId={data.profile.athlete_id}
         metadata={{

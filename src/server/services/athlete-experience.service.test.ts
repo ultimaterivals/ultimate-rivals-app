@@ -5,6 +5,8 @@ import {
   canReadPrivateAthleteContent,
   dedupeActivity,
   formatAthleteLevel,
+  getAthleteNextAction,
+  getAthleteSeasonStages,
   percentageChange,
   groupNotificationState,
   rankingTargetLabel,
@@ -87,5 +89,79 @@ describe("athlete experience rules", () => {
     expect(canReadPrivateAthleteContent({ role: "admin" }, "athlete-a")).toBe(
       true,
     );
+  });
+
+  it("chooses the next action without granting points or rewards", () => {
+    expect(
+      getAthleteNextAction({
+        currentMatch: { id: "match-1", status: "called" },
+        nextRegistration: {
+          id: "reg-1",
+          registration_status: "confirmed",
+          waitlist_position: null,
+        },
+        ranking: { current_position: 4, total_points: 100 },
+      }),
+    ).toMatchObject({
+      type: "current_match",
+      href: "/athlete/matches/match-1",
+      priority: 100,
+    });
+
+    expect(
+      getAthleteNextAction({
+        nextRegistration: {
+          id: "reg-2",
+          registration_status: "waitlisted",
+          waitlist_position: 2,
+        },
+        formations: [{ id: "formation-1", name: "Dupla A" }],
+      }).type,
+    ).toBe("waitlist");
+
+    expect(
+      getAthleteNextAction({
+        formations: [],
+        ranking: { current_position: 2, total_points: 100 },
+      }).type,
+    ).toBe("formation");
+  });
+
+  it("derives season stages from official states only", () => {
+    const stages = getAthleteSeasonStages({
+      hasRanking: true,
+      matchCount: 3,
+      hasUpcomingUrPlay: true,
+      seasonStatus: "active",
+      competitions: [
+        {
+          tournament_registrations: {
+            status: "confirmed",
+            tournament_divisions: {
+              tournaments: { product: "series", status: "registration_open" },
+            },
+          },
+        },
+      ],
+    });
+
+    expect(stages.map((stage) => stage.code)).toEqual([
+      "inicio",
+      "ur_play",
+      "series",
+      "cup",
+      "legends",
+      "virada",
+    ]);
+    expect(stages.find((stage) => stage.code === "inicio")?.status).toBe(
+      "completed",
+    );
+    expect(stages.find((stage) => stage.code === "ur_play")?.status).toBe(
+      "registered",
+    );
+    expect(stages.find((stage) => stage.code === "series")?.status).toBe(
+      "registered",
+    );
+    expect(stages.find((stage) => stage.code === "cup")?.status).toBe("locked");
   });
 });

@@ -30,6 +30,48 @@ function assertOwnAvatarPath(path: string, athleteId: string) {
   }
 }
 
+async function assertNormalizedAvatarObject(
+  client: Awaited<ReturnType<typeof createClient>>,
+  storagePath: string,
+) {
+  const [folder, fileName] = storagePath.split("/");
+  if (!folder || !fileName) throw new Error("PERMISSION_DENIED");
+  const { data: objects, error: listError } = await client.storage
+    .from("athlete-avatars")
+    .list(folder, { limit: 100, search: fileName });
+  if (listError) throw new Error("PERMISSION_DENIED");
+  const object = objects?.find((item) => item.name === fileName);
+  if (!object) throw new Error("UPLOAD_FAILED");
+  const size =
+    typeof object.metadata?.size === "number" ? object.metadata.size : null;
+  const mimeType =
+    typeof object.metadata?.mimetype === "string"
+      ? object.metadata.mimetype
+      : typeof object.metadata?.contentType === "string"
+        ? object.metadata.contentType
+        : null;
+  if (size !== null && (size <= 0 || size > 5 * 1024 * 1024))
+    throw new Error("FILE_TOO_LARGE");
+  if (mimeType && mimeType !== "image/webp") throw new Error("INVALID_TYPE");
+  const { data: blob, error: downloadError } = await client.storage
+    .from("athlete-avatars")
+    .download(storagePath);
+  if (downloadError || !blob) throw new Error("UPLOAD_FAILED");
+  const bytes = new Uint8Array(await blob.slice(0, 12).arrayBuffer());
+  const isWebp =
+    bytes[0] === 0x52 &&
+    bytes[1] === 0x49 &&
+    bytes[2] === 0x46 &&
+    bytes[3] === 0x46 &&
+    bytes[8] === 0x57 &&
+    bytes[9] === 0x45 &&
+    bytes[10] === 0x42 &&
+    bytes[11] === 0x50;
+  if (!isWebp) throw new Error("INVALID_SIGNATURE");
+  if (blob.size <= 0 || blob.size > 5 * 1024 * 1024)
+    throw new Error("FILE_TOO_LARGE");
+}
+
 export async function saveAthletePhotoAction(input: {
   storagePath: string;
   originalType: "image/jpeg" | "image/png" | "image/webp";
@@ -40,6 +82,7 @@ export async function saveAthletePhotoAction(input: {
   const { client, athlete } = await getOwnAthlete();
   try {
     assertOwnAvatarPath(input.storagePath, athlete.id);
+    await assertNormalizedAvatarObject(client, input.storagePath);
     const previousPath = athlete.avatar_storage_path ?? athlete.avatar_url;
     const { error } = await client
       .from("athletes")
@@ -86,6 +129,9 @@ export async function saveAthletePhotoAction(input: {
     revalidatePath("/athlete/ranking");
     revalidatePath("/rankings", "layout");
   } catch (error) {
+    if (avatarPathPattern.test(input.storagePath)) {
+      await client.storage.from("athlete-avatars").remove([input.storagePath]);
+    }
     await trackEngagementEvent({
       eventName: "athlete_photo_upload_failed",
       athleteId: athlete.id,

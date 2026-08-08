@@ -48,7 +48,7 @@ export async function createInterestAction(form: FormData) {
   );
   if (error) throw error;
   await insertAcquisitionEvent(
-    "interest_created",
+    "interest_completed",
     "demand_opportunity",
     opportunityId,
   );
@@ -105,7 +105,9 @@ export async function createReservationAction(form: FormData) {
   );
   if (error) throw error;
   await insertAcquisitionEvent(
-    status === "waitlisted" ? "waitlist_joined" : "reservation_completed",
+    status === "waitlisted"
+      ? "reservation_waitlisted"
+      : "reservation_completed",
     "demand_opportunity",
     opportunityId,
   );

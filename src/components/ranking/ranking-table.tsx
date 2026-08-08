@@ -30,7 +30,6 @@ export function RankingTable({
           publicProfiles && code ? (
             <EngagementClick
               eventName="ranking_athlete_clicked"
-              athleteId={athleteId || null}
               objectType="athlete"
               objectId={athleteId || null}
               metadata={{

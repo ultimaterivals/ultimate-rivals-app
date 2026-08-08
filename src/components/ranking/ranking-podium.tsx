@@ -40,6 +40,7 @@ export function RankingPodium({
     format?: string | null;
   };
 }) {
+  if (context.type !== "individual") return null;
   const top = rows.slice(0, 3);
   if (!top.length) return null;
   const first = top.find((row) => position(row) === 1) ?? top[0]!;
@@ -110,7 +111,6 @@ function PodiumCard({
   return (
     <EngagementClick
       eventName="ranking_athlete_clicked"
-      athleteId={String(row.entity_id)}
       objectType="athlete"
       objectId={String(row.entity_id)}
       metadata={{
