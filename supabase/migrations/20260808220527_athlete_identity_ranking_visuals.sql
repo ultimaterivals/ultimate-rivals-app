@@ -77,7 +77,9 @@ begin
   return new;
 end $$;
 
-create or replace view public.public_rankings with (security_invoker=true) as
+drop view if exists public.public_rankings;
+
+create view public.public_rankings with (security_invoker=true) as
 select
   re.id,
   re.ranking_type,
@@ -122,6 +124,8 @@ from public.ranking_entries re
 left join public.athletes a
   on a.id = re.entity_id
  and re.ranking_type = 'individual';
+
+grant select on public.public_rankings to anon, authenticated, service_role;
 
 create or replace view public.interest_list_sanitized
 with (security_invoker = true)
