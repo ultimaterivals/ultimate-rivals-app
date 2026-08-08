@@ -77,9 +77,7 @@ begin
   return new;
 end $$;
 
-drop view if exists public.public_rankings;
-
-create view public.public_rankings with (security_invoker=true) as
+create or replace view public.public_rankings with (security_invoker=true) as
 select
   re.id,
   re.ranking_type,
@@ -112,20 +110,18 @@ select
   re.previous_position,
   re.position_change,
   re.movement,
+  re.refreshed_at,
   case
     when re.ranking_type = 'individual'
      and a.show_profile_photo_publicly
      and a.public_profile_visibility = 'sports_public'
     then a.avatar_url
     else null
-  end as avatar_url,
-  re.refreshed_at
+  end as avatar_url
 from public.ranking_entries re
 left join public.athletes a
   on a.id = re.entity_id
  and re.ranking_type = 'individual';
-
-grant select on public.public_rankings to anon, authenticated, service_role;
 
 create or replace view public.interest_list_sanitized
 with (security_invoker = true)
