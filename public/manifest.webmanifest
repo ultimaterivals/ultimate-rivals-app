@@ -10,10 +10,10 @@
   "orientation": "portrait-primary",
   "icons": [
     {
-      "src": "/icons/app-icon.svg",
+      "src": "/brand/ultimate-rivals-logo-official.svg",
       "sizes": "any",
       "type": "image/svg+xml",
-      "purpose": "any maskable"
+      "purpose": "any"
     }
   ]
 }
