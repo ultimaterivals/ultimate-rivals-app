@@ -1,33 +1,4 @@
-import fs from "node:fs";
-import path from "node:path";
-
-const root = process.cwd();
-const write = (p, content) => {
-  const target = path.join(root, p);
-  fs.mkdirSync(path.dirname(target), { recursive: true });
-  fs.writeFileSync(target, content);
-};
-
-const rankingPath = path.join(root, "src/app/athlete/ranking/page.tsx");
-const ranking = fs.readFileSync(rankingPath, "utf8");
-fs.writeFileSync(
-  rankingPath,
-  ranking.replace('import { notFound } from "next/navigation";\n', ""),
-);
-
-const viewerPath = path.join(root, "src/lib/auth/athlete-viewer.ts");
-const viewer = fs.readFileSync(viewerPath, "utf8");
-fs.writeFileSync(
-  viewerPath,
-  viewer.replace(
-    `  identity: {\n    userId: string;\n    email: string | null;\n    role: "admin" | "athlete";\n  };`,
-    `  identity: Awaited<ReturnType<typeof requireAnyRole>>;`,
-  ),
-);
-
-write(
-  "src/app/admin/search/page.tsx",
-  `import Link from "next/link";
+import Link from "next/link";
 import { Search } from "lucide-react";
 import { Card, PageHeader } from "@/components/ui";
 import { requireAnyRole } from "@/lib/auth/session";
@@ -192,8 +163,3 @@ function ResultGroup({ title, rows }: { title: string; rows: ResultRow[] }) {
     </Card>
   );
 }
-`,
-);
-
-fs.rmSync(path.join(root, "scripts/fix-admin-mirror-lint.mjs"));
-console.log("admin mirror lint/type fixes applied");

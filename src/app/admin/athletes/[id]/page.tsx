@@ -13,6 +13,7 @@ import {
   createAthleteNoteAction,
 } from "@/features/athletes/actions";
 import Link from "next/link";
+import { startAthleteMirrorAction } from "@/features/admin-athlete-mirror/actions";
 export default async function Page({
   params,
 }: {
@@ -41,9 +42,15 @@ export default async function Page({
         title={athlete.public_name}
         description={`${athlete.full_name} · ${athlete.status}`}
       />
-      <Link className="text-ur-gold" href={`/admin/athletes/${id}/edit`}>
-        Editar dados permitidos
-      </Link>
+      <div className="flex flex-wrap items-center gap-3">
+        <Link className="text-ur-gold" href={`/admin/athletes/${id}/edit`}>
+          Editar dados permitidos
+        </Link>
+        <form action={startAthleteMirrorAction}>
+          <input type="hidden" name="athleteId" value={id} />
+          <Button type="submit">Ver como atleta</Button>
+        </form>
+      </div>
       <div className="grid gap-4 md:grid-cols-3">
         <Card>
           <h2 className="font-bold">Dados pessoais</h2>

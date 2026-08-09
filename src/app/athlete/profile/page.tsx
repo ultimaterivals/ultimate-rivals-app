@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { Card, EmptyState, PageHeader } from "@/components/ui";
-import { requireRole } from "@/lib/auth/session";
+import { requireAthleteViewer } from "@/lib/auth/athlete-viewer";
 import { createClient } from "@/lib/supabase/server";
 import { getAthleteProfile } from "@/server/repositories/athletes.repository";
 import { EngagementViewEvent } from "@/features/engagement/engagement-client";
@@ -35,10 +35,11 @@ export default async function Page({
   searchParams: Promise<{ updated?: string }>;
 }) {
   const query = await searchParams;
-  const identity = await requireRole("athlete");
+  const viewer = await requireAthleteViewer();
   const profile = await getAthleteProfile(
     await createClient(),
-    identity.userId,
+    viewer.isMirror ? viewer.athleteId : viewer.identity.userId,
+    viewer.isMirror ? "athlete" : "profile",
   );
 
   if (!profile)

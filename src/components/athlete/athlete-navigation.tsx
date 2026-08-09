@@ -46,7 +46,7 @@ function active(pathname: string, href: string, exact?: boolean) {
     : pathname === href || pathname.startsWith(`${href}/`);
 }
 
-export function AthleteDesktopNavigation() {
+export function AthleteDesktopNavigation({ mirror = false }: { mirror?: boolean }) {
   const pathname = usePathname();
   return (
     <nav
@@ -71,11 +71,12 @@ export function AthleteDesktopNavigation() {
           </Link>
         ))}
       </div>
-      <div className="border-t pt-5">
-        <p className="mb-2 px-3 text-[.65rem] font-black tracking-[.2em] text-zinc-600 uppercase">
-          Jornada e carreira
-        </p>
-        {secondary.map(({ href, label, icon: Icon }) => (
+      {!mirror && (
+        <div className="border-t pt-5">
+          <p className="mb-2 px-3 text-[.65rem] font-black tracking-[.2em] text-zinc-600 uppercase">
+            Jornada e carreira
+          </p>
+          {secondary.map(({ href, label, icon: Icon }) => (
           <Link
             key={`${href}-${label}`}
             href={href}
@@ -84,8 +85,9 @@ export function AthleteDesktopNavigation() {
             <Icon size={17} aria-hidden="true" />
             {label}
           </Link>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
     </nav>
   );
 }
