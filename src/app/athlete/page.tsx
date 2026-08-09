@@ -1,6 +1,7 @@
 import {
   ArrowRight,
   CalendarDays,
+  Clapperboard,
   Coins,
   MapPin,
   Medal,
@@ -184,9 +185,14 @@ export default async function AthletePage() {
           <p className="mt-4 text-sm text-zinc-500">
             UR Coins são separados de pontos de ranking.
           </p>
-          <Link href="/athlete/wallet" className="mt-4 inline-flex font-black">
-            Ver carteira
-          </Link>
+          <div className="mt-4 flex flex-wrap gap-4">
+            <Link href="/athlete/wallet" className="inline-flex font-black">
+              Ver carteira
+            </Link>
+            <Link href="/athlete/market" className="inline-flex font-black text-ur-gold">
+              Abrir UR Market →
+            </Link>
+          </div>
         </Card>
       </section>
 
@@ -306,6 +312,16 @@ export default async function AthletePage() {
               ? `${data.pole.name}${data.pole.city ? ` · ${data.pole.city}` : ""}`
               : "Seu polo principal ainda não está definido."}
           </p>
+        </Card>
+        <Card>
+          <Clapperboard className="text-ur-gold" />
+          <h2 className="mt-3 text-xl font-black">UR Studio</h2>
+          <p className="mt-2 text-sm text-zinc-400">
+            Destaques, mídia e arenas publicados para sua jornada aparecem aqui.
+          </p>
+          <Link href="/athlete/studio" className="mt-4 inline-flex font-black">
+            Abrir Studio
+          </Link>
         </Card>
       </section>
 

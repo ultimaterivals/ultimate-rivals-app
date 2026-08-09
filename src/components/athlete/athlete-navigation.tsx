@@ -13,6 +13,7 @@ import {
   ShoppingBag,
   Settings,
   Shield,
+  Clapperboard,
   Trophy,
 } from "lucide-react";
 import Link from "next/link";
@@ -34,6 +35,7 @@ const secondary = [
   { href: "/athlete/matches", label: "Meus jogos", icon: ListChecks },
   { href: "/athlete/journey", label: "Minha jornada", icon: Compass },
   { href: "/athlete/development", label: "Desenvolvimento", icon: Medal },
+  { href: "/athlete/studio", label: "UR Studio", icon: Clapperboard },
   { href: "/athlete/market", label: "UR Market", icon: ShoppingBag },
   { href: "/athlete/wallet", label: "Wallet URC", icon: Coins },
   { href: "/athlete/points", label: "Meus pontos", icon: Shield },
