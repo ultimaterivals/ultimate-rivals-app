@@ -1,8 +1,10 @@
 import {
   ArrowRight,
   CalendarDays,
+  CheckCircle2,
   Clapperboard,
   Coins,
+  Lock,
   MapPin,
   Medal,
   Sparkles,
@@ -20,10 +22,12 @@ import {
 } from "@/features/engagement/engagement-client";
 import { requireRole } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
+import { listAthleteCompetitions } from "@/server/repositories/tournaments.repository";
 import { nextPositionTarget } from "@/server/services/ranking-classification.service";
 import {
   formatAthleteLevel,
   getAthleteDashboard,
+  getAthleteSeasonStages,
   rankingTargetLabel,
 } from "@/server/services/athlete-experience.service";
 
@@ -44,10 +48,33 @@ const time = (value: string | null | undefined) =>
       })
     : "";
 
+const stageTone = (status: string) => {
+  if (status === "completed") return "border-emerald-500/40 bg-emerald-500/10";
+  if (["active", "registered", "available"].includes(status))
+    return "border-ur-gold/60 bg-ur-gold/10";
+  return "border-white/10 bg-black/20";
+};
+
 export default async function AthletePage() {
   const identity = await requireRole("athlete");
-  const data = await getAthleteDashboard(await createClient(), identity.userId);
+  const client = await createClient();
+  const data = await getAthleteDashboard(client, identity.userId);
   if (!data) notFound();
+
+  const competitions = await listAthleteCompetitions(client, data.athlete.id);
+  const stages = getAthleteSeasonStages({
+    hasRanking: Boolean(data.ranking.current),
+    matchCount: data.matches.length,
+    hasUpcomingUrPlay: Boolean(data.nextRegistration),
+    seasonStatus: data.season?.status ?? null,
+    competitions,
+  });
+  const completedStages = stages.filter((stage) => stage.status === "completed").length;
+  const campaignProgress = Math.round((completedStages / stages.length) * 100);
+  const currentStage =
+    stages.find((stage) =>
+      ["active", "registered", "available"].includes(stage.status),
+    ) ?? stages[0]!;
 
   const level = formatAthleteLevel(data.level);
   const ranking = data.ranking.current;
@@ -120,9 +147,9 @@ export default async function AthletePage() {
               hint={ranking ? `${ranking.total_points} pts` : "Sem ranking"}
             />
             <Metric
-              label="Temporada"
-              value={data.season?.name ?? "Temporada 1"}
-              hint={`Fase: ${String(data.seasonPhase).replaceAll("_", " ")}`}
+              label="Campanha"
+              value={`${campaignProgress}%`}
+              hint={`${currentStage.label} · ${String(currentStage.status).replaceAll("_", " ")}`}
             />
           </div>
         </div>
@@ -171,29 +198,81 @@ export default async function AthletePage() {
 
         <Card>
           <p className="text-xs font-black tracking-[.18em] text-zinc-500 uppercase">
-            UR Coins
+            Economia do jogador
           </p>
           <div className="mt-3 flex items-end justify-between">
             <div>
               <strong className="font-display text-ur-gold text-5xl">
                 {walletBalance}
               </strong>
-              <p className="font-bold text-zinc-400">URC no ledger</p>
+              <p className="font-bold text-zinc-400">UR Coins disponíveis</p>
             </div>
             <Coins className="text-ur-gold" size={36} />
           </div>
           <p className="mt-4 text-sm text-zinc-500">
-            Sua economia dentro do ecossistema. UR Coins permanecem separados dos pontos de ranking.
+            Ranking mede desempenho. UR Coins movimentam recompensas, produtos e utilidades do ecossistema.
           </p>
           <div className="mt-4 flex flex-wrap gap-4">
             <Link href="/athlete/wallet" className="inline-flex font-black">
               Ver carteira
             </Link>
             <Link href="/athlete/market" className="text-ur-gold inline-flex font-black">
-              Abrir UR Market →
+              Entrar no Market →
             </Link>
           </div>
         </Card>
+      </section>
+
+      <section className="overflow-hidden rounded-ur border border-white/10 bg-black/20 p-4 sm:p-5">
+        <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
+          <div>
+            <p className="text-xs font-black tracking-[.18em] text-zinc-500 uppercase">
+              Mapa da campanha
+            </p>
+            <h2 className="font-display text-2xl font-black uppercase">
+              {data.season?.name ?? "Temporada 1"}
+            </h2>
+          </div>
+          <Link href="/athlete/season" className="text-ur-gold font-black">
+            Abrir campanha →
+          </Link>
+        </div>
+        <div className="mb-4 h-2 overflow-hidden rounded-full bg-white/5">
+          <div
+            className="bg-ur-gold h-full rounded-full"
+            style={{ width: `${campaignProgress}%` }}
+            aria-label={`Progresso da campanha ${campaignProgress}%`}
+          />
+        </div>
+        <div className="grid gap-2 sm:grid-cols-3 xl:grid-cols-6">
+          {stages.map((stage, index) => {
+            const isOpen = ["active", "registered", "available", "completed"].includes(
+              stage.status,
+            );
+            return (
+              <Link
+                key={stage.code}
+                href={stage.href}
+                className={`rounded-ur border p-3 transition-transform hover:-translate-y-0.5 ${stageTone(stage.status)}`}
+              >
+                <div className="flex items-center justify-between gap-2">
+                  <span className="text-xs font-black text-zinc-500">0{index + 1}</span>
+                  {stage.status === "completed" ? (
+                    <CheckCircle2 size={16} className="text-emerald-400" />
+                  ) : isOpen ? (
+                    <Sparkles size={16} className="text-ur-gold" />
+                  ) : (
+                    <Lock size={15} className="text-zinc-600" />
+                  )}
+                </div>
+                <strong className="mt-5 block">{stage.label}</strong>
+                <span className="mt-1 block text-xs capitalize text-zinc-500">
+                  {stage.status.replaceAll("_", " ")}
+                </span>
+              </Link>
+            );
+          })}
+        </div>
       </section>
 
       <section className="grid gap-5 lg:grid-cols-3">
@@ -246,6 +325,9 @@ export default async function AthletePage() {
                     Sem rivais próximos neste recorte.
                   </p>
                 )}
+                <Link href="/athlete/ranking" className="text-ur-gold mt-2 font-black">
+                  Abrir ranking completo →
+                </Link>
               </div>
             </div>
           ) : (
@@ -256,79 +338,96 @@ export default async function AthletePage() {
           )}
         </Card>
 
-        <Card>
+        <Card className="overflow-hidden">
           <p className="text-xs font-black tracking-[.18em] text-zinc-500 uppercase">
             Próxima arena
           </p>
+          <div className="mt-3 flex min-h-32 items-center justify-center rounded-ur border border-dashed border-white/10 bg-black/20">
+            <div className="text-center">
+              <MapPin className="text-ur-gold mx-auto" size={30} />
+              <p className="mt-2 text-xs font-black tracking-[.15em] text-zinc-600 uppercase">
+                espaço de foto da arena
+              </p>
+            </div>
+          </div>
           {next?.session ? (
-            <div className="mt-3">
-              <CalendarDays className="text-ur-gold" />
-              <h2 className="mt-3 text-2xl font-black">{next.session.name}</h2>
+            <div className="mt-4">
+              <h2 className="text-2xl font-black">{next.session.name}</h2>
               <p className="mt-2 text-sm text-zinc-400">
                 {date(next.session.starts_at)} · {time(next.session.starts_at)}
               </p>
               <Badge>{next.registration_status}</Badge>
             </div>
           ) : (
-            <p className="mt-3 text-sm text-zinc-500">
+            <p className="mt-4 text-sm text-zinc-500">
               Você ainda não tem uma vaga reservada.
             </p>
           )}
-          <Link href="/athlete/agenda" className="mt-5 inline-flex font-black">
-            Explorar agenda
+          <Link href="/athlete/arenas" className="text-ur-gold mt-5 inline-flex font-black">
+            Explorar Arenas UR →
           </Link>
         </Card>
       </section>
 
-      <section className="grid gap-5 lg:grid-cols-2 xl:grid-cols-4">
-        <Card>
-          <Medal className="text-ur-gold" />
-          <h2 className="mt-3 text-xl font-black">Minha temporada</h2>
-          <p className="mt-2 text-sm text-zinc-400">
-            Da fase inicial até Series, Cup, Legends e virada — apenas estados reais entram na jornada.
+      <section>
+        <div className="mb-3">
+          <p className="text-xs font-black tracking-[.18em] text-zinc-500 uppercase">
+            Seu mundo UR
           </p>
-          <Link href="/athlete/season" className="mt-4 inline-flex font-black">
-            Ver campanha
-          </Link>
-        </Card>
-        <Card>
-          <Target className="text-ur-gold" />
-          <h2 className="mt-3 text-xl font-black">Missões e evolução</h2>
-          <p className="mt-2 text-sm text-zinc-400">
-            Objetivos e trilhas aparecem conforme dados válidos forem publicados pela operação.
-          </p>
-          <Link href="/athlete/development" className="mt-4 inline-flex font-black">
-            Ver evolução
-          </Link>
-        </Card>
-        <Card>
-          <MapPin className="text-ur-gold" />
-          <h2 className="mt-3 text-xl font-black">Minha arena</h2>
-          <p className="mt-2 text-sm text-zinc-400">
-            {data.pole
-              ? `${data.pole.name}${data.pole.city ? ` · ${data.pole.city}` : ""}`
-              : "Seu polo principal ainda não está definido."}
-          </p>
-          <Link href="/athlete/agenda" className="mt-4 inline-flex font-black">
-            Ver onde jogar
-          </Link>
-        </Card>
-        <Card>
-          <Clapperboard className="text-ur-gold" />
-          <h2 className="mt-3 text-xl font-black">Destaques da temporada</h2>
-          <p className="mt-2 text-sm text-zinc-400">
-            Seus jogos, momentos e conteúdos publicados formam a narrativa da sua temporada.
-          </p>
-          <Link href="/athlete/matches" className="mt-4 inline-flex font-black">
-            Ver meus jogos
-          </Link>
-        </Card>
+          <h2 className="font-display text-2xl font-black uppercase">
+            Áreas de progressão
+          </h2>
+        </div>
+        <div className="grid gap-5 lg:grid-cols-2 xl:grid-cols-4">
+          <Card className="border-ur-gold/30">
+            <Medal className="text-ur-gold" />
+            <h3 className="mt-3 text-xl font-black">Campanha da temporada</h3>
+            <p className="mt-2 text-sm text-zinc-400">
+              Seu caminho oficial de Início até a Virada, com bloqueios e liberações derivados de dados reais.
+            </p>
+            <Link href="/athlete/season" className="mt-4 inline-flex font-black">
+              Continuar campanha
+            </Link>
+          </Card>
+          <Card>
+            <Target className="text-ur-gold" />
+            <h3 className="mt-3 text-xl font-black">Missões e evolução</h3>
+            <p className="mt-2 text-sm text-zinc-400">
+              Hunter, metas de desenvolvimento, treinos, feedbacks e conquistas homologadas.
+            </p>
+            <Link href="/athlete/development" className="mt-4 inline-flex font-black">
+              Abrir missões
+            </Link>
+          </Card>
+          <Card>
+            <MapPin className="text-ur-gold" />
+            <h3 className="mt-3 text-xl font-black">Arenas UR</h3>
+            <p className="mt-2 text-sm text-zinc-400">
+              {data.pole
+                ? `${data.pole.name}${data.pole.city ? ` · ${data.pole.city}` : ""}`
+                : "Seu polo principal ainda não está definido."}
+            </p>
+            <Link href="/athlete/arenas" className="mt-4 inline-flex font-black">
+              Explorar arenas
+            </Link>
+          </Card>
+          <Card>
+            <Clapperboard className="text-ur-gold" />
+            <h3 className="mt-3 text-xl font-black">Destaques</h3>
+            <p className="mt-2 text-sm text-zinc-400">
+              Momentos publicados, mídia liberada e narrativa oficial da temporada.
+            </p>
+            <Link href="/athlete/highlights" className="mt-4 inline-flex font-black">
+              Ver destaques
+            </Link>
+          </Card>
+        </div>
       </section>
 
       <section className="grid gap-5 lg:grid-cols-2">
         <Card>
           <UsersRound className="text-ur-gold" />
-          <h2 className="mt-3 text-xl font-black">Formações</h2>
+          <h2 className="mt-3 text-xl font-black">Formações e equipe</h2>
           <p className="mt-2 text-sm text-zinc-400">
             {data.formations.length
               ? `${data.formations.length} formação(ões) ativa(s).`
@@ -342,11 +441,16 @@ export default async function AthletePage() {
           <Coins className="text-ur-gold" />
           <h2 className="mt-3 text-xl font-black">UR Market</h2>
           <p className="mt-2 text-sm text-zinc-400">
-            Transforme sua participação no ecossistema em utilidade real usando o saldo disponível de UR Coins.
+            Use seu saldo real de UR Coins em produtos, serviços e recompensas disponíveis no ecossistema.
           </p>
-          <Link href="/athlete/market" className="mt-4 inline-flex font-black">
-            Explorar Market
-          </Link>
+          <div className="mt-4 flex flex-wrap gap-4">
+            <Link href="/athlete/market" className="text-ur-gold inline-flex font-black">
+              Explorar Market →
+            </Link>
+            <Link href="/athlete/wallet" className="inline-flex font-black">
+              Ver saldo
+            </Link>
+          </div>
         </Card>
       </section>
 
