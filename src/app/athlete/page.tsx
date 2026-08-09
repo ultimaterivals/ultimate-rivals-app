@@ -1,6 +1,5 @@
 import {
   ArrowRight,
-  CalendarDays,
   CheckCircle2,
   Clapperboard,
   Coins,
