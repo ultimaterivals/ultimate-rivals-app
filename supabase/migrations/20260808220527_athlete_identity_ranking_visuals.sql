@@ -77,7 +77,7 @@ begin
   return new;
 end $$;
 
-create or replace view public.public_rankings with (security_invoker=true) as
+create or replace view public.public_rankings as
 select
   re.id,
   re.ranking_type,
