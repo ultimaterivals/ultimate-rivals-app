@@ -21,6 +21,7 @@ const quickActions: {
   label: string;
   icon: LucideIcon;
 }[] = [
+  { href: "/admin/studio", label: "Abrir UR Studio", icon: ListChecks },
   { href: "/admin/ur-play/new", label: "Criar UR Play", icon: CalendarDays },
   { href: "/admin/demand", label: "Abrir Demand", icon: CalendarDays },
   { href: "/admin/acquisition", label: "Ver Acquisition", icon: TrendingUp },
