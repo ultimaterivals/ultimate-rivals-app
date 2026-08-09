@@ -94,8 +94,9 @@ export async function getAthleteRanking(
       .limit(1)
       .maybeSingle(),
     client
-      .from("individual_ranking")
+      .from("public_rankings")
       .select("current_position,display_name,total_points,avatar_url,entity_id")
+      .eq("ranking_type", "individual")
       .eq("season_id", current.season_id)
       .eq("level", current.level)
       .is("cycle_id", null)

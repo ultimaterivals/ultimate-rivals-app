@@ -122,6 +122,52 @@ on conflict (id) do update set
   status = excluded.status,
   updated_at = now();
 
+insert into public.calendar_events (
+  id,
+  season_id,
+  pole_id,
+  venue_id,
+  event_type,
+  name,
+  status,
+  competition_mode,
+  starts_at,
+  ends_at,
+  capacity,
+  court_count_target,
+  notes,
+  source,
+  created_by,
+  updated_by
+)
+values (
+  '31000000-0000-4000-8000-000000000001',
+  '10000000-0000-4000-8000-000000000001',
+  '20000000-0000-4000-8000-000000000001',
+  '30000000-0000-4000-8000-000000000001',
+  'ur_play',
+  '[QA] UR Play Publico',
+  'registration_open',
+  'scheduled_rounds',
+  now() + interval '7 days',
+  now() + interval '7 days 2 hours',
+  24,
+  1,
+  '[QA] synthetic fixture; no real data',
+  'ur_play',
+  'a0000000-0000-4000-8000-000000000001',
+  'a0000000-0000-4000-8000-000000000001'
+)
+on conflict (id) do update set
+  name = excluded.name,
+  status = excluded.status,
+  starts_at = excluded.starts_at,
+  ends_at = excluded.ends_at,
+  capacity = excluded.capacity,
+  notes = excluded.notes,
+  updated_by = excluded.updated_by,
+  updated_at = now();
+
 insert into public.calendar_q1_templates (
   pole_id,
   name,

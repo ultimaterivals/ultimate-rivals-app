@@ -9,12 +9,12 @@ test("public foundation loads", async ({ page }) => {
   await expect(page.getByRole("link", { name: /equipes/i })).toBeVisible();
 });
 
-test("public calendar uses published DEV data only", async ({ page }) => {
+test("public calendar uses published QA data only", async ({ page }) => {
   await page.goto("/calendar");
   await expect(
     page.getByRole("heading", { name: /calendario ultimate rivals/i }),
   ).toBeVisible();
-  await expect(page.getByText(/ur play dev publico/i)).toBeVisible();
+  await expect(page.getByText(/\[QA\] UR Play Publico/i)).toBeVisible();
   await expect(page.getByText(/email|telefone/i)).toHaveCount(0);
 });
 
