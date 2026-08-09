@@ -20,7 +20,9 @@ test("admin opens athlete mirror and keeps admin session", async ({ page }) => {
   await page.getByRole("button", { name: "Ver espelho" }).first().click();
   await expect(page).toHaveURL(/\/athlete$/);
   await expect(page.getByText("ESPELHO DO ATLETA")).toBeVisible();
-  await expect(page.getByText("[QA] Athlete A").first()).toBeVisible();
+  await expect(
+    page.getByRole("heading", { name: "[QA] Athlete A", exact: true }),
+  ).toBeVisible();
   await page.getByRole("link", { name: "Agenda" }).first().click();
   await expect(page).toHaveURL(/\/athlete\/agenda$/);
   await page.getByRole("link", { name: "Ranking" }).first().click();
