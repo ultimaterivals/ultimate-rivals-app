@@ -198,9 +198,11 @@ create policy athlete_avatar_public_select on storage.objects for select to anon
 
 create policy athlete_avatar_insert on storage.objects for insert to authenticated with check (
   bucket_id='athlete-avatars'
-  and (storage.foldername(name))[1] = (select private.current_athlete_id())::text
-  and owner_id = (select auth.uid())::text
-  and lower(name) ~ '^[0-9a-f-]{36}/[0-9a-f-]{36}\\.webp$'
+  and (
+    (storage.foldername(name))[1] = (select private.current_athlete_id())::text
+    or (select private.has_any_role(array['admin']::public.app_role[]))
+  )
+  and lower(name) ~ '^[0-9a-f-]{36}/[0-9a-f-]{36}\\.(webp|png|jpe?g)$'
 );
 
 create policy athlete_avatar_update on storage.objects for update to authenticated using (
