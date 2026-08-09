@@ -76,22 +76,22 @@ export default async function AdminGlobalSearchPage({
       client
         .from("athletes")
         .select("id,athlete_code,public_name,status")
-        .or(`public_name.ilike.%${safeTerm}%,athlete_code.ilike.%${safeTerm}%`)
+        .or("public_name.ilike.%" + safeTerm + "%,athlete_code.ilike.%" + safeTerm + "%")
         .limit(8),
       client
         .from("teams")
         .select("id,name,status")
-        .ilike("name", `%${safeTerm}%`)
+        .ilike("name", "%" + safeTerm + "%")
         .limit(8),
       client
         .from("poles")
         .select("id,name,city,state,status")
-        .or(`name.ilike.%${safeTerm}%,city.ilike.%${safeTerm}%`)
+        .or("name.ilike.%" + safeTerm + "%,city.ilike.%" + safeTerm + "%")
         .limit(8),
       client
         .from("calendar_events")
         .select("id,name,status,starts_at")
-        .ilike("name", `%${safeTerm}%`)
+        .ilike("name", "%" + safeTerm + "%")
         .limit(8),
     ]);
     athleteRows = (athletes.data ?? []) as AthleteResult[];
@@ -130,8 +130,8 @@ export default async function AdminGlobalSearchPage({
             rows={athleteRows.map((row) => ({
               key: row.id,
               title: row.public_name,
-              detail: `${row.athlete_code} · ${row.status}`,
-              href: `/admin/athletes/${row.id}`,
+              detail: row.athlete_code + " · " + row.status,
+              href: "/admin/athletes/" + row.id,
             }))}
           />
           <ResultGroup
