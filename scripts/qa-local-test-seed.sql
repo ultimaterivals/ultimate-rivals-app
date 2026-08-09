@@ -274,6 +274,210 @@ values
   ('b0000000-0000-4000-8000-000000000003','10000000-0000-4000-8000-000000000001','n2','active','2026-01-01 00:00:00+00','a0000000-0000-4000-8000-000000000001','[QA] baseline level')
 on conflict do nothing;
 
+-- Synthetic, future-only records used by the ephemeral athlete UI screenshots.
+-- These are never loaded by DEV or PROD.
+insert into public.ur_play_sessions (
+  id,
+  season_id,
+  pole_id,
+  venue_id,
+  name,
+  session_date,
+  starts_at,
+  ends_at,
+  registration_opens_at,
+  registration_closes_at,
+  capacity,
+  waitlist_capacity,
+  price_amount,
+  status,
+  ready_for_matchmaking,
+  created_by,
+  notes
+)
+values (
+  '70000000-0000-4000-8000-000000000001',
+  '10000000-0000-4000-8000-000000000001',
+  '20000000-0000-4000-8000-000000000001',
+  '30000000-0000-4000-8000-000000000001',
+  '[QA] UR Play reservado',
+  current_date + 7,
+  date_trunc('day', now()) + interval '7 days 18 hours',
+  date_trunc('day', now()) + interval '7 days 20 hours',
+  now() - interval '1 day',
+  date_trunc('day', now()) + interval '7 days 17 hours',
+  8,
+  4,
+  0,
+  'registration_open',
+  false,
+  'a0000000-0000-4000-8000-000000000001',
+  '[QA] Screenshot fixture only'
+)
+on conflict (id) do update set
+  name = excluded.name,
+  session_date = excluded.session_date,
+  starts_at = excluded.starts_at,
+  ends_at = excluded.ends_at,
+  registration_opens_at = excluded.registration_opens_at,
+  registration_closes_at = excluded.registration_closes_at,
+  status = excluded.status,
+  updated_at = now();
+
+insert into public.ur_play_registrations (
+  id,
+  session_id,
+  athlete_id,
+  registration_status,
+  source,
+  confirmed_at,
+  attendance_status,
+  created_by,
+  snapshot_team_id,
+  snapshot_team_pole_id,
+  snapshot_level,
+  payment_status,
+  payment_amount,
+  client_operation_id
+)
+values (
+  '71000000-0000-4000-8000-000000000001',
+  '70000000-0000-4000-8000-000000000001',
+  'b0000000-0000-4000-8000-000000000001',
+  'confirmed',
+  'admin',
+  now(),
+  'expected',
+  'a0000000-0000-4000-8000-000000000001',
+  'c0000000-0000-4000-8000-000000000001',
+  '20000000-0000-4000-8000-000000000001',
+  'n2',
+  'not_required',
+  0,
+  '71000000-0000-4000-8000-000000000002'
+)
+on conflict (id) do update set
+  registration_status = excluded.registration_status,
+  confirmed_at = excluded.confirmed_at,
+  attendance_status = excluded.attendance_status,
+  updated_at = now();
+
+insert into public.demand_opportunities (
+  id,
+  opportunity_type,
+  status,
+  title,
+  starts_at,
+  ends_at,
+  pole_id,
+  venue_id,
+  ur_play_session_id,
+  level,
+  format_code,
+  category_code,
+  min_formations,
+  target_formations,
+  max_formations,
+  capacity_athletes,
+  court_count,
+  created_by,
+  metadata
+)
+values
+  (
+    '61000000-0000-4000-8000-000000000001',
+    'ur_play',
+    'collecting_interest',
+    '[QA] Interesse - Duplas',
+    date_trunc('day', now()) + interval '5 days 18 hours',
+    date_trunc('day', now()) + interval '5 days 20 hours',
+    '20000000-0000-4000-8000-000000000001',
+    '30000000-0000-4000-8000-000000000001',
+    null,
+    'n2',
+    'doubles',
+    'mixed',
+    1,
+    2,
+    2,
+    4,
+    1,
+    'a0000000-0000-4000-8000-000000000001',
+    '{"seed":"athlete_app_feature_qa","scenario":"interest"}'::jsonb
+  ),
+  (
+    '61000000-0000-4000-8000-000000000002',
+    'ur_play',
+    'collecting_interest',
+    '[QA] Reserva - Duplas',
+    date_trunc('day', now()) + interval '7 days 18 hours',
+    date_trunc('day', now()) + interval '7 days 20 hours',
+    '20000000-0000-4000-8000-000000000001',
+    '30000000-0000-4000-8000-000000000001',
+    '70000000-0000-4000-8000-000000000001',
+    'n2',
+    'doubles',
+    'mixed',
+    1,
+    1,
+    1,
+    2,
+    1,
+    'a0000000-0000-4000-8000-000000000001',
+    '{"seed":"athlete_app_feature_qa","scenario":"reservation"}'::jsonb
+  )
+on conflict (id) do update set
+  status = excluded.status,
+  title = excluded.title,
+  starts_at = excluded.starts_at,
+  ends_at = excluded.ends_at,
+  ur_play_session_id = excluded.ur_play_session_id,
+  metadata = excluded.metadata,
+  updated_at = now();
+
+insert into public.session_interests (
+  id,
+  opportunity_id,
+  athlete_id,
+  interest_mode,
+  status,
+  show_identity,
+  source
+)
+values (
+  '62000000-0000-4000-8000-000000000001',
+  '61000000-0000-4000-8000-000000000001',
+  'b0000000-0000-4000-8000-000000000003',
+  'looking_for_partner',
+  'active',
+  true,
+  'qa_seed'
+)
+on conflict (opportunity_id, athlete_id) do update set
+  interest_mode = excluded.interest_mode,
+  status = excluded.status,
+  show_identity = excluded.show_identity,
+  updated_at = now();
+
+insert into public.activity_reservations (
+  id,
+  opportunity_id,
+  athlete_id,
+  status,
+  eligibility
+)
+values (
+  '63000000-0000-4000-8000-000000000001',
+  '61000000-0000-4000-8000-000000000002',
+  'b0000000-0000-4000-8000-000000000002',
+  'reserved',
+  'eligible'
+)
+on conflict (opportunity_id, athlete_id) do update set
+  status = excluded.status,
+  eligibility = excluded.eligibility,
+  updated_at = now();
+
 with refs as (
   select
     (select id from public.competitive_categories where code = 'mixed') as mixed_category_id,

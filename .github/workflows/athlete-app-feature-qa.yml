@@ -121,56 +121,86 @@ jobs:
       - name: Validate feature migration invariants
         run: |
           psql "$DATABASE_URL" -v ON_ERROR_STOP=1 <<'SQL'
-          select 'avatar_columns' as check_name
-          where exists (
-            select 1 from information_schema.columns
-            where table_schema = 'public'
-              and table_name = 'athletes'
-              and column_name in ('avatar_storage_path','avatar_visibility')
-            group by table_name
-            having count(*) = 2
-          );
+          do $$
+          begin
+            if (
+              select count(*)
+              from information_schema.columns
+              where table_schema = 'public'
+                and table_name = 'athletes'
+                and column_name in (
+                  'avatar_storage_path',
+                  'avatar_content_type',
+                  'avatar_file_size_bytes',
+                  'avatar_updated_at',
+                  'show_profile_photo_publicly'
+                )
+            ) <> 5 then
+              raise exception 'FEATURE_MIGRATION invariant failed: athlete avatar columns';
+            end if;
 
-          select 'public_rankings_columns' as check_name
-          where exists (
-            select 1 from information_schema.columns
-            where table_schema = 'public'
-              and table_name = 'public_rankings'
-              and column_name = 'avatar_url'
-          );
+            if not exists (
+              select 1
+              from information_schema.columns
+              where table_schema = 'public'
+                and table_name = 'public_rankings'
+                and column_name = 'avatar_url'
+            ) then
+              raise exception 'FEATURE_MIGRATION invariant failed: public_rankings.avatar_url';
+            end if;
 
-          select 'interest_list_sanitized_exists' as check_name
-          where exists (
-            select 1 from information_schema.views
-            where table_schema = 'public'
-              and table_name = 'interest_list_sanitized'
-          );
+            if not exists (
+              select 1
+              from information_schema.views
+              where table_schema = 'public'
+                and table_name = 'interest_list_sanitized'
+            ) then
+              raise exception 'FEATURE_MIGRATION invariant failed: interest_list_sanitized';
+            end if;
 
-          select 'avatar_storage_policies' as check_name
-          where (
-            select count(*)
-            from pg_policies
-            where schemaname = 'storage'
-              and tablename = 'objects'
-              and policyname like 'athlete_avatar_%'
-          ) >= 4;
+            if (
+              select count(*)
+              from pg_policies
+              where schemaname = 'storage'
+                and tablename = 'objects'
+                and policyname in (
+                  'athlete_avatar_select',
+                  'athlete_avatar_public_select',
+                  'athlete_avatar_insert',
+                  'athlete_avatar_update',
+                  'athlete_avatar_delete'
+                )
+            ) <> 5 then
+              raise exception 'FEATURE_MIGRATION invariant failed: avatar storage policies';
+            end if;
 
-          select 'feature_events_allowed' as check_name
-          where exists (
-            select 1 from pg_constraint
-            where conname = 'acquisition_events_event_name_check'
-              and pg_get_constraintdef(oid) like '%season_hub_viewed%'
-              and pg_get_constraintdef(oid) like '%reservation_waitlisted%'
-          );
+            if not exists (
+              select 1
+              from pg_constraint
+              where conrelid = 'public.acquisition_events'::regclass
+                and conname = 'acquisition_events_event_name_check'
+                and pg_get_constraintdef(oid) like '%season_hub_viewed%'
+                and pg_get_constraintdef(oid) like '%reservation_waitlisted%'
+            ) then
+              raise exception 'FEATURE_MIGRATION invariant failed: feature events';
+            end if;
 
-          select 'non_individual_rankings_present' as check_name
-          where exists (
-            select 1 from information_schema.views
-            where table_schema = 'public'
-              and table_name in ('team_rankings','pole_rankings','formation_rankings')
-            group by table_schema
-            having count(*) = 3
-          );
+            if (
+              select count(*)
+              from information_schema.views
+              where table_schema = 'public'
+                and table_name in (
+                  'team_rankings',
+                  'pole_rankings',
+                  'formation_rankings'
+                )
+            ) <> 3 then
+              raise exception 'FEATURE_MIGRATION invariant failed: non-individual ranking views';
+            end if;
+          end
+          $$;
+
+          select 'FEATURE_MIGRATION_INVARIANTS_PASS' as check_name;
           SQL
 
       - name: Static diff check
