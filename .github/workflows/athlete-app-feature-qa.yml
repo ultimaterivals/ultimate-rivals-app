@@ -89,7 +89,8 @@ jobs:
 
       - name: Smoke ephemeral Auth login
         run: |
-          node - <<'NODE'
+          set -o pipefail
+          node - <<'NODE' 2>&1 | tee auth-smoke.log
           const { createClient } = require("@supabase/supabase-js");
 
           const client = createClient(
@@ -187,10 +188,11 @@ jobs:
       - name: Dump Supabase Auth diagnostics
         if: failure()
         run: |
+          mkdir -p supabase-diagnostics
           docker ps -a
           for container in $(docker ps -a --format '{{.Names}}' | grep 'supabase_.*_ultimate-rivals-app' || true); do
             echo "::group::${container}"
-            docker logs --tail 220 "${container}" || true
+            docker logs --tail 220 "${container}" 2>&1 | tee "supabase-diagnostics/${container}.log" || true
             echo "::endgroup::"
           done
 
@@ -229,6 +231,8 @@ jobs:
             supabase-reset.log
             supabase.env
             integration.log
+            auth-smoke.log
+            supabase-diagnostics/
           if-no-files-found: warn
 
       - name: Stop Supabase local stack
