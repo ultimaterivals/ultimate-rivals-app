@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState, useTransition } from "react";
+import { useMemo, useState, useSyncExternalStore, useTransition } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { Button, Card } from "@/components/ui";
 import { AthleteAvatar } from "@/components/athlete/athlete-avatar";
@@ -85,6 +85,11 @@ export function ProfilePhotoCard({
   const [message, setMessage] = useState("");
   const [focalX, setFocalX] = useState(0.5);
   const [focalY, setFocalY] = useState(0.5);
+  const isHydrated = useSyncExternalStore(
+    () => () => {},
+    () => true,
+    () => false,
+  );
   const [isPending, startTransition] = useTransition();
   const previewStyle = useMemo(
     () => ({ objectPosition: `${focalX * 100}% ${focalY * 100}%` }),
@@ -206,6 +211,7 @@ export function ProfilePhotoCard({
             type="file"
             accept="image/jpeg,image/png,image/webp"
             aria-label="Selecionar foto do perfil"
+            disabled={!isHydrated}
             onChange={(event) => void onFile(event.target.files?.[0] ?? null)}
           />
           {preview && (

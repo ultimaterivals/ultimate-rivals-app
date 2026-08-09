@@ -24,6 +24,16 @@ async function login(page: Page) {
   throw lastError;
 }
 
+function waitForAgendaAction(page: Page, opportunityId: string) {
+  return page.waitForResponse(
+    (response) =>
+      response.url().includes("/athlete/agenda") &&
+      response.request().method() === "POST" &&
+      response.request().postData()?.includes("opportunityId") === true &&
+      response.request().postData()?.includes(opportunityId) === true,
+  );
+}
+
 test("athlete season hub opens without private PII", async ({
   page,
 }, testInfo) => {
@@ -176,7 +186,7 @@ test("athlete agenda captures interest and reservation states", async ({
   test.skip(testInfo.project.name !== "chromium", "Desktop QA state scenario");
   test.setTimeout(90_000);
   await login(page);
-  await page.goto("/athlete/agenda");
+  await page.goto("/athlete/agenda", { waitUntil: "networkidle" });
 
   const interestCard = page
     .getByRole("heading", { name: "[QA] Interesse - Duplas", exact: true })
@@ -186,7 +196,15 @@ test("athlete agenda captures interest and reservation states", async ({
     name: "Tenho interesse",
     exact: true,
   });
-  if (await startInterest.count()) await startInterest.click();
+  if (await startInterest.count()) {
+    const action = waitForAgendaAction(
+      page,
+      "61000000-0000-4000-8000-000000000001",
+    );
+    await startInterest.click();
+    await action;
+    await page.reload({ waitUntil: "networkidle" });
+  }
   await expect(
     interestCard.getByRole("button", {
       name: "Atualizar interesse",
@@ -206,7 +224,15 @@ test("athlete agenda captures interest and reservation states", async ({
     name: "Reservar",
     exact: true,
   });
-  if (await startReservation.count()) await startReservation.click();
+  if (await startReservation.count()) {
+    const action = waitForAgendaAction(
+      page,
+      "61000000-0000-4000-8000-000000000002",
+    );
+    await startReservation.click();
+    await action;
+    await page.reload({ waitUntil: "networkidle" });
+  }
   await expect(
     reservationCard.getByRole("button", { name: "reserved", exact: true }),
   ).toBeVisible({ timeout: 20_000 });
@@ -220,7 +246,7 @@ test("athlete profile saves a synthetic photo", async ({ page }, testInfo) => {
   test.skip(testInfo.project.name !== "chromium", "Desktop photo scenario");
   test.setTimeout(90_000);
   await login(page);
-  await page.goto("/athlete/profile");
+  await page.goto("/athlete/profile", { waitUntil: "networkidle" });
 
   const imageBase64 = await page.evaluate(() => {
     const canvas = document.createElement("canvas");
@@ -241,12 +267,16 @@ test("athlete profile saves a synthetic photo", async ({ page }, testInfo) => {
     context.fillRect(30, 80, 68, 28);
     return canvas.toDataURL("image/png").split(",")[1] ?? "";
   });
-  await page.getByLabel("Selecionar foto do perfil").setInputFiles({
+  const photoInput = page.getByLabel("Selecionar foto do perfil");
+  await expect(photoInput).toBeEnabled({ timeout: 20_000 });
+  await photoInput.setInputFiles({
     name: "qa-athlete-photo.png",
     mimeType: "image/png",
     buffer: Buffer.from(imageBase64, "base64"),
   });
-  await expect(page.getByAltText("Preview do recorte")).toBeVisible();
+  await expect(page.getByAltText("Preview do recorte")).toBeVisible({
+    timeout: 20_000,
+  });
   await page
     .getByRole("button", { name: /Salvar foto|Substituir foto/ })
     .click();
