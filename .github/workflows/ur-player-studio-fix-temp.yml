@@ -1,0 +1,43 @@
+name: UR Player Studio Fix Temp
+
+on:
+  push:
+    branches:
+      - feature/ur-player-experience-studio
+    paths:
+      - .github/workflows/ur-player-studio-fix-temp.yml
+
+permissions:
+  contents: write
+
+jobs:
+  fix:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feature/ur-player-experience-studio
+          fetch-depth: 0
+      - name: Fix lint warning
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p = Path('src/app/athlete/page.tsx')
+          s = p.read_text()
+          s = s.replace('  CalendarDays,\n', '')
+          p.write_text(s)
+          PY
+      - name: Validate static gates
+        run: |
+          npm ci
+          npm run lint
+          npm run typecheck
+          npm test -- --run
+      - name: Commit source fix and remove temporary workflow
+        run: |
+          rm .github/workflows/ur-player-studio-fix-temp.yml
+          git config user.name "ultimaterivals"
+          git config user.email "ultimaterivalsbr@gmail.com"
+          git add src/app/athlete/page.tsx .github/workflows/ur-player-studio-fix-temp.yml
+          git commit -m "fix: clear player hub lint gate"
+          git push origin HEAD:feature/ur-player-experience-studio
