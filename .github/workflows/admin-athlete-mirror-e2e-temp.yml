@@ -6,6 +6,12 @@ on:
       - feature/admin-control-center-athlete-mirror
     paths:
       - .github/workflows/admin-athlete-mirror-e2e-temp.yml
+      - tests/e2e/admin-athlete-mirror.spec.ts
+      - scripts/qa-local-test-seed.sql
+      - app/admin/**
+      - app/athlete/**
+      - components/**
+      - lib/**
 
 permissions:
   contents: read
