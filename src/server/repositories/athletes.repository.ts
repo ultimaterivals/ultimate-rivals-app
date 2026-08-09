@@ -66,15 +66,18 @@ export interface AthleteProfileView {
 }
 export async function getAthleteProfile(
   client: SupabaseClient,
-  profileId: string,
+  subjectId: string,
+  lookup: "profile" | "athlete" = "profile",
 ): Promise<AthleteProfileView | null> {
-  const { data: athlete, error } = await client
+  const athleteQuery = client
     .from("athletes")
     .select(
       "id,athlete_code,public_name,bio,avatar_url,avatar_storage_path,show_profile_photo_publicly,height_cm,dominant_hand,status",
-    )
-    .eq("profile_id", profileId)
-    .maybeSingle();
+    );
+  const { data: athlete, error } = await (lookup === "athlete"
+    ? athleteQuery.eq("id", subjectId)
+    : athleteQuery.eq("profile_id", subjectId)
+  ).maybeSingle();
   if (error) throw error;
   if (!athlete) return null;
   const [{ data: level }, { data: membership }, { data: rosterMemberships }] =

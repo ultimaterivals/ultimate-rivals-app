@@ -9,7 +9,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Badge, Card, EmptyState, PageHeader, StatCard } from "@/components/ui";
 import { EngagementViewEvent } from "@/features/engagement/engagement-client";
-import { requireRole } from "@/lib/auth/session";
+import { requireAthleteViewer } from "@/lib/auth/athlete-viewer";
 import { createClient } from "@/lib/supabase/server";
 import { listAthleteCompetitions } from "@/server/repositories/tournaments.repository";
 import {
@@ -37,9 +37,13 @@ const statusIcon = {
 } satisfies Record<AthleteSeasonStage["status"], typeof CalendarDays>;
 
 export default async function AthleteSeasonPage() {
-  const identity = await requireRole("athlete");
+  const viewer = await requireAthleteViewer();
   const client = await createClient();
-  const dashboard = await getAthleteDashboard(client, identity.userId);
+  const dashboard = await getAthleteDashboard(
+    client,
+    viewer.isMirror ? viewer.athleteId : viewer.identity.userId,
+    viewer.isMirror ? "athlete" : "profile",
+  );
   if (!dashboard) notFound();
 
   const competitions = await listAthleteCompetitions(
