@@ -73,22 +73,22 @@ test("mobile athlete pages provide the requested screenshots", async ({
   for (const item of [
     {
       path: "/athlete/agenda",
-      readyText: "Minha agenda",
+      heading: /^Minha agenda e calend.rio$/i,
       file: "agenda-mobile.png",
     },
     {
       path: "/athlete/ranking",
-      readyText: "Meu ranking",
+      heading: /^Meu ranking$/i,
       file: "ranking-mobile.png",
     },
     {
       path: "/athlete/season",
-      readyText: "Da primeira reserva",
+      heading: /^Da primeira reserva/i,
       file: "season-mobile.png",
     },
   ]) {
     await page.goto(item.path);
-    await expect(page.getByText(item.readyText, { exact: false })).toBeVisible({
+    await expect(page.getByRole("heading", { name: item.heading })).toBeVisible({
       timeout: 20_000,
     });
     await page.screenshot({
