@@ -1,17 +1,18 @@
 name: Admin Athlete Mirror E2E
 
 on:
+  workflow_dispatch:
   push:
     branches:
-      - feature/admin-control-center-athlete-mirror
+      - release/season-1-app-final
     paths:
       - .github/workflows/admin-athlete-mirror-e2e-temp.yml
       - tests/e2e/admin-athlete-mirror.spec.ts
       - scripts/qa-local-test-seed.sql
-      - app/admin/**
-      - app/athlete/**
-      - components/**
-      - lib/**
+      - src/app/admin/**
+      - src/app/athlete/**
+      - src/components/**
+      - src/lib/**
 
 permissions:
   contents: read
