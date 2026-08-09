@@ -5,6 +5,7 @@ on:
   push:
     branches:
       - feature/athlete-identity-ranking-visuals
+      - feature/ur-player-experience-studio
     paths:
       - ".github/workflows/athlete-app-feature-qa.yml"
       - "docs/season-1-athlete-app-completion.md"

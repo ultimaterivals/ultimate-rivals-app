@@ -18,14 +18,14 @@ export default async function AdminVenuesPage() {
   return (
     <div className="grid gap-8">
       <PageHeader
-        eyebrow="Quadras parceiras"
-        title="Venues operacionais"
-        description="Reusa polos, venues e courts oficiais; adiciona parceria, disponibilidade, rates, eventos e leitura financeira."
+        eyebrow="Arenas e quadras parceiras"
+        title="Arenas UR"
+        description="Central operacional das arenas: cadastro oficial, polos, quadras, parceria, disponibilidade, rates, eventos e leitura financeira. A experiência visual do atleta pode evoluir sobre esta base sem criar um segundo cadastro."
       />
 
       <div className="grid gap-4 md:grid-cols-3">
         <StatCard
-          label="Venues"
+          label="Arenas"
           value={String(venues.length)}
           hint="Cadastro oficial reutilizado"
           icon={MapPin}
@@ -33,7 +33,7 @@ export default async function AdminVenuesPage() {
         <StatCard
           label="Parcerias"
           value={String(partnerships.length)}
-          hint="Sem contrato binário no DB"
+          hint="Relações operacionais ativas"
           icon={Receipt}
         />
         <StatCard
@@ -44,16 +44,25 @@ export default async function AdminVenuesPage() {
         />
       </div>
 
+      <Card className="border-ur-gold/30">
+        <h2 className="font-display text-xl font-black uppercase">
+          Identidade da arena
+        </h2>
+        <p className="mt-2 max-w-3xl text-sm text-zinc-400">
+          Esta camada passa a ser a origem operacional para capa, galeria, estrutura, eventos, patrocinadores locais e demais conteúdos públicos da arena. Até existir mídia publicada, nenhum arquivo privado é exposto ao atleta.
+        </p>
+      </Card>
+
       <Card>
         <h2 className="font-display text-xl font-black uppercase">
-          Operação por venue
+          Operação por arena
         </h2>
         {venues.length ? (
           <div className="mt-4 overflow-x-auto">
             <table className="w-full min-w-[900px] text-left text-sm">
               <thead className="text-xs tracking-wider text-zinc-500 uppercase">
                 <tr>
-                  <th className="py-2">Venue</th>
+                  <th className="py-2">Arena</th>
                   <th>Polo</th>
                   <th>Parceria</th>
                   <th>Quadras</th>
@@ -89,8 +98,8 @@ export default async function AdminVenuesPage() {
           </div>
         ) : (
           <EmptyState
-            title="Sem venues"
-            description="Cadastre venues em polos antes de configurar parcerias."
+            title="Sem arenas"
+            description="Cadastre venues em polos antes de configurar a experiência de arena."
           />
         )}
       </Card>
