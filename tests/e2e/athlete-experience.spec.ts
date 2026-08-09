@@ -34,13 +34,13 @@ function waitForAgendaAction(page: Page, opportunityId: string) {
   );
 }
 
-test("athlete season hub opens without private PII", async ({
+test("athlete player hub opens without private PII", async ({
   page,
 }, testInfo) => {
   await login(page);
   await page.goto("/athlete");
-  await expect(page.getByText(/season hub/i)).toBeVisible();
-  await expect(page.getByText(/seu próximo passo/i)).toBeVisible();
+  await expect(page.getByText(/player hub/i)).toBeVisible();
+  await expect(page.getByText(/objetivo atual/i)).toBeVisible();
   await expect(page.getByText(/ranking como competição viva/i)).toBeVisible();
   await expect(page.locator("body")).not.toContainText(
     /@test\.ur\.local|Telefone|Data de nascimento|service_role|storage_path|signed_url/i,
