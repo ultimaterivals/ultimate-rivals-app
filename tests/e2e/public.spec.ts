@@ -9,12 +9,26 @@ test("public foundation loads", async ({ page }) => {
   await expect(page.getByRole("link", { name: /equipes/i })).toBeVisible();
 });
 
-test("public calendar uses published DEV data only", async ({ page }) => {
+test("public individual ranking shows the QA top 3", async ({ page }, testInfo) => {
+  await page.goto("/rankings/individual");
+  await expect(
+    page.getByRole("heading", { name: "Ranking individual" }),
+  ).toBeVisible();
+  for (const athlete of ["[QA] Athlete A", "[QA] Athlete C", "[QA] Athlete B"]) {
+    await expect(page.getByText(athlete, { exact: true })).toBeVisible();
+  }
+  await page.screenshot({
+    path: testInfo.outputPath(`top-3-${testInfo.project.name}.png`),
+    fullPage: true,
+  });
+});
+
+test("public calendar uses published QA data only", async ({ page }) => {
   await page.goto("/calendar");
   await expect(
     page.getByRole("heading", { name: /calendario ultimate rivals/i }),
   ).toBeVisible();
-  await expect(page.getByText(/ur play dev publico/i)).toBeVisible();
+  await expect(page.getByText(/\[QA\] UR Play Publico/i)).toBeVisible();
   await expect(page.getByText(/email|telefone/i)).toHaveCount(0);
 });
 

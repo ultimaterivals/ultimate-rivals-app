@@ -1,0 +1,275 @@
+name: Athlete App Feature QA
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - feature/athlete-identity-ranking-visuals
+    paths:
+      - ".github/workflows/athlete-app-feature-qa.yml"
+      - "docs/season-1-athlete-app-completion.md"
+      - "package-lock.json"
+      - "package.json"
+      - "playwright.config.ts"
+      - "scripts/qa-local-test-seed.sql"
+      - "src/**"
+      - "supabase/**"
+      - "tests/**"
+      - "vitest*.config.ts"
+
+permissions:
+  contents: read
+
+jobs:
+  athlete-app-feature-qa:
+    name: Ephemeral athlete app QA
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      SUPABASE_INTERNAL_IMAGE_REGISTRY: ghcr.io
+      UR_TEST_PASSWORD: "LocalQaPassword123!"
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Verify deterministic Supabase CLI
+        run: |
+          npx --no-install supabase --version
+          test "$(npx --no-install supabase --version)" = "2.111.0"
+
+      - name: Verify Docker runner
+        run: |
+          docker version
+          docker info
+
+      - name: Prepare isolated QA Supabase config
+        run: |
+          perl -0pi -e 's/(\[db\.seed\][\s\S]*?enabled = )true/${1}false/' supabase/config.toml
+          perl -0pi -e 's#sql_paths = \["\./seeds/dev.sql"\]#sql_paths = []#' supabase/config.toml
+          perl -0pi -e 's/health_timeout = "2m"/health_timeout = "10m"/' supabase/config.toml
+          grep 'health_timeout' supabase/config.toml
+          grep -A5 '^\[db.seed\]' supabase/config.toml
+
+      - name: Start disposable Supabase local stack
+        run: |
+          set -o pipefail
+          npx --no-install supabase start --debug 2>&1 | tee supabase-start.log
+
+      - name: Replay baseline and feature migration on empty local database
+        run: |
+          set -o pipefail
+          npx --no-install supabase db reset --local --yes --no-seed --debug 2>&1 | tee supabase-reset.log
+
+      - name: Export ephemeral Supabase env
+        run: |
+          npx --no-install supabase status -o env > supabase.env
+          set -a
+          . ./supabase.env
+          set +a
+          {
+            echo "NEXT_PUBLIC_SUPABASE_URL=${API_URL}"
+            echo "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=${ANON_KEY}"
+            echo "SUPABASE_SERVICE_ROLE_KEY=${SERVICE_ROLE_KEY}"
+            echo "DATABASE_URL=${DB_URL}"
+            echo "UR_TEST_PASSWORD=${UR_TEST_PASSWORD}"
+          } >> "$GITHUB_ENV"
+
+      - name: Apply production reference data idempotently
+        run: |
+          psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f scripts/production-reference-data.sql
+          psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f scripts/production-reference-data.sql
+
+      - name: Seed ephemeral Auth and QA identities
+        run: psql "$DATABASE_URL" -v test_password="$UR_TEST_PASSWORD" -f scripts/qa-local-test-seed.sql
+
+      - name: Smoke ephemeral Auth login
+        run: |
+          set -o pipefail
+          node - <<'NODE' 2>&1 | tee auth-smoke.log
+          const { createClient } = require("@supabase/supabase-js");
+
+          const client = createClient(
+            process.env.NEXT_PUBLIC_SUPABASE_URL,
+            process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY,
+            { auth: { persistSession: false, autoRefreshToken: false } },
+          );
+
+          client.auth
+            .signInWithPassword({
+              email: "athlete@test.ur.local",
+              password: process.env.UR_TEST_PASSWORD,
+            })
+            .then(({ error }) => {
+              if (error) {
+                console.error(error);
+                process.exit(1);
+              }
+              console.log("AUTH_SMOKE_PASS");
+            });
+          NODE
+
+      - name: Validate feature migration invariants
+        run: |
+          psql "$DATABASE_URL" -v ON_ERROR_STOP=1 <<'SQL'
+          do $$
+          begin
+            if (
+              select count(*)
+              from information_schema.columns
+              where table_schema = 'public'
+                and table_name = 'athletes'
+                and column_name in (
+                  'avatar_storage_path',
+                  'avatar_content_type',
+                  'avatar_file_size_bytes',
+                  'avatar_updated_at',
+                  'show_profile_photo_publicly'
+                )
+            ) <> 5 then
+              raise exception 'FEATURE_MIGRATION invariant failed: athlete avatar columns';
+            end if;
+
+            if not exists (
+              select 1
+              from information_schema.columns
+              where table_schema = 'public'
+                and table_name = 'public_rankings'
+                and column_name = 'avatar_url'
+            ) then
+              raise exception 'FEATURE_MIGRATION invariant failed: public_rankings.avatar_url';
+            end if;
+
+            if not exists (
+              select 1
+              from information_schema.views
+              where table_schema = 'public'
+                and table_name = 'interest_list_sanitized'
+            ) then
+              raise exception 'FEATURE_MIGRATION invariant failed: interest_list_sanitized';
+            end if;
+
+            if (
+              select count(*)
+              from pg_policies
+              where schemaname = 'storage'
+                and tablename = 'objects'
+                and policyname in (
+                  'athlete_avatar_select',
+                  'athlete_avatar_public_select',
+                  'athlete_avatar_insert',
+                  'athlete_avatar_update',
+                  'athlete_avatar_delete'
+                )
+            ) <> 5 then
+              raise exception 'FEATURE_MIGRATION invariant failed: avatar storage policies';
+            end if;
+
+            if not exists (
+              select 1
+              from pg_constraint
+              where conrelid = 'public.acquisition_events'::regclass
+                and conname = 'acquisition_events_event_name_check'
+                and pg_get_constraintdef(oid) like '%season_hub_viewed%'
+                and pg_get_constraintdef(oid) like '%reservation_waitlisted%'
+            ) then
+              raise exception 'FEATURE_MIGRATION invariant failed: feature events';
+            end if;
+
+            if (
+              select count(*)
+              from information_schema.views
+              where table_schema = 'public'
+                and table_name in (
+                  'team_rankings',
+                  'pole_rankings',
+                  'formation_rankings'
+                )
+            ) <> 3 then
+              raise exception 'FEATURE_MIGRATION invariant failed: non-individual ranking views';
+            end if;
+          end
+          $$;
+
+          select 'FEATURE_MIGRATION_INVARIANTS_PASS' as check_name;
+          SQL
+
+      - name: Static diff check
+        run: git diff --check HEAD
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Unit tests
+        run: npm run test
+
+      - name: Integration tests
+        run: |
+          set -o pipefail
+          npm run test:integration 2>&1 | tee integration.log
+
+      - name: Dump Supabase Auth diagnostics
+        if: failure()
+        run: |
+          mkdir -p supabase-diagnostics
+          docker ps -a
+          for container in $(docker ps -a --format '{{.Names}}' | grep 'supabase_.*_ultimate-rivals-app' || true); do
+            echo "::group::${container}"
+            docker logs --tail 220 "${container}" 2>&1 | tee "supabase-diagnostics/${container}.log" || true
+            echo "::endgroup::"
+          done
+
+      - name: Install Playwright browser
+        run: npx playwright install --with-deps chromium
+
+      - name: Build
+        run: npm run build
+
+      - name: Playwright athlete experience
+        run: npx playwright test tests/e2e/public.spec.ts tests/e2e/athlete-experience.spec.ts --project=chromium --project=mobile
+
+      - name: Upload Playwright report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: athlete-app-playwright-report
+          path: playwright-report/
+          if-no-files-found: warn
+
+      - name: Upload Playwright test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: athlete-app-playwright-results
+          path: test-results/
+          if-no-files-found: warn
+
+      - name: Upload Supabase diagnostics
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: athlete-app-supabase-diagnostics
+          path: |
+            supabase-start.log
+            supabase-reset.log
+            supabase.env
+            integration.log
+            auth-smoke.log
+            supabase-diagnostics/
+          if-no-files-found: warn
+
+      - name: Stop Supabase local stack
+        if: always()
+        run: npx --no-install supabase stop --no-backup
