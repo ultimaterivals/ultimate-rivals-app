@@ -101,7 +101,7 @@ export default async function AthletePage() {
           />
           <div className="min-w-0">
             <p className="text-ur-gold text-xs font-black tracking-[.24em] uppercase">
-              Ultimate Rivals · Season Hub
+              Ultimate Rivals · Player Hub
             </p>
             <h1 className="font-display mt-2 text-4xl font-black tracking-tight uppercase sm:text-6xl">
               {data.athlete.public_name}
@@ -144,7 +144,7 @@ export default async function AthletePage() {
             dedupKey={`next-action:${data.athlete.id}:${data.nextAction.type}`}
           />
           <p className="text-ur-gold text-xs font-black tracking-[.22em] uppercase">
-            Seu próximo passo
+            Objetivo atual
           </p>
           <h2 className="mt-2 text-3xl font-black">{data.nextAction.title}</h2>
           <p className="mt-2 text-zinc-400">{data.nextAction.description}</p>
@@ -183,13 +183,13 @@ export default async function AthletePage() {
             <Coins className="text-ur-gold" size={36} />
           </div>
           <p className="mt-4 text-sm text-zinc-500">
-            UR Coins são separados de pontos de ranking.
+            Sua economia dentro do ecossistema. UR Coins permanecem separados dos pontos de ranking.
           </p>
           <div className="mt-4 flex flex-wrap gap-4">
             <Link href="/athlete/wallet" className="inline-flex font-black">
               Ver carteira
             </Link>
-            <Link href="/athlete/market" className="inline-flex font-black text-ur-gold">
+            <Link href="/athlete/market" className="text-ur-gold inline-flex font-black">
               Abrir UR Market →
             </Link>
           </div>
@@ -258,7 +258,7 @@ export default async function AthletePage() {
 
         <Card>
           <p className="text-xs font-black tracking-[.18em] text-zinc-500 uppercase">
-            Minha agenda
+            Próxima arena
           </p>
           {next?.session ? (
             <div className="mt-3">
@@ -280,18 +280,52 @@ export default async function AthletePage() {
         </Card>
       </section>
 
-      <section className="grid gap-5 lg:grid-cols-3">
+      <section className="grid gap-5 lg:grid-cols-2 xl:grid-cols-4">
         <Card>
           <Medal className="text-ur-gold" />
           <h2 className="mt-3 text-xl font-black">Minha temporada</h2>
           <p className="mt-2 text-sm text-zinc-400">
-            Da fase inicial até Series, Cup, Legends e virada — apenas estados
-            reais entram na jornada.
+            Da fase inicial até Series, Cup, Legends e virada — apenas estados reais entram na jornada.
           </p>
           <Link href="/athlete/season" className="mt-4 inline-flex font-black">
-            Ver temporada
+            Ver campanha
           </Link>
         </Card>
+        <Card>
+          <Target className="text-ur-gold" />
+          <h2 className="mt-3 text-xl font-black">Missões e evolução</h2>
+          <p className="mt-2 text-sm text-zinc-400">
+            Objetivos e trilhas aparecem conforme dados válidos forem publicados pela operação.
+          </p>
+          <Link href="/athlete/development" className="mt-4 inline-flex font-black">
+            Ver evolução
+          </Link>
+        </Card>
+        <Card>
+          <MapPin className="text-ur-gold" />
+          <h2 className="mt-3 text-xl font-black">Minha arena</h2>
+          <p className="mt-2 text-sm text-zinc-400">
+            {data.pole
+              ? `${data.pole.name}${data.pole.city ? ` · ${data.pole.city}` : ""}`
+              : "Seu polo principal ainda não está definido."}
+          </p>
+          <Link href="/athlete/agenda" className="mt-4 inline-flex font-black">
+            Ver onde jogar
+          </Link>
+        </Card>
+        <Card>
+          <Clapperboard className="text-ur-gold" />
+          <h2 className="mt-3 text-xl font-black">Destaques da temporada</h2>
+          <p className="mt-2 text-sm text-zinc-400">
+            Seus jogos, momentos e conteúdos publicados formam a narrativa da sua temporada.
+          </p>
+          <Link href="/athlete/matches" className="mt-4 inline-flex font-black">
+            Ver meus jogos
+          </Link>
+        </Card>
+      </section>
+
+      <section className="grid gap-5 lg:grid-cols-2">
         <Card>
           <UsersRound className="text-ur-gold" />
           <h2 className="mt-3 text-xl font-black">Formações</h2>
@@ -304,23 +338,14 @@ export default async function AthletePage() {
             Procurar parceiros
           </Link>
         </Card>
-        <Card>
-          <MapPin className="text-ur-gold" />
-          <h2 className="mt-3 text-xl font-black">Polos em disputa</h2>
+        <Card className="border-ur-gold/30">
+          <Coins className="text-ur-gold" />
+          <h2 className="mt-3 text-xl font-black">UR Market</h2>
           <p className="mt-2 text-sm text-zinc-400">
-            {data.pole
-              ? `${data.pole.name}${data.pole.city ? ` · ${data.pole.city}` : ""}`
-              : "Seu polo principal ainda não está definido."}
+            Transforme sua participação no ecossistema em utilidade real usando o saldo disponível de UR Coins.
           </p>
-        </Card>
-        <Card>
-          <Clapperboard className="text-ur-gold" />
-          <h2 className="mt-3 text-xl font-black">UR Studio</h2>
-          <p className="mt-2 text-sm text-zinc-400">
-            Destaques, mídia e arenas publicados para sua jornada aparecem aqui.
-          </p>
-          <Link href="/athlete/studio" className="mt-4 inline-flex font-black">
-            Abrir Studio
+          <Link href="/athlete/market" className="mt-4 inline-flex font-black">
+            Explorar Market
           </Link>
         </Card>
       </section>
@@ -329,10 +354,10 @@ export default async function AthletePage() {
         <div className="mb-3 flex items-end justify-between gap-4">
           <div>
             <p className="text-xs font-black tracking-[.18em] text-zinc-500 uppercase">
-              Para você
+              A temporada está viva
             </p>
             <h2 className="font-display text-2xl font-black uppercase">
-              Feed operacional
+              Acontecimentos
             </h2>
           </div>
           <Link href="/athlete/notifications" className="font-black">
