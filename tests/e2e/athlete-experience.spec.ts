@@ -298,10 +298,29 @@ test("athlete profile saves a synthetic photo", async ({ page }, testInfo) => {
 
   const publicPhoto = page.getByLabel(/Mostrar minha foto/i);
   if (!(await publicPhoto.isChecked())) await publicPhoto.check();
+  const visibilityAction = page.waitForResponse(
+    (response) =>
+      response.url().includes("/athlete/profile") &&
+      response.request().method() === "POST" &&
+      response.request().postData()?.includes("showProfilePhotoPublicly") ===
+        true,
+  );
   await page.getByRole("button", { name: "Salvar privacidade" }).click();
-  await page.waitForTimeout(500);
-  await page.reload();
+  await visibilityAction;
+  await page.reload({ waitUntil: "networkidle" });
   await expect(page.getByLabel(/Mostrar minha foto/i)).toBeChecked();
+  const reloadedAvatar = page
+    .getByLabel("Avatar de [QA] Athlete A")
+    .first()
+    .locator("img");
+  await expect(reloadedAvatar).toBeVisible({ timeout: 20_000 });
+  await expect
+    .poll(async () =>
+      reloadedAvatar.evaluate(
+        (element) => (element as HTMLImageElement).naturalWidth > 0,
+      ),
+    )
+    .toBe(true);
   await page.screenshot({
     path: testInfo.outputPath("profile-photo-desktop.png"),
     fullPage: true,
