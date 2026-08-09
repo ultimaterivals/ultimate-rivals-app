@@ -1,40 +1,33 @@
 import type { ReactNode } from "react";
 import { PortalShell } from "@/components/layout/portal-shell";
-import { requireRole } from "@/lib/auth/session";
+import { requireAthleteViewer } from "@/lib/auth/athlete-viewer";
 import { createClient } from "@/lib/supabase/server";
 
-export default async function AthleteLayout({
-  children,
-}: {
-  children: ReactNode;
-}) {
-  const user = await requireRole("athlete");
+export default async function AthleteLayout({ children }: { children: ReactNode }) {
+  const viewer = await requireAthleteViewer();
   const client = await createClient();
-  const { data: athlete } = await client
-    .from("athletes")
-    .select("id,public_name,athlete_code")
-    .eq("profile_id", user.userId)
-    .maybeSingle();
-  const { count } = athlete
-    ? await client
+  const { count } = viewer.isMirror
+    ? { count: 0 }
+    : await client
         .from("notifications")
         .select("id", { count: "exact", head: true })
-        .eq("athlete_id", athlete.id)
-        .is("read_at", null)
-    : { count: 0 };
+        .eq("athlete_id", viewer.athleteId)
+        .is("read_at", null);
+
   return (
     <PortalShell
       portal="Atleta"
-      userLabel={athlete?.public_name ?? "Atleta"}
+      userLabel={viewer.athlete.publicName}
       notificationCount={count ?? 0}
-      athleteIdentity={
-        athlete
-          ? {
-              publicName: athlete.public_name,
-              athleteCode: athlete.athlete_code,
-            }
-          : null
-      }
+      athleteIdentity={{
+        publicName: viewer.athlete.publicName,
+        athleteCode: viewer.athlete.athleteCode,
+      }}
+      athleteMirror={viewer.isMirror ? {
+        athleteId: viewer.athleteId,
+        publicName: viewer.athlete.publicName,
+        athleteCode: viewer.athlete.athleteCode,
+      } : null}
     >
       {children}
     </PortalShell>

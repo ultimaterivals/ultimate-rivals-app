@@ -1,9 +1,8 @@
 import { Award, ShieldCheck, Swords, Target } from "lucide-react";
-import { notFound } from "next/navigation";
 import { RankingMovement } from "@/components/ranking/ranking-movement";
 import { Card, EmptyState, PageHeader, StatCard } from "@/components/ui";
 import { EngagementViewEvent } from "@/features/engagement/engagement-client";
-import { requireRole } from "@/lib/auth/session";
+import { requireAthleteViewer } from "@/lib/auth/athlete-viewer";
 import { createClient } from "@/lib/supabase/server";
 import { getAthleteRanking } from "@/server/repositories/rankings.repository";
 import {
@@ -12,14 +11,9 @@ import {
 } from "@/server/services/ranking-classification.service";
 
 export default async function AthleteRankingPage() {
-  const identity = await requireRole("athlete");
+  const viewer = await requireAthleteViewer();
   const client = await createClient();
-  const { data: athlete } = await client
-    .from("athletes")
-    .select("id")
-    .eq("profile_id", identity.userId)
-    .maybeSingle();
-  if (!athlete) notFound();
+  const athlete = { id: viewer.athleteId };
   const data = await getAthleteRanking(client, athlete.id);
   if (!data.current)
     return (

@@ -15,11 +15,10 @@ import {
   createReservationAction,
   createTrainingInterestAction,
 } from "@/features/demand/actions";
-import { requireRole } from "@/lib/auth/session";
+import { requireAthleteViewer } from "@/lib/auth/athlete-viewer";
 import { createClient } from "@/lib/supabase/server";
 import {
   type AgendaOpportunity,
-  getCurrentAthleteId,
   listAgendaOpportunities,
   listInterestList,
   listMyDemandActivity,
@@ -57,10 +56,10 @@ export default async function AthleteAgendaPage({
 }: {
   searchParams: Promise<Filters>;
 }) {
-  await requireRole("athlete");
+  const viewer = await requireAthleteViewer();
   const filters = await searchParams;
   const client = await createClient();
-  const athleteId = await getCurrentAthleteId(client);
+  const athleteId = viewer.athleteId;
   const [opportunities, windows] = await Promise.all([
     listAgendaOpportunities(client),
     listTrainingInterestWindows(client),

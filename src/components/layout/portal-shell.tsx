@@ -21,6 +21,7 @@ import {
   NotificationLink,
 } from "@/components/athlete/athlete-navigation";
 import { InstallAppPrompt } from "@/components/athlete/install-app-prompt";
+import { stopAthleteMirrorAction } from "@/features/admin-athlete-mirror/actions";
 import { BrandMark } from "./brand-mark";
 
 export function PortalShell({
@@ -29,12 +30,16 @@ export function PortalShell({
   children,
   notificationCount = 0,
   athleteIdentity,
+  athleteMirror = null,
+  canUseAthleteMirror = false,
 }: {
   portal: "Administração" | "Atleta" | "Equipe";
   userLabel: string;
   children: ReactNode;
   notificationCount?: number;
   athleteIdentity?: { publicName: string; athleteCode: string } | null;
+  athleteMirror?: { athleteId: string; publicName: string; athleteCode: string } | null;
+  canUseAthleteMirror?: boolean;
 }) {
   const home =
     portal === "Atleta" ? "/athlete" : portal === "Equipe" ? "/team" : "/admin";
@@ -148,9 +153,20 @@ export function PortalShell({
           <span className="text-xs font-bold tracking-wider text-zinc-500 uppercase lg:mt-3 lg:block">
             Portal {portal}
           </span>
+          {portal === "Administração" && canUseAthleteMirror && (
+            <div className="mt-4 hidden grid-cols-2 gap-2 lg:grid">
+              <Link href="/admin" className="rounded-ur bg-ur-gold text-ur-black px-3 py-2 text-center text-xs font-black uppercase">Controle</Link>
+              <Link href="/admin/mirror" className="rounded-ur border border-ur-gold/40 px-3 py-2 text-center text-xs font-black uppercase text-ur-gold">Espelho</Link>
+            </div>
+          )}
+          {portal === "Administração" && (
+            <form action="/admin/search" className="mt-3 hidden lg:block">
+              <input name="q" aria-label="Busca global" placeholder="Buscar no ecossistema" className="rounded-ur min-h-10 w-full border bg-black px-3 text-sm" />
+            </form>
+          )}
         </div>
         {portal === "Atleta" ? (
-          <AthleteDesktopNavigation />
+          <AthleteDesktopNavigation mirror={Boolean(athleteMirror)} />
         ) : (
           <nav
             aria-label="Navegação principal"
@@ -189,6 +205,20 @@ export function PortalShell({
         </div>
       </aside>
       <div className="min-w-0">
+        {athleteMirror && (
+          <div className="border-ur-gold/40 bg-ur-gold/10 sticky top-0 z-50 flex flex-wrap items-center justify-between gap-3 border-b px-4 py-3 backdrop-blur sm:px-8 lg:px-10">
+            <div>
+              <p className="text-ur-gold text-[.65rem] font-black tracking-[.2em] uppercase">ESPELHO DO ATLETA</p>
+              <p className="text-sm font-black">Visualizando como: {athleteMirror.publicName} · {athleteMirror.athleteCode}</p>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              <Link href="/admin/mirror" className="rounded-ur border border-ur-gold/40 px-3 py-2 text-xs font-black">Trocar atleta</Link>
+              <form action={stopAthleteMirrorAction}>
+                <button className="rounded-ur bg-ur-gold text-ur-black px-3 py-2 text-xs font-black">Voltar ao Controle</button>
+              </form>
+            </div>
+          </div>
+        )}
         {portal === "Atleta" && (
           <header className="sticky top-0 z-30 flex min-h-16 items-center justify-between border-b border-zinc-900 bg-[#080808]/95 px-4 backdrop-blur sm:px-8 lg:px-10">
             <div className="min-w-0">
@@ -199,7 +229,7 @@ export function PortalShell({
                 {athleteIdentity?.athleteCode ?? "Ultimate Rivals"}
               </p>
             </div>
-            <NotificationLink count={notificationCount} />
+            {!athleteMirror && <NotificationLink count={notificationCount} />}
           </header>
         )}
         <main
@@ -209,13 +239,17 @@ export function PortalShell({
               : "min-w-0 p-5 sm:p-8 lg:p-10"
           }
         >
-          {children}
+          {athleteMirror ? (
+            <div className="[&_a]:pointer-events-none [&_a]:opacity-70 [&_button]:pointer-events-none [&_button]:opacity-60 [&_form]:pointer-events-none [&_form]:opacity-70 [&_input]:pointer-events-none [&_select]:pointer-events-none [&_textarea]:pointer-events-none">
+              {children}
+            </div>
+          ) : children}
         </main>
       </div>
       {portal === "Atleta" && (
         <>
           <AthleteMobileNavigation />
-          <InstallAppPrompt />
+          {!athleteMirror && <InstallAppPrompt />}
         </>
       )}
     </div>

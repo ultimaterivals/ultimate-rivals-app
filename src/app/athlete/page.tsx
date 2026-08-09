@@ -17,7 +17,7 @@ import {
   EngagementClick,
   EngagementViewEvent,
 } from "@/features/engagement/engagement-client";
-import { requireRole } from "@/lib/auth/session";
+import { requireAthleteViewer } from "@/lib/auth/athlete-viewer";
 import { createClient } from "@/lib/supabase/server";
 import { nextPositionTarget } from "@/server/services/ranking-classification.service";
 import {
@@ -44,8 +44,12 @@ const time = (value: string | null | undefined) =>
     : "";
 
 export default async function AthletePage() {
-  const identity = await requireRole("athlete");
-  const data = await getAthleteDashboard(await createClient(), identity.userId);
+  const viewer = await requireAthleteViewer();
+  const data = await getAthleteDashboard(
+    await createClient(),
+    viewer.isMirror ? viewer.athleteId : viewer.identity.userId,
+    viewer.isMirror ? "athlete" : "profile",
+  );
   if (!data) notFound();
 
   const level = formatAthleteLevel(data.level);
