@@ -84,6 +84,11 @@ jobs:
             echo "UR_TEST_PASSWORD=${UR_TEST_PASSWORD}"
           } >> "$GITHUB_ENV"
 
+      - name: Apply production reference data idempotently
+        run: |
+          psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f scripts/production-reference-data.sql
+          psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f scripts/production-reference-data.sql
+
       - name: Seed ephemeral Auth and QA identities
         run: psql "$DATABASE_URL" -v test_password="$UR_TEST_PASSWORD" -f scripts/qa-local-test-seed.sql
 
