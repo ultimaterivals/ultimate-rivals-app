@@ -15,11 +15,12 @@ async function login(page: Page, email: string) {
 
 test("admin opens athlete mirror and keeps admin session", async ({ page }) => {
   await login(page, "admin@test.ur.local");
-  await page.goto("/admin/mirror?q=Test%20Athlete%2001");
+  await page.goto("/admin/mirror?q=Athlete%20A");
+  await expect(page.getByText("[QA] Athlete A").first()).toBeVisible();
   await page.getByRole("button", { name: "Ver espelho" }).first().click();
   await expect(page).toHaveURL(/\/athlete$/);
   await expect(page.getByText("ESPELHO DO ATLETA")).toBeVisible();
-  await expect(page.getByText("Test Athlete 01")).toBeVisible();
+  await expect(page.getByText("[QA] Athlete A").first()).toBeVisible();
   await page.getByRole("link", { name: "Agenda" }).first().click();
   await expect(page).toHaveURL(/\/athlete\/agenda$/);
   await page.getByRole("link", { name: "Ranking" }).first().click();
