@@ -87,6 +87,31 @@ jobs:
       - name: Seed ephemeral Auth and QA identities
         run: psql "$DATABASE_URL" -v test_password="$UR_TEST_PASSWORD" -f scripts/qa-local-test-seed.sql
 
+      - name: Smoke ephemeral Auth login
+        run: |
+          node - <<'NODE'
+          const { createClient } = require("@supabase/supabase-js");
+
+          const client = createClient(
+            process.env.NEXT_PUBLIC_SUPABASE_URL,
+            process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY,
+            { auth: { persistSession: false, autoRefreshToken: false } },
+          );
+
+          client.auth
+            .signInWithPassword({
+              email: "athlete@test.ur.local",
+              password: process.env.UR_TEST_PASSWORD,
+            })
+            .then(({ error }) => {
+              if (error) {
+                console.error(error);
+                process.exit(1);
+              }
+              console.log("AUTH_SMOKE_PASS");
+            });
+          NODE
+
       - name: Validate feature migration invariants
         run: |
           psql "$DATABASE_URL" -v ON_ERROR_STOP=1 <<'SQL'
@@ -155,7 +180,19 @@ jobs:
         run: npm run test
 
       - name: Integration tests
-        run: npm run test:integration
+        run: |
+          set -o pipefail
+          npm run test:integration 2>&1 | tee integration.log
+
+      - name: Dump Supabase Auth diagnostics
+        if: failure()
+        run: |
+          docker ps -a
+          for container in $(docker ps -a --format '{{.Names}}' | grep 'supabase_.*_ultimate-rivals-app' || true); do
+            echo "::group::${container}"
+            docker logs --tail 220 "${container}" || true
+            echo "::endgroup::"
+          done
 
       - name: Install Playwright browser
         run: npx playwright install --with-deps chromium
@@ -191,6 +228,7 @@ jobs:
             supabase-start.log
             supabase-reset.log
             supabase.env
+            integration.log
           if-no-files-found: warn
 
       - name: Stop Supabase local stack
