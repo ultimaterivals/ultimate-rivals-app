@@ -1,8 +1,7 @@
 import { CheckCircle2, LockKeyhole, Target, Trophy } from "lucide-react";
 import Link from "next/link";
-import { redirect } from "next/navigation";
 import { Badge, Card, PageHeader } from "@/components/ui";
-import { requireRole } from "@/lib/auth/session";
+import { requireAthleteViewer } from "@/lib/auth/athlete-viewer";
 import { createClient } from "@/lib/supabase/server";
 import { getAthleteDevelopmentExperience } from "@/server/repositories/development.repository";
 import { getDevelopment } from "@/server/repositories/progression.repository";
@@ -12,20 +11,14 @@ function first<T>(value: T | T[] | null | undefined): T | null {
 }
 
 export default async function Page() {
-  const identity = await requireRole("athlete");
+  const viewer = await requireAthleteViewer();
   const client = await createClient();
-  const { data: athlete } = await client
-    .from("athletes")
-    .select("id,public_name")
-    .eq("profile_id", identity.userId)
-    .single();
+  const athleteId = viewer.athleteId;
 
-  if (!athlete) redirect("/athlete");
-
-  const development = await getDevelopment(client, athlete.id);
+  const development = await getDevelopment(client, athleteId);
   const seasonDevelopment = await getAthleteDevelopmentExperience(
     client,
-    athlete.id,
+    athleteId,
   );
   const current = development.levels.find((item) => item.status === "active");
   const hunterMission =
