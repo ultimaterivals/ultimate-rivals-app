@@ -51,7 +51,9 @@ export async function fetchAdminCommercialRepositoryData() {
   if (sponsorsResult.error)
     errors.push(`admin_sponsor_operations: ${sponsorsResult.error.message}`);
   if (venuesResult.error)
-    errors.push(`admin_venue_partner_operations: ${venuesResult.error.message}`);
+    errors.push(
+      `admin_venue_partner_operations: ${venuesResult.error.message}`,
+    );
 
   return {
     sponsors: sponsorsResult.error
