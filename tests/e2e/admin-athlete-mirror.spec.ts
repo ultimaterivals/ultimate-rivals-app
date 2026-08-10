@@ -38,6 +38,22 @@ test("admin opens athlete preview and keeps admin session", async ({ page }, tes
   await expect(page).toHaveURL(/\/athlete\/season$/);
   await navigation.getByRole("link", { name: "Perfil", exact: true }).click();
   await expect(page).toHaveURL(/\/athlete\/profile$/);
+
+  await page.goto("/athlete/arenas");
+  await expect(page).toHaveURL(/\/athlete\/arenas$/);
+  await expect(page.getByRole("heading", { name: "Onde a temporada acontece" })).toBeVisible();
+  await expect(page.getByText("PRÉVIA DO ATLETA")).toBeVisible();
+
+  await page.goto("/athlete/highlights");
+  await expect(page).toHaveURL(/\/athlete\/highlights$/);
+  await expect(page.getByRole("heading", { name: "Sua história dentro do UR" })).toBeVisible();
+  await expect(page.getByText("PRÉVIA DO ATLETA")).toBeVisible();
+
+  await page.goto("/athlete/development");
+  await expect(page).toHaveURL(/\/athlete\/development$/);
+  await expect(page.getByRole("heading", { name: "Sua progressão" })).toBeVisible();
+  await expect(page.getByText("PRÉVIA DO ATLETA")).toBeVisible();
+
   await page.getByRole("button", { name: "Voltar ao Controle" }).click();
   await expect(page).toHaveURL(/\/admin$/);
 });
