@@ -15,6 +15,12 @@ export default function AthletesLayout({ children }: { children: ReactNode }) {
           Visão geral
         </Link>
         <Link
+          href="/admin/atletas/importacao"
+          className="rounded-ur px-3 py-2 text-sm font-bold text-zinc-400 transition hover:bg-white/5 hover:text-white"
+        >
+          Importação
+        </Link>
+        <Link
           href="/admin/atletas/acessos"
           className="rounded-ur px-3 py-2 text-sm font-bold text-zinc-400 transition hover:bg-white/5 hover:text-white"
         >
