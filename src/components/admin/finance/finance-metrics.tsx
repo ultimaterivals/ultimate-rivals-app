@@ -1,4 +1,11 @@
-import { Banknote, CircleDollarSign, Landmark, ReceiptText, Scale, WalletCards } from "lucide-react";
+import {
+  Banknote,
+  CircleDollarSign,
+  Landmark,
+  ReceiptText,
+  Scale,
+  WalletCards,
+} from "lucide-react";
 import type { AdminFinanceSnapshot } from "@/features/admin-finance/types";
 import { Card } from "@/components/ui";
 
@@ -7,7 +14,11 @@ const money = new Intl.NumberFormat("pt-BR", {
   currency: "BRL",
 });
 
-export function FinanceMetrics({ snapshot }: { snapshot: AdminFinanceSnapshot }) {
+export function FinanceMetrics({
+  snapshot,
+}: {
+  snapshot: AdminFinanceSnapshot;
+}) {
   const items = [
     ["Receita verificada", snapshot.metrics.verifiedRevenue, CircleDollarSign],
     ["Despesa verificada", snapshot.metrics.verifiedExpense, ReceiptText],
@@ -25,7 +36,9 @@ export function FinanceMetrics({ snapshot }: { snapshot: AdminFinanceSnapshot })
             <p className="text-xs font-bold text-zinc-500 uppercase">{label}</p>
             <Icon className="text-ur-gold" size={16} aria-hidden="true" />
           </div>
-          <p className="font-display mt-3 text-xl font-black">{money.format(value)}</p>
+          <p className="font-display mt-3 text-xl font-black">
+            {money.format(value)}
+          </p>
         </Card>
       ))}
     </div>
