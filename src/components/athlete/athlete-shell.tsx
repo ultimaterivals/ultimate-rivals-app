@@ -22,10 +22,20 @@ import { cn } from "@/lib/utils";
 
 const primary = [
   { href: "/athlete", label: "Início", icon: House, exact: true },
-  { href: "/athlete/agenda", label: "Agenda", icon: CalendarDays },
-  { href: "/athlete/disponibilidade", label: "Disponibilidade", icon: Clock3 },
-  { href: "/athlete/ranking", label: "Ranking", icon: Trophy },
-  { href: "/athlete/perfil", label: "Perfil", icon: CircleUserRound },
+  { href: "/athlete/agenda", label: "Agenda", icon: CalendarDays, exact: false },
+  {
+    href: "/athlete/disponibilidade",
+    label: "Disponibilidade",
+    icon: Clock3,
+    exact: false,
+  },
+  { href: "/athlete/ranking", label: "Ranking", icon: Trophy, exact: false },
+  {
+    href: "/athlete/perfil",
+    label: "Perfil",
+    icon: CircleUserRound,
+    exact: false,
+  },
 ] as const;
 
 const journey = [
