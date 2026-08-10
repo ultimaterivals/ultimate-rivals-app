@@ -64,3 +64,17 @@ export type AdminAthleteWavesSnapshot = {
   };
   sourceErrors: string[];
 };
+
+export type WaveInviteBundleItem = {
+  athleteId: string;
+  athleteCode: string;
+  publicName: string;
+  invitePath: string;
+  expiresAt: string;
+};
+
+export type WaveInviteBundleState = {
+  status: "idle" | "success" | "error";
+  invites: WaveInviteBundleItem[];
+  message: string | null;
+};
