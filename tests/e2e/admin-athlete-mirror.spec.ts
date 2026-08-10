@@ -54,6 +54,16 @@ test("admin opens athlete preview and keeps admin session", async ({ page }, tes
   await expect(page.getByRole("heading", { name: "Sua progressão" })).toBeVisible();
   await expect(page.getByText("PRÉVIA DO ATLETA")).toBeVisible();
 
+  await page.goto("/athlete/market");
+  await expect(page).toHaveURL(/\/athlete\/market$/);
+  await expect(page.getByRole("heading", { name: "Transforme participação em utilidade" })).toBeVisible();
+  await expect(page.getByText("PRÉVIA DO ATLETA")).toBeVisible();
+
+  await page.goto("/athlete/wallet");
+  await expect(page).toHaveURL(/\/athlete\/wallet$/);
+  await expect(page.getByRole("heading", { name: "Minha wallet" })).toBeVisible();
+  await expect(page.getByText("PRÉVIA DO ATLETA")).toBeVisible();
+
   await page.getByRole("button", { name: "Voltar ao Controle" }).click();
   await expect(page).toHaveURL(/\/admin$/);
 });
