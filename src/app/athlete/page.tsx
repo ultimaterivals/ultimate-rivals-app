@@ -19,7 +19,7 @@ import {
   EngagementClick,
   EngagementViewEvent,
 } from "@/features/engagement/engagement-client";
-import { requireRole } from "@/lib/auth/session";
+import { requireAthleteViewer } from "@/lib/auth/athlete-viewer";
 import { createClient } from "@/lib/supabase/server";
 import { listAthleteCompetitions } from "@/server/repositories/tournaments.repository";
 import { nextPositionTarget } from "@/server/services/ranking-classification.service";
@@ -55,9 +55,9 @@ const stageTone = (status: string) => {
 };
 
 export default async function AthletePage() {
-  const identity = await requireRole("athlete");
+  const viewer = await requireAthleteViewer();
   const client = await createClient();
-  const data = await getAthleteDashboard(client, identity.userId);
+  const data = await getAthleteDashboard(client, viewer.athleteId, "athlete");
   if (!data) notFound();
 
   const competitions = await listAthleteCompetitions(client, data.athlete.id);
@@ -309,7 +309,7 @@ export default async function AthletePage() {
                   nearestRivals.map((peer) => (
                     <div
                       key={`${peer.current_position}-${peer.display_name}`}
-                      className="rounded-ur flex items-center justify-between border border-white/10 p-3"
+                      className="rounded-ur flex items-center justify-between gap-2 border border-white/10 p-3"
                     >
                       <span>
                         #{peer.current_position} · {peer.display_name}
