@@ -5,6 +5,10 @@ import { getAthletePortalSnapshot } from "@/server/services/athlete-portal-servi
 export async function getAthleteSnapshotForViewer(
   viewer: AthleteViewerContext,
 ): Promise<AthletePortalSnapshot> {
+  if (viewer.isPreview) {
+    return getAthletePortalSnapshot({ athleteId: viewer.athleteId });
+  }
+
   if (viewer.userId) {
     return getAthletePortalSnapshot({ userId: viewer.userId });
   }
@@ -35,8 +39,6 @@ export async function getAthleteSnapshotForViewer(
     opportunities: null,
     nextReservation: null,
     billing: null,
-    sourceErrors: [
-      "preview: atleta ainda não possui identidade de acesso C18 vinculada; a prévia preserva o cadastro sem inventar dados derivados de outra conta.",
-    ],
+    sourceErrors: ["viewer: athlete identity has no valid access link"],
   };
 }
