@@ -22,7 +22,11 @@ export async function getAthletePortalSnapshot({
   athleteId?: string;
   now?: Date;
 }): Promise<AthletePortalSnapshot> {
-  const raw = await fetchAthletePortalRepositoryData({ userId, athleteId, now });
+  const raw = await fetchAthletePortalRepositoryData({
+    userId,
+    athleteId,
+    now,
+  });
 
   if (!raw.athlete) {
     return {
