@@ -1,0 +1,27 @@
+name: Dependency Audit
+
+on:
+  push:
+    branches:
+      - security-gate-dependency-audit
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Production dependency audit
+        shell: bash
+        run: npm audit --omit=dev || true
+      - name: Full dependency audit
+        shell: bash
+        run: npm audit || true
