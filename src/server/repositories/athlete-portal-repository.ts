@@ -195,6 +195,7 @@ export async function fetchAthletePortalRepositoryData({
 
   if (!athlete) return emptyData(errors);
 
+  const opportunityStart = new Date(now.getTime() - 24 * 60 * 60 * 1000);
   const opportunityEnd = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
   const [
     reportResult,
@@ -242,7 +243,14 @@ export async function fetchAthletePortalRepositoryData({
       .from("activity_reservations")
       .select("id,opportunity_id,status,eligibility,waitlist_position")
       .eq("athlete_id", athlete.id)
-      .in("status", ["reserved", "confirmed", "checked_in", "waitlisted"]),
+      .in("status", [
+        "reserved",
+        "confirmed",
+        "checked_in",
+        "waitlisted",
+        "consumed",
+        "no_show",
+      ]),
     supabase
       .from("session_interests")
       .select("id,opportunity_id,status,interest_mode")
@@ -253,7 +261,7 @@ export async function fetchAthletePortalRepositoryData({
       .select(
         "id,opportunity_type,computed_status,configured_status,title,starts_at,ends_at,pole_id,pole_name,venue_name,level,format_code,category_code,remaining_capacity",
       )
-      .gte("starts_at", now.toISOString())
+      .gte("starts_at", opportunityStart.toISOString())
       .lte("starts_at", opportunityEnd.toISOString())
       .order("starts_at", { ascending: true })
       .limit(30),

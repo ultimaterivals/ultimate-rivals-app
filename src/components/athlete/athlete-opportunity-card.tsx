@@ -37,6 +37,24 @@ const reservableStatuses = new Set([
 ]);
 const cancellableStatuses = new Set(["reserved", "confirmed", "waitlisted"]);
 
+function personalStateLabel(status: string | null) {
+  switch (status) {
+    case "reserved":
+    case "confirmed":
+      return "reserva ativa";
+    case "waitlisted":
+      return "lista de espera";
+    case "checked_in":
+      return "check-in realizado";
+    case "consumed":
+      return "participação concluída";
+    case "no_show":
+      return "ausência registrada";
+    default:
+      return status;
+  }
+}
+
 export function AthleteOpportunityCard({
   opportunity,
   availableCredits,
@@ -45,7 +63,7 @@ export function AthleteOpportunityCard({
   availableCredits: number;
 }) {
   const personalState =
-    opportunity.personalReservationStatus ??
+    personalStateLabel(opportunity.personalReservationStatus) ??
     (opportunity.personalInterestStatus ? "interessado" : null);
   const hasReservation = Boolean(opportunity.personalReservationStatus);
   const canCancel =
@@ -119,6 +137,16 @@ export function AthleteOpportunityCard({
         {opportunity.personalReservationStatus === "checked_in" && (
           <p className="text-ur-gold flex items-center gap-2 font-bold">
             <TicketCheck size={15} aria-hidden="true" /> Check-in concluído
+          </p>
+        )}
+        {opportunity.personalReservationStatus === "consumed" && (
+          <p className="text-ur-gold flex items-center gap-2 font-bold">
+            <TicketCheck size={15} aria-hidden="true" /> Participação concluída
+          </p>
+        )}
+        {opportunity.personalReservationStatus === "no_show" && (
+          <p className="flex items-center gap-2 font-bold text-zinc-400">
+            <TicketCheck size={15} aria-hidden="true" /> Ausência registrada
           </p>
         )}
         {opportunity.personalEligibilityStatus === "pending" && (
