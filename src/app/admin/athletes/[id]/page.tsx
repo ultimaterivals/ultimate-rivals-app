@@ -48,7 +48,7 @@ export default async function Page({
         </Link>
         <form action={startAthleteMirrorAction}>
           <input type="hidden" name="athleteId" value={id} />
-          <Button type="submit">Ver como atleta</Button>
+          <Button type="submit">Abrir prévia</Button>
         </form>
       </div>
       <div className="grid gap-4 md:grid-cols-3">
