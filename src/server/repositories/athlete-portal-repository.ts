@@ -55,6 +55,14 @@ export type RawAthletePackage = {
   ends_at: string | null;
 };
 
+export type RawCreditBalance = {
+  athlete_id: string;
+  athlete_package_id: string;
+  available_units: number | null;
+  reserved_units: number | null;
+  consumed_units: number | null;
+};
+
 export type RawPackageDefinition = {
   id: string;
   name: string;
@@ -73,20 +81,25 @@ export type RawTeam = {
 };
 
 export type RawReservation = {
+  id: string;
   opportunity_id: string;
   status: string;
+  eligibility: string;
   waitlist_position: number | null;
 };
 
 export type RawInterest = {
+  id: string;
   opportunity_id: string;
   status: string;
+  interest_mode: string;
 };
 
 export type RawAthleteOpportunity = {
   id: string;
   opportunity_type: string;
   computed_status: string;
+  configured_status: string;
   title: string;
   starts_at: string | null;
   ends_at: string | null;
@@ -96,6 +109,7 @@ export type RawAthleteOpportunity = {
   level: string | null;
   format_code: string | null;
   category_code: string | null;
+  remaining_capacity: number | null;
 };
 
 export type RawBillingItem = {
@@ -109,6 +123,7 @@ export type AthletePortalRepositoryData = {
   report: RawAthleteReport | null;
   rankings: RawAthleteRanking[] | null;
   athletePackages: RawAthletePackage[] | null;
+  creditBalances: RawCreditBalance[] | null;
   packageDefinitions: RawPackageDefinition[] | null;
   memberships: RawTeamMembership[] | null;
   teams: RawTeam[] | null;
@@ -141,9 +156,8 @@ export async function fetchAthletePortalRepositoryData({
     .eq("profile_id", userId)
     .maybeSingle();
 
-  if (athleteResult.error) {
+  if (athleteResult.error)
     pushError(errors, "athletes", athleteResult.error.message);
-  }
 
   const athlete = athleteResult.error
     ? null
@@ -155,6 +169,7 @@ export async function fetchAthletePortalRepositoryData({
       report: null,
       rankings: null,
       athletePackages: null,
+      creditBalances: null,
       packageDefinitions: null,
       memberships: null,
       teams: null,
@@ -171,6 +186,7 @@ export async function fetchAthletePortalRepositoryData({
     reportResult,
     rankingResult,
     packageResult,
+    creditResult,
     membershipResult,
     reservationResult,
     interestResult,
@@ -198,24 +214,30 @@ export async function fetchAthletePortalRepositoryData({
       .eq("athlete_id", athlete.id)
       .eq("status", "active"),
     supabase
+      .from("athlete_credit_balances")
+      .select(
+        "athlete_id,athlete_package_id,available_units,reserved_units,consumed_units",
+      )
+      .eq("athlete_id", athlete.id),
+    supabase
       .from("team_memberships")
       .select("team_id")
       .eq("athlete_id", athlete.id)
       .eq("status", "active"),
     supabase
       .from("activity_reservations")
-      .select("opportunity_id,status,waitlist_position")
+      .select("id,opportunity_id,status,eligibility,waitlist_position")
       .eq("athlete_id", athlete.id)
       .in("status", ["reserved", "confirmed", "checked_in", "waitlisted"]),
     supabase
       .from("session_interests")
-      .select("opportunity_id,status")
+      .select("id,opportunity_id,status,interest_mode")
       .eq("athlete_id", athlete.id)
       .eq("status", "active"),
     supabase
       .from("athlete_agenda_opportunities")
       .select(
-        "id,opportunity_type,computed_status,title,starts_at,ends_at,pole_id,pole_name,venue_name,level,format_code,category_code",
+        "id,opportunity_type,computed_status,configured_status,title,starts_at,ends_at,pole_id,pole_name,venue_name,level,format_code,category_code,remaining_capacity",
       )
       .gte("starts_at", now.toISOString())
       .lte("starts_at", opportunityEnd.toISOString())
@@ -232,6 +254,7 @@ export async function fetchAthletePortalRepositoryData({
     ["athlete_report_summary", reportResult.error],
     ["individual_ranking", rankingResult.error],
     ["athlete_commercial_packages", packageResult.error],
+    ["athlete_credit_balances", creditResult.error],
     ["team_memberships", membershipResult.error],
     ["activity_reservations", reservationResult.error],
     ["session_interests", interestResult.error],
@@ -246,6 +269,9 @@ export async function fetchAthletePortalRepositoryData({
   const athletePackages = packageResult.error
     ? null
     : ((packageResult.data as RawAthletePackage[] | null) ?? []);
+  const creditBalances = creditResult.error
+    ? null
+    : ((creditResult.data as RawCreditBalance[] | null) ?? []);
   const memberships = membershipResult.error
     ? null
     : ((membershipResult.data as RawTeamMembership[] | null) ?? []);
@@ -293,6 +319,7 @@ export async function fetchAthletePortalRepositoryData({
       ? null
       : ((rankingResult.data as RawAthleteRanking[] | null) ?? []),
     athletePackages,
+    creditBalances,
     packageDefinitions,
     memberships,
     teams,

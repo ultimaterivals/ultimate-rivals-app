@@ -17,6 +17,7 @@ describe("athlete portal service", () => {
       report: null,
       rankings: null,
       athletePackages: null,
+      creditBalances: null,
       packageDefinitions: null,
       memberships: null,
       teams: null,
@@ -32,7 +33,7 @@ describe("athlete portal service", () => {
     expect(snapshot.identity).toBeNull();
   });
 
-  it("derives credits and personal opportunity state", async () => {
+  it("derives available credits from the ledger balance and maps personal agenda state", async () => {
     repositoryMock.mockResolvedValue({
       athlete: {
         id: "athlete-1",
@@ -67,22 +68,41 @@ describe("athlete portal service", () => {
           ends_at: null,
         },
       ],
+      creditBalances: [
+        {
+          athlete_id: "athlete-1",
+          athlete_package_id: "athlete-package-1",
+          available_units: 2,
+          reserved_units: 1,
+          consumed_units: 1,
+        },
+      ],
       packageDefinitions: [{ id: "package-1", name: "Pacote 4", code: "P4" }],
       memberships: [],
       teams: [],
       reservations: [
         {
+          id: "reservation-1",
           opportunity_id: "op-1",
           status: "confirmed",
+          eligibility: "pending",
           waitlist_position: null,
         },
       ],
-      interests: [],
+      interests: [
+        {
+          id: "interest-1",
+          opportunity_id: "op-2",
+          status: "active",
+          interest_mode: "looking_for_partner",
+        },
+      ],
       opportunities: [
         {
           id: "op-1",
           opportunity_type: "ur_play",
           computed_status: "SESSION_CONFIRMED",
+          configured_status: "confirmed",
           title: "UR Play",
           starts_at: "2026-08-12T23:00:00.000Z",
           ends_at: "2026-08-13T01:00:00.000Z",
@@ -92,6 +112,23 @@ describe("athlete portal service", () => {
           level: "N2",
           format_code: "doubles",
           category_code: "female",
+          remaining_capacity: 3,
+        },
+        {
+          id: "op-2",
+          opportunity_type: "ur_play",
+          computed_status: "FORMING",
+          configured_status: "forming",
+          title: "UR Play 2",
+          starts_at: "2026-08-15T23:00:00.000Z",
+          ends_at: "2026-08-16T01:00:00.000Z",
+          pole_id: "pole-1",
+          pole_name: "Contagem",
+          venue_name: "Arena",
+          level: null,
+          format_code: null,
+          category_code: null,
+          remaining_capacity: 0,
         },
       ],
       billingItems: [],
@@ -99,10 +136,18 @@ describe("athlete portal service", () => {
     });
 
     const snapshot = await getAthletePortalSnapshot({ userId: "user-1" });
-    expect(snapshot.creditBalance).toBe(3);
+    expect(snapshot.creditBalance).toBe(2);
+    expect(snapshot.creditReserved).toBe(1);
+    expect(snapshot.creditConsumed).toBe(1);
+    expect(snapshot.packages?.[0]?.unitsRemaining).toBe(2);
     expect(snapshot.summary?.urCoinBalance).toBe(120);
-    expect(snapshot.nextReservation?.personalReservationStatus).toBe(
-      "confirmed",
+    expect(snapshot.nextReservation?.personalReservationId).toBe(
+      "reservation-1",
     );
+    expect(snapshot.nextReservation?.personalEligibilityStatus).toBe("pending");
+    expect(snapshot.opportunities?.[1]?.personalInterestMode).toBe(
+      "looking_for_partner",
+    );
+    expect(snapshot.opportunities?.[1]?.remainingCapacity).toBe(0);
   });
 });

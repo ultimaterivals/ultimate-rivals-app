@@ -30,6 +30,8 @@ export async function getAthletePortalSnapshot({
       teams: null,
       packages: null,
       creditBalance: null,
+      creditReserved: null,
+      creditConsumed: null,
       summary: null,
       rankings: null,
       primaryRanking: null,
@@ -46,9 +48,17 @@ export async function getAthletePortalSnapshot({
       definition,
     ]),
   );
+  const balances = new Map(
+    (raw.creditBalances ?? []).map((balance) => [
+      balance.athlete_package_id,
+      balance,
+    ]),
+  );
+
   const packages: AthletePackage[] | null = raw.athletePackages
     ? raw.athletePackages.map((item) => {
         const definition = definitions.get(item.package_id);
+        const balance = balances.get(item.id);
         return {
           id: item.id,
           packageId: item.package_id,
@@ -56,17 +66,31 @@ export async function getAthletePortalSnapshot({
           code: definition?.code ?? "UR",
           unitsTotal: item.units_total,
           unitsUsed: item.units_used,
-          unitsRemaining:
-            item.units_total === null
-              ? null
-              : Math.max(item.units_total - item.units_used, 0),
+          unitsRemaining: balance?.available_units ?? 0,
+          unitsReserved: balance?.reserved_units ?? 0,
+          unitsConsumed: balance?.consumed_units ?? item.units_used,
           endsAt: item.ends_at,
         };
       })
     : null;
 
-  const creditBalance = packages
-    ? packages.reduce((total, item) => total + (item.unitsRemaining ?? 0), 0)
+  const creditBalance = raw.creditBalances
+    ? raw.creditBalances.reduce(
+        (total, item) => total + (item.available_units ?? 0),
+        0,
+      )
+    : null;
+  const creditReserved = raw.creditBalances
+    ? raw.creditBalances.reduce(
+        (total, item) => total + (item.reserved_units ?? 0),
+        0,
+      )
+    : null;
+  const creditConsumed = raw.creditBalances
+    ? raw.creditBalances.reduce(
+        (total, item) => total + (item.consumed_units ?? 0),
+        0,
+      )
     : null;
 
   const teams: AthleteTeam[] | null = raw.teams
@@ -129,6 +153,7 @@ export async function getAthletePortalSnapshot({
           title: opportunity.title,
           opportunityType: opportunity.opportunity_type,
           status: opportunity.computed_status,
+          configuredStatus: opportunity.configured_status,
           startsAt: opportunity.starts_at,
           endsAt: opportunity.ends_at,
           poleId: opportunity.pole_id,
@@ -137,9 +162,14 @@ export async function getAthletePortalSnapshot({
           level: opportunity.level,
           formatCode: opportunity.format_code,
           categoryCode: opportunity.category_code,
+          remainingCapacity: opportunity.remaining_capacity ?? 0,
+          personalReservationId: reservation?.id ?? null,
           personalReservationStatus: reservation?.status ?? null,
+          personalEligibilityStatus: reservation?.eligibility ?? null,
           waitlistPosition: reservation?.waitlist_position ?? null,
+          personalInterestId: interest?.id ?? null,
           personalInterestStatus: interest?.status ?? null,
+          personalInterestMode: interest?.interest_mode ?? null,
         };
       })
     : null;
@@ -181,6 +211,8 @@ export async function getAthletePortalSnapshot({
     teams,
     packages,
     creditBalance,
+    creditReserved,
+    creditConsumed,
     summary: raw.report
       ? {
           level: raw.report.level,
