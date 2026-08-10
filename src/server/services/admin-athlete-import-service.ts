@@ -34,8 +34,7 @@ export type AdminAthleteImportRow = {
 export async function getAdminAthleteImportSnapshot(batchId?: string | null) {
   const data = await fetchAdminAthleteImportData();
   const batches = data.batches ?? [];
-  const selectedBatch =
-    batches.find((batch) => batch.id === batchId) ?? batches[0] ?? null;
+  const selectedBatch = batches.find((batch) => batch.id === batchId) ?? batches[0] ?? null;
   const rows = (data.rows ?? [])
     .filter((row) => !selectedBatch || row.batch_id === selectedBatch.id)
     .map<AdminAthleteImportRow>((row) => ({
@@ -64,19 +63,22 @@ export async function getAdminAthleteImportSnapshot(batchId?: string | null) {
       reviewedAt: row.reviewed_at,
     }));
 
-  const activePoles = (data.poles ?? []).filter((pole) => pole.status === "active");
+  const configuredPoles = (data.poles ?? []).filter((pole) =>
+    ["draft", "active"].includes(pole.status),
+  );
+  const activePoles = configuredPoles.filter((pole) => pole.status === "active");
   const readyPoleNames = new Set(
     rows
       .filter((row) => row.status === "ready" && row.pole)
       .map((row) => row.pole!.trim().toLowerCase()),
   );
-  const matchedPoleNames = new Set<string>();
-  for (const pole of activePoles) {
-    matchedPoleNames.add(pole.name.trim().toLowerCase());
-    matchedPoleNames.add(pole.city.trim().toLowerCase());
+  const configuredPoleNames = new Set<string>();
+  for (const pole of configuredPoles) {
+    configuredPoleNames.add(pole.name.trim().toLowerCase());
+    configuredPoleNames.add(pole.city.trim().toLowerCase());
   }
   const missingReadyPoles = [...readyPoleNames].filter(
-    (poleName) => !matchedPoleNames.has(poleName),
+    (poleName) => !configuredPoleNames.has(poleName),
   );
 
   return {
@@ -93,6 +95,7 @@ export async function getAdminAthleteImportSnapshot(batchId?: string | null) {
       imported:
         selectedBatch?.imported_rows ?? rows.filter((row) => row.status === "imported").length,
       activeCandidates: rows.filter((row) => row.activeCandidate).length,
+      configuredPoles: configuredPoles.length,
       activePoles: activePoles.length,
     },
     missingReadyPoles,
