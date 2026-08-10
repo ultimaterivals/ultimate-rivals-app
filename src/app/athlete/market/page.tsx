@@ -1,9 +1,9 @@
 import { Coins, Gift, ShoppingBag, Sparkles } from "lucide-react";
 import Link from "next/link";
 import { Badge, Card, EmptyState, PageHeader } from "@/components/ui";
-import { requireRole } from "@/lib/auth/session";
+import { requireAthleteViewer } from "@/lib/auth/athlete-viewer";
 import { createClient } from "@/lib/supabase/server";
-import { getAthletePortalSnapshot } from "@/server/services/athlete-portal-service";
+import { getAthleteSnapshotForViewer } from "@/server/services/athlete-viewer-snapshot-service";
 
 function brl(value: number | string | null | undefined) {
   return Number(value ?? 0).toLocaleString("pt-BR", {
@@ -13,8 +13,8 @@ function brl(value: number | string | null | undefined) {
 }
 
 export default async function AthleteMarketPage() {
-  const user = await requireRole(["athlete"]);
-  const snapshot = await getAthletePortalSnapshot({ userId: user.userId });
+  const viewer = await requireAthleteViewer();
+  const snapshot = await getAthleteSnapshotForViewer(viewer);
 
   if (!snapshot.identity) {
     return (
