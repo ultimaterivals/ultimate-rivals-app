@@ -17,10 +17,7 @@ function dateOnly(value: Date) {
 
 function birthDate(value: string) {
   const parts = value.split("-").map(Number);
-  if (
-    parts.length !== 3 ||
-    parts.some((part) => !Number.isInteger(part))
-  ) {
+  if (parts.length !== 3 || parts.some((part) => !Number.isInteger(part))) {
     return null;
   }
   const [year, month, day] = parts as [number, number, number];
