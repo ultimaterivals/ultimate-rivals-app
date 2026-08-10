@@ -4,8 +4,11 @@ import {
   CalendarDays,
   CircleUserRound,
   Clock3,
+  Coins,
   House,
   LogOut,
+  MapPin,
+  Medal,
   Trophy,
 } from "lucide-react";
 import Link from "next/link";
@@ -26,39 +29,84 @@ const primary = [
   { href: "/athlete/perfil", label: "Perfil", icon: CircleUserRound },
 ] as const;
 
+const journey = [
+  { href: "/athlete/season", label: "Temporada", icon: Medal },
+  { href: "/athlete/arenas", label: "Arenas UR", icon: MapPin },
+  { href: "/athlete/wallet", label: "Wallet URC", icon: Coins },
+] as const;
+
 function active(pathname: string, href: string, exact?: boolean) {
   return exact
     ? pathname === href
     : pathname === href || pathname.startsWith(`${href}/`);
 }
 
+function NavigationLink({
+  href,
+  label,
+  Icon,
+  pathname,
+  exact,
+}: {
+  href: string;
+  label: string;
+  Icon: (typeof primary)[number]["icon"];
+  pathname: string;
+  exact?: boolean;
+}) {
+  const isActive = active(pathname, href, exact);
+
+  return (
+    <Link
+      href={href}
+      aria-current={isActive ? "page" : undefined}
+      className={cn(
+        "rounded-ur flex min-h-11 items-center gap-3 px-3 font-bold transition-colors",
+        isActive
+          ? "bg-ur-gold text-ur-black"
+          : "text-zinc-300 hover:bg-white/5 hover:text-white",
+      )}
+    >
+      <Icon size={18} aria-hidden="true" />
+      {label}
+    </Link>
+  );
+}
+
 function DesktopNavigation() {
   const pathname = usePathname();
 
   return (
-    <nav
-      aria-label="Navegação do atleta"
-      className="hidden space-y-1 px-4 lg:block"
-    >
-      {primary.map(({ href, label, icon: Icon, exact }) => {
-        const isActive = active(pathname, href, exact);
-        return (
-          <Link
+    <nav aria-label="Navegação do atleta" className="hidden px-4 lg:block">
+      <div className="space-y-1">
+        {primary.map(({ href, label, icon: Icon, exact }) => (
+          <NavigationLink
             key={href}
             href={href}
-            aria-current={isActive ? "page" : undefined}
-            className={cn(
-              "rounded-ur flex min-h-11 items-center gap-3 px-3 font-bold transition-colors",
-              isActive
-                ? "bg-ur-gold text-ur-black"
-                : "text-zinc-300 hover:bg-white/5 hover:text-white",
-            )}
-          >
-            <Icon size={18} aria-hidden="true" />
-            {label}
-          </Link>
-        );
-      })}
+            label={label}
+            Icon={Icon}
+            pathname={pathname}
+            exact={exact}
+          />
+        ))}
+      </div>
+
+      <div className="mt-6 border-t border-white/10 pt-5">
+        <p className="mb-2 px-3 text-[.65rem] font-black tracking-[.2em] text-zinc-600 uppercase">
+          Jornada e carreira
+        </p>
+        <div className="space-y-1">
+          {journey.map(({ href, label, icon: Icon }) => (
+            <NavigationLink
+              key={href}
+              href={href}
+              label={label}
+              Icon={Icon}
+              pathname={pathname}
+            />
+          ))}
+        </div>
+      </div>
     </nav>
   );
 }
