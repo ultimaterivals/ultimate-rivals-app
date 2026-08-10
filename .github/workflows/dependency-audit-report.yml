@@ -1,0 +1,37 @@
+name: Dependency Audit Report
+
+on:
+  push:
+    branches:
+      - security-gate-dependency-audit
+
+permissions:
+  contents: write
+
+jobs:
+  audit-report:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: security-gate-dependency-audit
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Generate audit report
+        shell: bash
+        run: |
+          npm audit --json > docs/dependency-audit-report.json || true
+          npm audit --omit=dev --json > docs/dependency-audit-production.json || true
+      - name: Commit report
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs/dependency-audit-report.json docs/dependency-audit-production.json
+          if git diff --cached --quiet; then exit 0; fi
+          git commit -m "chore: record dependency audit report"
+          git push origin HEAD:security-gate-dependency-audit
