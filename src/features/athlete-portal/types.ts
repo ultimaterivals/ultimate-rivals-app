@@ -9,6 +9,7 @@ export type AthleteIdentity = {
   instagramHandle: string | null;
   status: string;
   primaryPoleId: string | null;
+  gender: string;
 };
 
 export type AthleteTeam = {

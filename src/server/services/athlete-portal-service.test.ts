@@ -46,6 +46,7 @@ describe("athlete portal service", () => {
         instagram_handle: null,
         status: "active",
         primary_pole_id: "pole-1",
+        gender: "female",
       },
       report: {
         athlete_id: "athlete-1",
@@ -141,6 +142,7 @@ describe("athlete portal service", () => {
     expect(snapshot.creditConsumed).toBe(1);
     expect(snapshot.packages?.[0]?.unitsRemaining).toBe(2);
     expect(snapshot.summary?.urCoinBalance).toBe(120);
+    expect(snapshot.identity?.gender).toBe("female");
     expect(snapshot.nextReservation?.personalReservationId).toBe(
       "reservation-1",
     );

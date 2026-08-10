@@ -11,6 +11,7 @@ export type RawAthleteIdentity = {
   instagram_handle: string | null;
   status: string;
   primary_pole_id: string | null;
+  gender: string;
 };
 
 export type RawAthleteReport = {
@@ -151,7 +152,7 @@ export async function fetchAthletePortalRepositoryData({
   const athleteResult = await supabase
     .from("athletes")
     .select(
-      "id,public_name,athlete_code,avatar_url,city,state,bio,instagram_handle,status,primary_pole_id",
+      "id,public_name,athlete_code,avatar_url,city,state,bio,instagram_handle,status,primary_pole_id,gender",
     )
     .eq("profile_id", userId)
     .maybeSingle();
