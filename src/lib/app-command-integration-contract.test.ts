@@ -57,6 +57,25 @@ describe("App V1 ↔ Command integration contracts", () => {
     expect(opportunityCard).toContain("Ausência registrada");
   });
 
+  it("preserves C23 matchmaking readiness without breaking Preview", () => {
+    const profile = source("src/app/athlete/perfil/page.tsx");
+    const action = source("src/app/athlete/perfil/actions.ts");
+    const repository = source(
+      "src/server/repositories/athlete-portal-repository.ts",
+    );
+    const types = source("src/features/athlete-portal/types.ts");
+
+    expect(profile).toContain("Preparação para matchmaking");
+    expect(profile).toContain("requireAthleteViewer");
+    expect(profile).toContain("viewer.isPreview");
+    expect(profile).toContain("getAthleteSnapshotForViewer");
+    expect(profile).toContain("getAthleteAvailabilitySnapshot");
+    expect(action).toContain('requireRole(["athlete"])');
+    expect(action).toContain('rpc("update_own_athlete_matchmaking_identity"');
+    expect(repository).toContain("primary_pole_id,gender");
+    expect(types).toContain("gender: string");
+  });
+
   it("keeps athlete Market writes behind the transactional RPC", () => {
     const athleteMarket = source("src/app/athlete/market/page.tsx");
 
