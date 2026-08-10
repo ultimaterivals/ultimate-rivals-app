@@ -213,6 +213,7 @@ export async function getAthletePortalSnapshot({
       instagramHandle: raw.athlete.instagram_handle,
       status: raw.athlete.status,
       primaryPoleId: raw.athlete.primary_pole_id,
+      gender: raw.athlete.gender,
     },
     teams,
     packages,
