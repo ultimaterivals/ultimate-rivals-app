@@ -1,10 +1,12 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Button, Input } from "@/components/ui";
 import { createClient } from "@/lib/supabase/client";
 
 export function AthleteFirstAccessForm({ token }: { token: string }) {
+  const router = useRouter();
   const [mode, setMode] = useState<"login" | "signup">("signup");
   const [pending, setPending] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
@@ -41,7 +43,8 @@ export function AthleteFirstAccessForm({ token }: { token: string }) {
         return;
       }
       if (data.session) {
-        window.location.assign(next);
+        router.push(next);
+        router.refresh();
         return;
       }
       setMessage(
@@ -60,7 +63,8 @@ export function AthleteFirstAccessForm({ token }: { token: string }) {
       setPending(false);
       return;
     }
-    window.location.assign(`/claim?token=${encodeURIComponent(token)}`);
+    router.push(`/claim?token=${encodeURIComponent(token)}`);
+    router.refresh();
   }
 
   return (
