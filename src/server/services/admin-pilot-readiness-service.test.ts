@@ -52,12 +52,15 @@ const readySeason = {
   startsAt: "2026-08-10T03:00:00.000Z",
   endsAt: "2026-11-09T03:00:00.000Z",
   status: "active",
-  weeks: [readyWeek, ...Array.from({ length: 12 }, (_, index) => ({
-    ...readyWeek,
-    id: `week-${index + 2}`,
-    weekNumber: index + 2,
-    name: `Semana ${index + 2}`,
-  }))],
+  weeks: [
+    readyWeek,
+    ...Array.from({ length: 12 }, (_, index) => ({
+      ...readyWeek,
+      id: `week-${index + 2}`,
+      weekNumber: index + 2,
+      name: `Semana ${index + 2}`,
+    })),
+  ],
   compatibilityCycles: Array.from({ length: 3 }, (_, index) => ({
     id: `cycle-${index + 1}`,
     seasonId: "season-1",
