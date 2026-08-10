@@ -82,7 +82,9 @@ export default async function AdminMarketPage() {
     marketOffers.map((offer) => [offer.id, offer.name] as const),
   );
   const athleteNames = new Map(
-    (athletes ?? []).map((athlete) => [athlete.id, athlete.public_name] as const),
+    (athletes ?? []).map(
+      (athlete) => [athlete.id, athlete.public_name] as const,
+    ),
   );
   const pending = marketRedemptions.filter((redemption) =>
     ["reserved", "available"].includes(redemption.status),
