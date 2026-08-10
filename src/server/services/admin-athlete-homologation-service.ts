@@ -16,8 +16,23 @@ function dateOnly(value: Date) {
 }
 
 function birthDate(value: string) {
-  const [year, month, day] = value.split("-").map(Number);
-  return new Date(Date.UTC(year, month - 1, day));
+  const parts = value.split("-").map(Number);
+  if (
+    parts.length !== 3 ||
+    parts.some((part) => !Number.isInteger(part))
+  ) {
+    return null;
+  }
+  const [year, month, day] = parts as [number, number, number];
+  const parsed = new Date(Date.UTC(year, month - 1, day));
+  if (
+    parsed.getUTCFullYear() !== year ||
+    parsed.getUTCMonth() !== month - 1 ||
+    parsed.getUTCDate() !== day
+  ) {
+    return null;
+  }
+  return parsed;
 }
 
 export function buildAthleteActivationBlockers(
@@ -52,25 +67,32 @@ export function buildAthleteActivationBlockers(
     });
   } else {
     const birth = birthDate(athlete.birth_date);
-    const reference = dateOnly(today);
-    const adultAt = new Date(
-      Date.UTC(
-        birth.getUTCFullYear() + 18,
-        birth.getUTCMonth(),
-        birth.getUTCDate(),
-      ),
-    );
-    if (birth > reference) {
+    if (!birth) {
       blockers.push({
         code: "BIRTH_DATE_INVALID",
-        detail: "Data de nascimento não pode estar no futuro.",
+        detail: "Data de nascimento inválida.",
       });
-    } else if (adultAt > reference) {
-      blockers.push({
-        code: "MINOR_GUARDIAN_REQUIRED",
-        detail:
-          "Atleta menor de 18 anos exige fluxo de responsável e consentimento antes da ativação.",
-      });
+    } else {
+      const reference = dateOnly(today);
+      const adultAt = new Date(
+        Date.UTC(
+          birth.getUTCFullYear() + 18,
+          birth.getUTCMonth(),
+          birth.getUTCDate(),
+        ),
+      );
+      if (birth > reference) {
+        blockers.push({
+          code: "BIRTH_DATE_INVALID",
+          detail: "Data de nascimento não pode estar no futuro.",
+        });
+      } else if (adultAt > reference) {
+        blockers.push({
+          code: "MINOR_GUARDIAN_REQUIRED",
+          detail:
+            "Atleta menor de 18 anos exige fluxo de responsável e consentimento antes da ativação.",
+        });
+      }
     }
   }
 
