@@ -46,8 +46,12 @@ test("athlete interest is reflected back into Command demand", async ({
   const opportunity = page.getByTestId(
     "athlete-opportunity-61000000-0000-4000-8000-000000000001",
   );
-  await opportunity.getByRole("button", { name: "Registrar interesse" }).click();
-  await expect(opportunity.getByText("interessado", { exact: true })).toBeVisible({
+  await opportunity
+    .getByRole("button", { name: "Registrar interesse" })
+    .click();
+  await expect(
+    opportunity.getByText("interessado", { exact: true }),
+  ).toBeVisible({
     timeout: 20_000,
   });
 
