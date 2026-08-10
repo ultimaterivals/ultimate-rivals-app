@@ -69,6 +69,7 @@ export async function getAdminUrPlaySnapshot(
     (session) => new Date(session.startsAt).getTime() >= now.getTime(),
   );
   return {
+    generatedAt: now.toISOString(),
     sessions,
     metrics: {
       sessions: sessions.length,
