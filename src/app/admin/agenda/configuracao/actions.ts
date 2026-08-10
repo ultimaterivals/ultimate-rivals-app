@@ -6,30 +6,6 @@ import { z } from "zod";
 import { requireRole } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
 
-const dateTimeSchema = z.string().min(16).max(16);
-const optionalDateTimeSchema = z.union([z.literal(""), dateTimeSchema]);
-
-const seasonSchema = z.object({
-  name: z.string().trim().min(2).max(100),
-  code: z
-    .string()
-    .trim()
-    .regex(/^[a-z0-9][a-z0-9-]{1,31}$/),
-  startsAt: dateTimeSchema,
-  endsAt: dateTimeSchema,
-  registrationStartsAt: optionalDateTimeSchema,
-  registrationEndsAt: optionalDateTimeSchema,
-  rankingCutoffAt: optionalDateTimeSchema,
-});
-
-const cycleSchema = z.object({
-  seasonId: z.string().uuid(),
-  cycleNumber: z.coerce.number().int().min(1).max(3),
-  name: z.string().trim().min(2).max(80),
-  startsAt: dateTimeSchema,
-  endsAt: dateTimeSchema,
-});
-
 const poleSchema = z.object({
   name: z.string().trim().min(2).max(100),
   slug: z
@@ -52,28 +28,9 @@ const venueSchema = z.object({
   courtName: z.string().trim().min(2).max(100),
 });
 
-function saoPauloTimestamp(value: string) {
-  return `${value}:00-03:00`;
-}
-
-function nullableTimestamp(value: string) {
-  return value ? saoPauloTimestamp(value) : null;
-}
-
 function setupError(message: string) {
   const codes = [
     "ADMIN_REQUIRED",
-    "INVALID_SEASON_NAME",
-    "INVALID_SEASON_CODE",
-    "INVALID_SEASON_PERIOD",
-    "INCOMPLETE_REGISTRATION_PERIOD",
-    "INVALID_REGISTRATION_PERIOD",
-    "INVALID_RANKING_CUTOFF",
-    "SEASON_NOT_FOUND",
-    "INVALID_CYCLE_NUMBER",
-    "INVALID_CYCLE_NAME",
-    "INVALID_CYCLE_PERIOD",
-    "CYCLE_OUTSIDE_SEASON",
     "INVALID_POLE_NAME",
     "INVALID_POLE_SLUG",
     "INVALID_POLE_CITY",
@@ -90,8 +47,11 @@ function setupError(message: string) {
 }
 
 function finish(kind: string): never {
+  revalidatePath("/admin");
   revalidatePath("/admin/agenda");
+  revalidatePath("/admin/agenda/piloto");
   revalidatePath("/admin/agenda/configuracao");
+  revalidatePath("/admin/agenda/homologacao");
   redirect(`/admin/agenda/configuracao?success=${encodeURIComponent(kind)}`);
 }
 
@@ -99,58 +59,6 @@ function fail(message: string): never {
   redirect(
     `/admin/agenda/configuracao?error=${encodeURIComponent(setupError(message))}`,
   );
-}
-
-export async function createSeasonAction(formData: FormData) {
-  await requireRole(["admin"]);
-  const parsed = seasonSchema.safeParse({
-    name: formData.get("name"),
-    code: formData.get("code"),
-    startsAt: formData.get("startsAt"),
-    endsAt: formData.get("endsAt"),
-    registrationStartsAt: formData.get("registrationStartsAt") ?? "",
-    registrationEndsAt: formData.get("registrationEndsAt") ?? "",
-    rankingCutoffAt: formData.get("rankingCutoffAt") ?? "",
-  });
-  if (!parsed.success) fail("invalid_request");
-
-  const supabase = await createClient();
-  const { error } = await supabase.rpc("admin_create_season", {
-    p_name: parsed.data.name,
-    p_code: parsed.data.code,
-    p_starts_at: saoPauloTimestamp(parsed.data.startsAt),
-    p_ends_at: saoPauloTimestamp(parsed.data.endsAt),
-    p_registration_starts_at: nullableTimestamp(
-      parsed.data.registrationStartsAt,
-    ),
-    p_registration_ends_at: nullableTimestamp(parsed.data.registrationEndsAt),
-    p_ranking_cutoff_at: nullableTimestamp(parsed.data.rankingCutoffAt),
-  });
-  if (error) fail(error.message);
-  finish("season_created");
-}
-
-export async function configureCycleAction(formData: FormData) {
-  await requireRole(["admin"]);
-  const parsed = cycleSchema.safeParse({
-    seasonId: formData.get("seasonId"),
-    cycleNumber: formData.get("cycleNumber"),
-    name: formData.get("name"),
-    startsAt: formData.get("startsAt"),
-    endsAt: formData.get("endsAt"),
-  });
-  if (!parsed.success) fail("invalid_request");
-
-  const supabase = await createClient();
-  const { error } = await supabase.rpc("admin_create_season_cycle", {
-    p_season_id: parsed.data.seasonId,
-    p_cycle_number: parsed.data.cycleNumber,
-    p_name: parsed.data.name,
-    p_starts_at: saoPauloTimestamp(parsed.data.startsAt),
-    p_ends_at: saoPauloTimestamp(parsed.data.endsAt),
-  });
-  if (error) fail(error.message);
-  finish("cycle_configured");
 }
 
 export async function createPoleAction(formData: FormData) {
