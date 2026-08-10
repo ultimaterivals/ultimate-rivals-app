@@ -1,0 +1,68 @@
+name: App V1 Attendance Reflection Once
+
+on:
+  push:
+    branches:
+      - integration/app-v1-command-data
+
+permissions:
+  contents: write
+
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: integration/app-v1-command-data
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Make attendance consequences visible in the athlete App
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          repo = Path('src/server/repositories/athlete-portal-repository.ts')
+          text = repo.read_text()
+          text = text.replace(
+              '  const opportunityEnd = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);',
+              '  const opportunityStart = new Date(now.getTime() - 24 * 60 * 60 * 1000);\n  const opportunityEnd = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);',
+          )
+          text = text.replace(
+              '.in("status", ["reserved", "confirmed", "checked_in", "waitlisted"]),',
+              '.in("status", [\n        "reserved",\n        "confirmed",\n        "checked_in",\n        "waitlisted",\n        "consumed",\n        "no_show",\n      ]),',
+          )
+          text = text.replace(
+              '.gte("starts_at", now.toISOString())',
+              '.gte("starts_at", opportunityStart.toISOString())',
+          )
+          repo.write_text(text)
+
+          card = Path('src/components/athlete/athlete-opportunity-card.tsx')
+          text = card.read_text()
+          marker = 'export function AthleteOpportunityCard({'
+          helper = '''function personalStateLabel(status: string | null) {\n  switch (status) {\n    case "reserved":\n    case "confirmed":\n      return "reserva ativa";\n    case "waitlisted":\n      return "lista de espera";\n    case "checked_in":\n      return "check-in realizado";\n    case "consumed":\n      return "participação concluída";\n    case "no_show":\n      return "ausência registrada";\n    default:\n      return status;\n  }\n}\n\n'''
+          if helper not in text:
+              text = text.replace(marker, helper + marker)
+          text = text.replace(
+              '  const personalState =\n    opportunity.personalReservationStatus ??\n    (opportunity.personalInterestStatus ? "interessado" : null);',
+              '  const personalState =\n    personalStateLabel(opportunity.personalReservationStatus) ??\n    (opportunity.personalInterestStatus ? "interessado" : null);',
+          )
+          checked = '''        {opportunity.personalReservationStatus === "checked_in" && (\n          <p className="text-ur-gold flex items-center gap-2 font-bold">\n            <TicketCheck size={15} aria-hidden="true" /> Check-in concluído\n          </p>\n        )}\n'''
+          extra = checked + '''        {opportunity.personalReservationStatus === "consumed" && (\n          <p className="text-ur-gold flex items-center gap-2 font-bold">\n            <TicketCheck size={15} aria-hidden="true" /> Participação concluída\n          </p>\n        )}\n        {opportunity.personalReservationStatus === "no_show" && (\n          <p className="flex items-center gap-2 font-bold text-zinc-400">\n            <TicketCheck size={15} aria-hidden="true" /> Ausência registrada\n          </p>\n        )}\n'''
+          if 'Participação concluída' not in text:
+              text = text.replace(checked, extra)
+          card.write_text(text)
+          PY
+      - run: npx prettier --write src/server/repositories/athlete-portal-repository.ts src/components/athlete/athlete-opportunity-card.tsx
+      - name: Commit changes if needed
+        run: |
+          if git diff --quiet; then exit 0; fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add src/server/repositories/athlete-portal-repository.ts src/components/athlete/athlete-opportunity-card.tsx
+          git commit -m "fix: reflect UR Play attendance states in athlete App"
+          git push origin HEAD:integration/app-v1-command-data
