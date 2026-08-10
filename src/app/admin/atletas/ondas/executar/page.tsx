@@ -6,7 +6,7 @@ import {
   ShieldCheck,
   UserRoundCheck,
 } from "lucide-react";
-import { activateActivationWaveBatchAction } from "@/app/admin/atletas/ondas/actions";
+import { activateWaveBatchExecutionAction } from "@/app/admin/atletas/ondas/executar/actions";
 import { WaveInviteBundle } from "@/components/admin/wave-invite-bundle";
 import { Badge, Button, Card, PageHeader } from "@/components/ui";
 import { requireRole } from "@/lib/auth/session";
@@ -203,14 +203,15 @@ export default async function AthleteWaveExecutionPage({
                 </div>
 
                 <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
-                  {[
-                    ["Homologados", activeMembers.length, UserRoundCheck],
-                    ["Sem conta", inviteEligible.length, LockKeyhole],
-                    ["Categoria pronta", categoryReady.length, ShieldCheck],
-                    ["Com horários", availabilityReady.length, CheckCircle2],
-                    ["Prontos p/ piloto", pilotReady.length, CheckCircle2],
-                  ].map(([label, value, Icon]) => {
-                    const MetricIcon = Icon as typeof CheckCircle2;
+                  {(
+                    [
+                      ["Homologados", activeMembers.length, UserRoundCheck],
+                      ["Sem conta", inviteEligible.length, LockKeyhole],
+                      ["Categoria pronta", categoryReady.length, ShieldCheck],
+                      ["Com horários", availabilityReady.length, CheckCircle2],
+                      ["Prontos p/ piloto", pilotReady.length, CheckCircle2],
+                    ] as const
+                  ).map(([label, value, MetricIcon]) => {
                     return (
                       <div
                         key={String(label)}
@@ -308,7 +309,7 @@ export default async function AthleteWaveExecutionPage({
 
                   {canBatchActivate && (
                     <form
-                      action={activateActivationWaveBatchAction}
+                      action={activateWaveBatchExecutionAction}
                       className="mt-5 grid gap-3"
                     >
                       <input type="hidden" name="waveId" value={wave.id} />
