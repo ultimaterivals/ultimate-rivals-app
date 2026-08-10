@@ -32,11 +32,13 @@ const weekFormatter = new Intl.DateTimeFormat("pt-BR", {
 
 export function AgendaToolbar({ snapshot }: { snapshot: AdminAgendaSnapshot }) {
   const first = new Date(`${snapshot.weekStart}T12:00:00.000Z`);
-  const last = new Date(`${shiftAgendaWeek(snapshot.weekStart, 1)}T12:00:00.000Z`);
+  const last = new Date(
+    `${shiftAgendaWeek(snapshot.weekStart, 1)}T12:00:00.000Z`,
+  );
   last.setUTCDate(last.getUTCDate() - 1);
 
   return (
-    <div className="grid gap-4 rounded-ur border bg-ur-panel p-4 xl:grid-cols-[auto_1fr_auto] xl:items-center">
+    <div className="rounded-ur bg-ur-panel grid gap-4 border p-4 xl:grid-cols-[auto_1fr_auto] xl:items-center">
       <div className="flex items-center gap-2">
         <Link
           href={buildHref({
@@ -51,7 +53,9 @@ export function AgendaToolbar({ snapshot }: { snapshot: AdminAgendaSnapshot }) {
           <ChevronLeft size={18} aria-hidden="true" />
         </Link>
         <div className="min-w-44 text-center">
-          <p className="text-xs font-bold tracking-wider text-zinc-600 uppercase">Semana operacional</p>
+          <p className="text-xs font-bold tracking-wider text-zinc-600 uppercase">
+            Semana operacional
+          </p>
           <p className="mt-1 font-bold">
             {weekFormatter.format(first)} – {weekFormatter.format(last)}
           </p>
@@ -88,14 +92,15 @@ export function AgendaToolbar({ snapshot }: { snapshot: AdminAgendaSnapshot }) {
         >
           Hoje
         </Link>
-        <span className="mx-1 h-5 w-px bg-ur-line" aria-hidden="true" />
+        <span className="bg-ur-line mx-1 h-5 w-px" aria-hidden="true" />
         <span className="flex items-center gap-1.5 text-xs text-zinc-500">
           <Clock3 size={14} aria-hidden="true" />
           Visualização
         </span>
         {agendaViewPresets.map((preset) => {
           const active =
-            snapshot.startHour === preset.startHour && snapshot.endHour === preset.endHour;
+            snapshot.startHour === preset.startHour &&
+            snapshot.endHour === preset.endHour;
           return (
             <Link
               key={preset.key}
@@ -108,7 +113,7 @@ export function AgendaToolbar({ snapshot }: { snapshot: AdminAgendaSnapshot }) {
               aria-current={active ? "page" : undefined}
               className={
                 active
-                  ? "rounded-full bg-ur-gold px-3 py-1.5 text-xs font-black text-ur-black"
+                  ? "bg-ur-gold text-ur-black rounded-full px-3 py-1.5 text-xs font-black"
                   : "rounded-full border px-3 py-1.5 text-xs font-bold text-zinc-500 hover:text-white"
               }
             >
@@ -118,14 +123,16 @@ export function AgendaToolbar({ snapshot }: { snapshot: AdminAgendaSnapshot }) {
         })}
       </div>
 
-      <Badge>
-        Grade 30 min · sessão padrão 2h
-      </Badge>
+      <Badge>Grade 30 min · sessão padrão 2h</Badge>
     </div>
   );
 }
 
-export function AgendaPoleFilters({ snapshot }: { snapshot: AdminAgendaSnapshot }) {
+export function AgendaPoleFilters({
+  snapshot,
+}: {
+  snapshot: AdminAgendaSnapshot;
+}) {
   if (!snapshot.poles) return null;
 
   const hrefForPole = (pole: string | null) =>
@@ -137,7 +144,10 @@ export function AgendaPoleFilters({ snapshot }: { snapshot: AdminAgendaSnapshot 
     });
 
   return (
-    <div className="flex flex-wrap items-center gap-2" aria-label="Filtrar agenda por polo">
+    <div
+      className="flex flex-wrap items-center gap-2"
+      aria-label="Filtrar agenda por polo"
+    >
       <Link
         href={hrefForPole(null)}
         aria-current={!snapshot.selectedPoleId ? "page" : undefined}

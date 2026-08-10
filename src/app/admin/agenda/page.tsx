@@ -2,7 +2,10 @@ import { DatabaseZap } from "lucide-react";
 import { AgendaDemandBoard } from "@/components/admin/agenda/agenda-demand-board";
 import { AgendaMobileList } from "@/components/admin/agenda/agenda-mobile-list";
 import { AgendaSummary } from "@/components/admin/agenda/agenda-summary";
-import { AgendaToolbar, AgendaPoleFilters } from "@/components/admin/agenda/agenda-toolbar";
+import {
+  AgendaToolbar,
+  AgendaPoleFilters,
+} from "@/components/admin/agenda/agenda-toolbar";
 import { AgendaWeekGrid } from "@/components/admin/agenda/agenda-week-grid";
 import { CommandSection } from "@/components/admin/command-section";
 import { Badge, Card, PageHeader } from "@/components/ui";
@@ -72,11 +75,17 @@ export default async function AgendaPage({
         <CommandSection title="Saúde das fontes">
           <Card>
             <div className="flex items-start gap-3">
-              <DatabaseZap className="text-ur-gold mt-0.5" size={18} aria-hidden="true" />
+              <DatabaseZap
+                className="text-ur-gold mt-0.5"
+                size={18}
+                aria-hidden="true"
+              />
               <div>
                 <p className="font-bold">Leitura parcial da agenda</p>
                 <ul className="mt-2 grid gap-1 text-sm text-zinc-500">
-                  {snapshot.sourceErrors.map((error) => <li key={error}>{error}</li>)}
+                  {snapshot.sourceErrors.map((error) => (
+                    <li key={error}>{error}</li>
+                  ))}
                 </ul>
               </div>
             </div>

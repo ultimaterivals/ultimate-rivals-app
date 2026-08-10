@@ -1,4 +1,11 @@
-import { AlertTriangle, CalendarDays, ClipboardCheck, ListPlus, TicketCheck, UsersRound } from "lucide-react";
+import {
+  AlertTriangle,
+  CalendarDays,
+  ClipboardCheck,
+  ListPlus,
+  TicketCheck,
+  UsersRound,
+} from "lucide-react";
 import type { AgendaMetrics } from "@/features/admin-agenda/types";
 import { Card } from "@/components/ui";
 
@@ -17,7 +24,9 @@ export function AgendaSummary({ metrics }: { metrics: AgendaMetrics }) {
       {cards.map(([label, key, Icon]) => (
         <Card key={key} className="min-h-28">
           <div className="flex items-center justify-between gap-3">
-            <p className="text-xs font-bold tracking-wider text-zinc-500 uppercase">{label}</p>
+            <p className="text-xs font-bold tracking-wider text-zinc-500 uppercase">
+              {label}
+            </p>
             <Icon className="text-ur-gold" size={16} aria-hidden="true" />
           </div>
           <p className="font-display mt-3 text-2xl font-black">

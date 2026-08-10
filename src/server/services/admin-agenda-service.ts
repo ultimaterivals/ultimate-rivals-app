@@ -79,7 +79,8 @@ function buildDays(weekStart: string, today: string): AgendaDay[] {
 export function getAgendaRange(query: AgendaQuery, now = new Date()) {
   const today = formatLocalDate(now);
   const weekStart = getWeekStart(query.week ?? today);
-  const { weekEnd, rangeStartIso, rangeEndIso } = localDateRangeToUtc(weekStart);
+  const { weekEnd, rangeStartIso, rangeEndIso } =
+    localDateRangeToUtc(weekStart);
   const startHour = clampHour(query.startHour, AGENDA_DEFAULT_START_HOUR);
   let endHour = clampHour(query.endHour, AGENDA_DEFAULT_END_HOUR);
   if (endHour <= startHour) endHour = Math.min(24, startHour + 6);
@@ -105,8 +106,7 @@ export async function getAdminAgendaSnapshot(
     rangeEndIso: range.rangeEndIso,
   });
 
-  const selectedPoleId =
-    query.pole && query.pole !== "all" ? query.pole : null;
+  const selectedPoleId = query.pole && query.pole !== "all" ? query.pole : null;
 
   const rawEvents = raw.events
     ? raw.events.filter(
@@ -235,13 +235,20 @@ export function minutesSinceDayStart(value: string, date: string) {
   });
   const parts = formatter.formatToParts(instant);
   const hour = Number(parts.find((part) => part.type === "hour")?.value ?? 0);
-  const minute = Number(parts.find((part) => part.type === "minute")?.value ?? 0);
+  const minute = Number(
+    parts.find((part) => part.type === "minute")?.value ?? 0,
+  );
   if (agendaDateForInstant(value) !== date) return null;
   return hour * 60 + minute;
 }
 
 export function durationMinutes(startsAt: string, endsAt: string) {
-  return Math.max(AGENDA_SLOT_MINUTES_FALLBACK, Math.round((new Date(endsAt).getTime() - new Date(startsAt).getTime()) / 60000));
+  return Math.max(
+    AGENDA_SLOT_MINUTES_FALLBACK,
+    Math.round(
+      (new Date(endsAt).getTime() - new Date(startsAt).getTime()) / 60000,
+    ),
+  );
 }
 
 const AGENDA_SLOT_MINUTES_FALLBACK = 30;

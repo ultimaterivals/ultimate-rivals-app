@@ -93,7 +93,11 @@ export async function fetchAdminAgendaRepositoryData({
     pushError(errors, "poles", polesResult.error.message);
   }
   if (calendarResult.error) {
-    pushError(errors, "admin_calendar_operations", calendarResult.error.message);
+    pushError(
+      errors,
+      "admin_calendar_operations",
+      calendarResult.error.message,
+    );
   }
   if (demandResult.error) {
     pushError(errors, "admin_demand_dashboard", demandResult.error.message);

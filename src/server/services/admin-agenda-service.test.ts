@@ -1,6 +1,10 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { fetchAdminAgendaRepositoryData } from "@/server/repositories/admin-agenda-repository";
-import { getAdminAgendaSnapshot, getAgendaRange, getWeekStart } from "./admin-agenda-service";
+import {
+  getAdminAgendaSnapshot,
+  getAgendaRange,
+  getWeekStart,
+} from "./admin-agenda-service";
 
 vi.mock("@/server/repositories/admin-agenda-repository", () => ({
   fetchAdminAgendaRepositoryData: vi.fn(),
