@@ -44,6 +44,7 @@ export function AgendaDemandBoard({
       {items.map((item) => (
         <Card
           key={item.id}
+          data-testid={`demand-${item.id}`}
           className={item.reservedCount > 0 ? "border-ur-gold/50" : ""}
         >
           <div className="flex items-start justify-between gap-3">
