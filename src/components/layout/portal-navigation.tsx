@@ -15,7 +15,10 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import type { AdminModuleGroup, AdminModuleIcon } from "@/lib/auth/admin-modules";
+import type {
+  AdminModuleGroup,
+  AdminModuleIcon,
+} from "@/lib/auth/admin-modules";
 import { cn } from "@/lib/utils";
 
 export type PortalNavItem = {
@@ -81,9 +84,7 @@ export function PortalNavigation({
                 >
                   <Icon size={18} aria-hidden="true" />
                   <span>{item.label}</span>
-                  {active && (
-                    <span className="sr-only"> — página atual</span>
-                  )}
+                  {active && <span className="sr-only"> — página atual</span>}
                 </Link>
               );
             })}

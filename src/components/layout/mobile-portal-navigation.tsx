@@ -69,7 +69,10 @@ export function MobilePortalNavigation({
             </div>
 
             <div className="min-h-0 flex-1 overflow-y-auto pr-1">
-              <PortalNavigation items={items} onNavigate={() => setOpen(false)} />
+              <PortalNavigation
+                items={items}
+                onNavigate={() => setOpen(false)}
+              />
             </div>
 
             <div className="mt-5 border-t pt-4">

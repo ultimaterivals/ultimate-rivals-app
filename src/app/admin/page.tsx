@@ -36,8 +36,14 @@ export default async function AdminPage() {
       >
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
           <CommandStatusCard label="Hoje" hint="Aguardando integração C1" />
-          <CommandStatusCard label="Próximos 7 dias" hint="Aguardando integração C1" />
-          <CommandStatusCard label="Atletas ativos" hint="Aguardando integração C1" />
+          <CommandStatusCard
+            label="Próximos 7 dias"
+            hint="Aguardando integração C1"
+          />
+          <CommandStatusCard
+            label="Atletas ativos"
+            hint="Aguardando integração C1"
+          />
           <CommandStatusCard label="Receita" hint="Aguardando integração C1" />
         </div>
       </CommandSection>
@@ -47,7 +53,9 @@ export default async function AdminPage() {
           <Card className="min-h-44">
             <p className="font-bold">Nenhum alerta operacional carregado</p>
             <p className="mt-2 max-w-xl text-sm leading-6 text-zinc-400">
-              Alertas serão derivados de agenda, demanda, atletas, financeiro e gates competitivos na Sprint C1. Nesta fundação não exibimos alertas simulados.
+              Alertas serão derivados de agenda, demanda, atletas, financeiro e
+              gates competitivos na Sprint C1. Nesta fundação não exibimos
+              alertas simulados.
             </p>
           </Card>
         </CommandSection>
@@ -55,7 +63,11 @@ export default async function AdminPage() {
         <CommandSection title="O que fazer agora">
           <Card className="min-h-44">
             <div className="mb-4 flex items-center gap-2">
-              <Settings2 className="text-ur-gold" size={18} aria-hidden="true" />
+              <Settings2
+                className="text-ur-gold"
+                size={18}
+                aria-hidden="true"
+              />
               <Badge>Configuração</Badge>
             </div>
             <ol className="grid gap-3 text-sm text-zinc-300">

@@ -75,7 +75,8 @@ export const adminModules: readonly AdminModuleDefinition[] = [
     key: "athletes",
     label: "Atletas",
     href: "/admin/atletas",
-    description: "Ciclo de vida, recorrência, desenvolvimento e relacionamento.",
+    description:
+      "Ciclo de vida, recorrência, desenvolvimento e relacionamento.",
     group: "Esportivo",
     allowedRoles: allAdminRoles,
     icon: "athletes",

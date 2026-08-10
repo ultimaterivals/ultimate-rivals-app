@@ -1,8 +1,5 @@
 import { describe, expect, it } from "vitest";
-import {
-  canAccessAdminModule,
-  getAdminModulesForRole,
-} from "./admin-modules";
+import { canAccessAdminModule, getAdminModulesForRole } from "./admin-modules";
 
 describe("admin module access", () => {
   it("gives admin access to every C0 module", () => {
