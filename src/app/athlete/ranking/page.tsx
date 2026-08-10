@@ -1,12 +1,12 @@
 import { ArrowDown, ArrowUp, Minus } from "lucide-react";
 import { AthleteSourceHealth } from "@/components/athlete/athlete-source-health";
 import { Badge, Card, PageHeader } from "@/components/ui";
-import { requireRole } from "@/lib/auth/session";
-import { getAthletePortalSnapshot } from "@/server/services/athlete-portal-service";
+import { requireAthleteViewer } from "@/lib/auth/athlete-viewer";
+import { getAthleteSnapshotForViewer } from "@/server/services/athlete-viewer-snapshot-service";
 
 export default async function AthleteRankingPage() {
-  const user = await requireRole(["athlete"]);
-  const snapshot = await getAthletePortalSnapshot({ userId: user.userId });
+  const viewer = await requireAthleteViewer();
+  const snapshot = await getAthleteSnapshotForViewer(viewer);
 
   return (
     <div className="grid gap-8">
@@ -47,9 +47,7 @@ export default async function AthleteRankingPage() {
                       {ranking.categoryCode && (
                         <Badge>{ranking.categoryCode}</Badge>
                       )}
-                      {ranking.formatCode && (
-                        <Badge>{ranking.formatCode}</Badge>
-                      )}
+                      {ranking.formatCode && <Badge>{ranking.formatCode}</Badge>}
                     </div>
                     <p className="mt-3 text-sm text-zinc-400">
                       {ranking.gamesPlayed} jogos · {ranking.wins} vitórias ·{" "}
