@@ -25,6 +25,12 @@ export default async function AgendaLayout({
         {isAdmin && (
           <>
             <Link
+              href="/admin/agenda/temporada"
+              className="rounded-ur px-3 py-2 text-sm font-bold text-zinc-400 transition hover:bg-white/5 hover:text-white"
+            >
+              Temporada 13 semanas
+            </Link>
+            <Link
               href="/admin/agenda/polos"
               className="rounded-ur px-3 py-2 text-sm font-bold text-zinc-400 transition hover:bg-white/5 hover:text-white"
             >
