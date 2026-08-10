@@ -250,7 +250,9 @@ export async function fetchAthletePortalRepositoryData({
     ? null
     : ((membershipResult.data as RawTeamMembership[] | null) ?? []);
 
-  const packageIds = [...new Set((athletePackages ?? []).map((item) => item.package_id))];
+  const packageIds = [
+    ...new Set((athletePackages ?? []).map((item) => item.package_id)),
+  ];
   const teamIds = [...new Set((memberships ?? []).map((item) => item.team_id))];
 
   let packageDefinitions: RawPackageDefinition[] | null = [];

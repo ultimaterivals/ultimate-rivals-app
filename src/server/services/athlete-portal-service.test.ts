@@ -71,7 +71,11 @@ describe("athlete portal service", () => {
       memberships: [],
       teams: [],
       reservations: [
-        { opportunity_id: "op-1", status: "confirmed", waitlist_position: null },
+        {
+          opportunity_id: "op-1",
+          status: "confirmed",
+          waitlist_position: null,
+        },
       ],
       interests: [],
       opportunities: [
@@ -97,6 +101,8 @@ describe("athlete portal service", () => {
     const snapshot = await getAthletePortalSnapshot({ userId: "user-1" });
     expect(snapshot.creditBalance).toBe(3);
     expect(snapshot.summary?.urCoinBalance).toBe(120);
-    expect(snapshot.nextReservation?.personalReservationStatus).toBe("confirmed");
+    expect(snapshot.nextReservation?.personalReservationStatus).toBe(
+      "confirmed",
+    );
   });
 });

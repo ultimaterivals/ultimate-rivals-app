@@ -41,7 +41,10 @@ export async function getAthletePortalSnapshot({
   }
 
   const definitions = new Map(
-    (raw.packageDefinitions ?? []).map((definition) => [definition.id, definition]),
+    (raw.packageDefinitions ?? []).map((definition) => [
+      definition.id,
+      definition,
+    ]),
   );
   const packages: AthletePackage[] | null = raw.athletePackages
     ? raw.athletePackages.map((item) => {
@@ -63,10 +66,7 @@ export async function getAthletePortalSnapshot({
     : null;
 
   const creditBalance = packages
-    ? packages.reduce(
-        (total, item) => total + (item.unitsRemaining ?? 0),
-        0,
-      )
+    ? packages.reduce((total, item) => total + (item.unitsRemaining ?? 0), 0)
     : null;
 
   const teams: AthleteTeam[] | null = raw.teams
@@ -103,7 +103,9 @@ export async function getAthletePortalSnapshot({
     : null;
 
   const primaryRanking =
-    rankings?.find((ranking) => ranking.cycleId === null) ?? rankings?.[0] ?? null;
+    rankings?.find((ranking) => ranking.cycleId === null) ??
+    rankings?.[0] ??
+    null;
 
   const reservations = new Map(
     (raw.reservations ?? []).map((reservation) => [
@@ -112,7 +114,10 @@ export async function getAthletePortalSnapshot({
     ]),
   );
   const interests = new Map(
-    (raw.interests ?? []).map((interest) => [interest.opportunity_id, interest]),
+    (raw.interests ?? []).map((interest) => [
+      interest.opportunity_id,
+      interest,
+    ]),
   );
 
   const opportunities: AthleteOpportunity[] | null = raw.opportunities

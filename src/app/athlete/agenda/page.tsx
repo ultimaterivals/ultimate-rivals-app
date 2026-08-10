@@ -17,17 +17,27 @@ export default async function AthleteAgendaPage() {
       />
 
       {!snapshot.identity ? (
-        <Card><p className="text-sm text-zinc-400">Perfil de atleta ainda não vinculado à conta.</p></Card>
+        <Card>
+          <p className="text-sm text-zinc-400">
+            Perfil de atleta ainda não vinculado à conta.
+          </p>
+        </Card>
       ) : snapshot.opportunities && snapshot.opportunities.length > 0 ? (
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
           {snapshot.opportunities.map((opportunity) => (
-            <AthleteOpportunityCard key={opportunity.id} opportunity={opportunity} />
+            <AthleteOpportunityCard
+              key={opportunity.id}
+              opportunity={opportunity}
+            />
           ))}
         </div>
       ) : (
         <Card>
           <p className="font-bold">Nenhuma oportunidade futura disponível.</p>
-          <p className="mt-2 text-sm text-zinc-500">Novos UR Plays, treinos e eventos aparecerão aqui quando forem publicados.</p>
+          <p className="mt-2 text-sm text-zinc-500">
+            Novos UR Plays, treinos e eventos aparecerão aqui quando forem
+            publicados.
+          </p>
         </Card>
       )}
 

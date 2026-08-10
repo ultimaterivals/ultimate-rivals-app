@@ -17,37 +17,59 @@ export default async function AthleteRankingPage() {
       />
 
       {!snapshot.identity ? (
-        <Card><p className="text-sm text-zinc-400">Perfil de atleta ainda não vinculado.</p></Card>
+        <Card>
+          <p className="text-sm text-zinc-400">
+            Perfil de atleta ainda não vinculado.
+          </p>
+        </Card>
       ) : snapshot.rankings && snapshot.rankings.length > 0 ? (
         <div className="grid gap-4">
           {snapshot.rankings.map((ranking) => {
             const change = ranking.positionChange ?? 0;
-            const MovementIcon = change > 0 ? ArrowUp : change < 0 ? ArrowDown : Minus;
+            const MovementIcon =
+              change > 0 ? ArrowUp : change < 0 ? ArrowDown : Minus;
             return (
               <Card key={ranking.id}>
                 <div className="grid gap-5 sm:grid-cols-[auto_1fr_auto] sm:items-center">
                   <div>
-                    <p className="text-xs font-bold text-zinc-500 uppercase">Posição</p>
-                    <p className="font-display mt-1 text-4xl font-black">{ranking.currentPosition ? `#${ranking.currentPosition}` : "—"}</p>
+                    <p className="text-xs font-bold text-zinc-500 uppercase">
+                      Posição
+                    </p>
+                    <p className="font-display mt-1 text-4xl font-black">
+                      {ranking.currentPosition
+                        ? `#${ranking.currentPosition}`
+                        : "—"}
+                    </p>
                   </div>
                   <div>
                     <div className="flex flex-wrap gap-2">
                       {ranking.level && <Badge>{ranking.level}</Badge>}
-                      {ranking.categoryCode && <Badge>{ranking.categoryCode}</Badge>}
-                      {ranking.formatCode && <Badge>{ranking.formatCode}</Badge>}
+                      {ranking.categoryCode && (
+                        <Badge>{ranking.categoryCode}</Badge>
+                      )}
+                      {ranking.formatCode && (
+                        <Badge>{ranking.formatCode}</Badge>
+                      )}
                     </div>
                     <p className="mt-3 text-sm text-zinc-400">
-                      {ranking.gamesPlayed} jogos · {ranking.wins} vitórias · {ranking.losses} derrotas · {ranking.winRate.toFixed(1)}%
+                      {ranking.gamesPlayed} jogos · {ranking.wins} vitórias ·{" "}
+                      {ranking.losses} derrotas · {ranking.winRate.toFixed(1)}%
                     </p>
                     <p className="mt-1 text-xs text-zinc-600">
-                      {[ranking.teamName, ranking.poleName].filter(Boolean).join(" · ") || "Classificação individual"}
+                      {[ranking.teamName, ranking.poleName]
+                        .filter(Boolean)
+                        .join(" · ") || "Classificação individual"}
                     </p>
                   </div>
                   <div className="sm:text-right">
-                    <p className="font-display text-2xl font-black text-ur-gold">{ranking.totalPoints} pts</p>
+                    <p className="font-display text-ur-gold text-2xl font-black">
+                      {ranking.totalPoints} pts
+                    </p>
                     <p className="mt-2 flex items-center gap-1 text-xs text-zinc-500 sm:justify-end">
                       <MovementIcon size={14} aria-hidden="true" />
-                      {change === 0 ? "estável" : `${Math.abs(change)} posição(ões)`}
+                      {change === 0
+                        ? "estável"
+                        : `${Math.abs(change)} posição(ões)`}
                     </p>
                   </div>
                 </div>
@@ -56,7 +78,11 @@ export default async function AthleteRankingPage() {
           })}
         </div>
       ) : (
-        <Card><p className="text-sm text-zinc-400">Ainda não existe ranking publicado para este atleta.</p></Card>
+        <Card>
+          <p className="text-sm text-zinc-400">
+            Ainda não existe ranking publicado para este atleta.
+          </p>
+        </Card>
       )}
 
       <AthleteSourceHealth errors={snapshot.sourceErrors} />

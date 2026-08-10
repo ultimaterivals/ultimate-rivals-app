@@ -24,16 +24,18 @@ export function AthleteOpportunityCard({
   return (
     <Card
       className={
-        opportunity.personalReservationStatus
-          ? "border-ur-gold/60"
-          : undefined
+        opportunity.personalReservationStatus ? "border-ur-gold/60" : undefined
       }
     >
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
           <p className="font-bold">{opportunity.title}</p>
           <p className="mt-1 text-xs text-zinc-500">
-            {[opportunity.categoryCode, opportunity.level, opportunity.formatCode]
+            {[
+              opportunity.categoryCode,
+              opportunity.level,
+              opportunity.formatCode,
+            ]
               .filter(Boolean)
               .join(" · ") || "Sessão aberta"}
           </p>
