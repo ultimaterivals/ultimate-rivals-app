@@ -13,8 +13,7 @@ function errorCode(message: string) {
   if (value.includes("WAVE_TARGET_NOT_FILLED")) return "target_not_filled";
   if (value.includes("WAVE_MEMBER_NOT_ACTIVATABLE"))
     return "member_not_activatable";
-  if (value.includes("ATHLETE_ACTIVATION_BLOCKED"))
-    return "activation_blocked";
+  if (value.includes("ATHLETE_ACTIVATION_BLOCKED")) return "activation_blocked";
   if (value.includes("WAVE_IS_CLOSED")) return "wave_closed";
   if (value.includes("ADMIN_REQUIRED")) return "admin_required";
   return "operation_failed";
