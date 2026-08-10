@@ -78,8 +78,10 @@ export async function fetchAdminAthleteImportData() {
       .order("name", { ascending: true }),
   ]);
 
-  if (batchesResult.error) errors.push(`athlete_import_batches: ${batchesResult.error.message}`);
-  if (rowsResult.error) errors.push(`athlete_import_rows: ${rowsResult.error.message}`);
+  if (batchesResult.error)
+    errors.push(`athlete_import_batches: ${batchesResult.error.message}`);
+  if (rowsResult.error)
+    errors.push(`athlete_import_rows: ${rowsResult.error.message}`);
   if (polesResult.error) errors.push(`poles: ${polesResult.error.message}`);
 
   return {

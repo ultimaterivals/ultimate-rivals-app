@@ -3,7 +3,12 @@ import {
   type RawAthleteImportIssue,
 } from "@/server/repositories/admin-athlete-import-repository";
 
-export type AthleteImportStatus = "ready" | "review" | "blocked" | "imported" | "skipped";
+export type AthleteImportStatus =
+  | "ready"
+  | "review"
+  | "blocked"
+  | "imported"
+  | "skipped";
 
 export type AdminAthleteImportRow = {
   id: string;
@@ -34,7 +39,8 @@ export type AdminAthleteImportRow = {
 export async function getAdminAthleteImportSnapshot(batchId?: string | null) {
   const data = await fetchAdminAthleteImportData();
   const batches = data.batches ?? [];
-  const selectedBatch = batches.find((batch) => batch.id === batchId) ?? batches[0] ?? null;
+  const selectedBatch =
+    batches.find((batch) => batch.id === batchId) ?? batches[0] ?? null;
   const rows = (data.rows ?? [])
     .filter((row) => !selectedBatch || row.batch_id === selectedBatch.id)
     .map<AdminAthleteImportRow>((row) => ({
@@ -66,7 +72,9 @@ export async function getAdminAthleteImportSnapshot(batchId?: string | null) {
   const configuredPoles = (data.poles ?? []).filter((pole) =>
     ["draft", "active"].includes(pole.status),
   );
-  const activePoles = configuredPoles.filter((pole) => pole.status === "active");
+  const activePoles = configuredPoles.filter(
+    (pole) => pole.status === "active",
+  );
   const readyPoleNames = new Set(
     rows
       .filter((row) => row.status === "ready" && row.pole)
@@ -87,13 +95,18 @@ export async function getAdminAthleteImportSnapshot(batchId?: string | null) {
     rows,
     metrics: {
       total: selectedBatch?.total_rows ?? rows.length,
-      ready: selectedBatch?.ready_rows ?? rows.filter((row) => row.status === "ready").length,
+      ready:
+        selectedBatch?.ready_rows ??
+        rows.filter((row) => row.status === "ready").length,
       review:
-        selectedBatch?.review_rows ?? rows.filter((row) => row.status === "review").length,
+        selectedBatch?.review_rows ??
+        rows.filter((row) => row.status === "review").length,
       blocked:
-        selectedBatch?.blocked_rows ?? rows.filter((row) => row.status === "blocked").length,
+        selectedBatch?.blocked_rows ??
+        rows.filter((row) => row.status === "blocked").length,
       imported:
-        selectedBatch?.imported_rows ?? rows.filter((row) => row.status === "imported").length,
+        selectedBatch?.imported_rows ??
+        rows.filter((row) => row.status === "imported").length,
       activeCandidates: rows.filter((row) => row.activeCandidate).length,
       configuredPoles: configuredPoles.length,
       activePoles: activePoles.length,

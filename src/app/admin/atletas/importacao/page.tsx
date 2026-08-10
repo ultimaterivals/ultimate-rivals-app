@@ -37,8 +37,7 @@ const resultMessages: Record<string, string> = {
   "pole-not-configured":
     "Importação bloqueada: o polo informado ainda não existe na configuração do UR.",
   duplicate: "Importação bloqueada: existe atleta potencialmente duplicado.",
-  "review-invalid":
-    "Revisão inválida. Verifique os campos e a justificativa.",
+  "review-invalid": "Revisão inválida. Verifique os campos e a justificativa.",
   "review-error": "Não foi possível salvar a revisão.",
   "import-error": "Não foi possível importar esta linha.",
   "import-invalid": "Linha de importação inválida.",
@@ -111,7 +110,9 @@ export default async function AthleteImportPage({
         {metrics.map(([label, value, Icon]) => (
           <Card key={label}>
             <div className="flex items-center justify-between gap-2">
-              <p className="text-xs font-bold text-zinc-500 uppercase">{label}</p>
+              <p className="text-xs font-bold text-zinc-500 uppercase">
+                {label}
+              </p>
               <Icon className="text-ur-gold" size={16} aria-hidden="true" />
             </div>
             <p className="font-display mt-3 text-2xl font-black">{value}</p>
@@ -128,8 +129,9 @@ export default async function AthleteImportPage({
               {snapshot.metrics.activePoles} homologado(s)/ativo(s).
             </p>
             <p className="mt-1 text-sm leading-6 text-zinc-500">
-              Um atleta draft pode ser relacionado a polo draft. Para ativar o atleta
-              e operar sessões reais, o polo continua sujeito à homologação operacional.
+              Um atleta draft pode ser relacionado a polo draft. Para ativar o
+              atleta e operar sessões reais, o polo continua sujeito à
+              homologação operacional.
             </p>
             {snapshot.missingReadyPoles.length > 0 && (
               <p className="mt-2 text-sm text-amber-200">
@@ -155,9 +157,9 @@ export default async function AthleteImportPage({
                 Importar {snapshot.metrics.ready} registros prontos como draft
               </p>
               <p className="mt-1 max-w-3xl text-sm leading-6 text-zinc-500">
-                A operação é atômica: se uma linha falhar por duplicidade, polo ou
-                validação, nenhuma linha do lote é persistida. Conta, nível, equipe e
-                status ativo não são criados nesta etapa.
+                A operação é atômica: se uma linha falhar por duplicidade, polo
+                ou validação, nenhuma linha do lote é persistida. Conta, nível,
+                equipe e status ativo não são criados nesta etapa.
               </p>
             </div>
             <form action={importReadyAthleteBatchAction} className="grid gap-2">
@@ -187,7 +189,10 @@ export default async function AthleteImportPage({
         </Card>
       )}
 
-      <form className="rounded-ur flex flex-wrap gap-2 border p-3" role="search">
+      <form
+        className="rounded-ur flex flex-wrap gap-2 border p-3"
+        role="search"
+      >
         <input
           name="q"
           defaultValue={single(params.q) ?? ""}
@@ -239,7 +244,9 @@ export default async function AthleteImportPage({
                   {row.email ?? "sem e-mail"} · {row.phone ?? "sem telefone"}
                 </p>
                 <p className="mt-1 text-xs text-zinc-500">
-                  {row.categories || row.legacyCategories || "categorias pendentes"}
+                  {row.categories ||
+                    row.legacyCategories ||
+                    "categorias pendentes"}
                   {row.legacyLevel ? ` · nível legado ${row.legacyLevel}` : ""}
                 </p>
               </div>
