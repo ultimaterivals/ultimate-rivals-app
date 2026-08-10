@@ -10,11 +10,6 @@ export type ClaimActionState = {
   message: string | null;
 };
 
-export const initialClaimActionState: ClaimActionState = {
-  status: "idle",
-  message: null,
-};
-
 const schema = z.object({ token: z.string().regex(/^[0-9a-f]{64}$/i) });
 
 function errorMessage(message: string) {
