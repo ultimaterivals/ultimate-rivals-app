@@ -11,6 +11,7 @@ as $$
 declare
   actor_id uuid := auth.uid();
   athlete_row public.athletes;
+  previous_gender public.gender_type;
 begin
   if actor_id is null then
     raise exception 'authentication required' using errcode = '42501';
@@ -26,11 +27,33 @@ begin
     raise exception 'athlete profile not linked' using errcode = 'P0002';
   end if;
 
+  previous_gender := athlete_row.gender;
+
   update public.athletes
   set gender = target_gender,
       updated_at = now()
   where id = athlete_row.id
   returning * into athlete_row;
+
+  if previous_gender is distinct from athlete_row.gender then
+    insert into public.audit_logs (
+      actor_user_id,
+      action,
+      entity_type,
+      entity_id,
+      before_data,
+      after_data,
+      metadata
+    ) values (
+      actor_id,
+      'athlete.matchmaking_identity.updated',
+      'athlete',
+      athlete_row.id,
+      jsonb_build_object('gender', previous_gender),
+      jsonb_build_object('gender', athlete_row.gender),
+      jsonb_build_object('source', 'athlete_portal')
+    );
+  end if;
 
   return athlete_row;
 end;
@@ -47,7 +70,9 @@ as $$
 $$;
 
 revoke all on function private.update_own_athlete_matchmaking_identity(public.gender_type)
-  from public, anon, authenticated;
+  from public, anon;
+grant execute on function private.update_own_athlete_matchmaking_identity(public.gender_type)
+  to authenticated;
 revoke all on function public.update_own_athlete_matchmaking_identity(public.gender_type)
   from public, anon;
 grant execute on function public.update_own_athlete_matchmaking_identity(public.gender_type)
