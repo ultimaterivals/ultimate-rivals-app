@@ -20,6 +20,7 @@ const reviewSchema = z.object({
 });
 
 const importSchema = z.object({ rowId: z.string().uuid() });
+const batchSchema = z.object({ batchId: z.string().uuid() });
 
 function resultUrl(result: string) {
   return `/admin/atletas/importacao?result=${encodeURIComponent(result)}`;
@@ -87,4 +88,28 @@ export async function importAthleteStagingRowAction(formData: FormData) {
   revalidatePath("/admin/atletas/importacao");
   revalidatePath("/admin/atletas");
   redirect(resultUrl("imported"));
+}
+
+export async function importReadyAthleteBatchAction(formData: FormData) {
+  await requireRole(["admin"]);
+  const parsed = batchSchema.safeParse({ batchId: formData.get("batchId") });
+  if (!parsed.success) redirect(resultUrl("batch-invalid"));
+
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("admin_import_ready_athlete_batch", {
+    p_batch_id: parsed.data.batchId,
+  });
+  if (error) {
+    if (error.message.includes("IMPORT_POLE_NOT_FOUND")) {
+      redirect(resultUrl("pole-not-configured"));
+    }
+    if (error.message.includes("IMPORT_DUPLICATE_ATHLETE")) {
+      redirect(resultUrl("duplicate"));
+    }
+    redirect(resultUrl("batch-import-error"));
+  }
+
+  revalidatePath("/admin/atletas/importacao");
+  revalidatePath("/admin/atletas");
+  redirect(resultUrl("batch-imported"));
 }
