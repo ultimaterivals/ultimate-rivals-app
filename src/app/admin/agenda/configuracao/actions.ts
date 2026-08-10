@@ -79,6 +79,9 @@ function setupError(message: string) {
     "INVALID_POLE_CITY",
     "INVALID_POLE_STATE",
     "POLE_NOT_FOUND",
+    "POLE_REQUIRES_VENUE",
+    "POLE_REQUIRES_COURT",
+    "VENUE_REQUIRES_COURT",
     "INVALID_VENUE_NAME",
     "INVALID_COURT_NAME",
     "INVALID_VENUE_STATE",
@@ -194,4 +197,17 @@ export async function createVenueWithCourtAction(formData: FormData) {
   });
   if (error) fail(error.message);
   finish("venue_created");
+}
+
+export async function activatePoleStackAction(formData: FormData) {
+  await requireRole(["admin"]);
+  const poleId = z.string().uuid().safeParse(formData.get("poleId"));
+  if (!poleId.success) fail("invalid_request");
+
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("admin_activate_pole_stack", {
+    p_pole_id: poleId.data,
+  });
+  if (error) fail(error.message);
+  finish("pole_activated");
 }

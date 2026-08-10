@@ -1,4 +1,4 @@
-import { DatabaseZap, Settings2 } from "lucide-react";
+import { DatabaseZap, Plus, Settings2, ShieldCheck } from "lucide-react";
 import Link from "next/link";
 import { AgendaAvailabilityHeatmap } from "@/components/admin/agenda/agenda-availability-heatmap";
 import { AgendaDemandBoard } from "@/components/admin/agenda/agenda-demand-board";
@@ -52,15 +52,29 @@ export default async function AgendaPage({
         title="Agenda e Demanda"
         description="Visão semanal das operações, disponibilidade de capacidade e sinais reais de interesse entre 06:00 e 00:00."
         action={
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center justify-end gap-2">
             <Badge>Dados reais</Badge>
             {identity.role === "admin" && (
-              <Link
-                href="/admin/agenda/configuracao"
-                className="rounded-ur flex min-h-11 items-center gap-2 border px-4 text-sm font-bold"
-              >
-                <Settings2 size={16} aria-hidden="true" /> Setup
-              </Link>
+              <>
+                <Link
+                  href="/admin/agenda/nova-oportunidade"
+                  className="bg-ur-gold text-ur-black rounded-ur flex min-h-11 items-center gap-2 px-4 text-sm font-black"
+                >
+                  <Plus size={16} aria-hidden="true" /> Nova oportunidade
+                </Link>
+                <Link
+                  href="/admin/agenda/homologacao"
+                  className="rounded-ur flex min-h-11 items-center gap-2 border px-4 text-sm font-bold"
+                >
+                  <ShieldCheck size={16} aria-hidden="true" /> Homologação
+                </Link>
+                <Link
+                  href="/admin/agenda/configuracao"
+                  className="rounded-ur flex min-h-11 items-center gap-2 border px-4 text-sm font-bold"
+                >
+                  <Settings2 size={16} aria-hidden="true" /> Setup
+                </Link>
+              </>
             )}
           </div>
         }
