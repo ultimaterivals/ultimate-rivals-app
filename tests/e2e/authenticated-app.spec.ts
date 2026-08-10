@@ -29,9 +29,13 @@ async function login(page: Page, email: string, expectedPath: RegExp) {
 }
 
 function runDisposableSql(sql: string) {
-  return execFileSync("psql", [databaseUrl, "-v", "ON_ERROR_STOP=1", "-Atc", sql], {
-    encoding: "utf8",
-  }).trim();
+  return execFileSync(
+    "psql",
+    [databaseUrl, "-v", "ON_ERROR_STOP=1", "-Atc", sql],
+    {
+      encoding: "utf8",
+    },
+  ).trim();
 }
 
 function prepareReservationFixture() {
