@@ -27,7 +27,7 @@ test("athlete opens preserved Player Hub and core destinations", async ({
   for (const destination of [
     { path: "/athlete/agenda", heading: "Agenda" },
     { path: "/athlete/ranking", heading: "Meu ranking" },
-    { path: "/athlete/season", heading: /Da primeira reserva/i },
+    { path: "/athlete/season", heading: "Sua campanha UR" },
     { path: "/athlete/perfil", heading: "Meu Perfil" },
   ]) {
     await page.goto(destination.path);
