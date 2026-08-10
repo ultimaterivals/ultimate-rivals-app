@@ -1,4 +1,4 @@
-name: Admin Athlete Mirror E2E
+name: Admin Athlete Preview E2E
 
 on:
   workflow_dispatch:
@@ -18,12 +18,11 @@ permissions:
   contents: read
 
 jobs:
-  mirror-e2e:
+  preview-e2e:
     runs-on: ubuntu-latest
     timeout-minutes: 35
     env:
       SUPABASE_INTERNAL_IMAGE_REGISTRY: ghcr.io
-      UR_TEST_PASSWORD: "LocalQaPassword123!"
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -31,6 +30,11 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
+      - name: Generate ephemeral QA password
+        run: |
+          value="$(openssl rand -hex 24)"
+          echo "::add-mask::${value}"
+          echo "UR_TEST_PASSWORD=${value}" >> "$GITHUB_ENV"
       - name: Prepare isolated Supabase
         run: |
           perl -0pi -e 's/(\[db\.seed\][\s\S]*?enabled = )true/${1}false/' supabase/config.toml
@@ -49,7 +53,6 @@ jobs:
             echo "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=${ANON_KEY}"
             echo "SUPABASE_SERVICE_ROLE_KEY=${SERVICE_ROLE_KEY}"
             echo "DATABASE_URL=${DB_URL}"
-            echo "UR_TEST_PASSWORD=${UR_TEST_PASSWORD}"
             echo "NEXT_PUBLIC_APP_URL=http://127.0.0.1:3000"
           } >> "$GITHUB_ENV"
       - name: Seed deterministic QA identities
@@ -58,13 +61,13 @@ jobs:
           psql "$DATABASE_URL" -v test_password="$UR_TEST_PASSWORD" -f scripts/qa-local-test-seed.sql
       - run: npm run build
       - run: npx playwright install --with-deps chromium
-      - name: Playwright admin mirror desktop + mobile
+      - name: Playwright admin preview desktop + mobile
         run: npx playwright test tests/e2e/admin-athlete-mirror.spec.ts --project=chromium --project=mobile
       - name: Upload Playwright report
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: admin-athlete-mirror-playwright-report
+          name: admin-athlete-preview-playwright-report
           path: playwright-report/
           if-no-files-found: warn
       - name: Stop Supabase
