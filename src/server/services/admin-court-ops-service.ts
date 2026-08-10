@@ -39,10 +39,6 @@ export async function getAdminCourtOpsSnapshot(
   const results = new Map(
     (raw.results ?? []).map((result) => [result.match_id, result]),
   );
-  const rankingRuns = new Map<
-    string,
-    typeof raw.rankingRuns extends infer T ? never : never
-  >();
   const latestRankingRun = new Map<
     string,
     NonNullable<typeof raw.rankingRuns>[number]
@@ -51,7 +47,6 @@ export async function getAdminCourtOpsSnapshot(
     if (!latestRankingRun.has(run.source_id))
       latestRankingRun.set(run.source_id, run);
   }
-  void rankingRuns;
 
   const matches: CourtOpsMatch[] = (raw.matches ?? []).map((match) => {
     const matchSides = (raw.sides ?? [])
