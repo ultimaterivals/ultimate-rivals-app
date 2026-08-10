@@ -13,7 +13,7 @@ async function login(page: Page, email: string) {
   await expect(page).not.toHaveURL(/\/login$/);
 }
 
-test("admin opens athlete mirror and keeps admin session", async ({ page }) => {
+test("admin opens athlete preview and keeps admin session", async ({ page }, testInfo) => {
   await login(page, "admin@test.ur.local");
   await page.goto("/admin/preview?q=Athlete%20A");
   await expect(page.getByText("[QA] Athlete A").first()).toBeVisible();
@@ -23,19 +23,26 @@ test("admin opens athlete mirror and keeps admin session", async ({ page }) => {
   await expect(
     page.getByRole("heading", { name: "[QA] Athlete A", exact: true }),
   ).toBeVisible();
-  await page.getByRole("link", { name: "Agenda" }).first().click();
+
+  const navigationName =
+    testInfo.project.name === "mobile"
+      ? "Navegação principal do atleta"
+      : "Navegação do atleta";
+  const navigation = page.getByRole("navigation", { name: navigationName });
+
+  await navigation.getByRole("link", { name: "Agenda", exact: true }).click();
   await expect(page).toHaveURL(/\/athlete\/agenda$/);
-  await page.getByRole("link", { name: "Ranking" }).first().click();
+  await navigation.getByRole("link", { name: "Ranking", exact: true }).click();
   await expect(page).toHaveURL(/\/athlete\/ranking$/);
-  await page.getByRole("link", { name: "Temporada" }).first().click();
+  await navigation.getByRole("link", { name: "Temporada", exact: true }).click();
   await expect(page).toHaveURL(/\/athlete\/season$/);
-  await page.getByRole("link", { name: "Perfil" }).first().click();
+  await navigation.getByRole("link", { name: "Perfil", exact: true }).click();
   await expect(page).toHaveURL(/\/athlete\/profile$/);
   await page.getByRole("button", { name: "Voltar ao Controle" }).click();
   await expect(page).toHaveURL(/\/admin$/);
 });
 
-test("athlete cannot access admin mirror selector", async ({ page }) => {
+test("athlete cannot access admin preview selector", async ({ page }) => {
   await login(page, "athlete@test.ur.local");
   await page.goto("/admin/preview");
   await expect(page).toHaveURL(/\/athlete$/);
