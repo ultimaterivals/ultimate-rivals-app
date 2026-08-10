@@ -16,7 +16,7 @@ const days = [
   [0, "Domingo"],
 ] as const;
 
-const dayNames = new Map(days);
+const dayNames = new Map<number, string>(days);
 
 const formatNames: Record<string, string> = {
   doubles: "Duplas",
