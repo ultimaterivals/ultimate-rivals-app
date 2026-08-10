@@ -1,0 +1,164 @@
+name: App V1 Isolated QA
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - integration/app-v1-command-data
+    paths:
+      - ".github/workflows/app-v1-isolated-qa.yml"
+      - "src/**"
+      - "tests/**"
+      - "supabase/migrations/**"
+      - "package.json"
+      - "package-lock.json"
+      - "playwright.config.ts"
+
+permissions:
+  contents: read
+
+jobs:
+  isolated-app-qa:
+    name: Disposable Supabase + authenticated App QA
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+
+    steps:
+      - name: Checkout full repository history
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Generate ephemeral QA password
+        run: |
+          value="$(openssl rand -hex 24)"
+          echo "::add-mask::${value}"
+          echo "UR_TEST_PASSWORD=${value}" >> "$GITHUB_ENV"
+
+      - name: Reconstruct production baseline from repository history
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p supabase/migrations scripts
+
+          restore_file() {
+            path="$1"
+            if [ -f "$path" ]; then
+              return 0
+            fi
+            commit="$(git log --all --format=%H -- "$path" | head -n 1)"
+            if [ -z "$commit" ]; then
+              echo "Missing historical source: $path" >&2
+              exit 1
+            fi
+            git show "$commit:$path" > "$path"
+          }
+
+          for path in \
+            supabase/migrations/20260806000000_season_1_v1_production_baseline.sql \
+            supabase/migrations/20260807020524_fix_public_competitions_anon_grants.sql \
+            supabase/migrations/20260808220527_athlete_identity_ranking_visuals.sql \
+            supabase/migrations/20260809000000_fix_avatar_storage_regex.sql \
+            supabase/migrations/20260810153320_secure_public_rankings_invoker.sql \
+            supabase/migrations/20260810153404_move_btree_gist_to_extensions_schema.sql \
+            supabase/migrations/20260810153846_require_explicit_demand_opportunity_modality.sql \
+            supabase/migrations/20260810153945_add_athlete_availability_windows.sql \
+            supabase/migrations/20260810154025_add_immutable_commercial_credit_ledger.sql \
+            supabase/migrations/20260810155541_sync_active_packages_to_credit_ledger.sql \
+            supabase/migrations/20260810155624_add_safe_activity_interest_rpc.sql \
+            supabase/migrations/20260810155658_add_transactional_activity_reservation_rpc.sql \
+            supabase/migrations/20260810155753_add_transactional_activity_cancellation_rpc.sql \
+            supabase/migrations/20260810161246_fix_activity_interest_domain_alignment.sql \
+            supabase/migrations/20260810161452_fix_activity_reservation_waitlist_ambiguity.sql \
+            supabase/config.toml \
+            scripts/qa-local-test-seed.sql \
+            scripts/production-reference-data.sql
+          do
+            restore_file "$path"
+          done
+
+          echo "Reconstructed migration count: $(find supabase/migrations -maxdepth 1 -name '*.sql' | wc -l)"
+
+      - name: Verify isolated Supabase CLI
+        run: npx --yes supabase@2.111.0 --version
+
+      - name: Prepare isolated Supabase config
+        run: |
+          perl -0pi -e 's/(\[db\.seed\][\s\S]*?enabled = )true/${1}false/' supabase/config.toml || true
+          perl -0pi -e 's#sql_paths = \["\./seeds/dev.sql"\]#sql_paths = []#' supabase/config.toml || true
+
+      - name: Start disposable Supabase
+        run: npx --yes supabase@2.111.0 start
+
+      - name: Replay current schema on empty database
+        run: npx --yes supabase@2.111.0 db reset --local --yes --no-seed
+
+      - name: Export disposable environment
+        shell: bash
+        run: |
+          npx --yes supabase@2.111.0 status -o env > supabase.env
+          set -a
+          . ./supabase.env
+          set +a
+          {
+            echo "NEXT_PUBLIC_SUPABASE_URL=${API_URL}"
+            echo "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=${ANON_KEY}"
+            echo "SUPABASE_SERVICE_ROLE_KEY=${SERVICE_ROLE_KEY}"
+            echo "DATABASE_URL=${DB_URL}"
+            echo "NEXT_PUBLIC_APP_URL=http://127.0.0.1:3000"
+          } >> "$GITHUB_ENV"
+
+      - name: Seed synthetic QA data only
+        run: |
+          psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f scripts/production-reference-data.sql
+          psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -v test_password="$UR_TEST_PASSWORD" -f scripts/qa-local-test-seed.sql
+
+      - name: Smoke athlete and admin authentication
+        run: |
+          node - <<'NODE'
+          const { createClient } = require('@supabase/supabase-js');
+          const client = createClient(
+            process.env.NEXT_PUBLIC_SUPABASE_URL,
+            process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY,
+            { auth: { persistSession: false, autoRefreshToken: false } },
+          );
+          (async () => {
+            for (const email of ['athlete@test.ur.local', 'admin@test.ur.local']) {
+              const { error } = await client.auth.signInWithPassword({
+                email,
+                password: process.env.UR_TEST_PASSWORD,
+              });
+              if (error) throw error;
+              await client.auth.signOut();
+            }
+            console.log('AUTHENTICATED_QA_SMOKE_PASS');
+          })().catch((error) => {
+            console.error(error);
+            process.exit(1);
+          });
+          NODE
+
+      - name: Validate integration contracts
+        run: npm run test -- src/lib/app-command-integration-contract.test.ts
+
+      - name: Build application against disposable Supabase
+        run: npm run build
+
+      - name: Install Playwright Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Run public E2E smoke
+        run: npx playwright test tests/e2e/public.spec.ts --project=chromium --project=mobile
+
+      - name: Stop disposable Supabase
+        if: always()
+        run: npx --yes supabase@2.111.0 stop --no-backup
