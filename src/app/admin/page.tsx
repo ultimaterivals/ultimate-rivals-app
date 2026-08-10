@@ -1,5 +1,6 @@
 import { ArrowUpRight, DatabaseZap } from "lucide-react";
 import Link from "next/link";
+import { CommandLaunchDesk } from "@/components/admin/command-launch-desk";
 import { CommandPilotReadiness } from "@/components/admin/command-pilot-readiness";
 import { CommandSection } from "@/components/admin/command-section";
 import {
@@ -63,6 +64,8 @@ export default async function AdminPage() {
         )}
       </div>
 
+      {pilotReadiness && <CommandLaunchDesk snapshot={pilotReadiness} />}
+
       <CommandSection
         title="O que está acontecendo"
         description="Indicadores lidos do Supabase com a sessão autenticada do usuário."
@@ -73,7 +76,7 @@ export default async function AdminPage() {
       {pilotReadiness && (
         <CommandSection
           title="Gate de implantação"
-          description="Uma leitura objetiva do que ainda impede o primeiro UR Play real de ponta a ponta."
+          description="Auditoria detalhada do que ainda impede o primeiro UR Play real de ponta a ponta."
         >
           <CommandPilotReadiness snapshot={pilotReadiness} />
         </CommandSection>
