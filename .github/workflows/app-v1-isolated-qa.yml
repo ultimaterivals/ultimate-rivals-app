@@ -155,6 +155,17 @@ jobs:
           psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f scripts/production-reference-data.sql
           psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -v test_password="$UR_TEST_PASSWORD" -f scripts/qa-local-test-seed.sql
 
+      - name: Align synthetic Auth metadata with current role routing
+        run: |
+          psql "$DATABASE_URL" -v ON_ERROR_STOP=1 <<'SQL'
+          update auth.users as u
+          set raw_app_meta_data = coalesce(u.raw_app_meta_data, '{}'::jsonb)
+            || jsonb_build_object('role', p.role::text)
+          from public.profiles as p
+          where p.id = u.id
+            and u.email like '%@test.ur.local';
+          SQL
+
       - name: Smoke athlete and admin authentication
         run: |
           node - <<'NODE'
@@ -166,11 +177,13 @@ jobs:
           );
           (async () => {
             for (const email of ['athlete@test.ur.local', 'admin@test.ur.local']) {
-              const { error } = await client.auth.signInWithPassword({
+              const { data, error } = await client.auth.signInWithPassword({
                 email,
                 password: process.env.UR_TEST_PASSWORD,
               });
               if (error) throw error;
+              const role = data.user?.app_metadata?.role;
+              if (!role) throw new Error(`Missing app role for ${email}`);
               await client.auth.signOut();
             }
             console.log('AUTHENTICATED_QA_SMOKE_PASS');
