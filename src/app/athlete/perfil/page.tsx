@@ -1,12 +1,12 @@
 import { Coins, CreditCard, MapPin, Shield, UserRound } from "lucide-react";
 import { AthleteSourceHealth } from "@/components/athlete/athlete-source-health";
 import { Badge, Card, PageHeader } from "@/components/ui";
-import { requireRole } from "@/lib/auth/session";
-import { getAthletePortalSnapshot } from "@/server/services/athlete-portal-service";
+import { requireAthleteViewer } from "@/lib/auth/athlete-viewer";
+import { getAthleteSnapshotForViewer } from "@/server/services/athlete-viewer-snapshot-service";
 
 export default async function AthleteProfilePage() {
-  const user = await requireRole(["athlete"]);
-  const snapshot = await getAthletePortalSnapshot({ userId: user.userId });
+  const viewer = await requireAthleteViewer();
+  const snapshot = await getAthleteSnapshotForViewer(viewer);
   const athlete = snapshot.identity;
 
   return (
@@ -121,9 +121,7 @@ export default async function AthleteProfilePage() {
                         <p className="text-xs text-zinc-600">{item.code}</p>
                       </div>
                       <p className="font-display text-xl font-black">
-                        {item.unitsRemaining === null
-                          ? "—"
-                          : item.unitsRemaining}
+                        {item.unitsRemaining === null ? "—" : item.unitsRemaining}
                       </p>
                     </div>
                   ))
