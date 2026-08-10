@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { getAdminAthleteWavesSnapshot } from "@/server/services/admin-athlete-waves-service";
 import { getAdminCourtOpsSnapshot } from "@/server/services/admin-court-ops-service";
 import { getAdminPolesInfrastructureSnapshot } from "@/server/services/admin-poles-infrastructure-service";
+import { getAdminQuarterSeasonSnapshot } from "@/server/services/admin-quarter-season-service";
 import { getAdminPilotReadinessSnapshot } from "./admin-pilot-readiness-service";
 
 vi.mock("@/server/services/admin-athlete-waves-service", () => ({
@@ -13,10 +14,14 @@ vi.mock("@/server/services/admin-court-ops-service", () => ({
 vi.mock("@/server/services/admin-poles-infrastructure-service", () => ({
   getAdminPolesInfrastructureSnapshot: vi.fn(),
 }));
+vi.mock("@/server/services/admin-quarter-season-service", () => ({
+  getAdminQuarterSeasonSnapshot: vi.fn(),
+}));
 
 const wavesMock = vi.mocked(getAdminAthleteWavesSnapshot);
 const courtOpsMock = vi.mocked(getAdminCourtOpsSnapshot);
 const infrastructureMock = vi.mocked(getAdminPolesInfrastructureSnapshot);
+const quarterSeasonMock = vi.mocked(getAdminQuarterSeasonSnapshot);
 
 const emptyMetrics = {
   sessionsInProgress: 0,
@@ -27,14 +32,59 @@ const emptyMetrics = {
   completed: 0,
 };
 
+const readyWeek = {
+  id: "week-1",
+  seasonId: "season-1",
+  weekNumber: 1,
+  name: "Entre no jogo",
+  phase: "Entrada e descoberta",
+  objective: "Ativar a entrada.",
+  primaryProduct: "UR Play",
+  startsAt: "2026-08-10T03:00:00.000Z",
+  endsAt: "2026-08-17T03:00:00.000Z",
+  status: "active",
+};
+
+const readySeason = {
+  id: "season-1",
+  name: "Temporada Piloto",
+  code: "temporada-piloto",
+  startsAt: "2026-08-10T03:00:00.000Z",
+  endsAt: "2026-11-09T03:00:00.000Z",
+  status: "active",
+  weeks: [readyWeek, ...Array.from({ length: 12 }, (_, index) => ({
+    ...readyWeek,
+    id: `week-${index + 2}`,
+    weekNumber: index + 2,
+    name: `Semana ${index + 2}`,
+  }))],
+  compatibilityCycles: Array.from({ length: 3 }, (_, index) => ({
+    id: `cycle-${index + 1}`,
+    seasonId: "season-1",
+    cycleNumber: index + 1,
+    name: `Macro ${index + 1}`,
+    startsAt: "2026-08-10T03:00:00.000Z",
+    endsAt: "2026-11-09T03:00:00.000Z",
+    status: "active",
+  })),
+  currentWeek: readyWeek,
+  structureReady: true,
+};
+
 describe("admin pilot readiness service", () => {
   beforeEach(() => {
     wavesMock.mockReset();
     courtOpsMock.mockReset();
     infrastructureMock.mockReset();
+    quarterSeasonMock.mockReset();
   });
 
-  it("keeps NO-GO when there is no wave, infrastructure or session", async () => {
+  it("keeps NO-GO when there is no season, wave, infrastructure or session", async () => {
+    quarterSeasonMock.mockResolvedValue({
+      seasons: [],
+      currentSeason: null,
+      sourceErrors: [],
+    });
     wavesMock.mockResolvedValue({
       generatedAt: "2026-08-10T21:00:00.000Z",
       waves: [],
@@ -85,13 +135,18 @@ describe("admin pilot readiness service", () => {
     );
     expect(snapshot.status).toBe("no_go");
     expect(snapshot.readyGates).toBe(2);
-    expect(snapshot.nextAction?.key).toBe("wave");
+    expect(snapshot.nextAction?.key).toBe("season");
     expect(snapshot.gates.find((item) => item.key === "engine")?.state).toBe(
       "ready",
     );
   });
 
   it("reaches GO only when every real gate is ready", async () => {
+    quarterSeasonMock.mockResolvedValue({
+      seasons: [readySeason],
+      currentSeason: readySeason,
+      sourceErrors: [],
+    });
     wavesMock.mockResolvedValue({
       generatedAt: "2026-08-10T21:00:00.000Z",
       waves: [
