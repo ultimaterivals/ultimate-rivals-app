@@ -1,22 +1,18 @@
+import { execFileSync } from "node:child_process";
+
 import { expect, test, type Page } from "@playwright/test";
-import { createClient } from "@supabase/supabase-js";
 
 const password = process.env.UR_TEST_PASSWORD ?? "";
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "";
-const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY ?? "";
+const databaseUrl = process.env.DATABASE_URL ?? "";
 
 if (!password) {
   throw new Error("UR_TEST_PASSWORD is required for authenticated E2E tests.");
 }
-if (!supabaseUrl || !serviceRoleKey) {
+if (!databaseUrl) {
   throw new Error(
-    "Disposable Supabase admin credentials are required for authenticated E2E tests.",
+    "Disposable DATABASE_URL is required for authenticated E2E tests.",
   );
 }
-
-const qaAdmin = createClient(supabaseUrl, serviceRoleKey, {
-  auth: { persistSession: false, autoRefreshToken: false },
-});
 
 const athleteA = "b0000000-0000-4000-8000-000000000001";
 const reservationOpportunity = "61000000-0000-4000-8000-000000000002";
@@ -32,58 +28,78 @@ async function login(page: Page, email: string, expectedPath: RegExp) {
   await expect(page).toHaveURL(expectedPath, { timeout: 30_000 });
 }
 
-async function prepareReservationFixture() {
-  const { error: opportunityError } = await qaAdmin
-    .from("demand_opportunities")
-    .update({ status: "forming" })
-    .eq("id", reservationOpportunity);
-  if (opportunityError) throw opportunityError;
-
-  const { error: packageError } = await qaAdmin.from("packages").upsert({
-    id: qaPackageId,
-    code: "qa-app-reservation-credit",
-    name: "[QA] App reservation credits",
-    included_units: 3,
-    currency: "BRL",
-    list_amount: 0,
-    active: true,
-    benefits: [],
-  });
-  if (packageError) throw packageError;
-
-  const { error: athletePackageError } = await qaAdmin
-    .from("athlete_commercial_packages")
-    .upsert({
-      id: qaAthletePackageId,
-      athlete_id: athleteA,
-      package_id: qaPackageId,
-      season_id: "10000000-0000-4000-8000-000000000001",
-      status: "active",
-      units_total: 3,
-      units_used: 0,
-      starts_at: new Date(Date.now() - 60_000).toISOString(),
-      created_by: "a0000000-0000-4000-8000-000000000001",
-    });
-  if (athletePackageError) throw athletePackageError;
+function runDisposableSql(sql: string) {
+  return execFileSync("psql", [databaseUrl, "-v", "ON_ERROR_STOP=1", "-Atc", sql], {
+    encoding: "utf8",
+  }).trim();
 }
 
-async function creditTotals() {
-  const { data, error } = await qaAdmin
-    .from("commercial_credit_ledger")
-    .select("available_delta,reserved_delta,consumed_delta,event_type")
-    .eq("athlete_id", athleteA)
-    .eq("athlete_package_id", qaAthletePackageId);
-  if (error) throw error;
+function prepareReservationFixture() {
+  runDisposableSql(`
+    update public.demand_opportunities
+    set status = 'forming', updated_at = now()
+    where id = '${reservationOpportunity}'::uuid;
 
-  return (data ?? []).reduce(
-    (totals, entry) => ({
-      available: totals.available + Number(entry.available_delta ?? 0),
-      reserved: totals.reserved + Number(entry.reserved_delta ?? 0),
-      consumed: totals.consumed + Number(entry.consumed_delta ?? 0),
-      events: [...totals.events, entry.event_type],
-    }),
-    { available: 0, reserved: 0, consumed: 0, events: [] as string[] },
-  );
+    insert into public.packages (
+      id, code, name, included_units, currency, list_amount, active, benefits
+    ) values (
+      '${qaPackageId}'::uuid,
+      'qa-app-reservation-credit',
+      '[QA] App reservation credits',
+      3,
+      'BRL',
+      0,
+      true,
+      '[]'::jsonb
+    )
+    on conflict (id) do update set
+      included_units = excluded.included_units,
+      active = excluded.active;
+
+    insert into public.athlete_commercial_packages (
+      id,
+      athlete_id,
+      package_id,
+      season_id,
+      status,
+      units_total,
+      units_used,
+      starts_at,
+      created_by
+    ) values (
+      '${qaAthletePackageId}'::uuid,
+      '${athleteA}'::uuid,
+      '${qaPackageId}'::uuid,
+      '10000000-0000-4000-8000-000000000001'::uuid,
+      'active',
+      3,
+      0,
+      now() - interval '1 minute',
+      'a0000000-0000-4000-8000-000000000001'::uuid
+    )
+    on conflict (id) do nothing;
+  `);
+}
+
+function creditTotals() {
+  const output = runDisposableSql(`
+    select
+      coalesce(sum(available_delta), 0)::integer || '|' ||
+      coalesce(sum(reserved_delta), 0)::integer || '|' ||
+      coalesce(sum(consumed_delta), 0)::integer || '|' ||
+      coalesce(string_agg(event_type, ',' order by occurred_at), '')
+    from public.commercial_credit_ledger
+    where athlete_id = '${athleteA}'::uuid
+      and athlete_package_id = '${qaAthletePackageId}'::uuid;
+  `);
+  const [available, reserved, consumed, events = ""] = output.split("|");
+
+  return {
+    available: Number(available),
+    reserved: Number(reserved),
+    consumed: Number(consumed),
+    events: events ? events.split(",") : [],
+  };
 }
 
 test("athlete opens preserved Player Hub and core destinations", async ({
@@ -141,9 +157,9 @@ test("athlete interest is reflected back into Command demand", async ({
 test("athlete reservation holds credit, Command reflects it, and cancellation releases credit", async ({
   page,
 }) => {
-  await prepareReservationFixture();
+  prepareReservationFixture();
 
-  await expect.poll(async () => (await creditTotals()).available).toBe(3);
+  await expect.poll(() => creditTotals().available).toBe(3);
 
   await login(page, "athlete@test.ur.local", /\/athlete/);
   await page.goto("/athlete/agenda");
@@ -156,9 +172,9 @@ test("athlete reservation holds credit, Command reflects it, and cancellation re
     timeout: 20_000,
   });
 
-  await expect.poll(async () => (await creditTotals()).available).toBe(2);
-  await expect.poll(async () => (await creditTotals()).reserved).toBe(1);
-  expect((await creditTotals()).events).toContain("hold");
+  await expect.poll(() => creditTotals().available).toBe(2);
+  await expect.poll(() => creditTotals().reserved).toBe(1);
+  expect(creditTotals().events).toContain("hold");
 
   await login(page, "admin@test.ur.local", /\/admin/);
   await page.goto("/admin/agenda");
@@ -177,9 +193,9 @@ test("athlete reservation holds credit, Command reflects it, and cancellation re
     reservedOpportunity.getByRole("button", { name: "Reservar vaga" }),
   ).toBeVisible({ timeout: 20_000 });
 
-  await expect.poll(async () => (await creditTotals()).available).toBe(3);
-  await expect.poll(async () => (await creditTotals()).reserved).toBe(0);
-  expect((await creditTotals()).events).toContain("release");
+  await expect.poll(() => creditTotals().available).toBe(3);
+  await expect.poll(() => creditTotals().reserved).toBe(0);
+  expect(creditTotals().events).toContain("release");
 
   await login(page, "admin@test.ur.local", /\/admin/);
   await page.goto("/admin/agenda");
