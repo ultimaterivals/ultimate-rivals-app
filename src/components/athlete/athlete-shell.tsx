@@ -22,7 +22,12 @@ import { cn } from "@/lib/utils";
 
 const primary = [
   { href: "/athlete", label: "Início", icon: House, exact: true },
-  { href: "/athlete/agenda", label: "Agenda", icon: CalendarDays, exact: false },
+  {
+    href: "/athlete/agenda",
+    label: "Agenda",
+    icon: CalendarDays,
+    exact: false,
+  },
   {
     href: "/athlete/disponibilidade",
     label: "Disponibilidade",
