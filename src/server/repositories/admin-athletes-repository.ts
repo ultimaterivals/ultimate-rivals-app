@@ -59,36 +59,42 @@ function addError(errors: string[], source: string, message: string) {
 export async function fetchAdminAthletesRepositoryData(): Promise<AdminAthletesRepositoryData> {
   const supabase = await createClient();
   const errors: string[] = [];
-  const [athletesResult, engagementResult, reportResult, membershipResult, teamsResult, polesResult] =
-    await Promise.all([
-      supabase
-        .from("athletes")
-        .select("id,public_name,athlete_code,status,primary_pole_id")
-        .is("archived_at", null)
-        .order("public_name", { ascending: true })
-        .limit(2000),
-      supabase
-        .from("admin_athlete_engagement")
-        .select(
-          "athlete_id,source,first_participation_at,second_participation_at,last_participation_at,participations_30d,active_30d,returning_athlete,days_since_last_participation",
-        )
-        .limit(2000),
-      supabase
-        .from("athlete_report_summary")
-        .select("athlete_id,level,ur_coin_balance,games")
-        .limit(2000),
-      supabase
-        .from("team_memberships")
-        .select("athlete_id,team_id")
-        .eq("status", "active")
-        .limit(5000),
-      supabase
-        .from("teams")
-        .select("id,name")
-        .neq("status", "archived")
-        .limit(1000),
-      supabase.from("poles").select("id,name").order("name", { ascending: true }),
-    ]);
+  const [
+    athletesResult,
+    engagementResult,
+    reportResult,
+    membershipResult,
+    teamsResult,
+    polesResult,
+  ] = await Promise.all([
+    supabase
+      .from("athletes")
+      .select("id,public_name,athlete_code,status,primary_pole_id")
+      .is("archived_at", null)
+      .order("public_name", { ascending: true })
+      .limit(2000),
+    supabase
+      .from("admin_athlete_engagement")
+      .select(
+        "athlete_id,source,first_participation_at,second_participation_at,last_participation_at,participations_30d,active_30d,returning_athlete,days_since_last_participation",
+      )
+      .limit(2000),
+    supabase
+      .from("athlete_report_summary")
+      .select("athlete_id,level,ur_coin_balance,games")
+      .limit(2000),
+    supabase
+      .from("team_memberships")
+      .select("athlete_id,team_id")
+      .eq("status", "active")
+      .limit(5000),
+    supabase
+      .from("teams")
+      .select("id,name")
+      .neq("status", "archived")
+      .limit(1000),
+    supabase.from("poles").select("id,name").order("name", { ascending: true }),
+  ]);
 
   const results = [
     ["athletes", athletesResult.error],

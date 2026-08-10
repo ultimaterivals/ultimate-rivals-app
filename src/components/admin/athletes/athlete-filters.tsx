@@ -1,12 +1,23 @@
 import type { AdminAthletesSnapshot } from "@/features/admin-athletes/types";
 import { Button, Input, Select } from "@/components/ui";
 
-export function AthleteFilters({ snapshot }: { snapshot: AdminAthletesSnapshot }) {
+export function AthleteFilters({
+  snapshot,
+}: {
+  snapshot: AdminAthletesSnapshot;
+}) {
   return (
-    <form method="get" className="grid gap-3 rounded-ur border bg-ur-panel p-4 md:grid-cols-[1fr_auto_auto_auto] md:items-end">
+    <form
+      method="get"
+      className="rounded-ur bg-ur-panel grid gap-3 border p-4 md:grid-cols-[1fr_auto_auto_auto] md:items-end"
+    >
       <label className="grid gap-1.5 text-xs font-bold text-zinc-500 uppercase">
         Buscar atleta
-        <Input name="q" defaultValue={snapshot.query.search} placeholder="Nome, código ou equipe" />
+        <Input
+          name="q"
+          defaultValue={snapshot.query.search}
+          placeholder="Nome, código ou equipe"
+        />
       </label>
       <label className="grid gap-1.5 text-xs font-bold text-zinc-500 uppercase">
         Segmento
@@ -23,7 +34,11 @@ export function AthleteFilters({ snapshot }: { snapshot: AdminAthletesSnapshot }
         Polo
         <Select name="pole" defaultValue={snapshot.query.poleId ?? "all"}>
           <option value="all">Todos os polos</option>
-          {snapshot.poles.map((pole) => <option key={pole.id} value={pole.id}>{pole.name}</option>)}
+          {snapshot.poles.map((pole) => (
+            <option key={pole.id} value={pole.id}>
+              {pole.name}
+            </option>
+          ))}
         </Select>
       </label>
       <Button type="submit">Aplicar</Button>

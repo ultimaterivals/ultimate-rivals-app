@@ -5,6 +5,7 @@
 A listagem usa `athletes` como base oficial, mesmo quando o atleta ainda não gerou eventos de aquisição/engajamento. A view `admin_athlete_engagement` complementa o ciclo de vida.
 
 Segmentos iniciais:
+
 - ativos 30d;
 - somente primeira participação;
 - em risco entre 14 e 30 dias sem participação;

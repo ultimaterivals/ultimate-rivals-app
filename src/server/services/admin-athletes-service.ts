@@ -34,7 +34,8 @@ function segmentMatches(row: AdminAthleteRow, segment: AdminAthleteSegment) {
     );
   if (segment === "inactive")
     return (
-      row.daysSinceLastParticipation !== null && row.daysSinceLastParticipation > 30
+      row.daysSinceLastParticipation !== null &&
+      row.daysSinceLastParticipation > 30
     );
   if (segment === "free-agents") return row.teamNames.length === 0;
   return true;
@@ -62,8 +63,12 @@ export async function getAdminAthletesSnapshot({
   const reportByAthlete = new Map(
     (raw.reports ?? []).map((item) => [item.athlete_id, item]),
   );
-  const poleNames = new Map((raw.poles ?? []).map((pole) => [pole.id, pole.name]));
-  const teamNames = new Map((raw.teams ?? []).map((team) => [team.id, team.name]));
+  const poleNames = new Map(
+    (raw.poles ?? []).map((pole) => [pole.id, pole.name]),
+  );
+  const teamNames = new Map(
+    (raw.teams ?? []).map((team) => [team.id, team.name]),
+  );
   const teamsByAthlete = new Map<string, string[]>();
   for (const membership of raw.memberships ?? []) {
     const name = teamNames.get(membership.team_id);
@@ -92,7 +97,8 @@ export async function getAdminAthletesSnapshot({
       firstParticipationAt: engagement?.first_participation_at ?? null,
       secondParticipationAt: engagement?.second_participation_at ?? null,
       lastParticipationAt: engagement?.last_participation_at ?? null,
-      daysSinceLastParticipation: engagement?.days_since_last_participation ?? null,
+      daysSinceLastParticipation:
+        engagement?.days_since_last_participation ?? null,
       returningAthlete: engagement?.returning_athlete ?? false,
       games: report?.games ?? 0,
       urCoinBalance: report?.ur_coin_balance ?? 0,
@@ -105,9 +111,9 @@ export async function getAdminAthletesSnapshot({
     if (poleId && row.poleId !== poleId) return false;
     if (!segmentMatches(row, safeSegment)) return false;
     if (!searchTerm) return true;
-    return normalize(`${row.publicName} ${row.athleteCode} ${row.teamNames.join(" ")}`).includes(
-      searchTerm,
-    );
+    return normalize(
+      `${row.publicName} ${row.athleteCode} ${row.teamNames.join(" ")}`,
+    ).includes(searchTerm);
   });
 
   return {
