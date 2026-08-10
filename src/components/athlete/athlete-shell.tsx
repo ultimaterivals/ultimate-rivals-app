@@ -17,6 +17,7 @@ import {
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { ReactNode } from "react";
+import { stopAthletePreviewAction } from "@/features/admin-athlete-preview/actions";
 import { BrandMark } from "@/components/layout/brand-mark";
 import { cn } from "@/lib/utils";
 
@@ -161,9 +162,11 @@ function MobileNavigation() {
 
 export function AthleteShell({
   userLabel,
+  preview,
   children,
 }: {
   userLabel: string;
+  preview?: { publicName: string; athleteCode: string } | null;
   children: ReactNode;
 }) {
   return (
@@ -179,18 +182,35 @@ export function AthleteShell({
           <DesktopNavigation />
         </div>
         <div className="border-t p-4">
-          <p className="truncate text-sm font-bold text-zinc-300">
-            {userLabel}
-          </p>
-          <form action="/auth/signout" method="post">
-            <button className="rounded-ur mt-3 flex min-h-11 w-full items-center gap-2 px-3 text-sm text-zinc-400 transition-colors hover:bg-white/5 hover:text-white">
-              <LogOut size={16} aria-hidden="true" />
-              Sair
-            </button>
-          </form>
+          <p className="truncate text-sm font-bold text-zinc-300">{userLabel}</p>
+          {!preview && (
+            <form action="/auth/signout" method="post">
+              <button className="rounded-ur mt-3 flex min-h-11 w-full items-center gap-2 px-3 text-sm text-zinc-400 transition-colors hover:bg-white/5 hover:text-white">
+                <LogOut size={16} aria-hidden="true" />
+                Sair
+              </button>
+            </form>
+          )}
         </div>
       </aside>
       <div className="min-w-0">
+        {preview && (
+          <div className="border-ur-gold/40 bg-ur-gold/10 sticky top-0 z-50 flex flex-wrap items-center justify-between gap-3 border-b px-4 py-3 backdrop-blur sm:px-8 lg:px-10">
+            <div>
+              <p className="text-ur-gold text-[.65rem] font-black tracking-[.2em] uppercase">
+                Prévia do Atleta · somente leitura
+              </p>
+              <p className="text-sm font-black">
+                {preview.publicName} · {preview.athleteCode}
+              </p>
+            </div>
+            <form action={stopAthletePreviewAction}>
+              <button className="bg-ur-gold text-ur-black rounded-ur min-h-10 px-4 text-xs font-black uppercase">
+                Voltar ao Command
+              </button>
+            </form>
+          </div>
+        )}
         <header className="sticky top-0 z-30 flex min-h-16 items-center justify-between border-b border-zinc-900 bg-[#080808]/95 px-4 backdrop-blur sm:px-8 lg:px-10">
           <div className="min-w-0 lg:hidden">
             <BrandMark />
@@ -202,7 +222,13 @@ export function AthleteShell({
             </p>
           </div>
         </header>
-        <main className="min-w-0 p-4 pb-24 sm:p-8 sm:pb-24 lg:p-10">
+        <main
+          className={cn(
+            "min-w-0 p-4 pb-24 sm:p-8 sm:pb-24 lg:p-10",
+            preview &&
+              "[&_button]:pointer-events-none [&_button]:opacity-60 [&_form]:pointer-events-none [&_form]:opacity-75 [&_input]:pointer-events-none [&_select]:pointer-events-none [&_textarea]:pointer-events-none",
+          )}
+        >
           {children}
         </main>
       </div>
