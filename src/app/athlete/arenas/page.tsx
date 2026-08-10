@@ -1,13 +1,17 @@
 import { CalendarDays, Camera, ImageIcon, MapPin, Sparkles } from "lucide-react";
 import Link from "next/link";
 import { Badge, Card, EmptyState, PageHeader } from "@/components/ui";
-import { requireRole } from "@/lib/auth/session";
+import { requireAthleteViewer } from "@/lib/auth/athlete-viewer";
 import { createClient } from "@/lib/supabase/server";
 import { getAthleteDashboard } from "@/server/services/athlete-experience.service";
 
 export default async function AthleteArenasPage() {
-  const identity = await requireRole("athlete");
-  const data = await getAthleteDashboard(await createClient(), identity.userId);
+  const viewer = await requireAthleteViewer();
+  const data = await getAthleteDashboard(
+    await createClient(),
+    viewer.isMirror ? viewer.athleteId : viewer.identity.userId,
+    viewer.isMirror ? "athlete" : "profile",
+  );
 
   const next = data?.nextRegistration?.session ?? null;
   const pole = data?.pole ?? null;
