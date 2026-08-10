@@ -37,6 +37,7 @@ export type AdminModuleKey =
   | "urPlay"
   | "competitions"
   | "finance"
+  | "market"
   | "ecosystem"
   | "commercial"
   | "intelligence";
@@ -127,6 +128,15 @@ export const adminModules: readonly AdminModuleDefinition[] = [
     group: "Negócio",
     allowedRoles: ["admin"],
     icon: "finance",
+  },
+  {
+    key: "market",
+    label: "UR Market",
+    href: "/admin/market",
+    description: "Ofertas, resgates URC e entrega operacional de benefícios.",
+    group: "Negócio",
+    allowedRoles: ["admin"],
+    icon: "ecosystem",
   },
   {
     key: "commercial",
