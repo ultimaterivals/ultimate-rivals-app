@@ -36,7 +36,8 @@ export async function fetchAdminAthleteHomologationData() {
       .order("name", { ascending: true }),
   ]);
 
-  if (athletesResult.error) errors.push(`athletes: ${athletesResult.error.message}`);
+  if (athletesResult.error)
+    errors.push(`athletes: ${athletesResult.error.message}`);
   if (polesResult.error) errors.push(`poles: ${polesResult.error.message}`);
 
   return {

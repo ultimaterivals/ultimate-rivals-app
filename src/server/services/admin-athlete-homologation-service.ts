@@ -10,7 +10,9 @@ export type AthleteActivationBlocker = {
 };
 
 function dateOnly(value: Date) {
-  return new Date(Date.UTC(value.getUTCFullYear(), value.getUTCMonth(), value.getUTCDate()));
+  return new Date(
+    Date.UTC(value.getUTCFullYear(), value.getUTCMonth(), value.getUTCDate()),
+  );
 }
 
 function birthDate(value: string) {
@@ -32,10 +34,16 @@ export function buildAthleteActivationBlockers(
     });
   }
   if (!athlete.full_name.trim()) {
-    blockers.push({ code: "FULL_NAME_REQUIRED", detail: "Nome completo é obrigatório." });
+    blockers.push({
+      code: "FULL_NAME_REQUIRED",
+      detail: "Nome completo é obrigatório.",
+    });
   }
   if (!athlete.public_name.trim()) {
-    blockers.push({ code: "PUBLIC_NAME_REQUIRED", detail: "Nome público é obrigatório." });
+    blockers.push({
+      code: "PUBLIC_NAME_REQUIRED",
+      detail: "Nome público é obrigatório.",
+    });
   }
   if (!athlete.birth_date) {
     blockers.push({
@@ -81,11 +89,15 @@ export function buildAthleteActivationBlockers(
     });
   }
   if (!athlete.primary_pole_id) {
-    blockers.push({ code: "POLE_REQUIRED", detail: "Polo principal é obrigatório." });
+    blockers.push({
+      code: "POLE_REQUIRED",
+      detail: "Polo principal é obrigatório.",
+    });
   } else if (!pole || pole.status !== "active") {
     blockers.push({
       code: "POLE_NOT_ACTIVE",
-      detail: "O polo principal precisa estar homologado/ativo antes da ativação do atleta.",
+      detail:
+        "O polo principal precisa estar homologado/ativo antes da ativação do atleta.",
     });
   }
   return blockers;

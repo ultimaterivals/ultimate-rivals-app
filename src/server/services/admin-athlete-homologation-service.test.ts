@@ -29,7 +29,9 @@ const today = new Date("2026-08-10T12:00:00Z");
 
 describe("buildAthleteActivationBlockers", () => {
   it("allows an adult draft athlete with valid contacts and active pole", () => {
-    expect(buildAthleteActivationBlockers(athlete, activePole, today)).toEqual([]);
+    expect(buildAthleteActivationBlockers(athlete, activePole, today)).toEqual(
+      [],
+    );
   });
 
   it("blocks a draft pole", () => {

@@ -31,8 +31,7 @@ const resultMessages: Record<string, string> = {
 function statusClass(status: string, ready: boolean) {
   if (status === "active")
     return "border-emerald-500/30 bg-emerald-500/10 text-emerald-300";
-  if (ready)
-    return "border-ur-gold/30 bg-ur-gold/10 text-ur-gold";
+  if (ready) return "border-ur-gold/30 bg-ur-gold/10 text-ur-gold";
   return "border-amber-500/30 bg-amber-500/10 text-amber-200";
 }
 
@@ -50,7 +49,10 @@ export default async function AthleteHomologationPage({
   const rows = snapshot.rows.filter((row) => {
     if (filter === "draft" && row.status !== "draft") return false;
     if (filter === "ready" && !row.readyToActivate) return false;
-    if (filter === "blocked" && !(row.status === "draft" && !row.readyToActivate))
+    if (
+      filter === "blocked" &&
+      !(row.status === "draft" && !row.readyToActivate)
+    )
       return false;
     if (filter === "active" && row.status !== "active") return false;
     if (!query) return true;
@@ -76,7 +78,11 @@ export default async function AthleteHomologationPage({
       />
 
       {result && resultMessages[result] && (
-        <Card className={result === "activated" ? "border-ur-gold/30" : "border-red-500/30"}>
+        <Card
+          className={
+            result === "activated" ? "border-ur-gold/30" : "border-red-500/30"
+          }
+        >
           <p className="text-sm text-zinc-300">{resultMessages[result]}</p>
         </Card>
       )}
@@ -85,7 +91,9 @@ export default async function AthleteHomologationPage({
         {metrics.map(([label, value, Icon]) => (
           <Card key={label}>
             <div className="flex items-center justify-between gap-2">
-              <p className="text-xs font-bold text-zinc-500 uppercase">{label}</p>
+              <p className="text-xs font-bold text-zinc-500 uppercase">
+                {label}
+              </p>
               <Icon className="text-ur-gold" size={16} aria-hidden="true" />
             </div>
             <p className="font-display mt-3 text-2xl font-black">{value}</p>
@@ -103,8 +111,9 @@ export default async function AthleteHomologationPage({
             </p>
             {snapshot.metrics.activePoles === 0 && (
               <p className="mt-2 text-sm text-amber-200">
-                Nenhum atleta pode ser ativado enquanto seu polo principal não estiver
-                homologado. Os cadastros draft continuam preservados normalmente.
+                Nenhum atleta pode ser ativado enquanto seu polo principal não
+                estiver homologado. Os cadastros draft continuam preservados
+                normalmente.
               </p>
             )}
           </div>
@@ -117,7 +126,10 @@ export default async function AthleteHomologationPage({
         </div>
       </Card>
 
-      <form className="rounded-ur flex flex-wrap gap-2 border p-3" role="search">
+      <form
+        className="rounded-ur flex flex-wrap gap-2 border p-3"
+        role="search"
+      >
         <input
           name="q"
           defaultValue={single(params.q) ?? ""}
@@ -163,7 +175,8 @@ export default async function AthleteHomologationPage({
                   )}
                 </div>
                 <p className="mt-1 text-xs text-zinc-500">
-                  {row.athleteCode} · {row.fullName} · {row.poleName ?? "sem polo"}
+                  {row.athleteCode} · {row.fullName} ·{" "}
+                  {row.poleName ?? "sem polo"}
                   {row.poleStatus ? ` (${row.poleStatus})` : ""}
                 </p>
                 <p className="mt-2 text-sm text-zinc-400">
