@@ -15,29 +15,34 @@ export async function fetchAdminUrPlayPreflightRepositoryData(
   }
 
   const supabase = await createClient();
-  const [checksResult, registrationsResult, checkinsResult, staffResult, scopesResult] =
-    await Promise.all([
-      supabase
-        .from("ur_play_session_preflight_checks")
-        .select("session_id,check_key,is_checked,note,updated_at")
-        .in("session_id", sessionIds),
-      supabase
-        .from("ur_play_registrations")
-        .select("session_id,registration_status")
-        .in("session_id", sessionIds),
-      supabase
-        .from("ur_play_checkins")
-        .select("session_id,status")
-        .in("session_id", sessionIds),
-      supabase
-        .from("ur_play_session_staff")
-        .select("session_id,role,status,starts_at,ends_at")
-        .in("session_id", sessionIds),
-      supabase
-        .from("ur_play_session_scopes")
-        .select("session_id,format_id")
-        .in("session_id", sessionIds),
-    ]);
+  const [
+    checksResult,
+    registrationsResult,
+    checkinsResult,
+    staffResult,
+    scopesResult,
+  ] = await Promise.all([
+    supabase
+      .from("ur_play_session_preflight_checks")
+      .select("session_id,check_key,is_checked,note,updated_at")
+      .in("session_id", sessionIds),
+    supabase
+      .from("ur_play_registrations")
+      .select("session_id,registration_status")
+      .in("session_id", sessionIds),
+    supabase
+      .from("ur_play_checkins")
+      .select("session_id,status")
+      .in("session_id", sessionIds),
+    supabase
+      .from("ur_play_session_staff")
+      .select("session_id,role,status,starts_at,ends_at")
+      .in("session_id", sessionIds),
+    supabase
+      .from("ur_play_session_scopes")
+      .select("session_id,format_id")
+      .in("session_id", sessionIds),
+  ]);
 
   const errors: string[] = [];
   for (const [source, error] of [

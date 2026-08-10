@@ -142,10 +142,13 @@ export async function getAdminUrPlayPreflightSnapshot(
         checkin.session_id === session.id && checkin.status === "active",
     ).length;
     const staffAssigned = raw.staff.filter((staff) => {
-      if (staff.session_id !== session.id || staff.status !== "active") return false;
+      if (staff.session_id !== session.id || staff.status !== "active")
+        return false;
       const startsAt = new Date(staff.starts_at).getTime();
       const endsAt = staff.ends_at ? new Date(staff.ends_at).getTime() : null;
-      return startsAt <= now.getTime() && (endsAt === null || endsAt > now.getTime());
+      return (
+        startsAt <= now.getTime() && (endsAt === null || endsAt > now.getTime())
+      );
     }).length;
     const sessionFormatCodes = [
       ...new Set(
@@ -186,8 +189,7 @@ export async function getAdminUrPlayPreflightSnapshot(
       {
         key: "participants" as const,
         label: "Grupo mínimo confirmado",
-        ready:
-          minimumAthletes > 0 && confirmedRegistrations >= minimumAthletes,
+        ready: minimumAthletes > 0 && confirmedRegistrations >= minimumAthletes,
         detail:
           minimumAthletes > 0
             ? `${confirmedRegistrations}/${minimumAthletes} atletas confirmados para formar ao menos um confronto completo.`

@@ -85,9 +85,9 @@ describe("admin UR Play preflight service", () => {
 
     expect(snapshot.currentSession?.minimumAthletes).toBe(4);
     expect(snapshot.currentSession?.criticalReady).toBe(6);
-    expect(snapshot.currentSession?.automaticGates.every((gate) => gate.ready)).toBe(
-      true,
-    );
+    expect(
+      snapshot.currentSession?.automaticGates.every((gate) => gate.ready),
+    ).toBe(true);
     expect(snapshot.currentSession?.ready).toBe(true);
   });
 
