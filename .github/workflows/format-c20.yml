@@ -1,0 +1,26 @@
+name: Format C20
+on:
+  push:
+    branches: [sprint-c20-athlete-homologation]
+permissions:
+  contents: write
+jobs:
+  format:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: sprint-c20-athlete-homologation
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npx prettier --write "src/app/admin/atletas/homologacao/actions.ts" "src/app/admin/atletas/homologacao/page.tsx" "src/server/repositories/admin-athlete-homologation-repository.ts" "src/server/services/admin-athlete-homologation-service.ts" "src/server/services/admin-athlete-homologation-service.test.ts" "src/app/admin/atletas/layout.tsx"
+      - run: |
+          if git diff --quiet; then exit 0; fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add .
+          git commit -m "style: format c20 files"
+          git push
