@@ -103,15 +103,15 @@ describe("admin athlete activation waves service", () => {
     const member = snapshot.waves[0]?.members[0];
     expect(member?.selectionEvidence).toBe("admin_decision_required");
     expect(member?.readyForPilot).toBe(false);
-    expect(member?.gates.find((gate) => gate.key === "institutional")?.state).toBe(
-      "pending",
-    );
+    expect(
+      member?.gates.find((gate) => gate.key === "institutional")?.state,
+    ).toBe("pending");
     expect(member?.gates.find((gate) => gate.key === "category")?.state).toBe(
       "review",
     );
-    expect(member?.gates.find((gate) => gate.key === "availability")?.state).toBe(
-      "pending",
-    );
+    expect(
+      member?.gates.find((gate) => gate.key === "availability")?.state,
+    ).toBe("pending");
     expect(snapshot.metrics.pilotReady).toBe(0);
   });
 
@@ -133,7 +133,8 @@ describe("admin athlete activation waves service", () => {
         {
           wave_id: "wave-1",
           athlete_id: "athlete-1",
-          selection_reason: "Atleta escolhido pelo administrador para o piloto.",
+          selection_reason:
+            "Atleta escolhido pelo administrador para o piloto.",
           priority: 10,
           selected_at: "2026-08-10T20:01:00.000Z",
           removed_at: null,

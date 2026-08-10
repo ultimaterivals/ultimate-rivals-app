@@ -53,34 +53,36 @@ export async function getAdminAthleteWavesSnapshot(
   }
 
   const nowMs = now.getTime();
-  const candidates: AthleteWaveCandidate[] = homologation.rows.map((athlete) => {
-    const invite = latestInviteByAthlete.get(athlete.id);
-    const inviteActive = Boolean(
-      invite &&
+  const candidates: AthleteWaveCandidate[] = homologation.rows.map(
+    (athlete) => {
+      const invite = latestInviteByAthlete.get(athlete.id);
+      const inviteActive = Boolean(
+        invite &&
         !invite.used_at &&
         !invite.revoked_at &&
         new Date(invite.expires_at).getTime() > nowMs,
-    );
-    const imported = importByAthlete.get(athlete.id);
-    return {
-      athleteId: athlete.id,
-      athleteCode: athlete.athleteCode,
-      publicName: athlete.publicName,
-      status: athlete.status,
-      gender: genderByAthlete.get(athlete.id) ?? "undisclosed",
-      poleId: athlete.poleId,
-      poleName: athlete.poleName,
-      readyToActivate: athlete.readyToActivate,
-      activationBlockers: athlete.blockers.map((blocker) => blocker.code),
-      linked: athlete.linked,
-      inviteActive,
-      inviteExpiresAt: invite?.expires_at ?? null,
-      availabilityCount: availabilityCounts.get(athlete.id) ?? 0,
-      importSourceRow: imported?.source_row ?? null,
-      importValidationStatus: imported?.validation_status ?? null,
-      selectionEvidence: "admin_decision_required",
-    };
-  });
+      );
+      const imported = importByAthlete.get(athlete.id);
+      return {
+        athleteId: athlete.id,
+        athleteCode: athlete.athleteCode,
+        publicName: athlete.publicName,
+        status: athlete.status,
+        gender: genderByAthlete.get(athlete.id) ?? "undisclosed",
+        poleId: athlete.poleId,
+        poleName: athlete.poleName,
+        readyToActivate: athlete.readyToActivate,
+        activationBlockers: athlete.blockers.map((blocker) => blocker.code),
+        linked: athlete.linked,
+        inviteActive,
+        inviteExpiresAt: invite?.expires_at ?? null,
+        availabilityCount: availabilityCounts.get(athlete.id) ?? 0,
+        importSourceRow: imported?.source_row ?? null,
+        importValidationStatus: imported?.validation_status ?? null,
+        selectionEvidence: "admin_decision_required",
+      };
+    },
+  );
   const candidateByAthlete = new Map(
     candidates.map((candidate) => [candidate.athleteId, candidate]),
   );
@@ -167,13 +169,18 @@ export async function getAdminAthleteWavesSnapshot(
           },
         ];
       })
-      .sort((a, b) => b.priority - a.priority || a.selectedAt.localeCompare(b.selectedAt));
+      .sort(
+        (a, b) =>
+          b.priority - a.priority || a.selectedAt.localeCompare(b.selectedAt),
+      );
     return {
       id: wave.id,
       name: wave.name,
       targetSize: wave.target_size,
       poleId: wave.pole_id,
-      poleName: wave.pole_id ? (poleById.get(wave.pole_id)?.name ?? null) : null,
+      poleName: wave.pole_id
+        ? (poleById.get(wave.pole_id)?.name ?? null)
+        : null,
       status: wave.status,
       notes: wave.notes,
       createdAt: wave.created_at,
@@ -197,7 +204,8 @@ export async function getAdminAthleteWavesSnapshot(
         (wave) => !["completed", "cancelled"].includes(wave.status),
       ).length,
       selected: selectedMembers.length,
-      active: selectedMembers.filter((member) => member.status === "active").length,
+      active: selectedMembers.filter((member) => member.status === "active")
+        .length,
       linked: selectedMembers.filter((member) => member.linked).length,
       categoryReady: selectedMembers.filter((member) =>
         ["female", "male"].includes(member.gender),
@@ -205,7 +213,8 @@ export async function getAdminAthleteWavesSnapshot(
       availabilityReady: selectedMembers.filter(
         (member) => member.availabilityCount > 0,
       ).length,
-      pilotReady: selectedMembers.filter((member) => member.readyForPilot).length,
+      pilotReady: selectedMembers.filter((member) => member.readyForPilot)
+        .length,
     },
     sourceErrors: [...raw.errors, ...homologation.sourceErrors],
   };

@@ -12,7 +12,8 @@ function errorCode(message: string) {
   const value = message.toUpperCase();
   if (value.includes("WAVE_TARGET_REACHED")) return "target_reached";
   if (value.includes("ATHLETE_OUTSIDE_WAVE_POLE")) return "wrong_pole";
-  if (value.includes("ATHLETE_NOT_ELIGIBLE_FOR_WAVE")) return "athlete_ineligible";
+  if (value.includes("ATHLETE_NOT_ELIGIBLE_FOR_WAVE"))
+    return "athlete_ineligible";
   if (value.includes("WAVE_IS_CLOSED")) return "wave_closed";
   if (value.includes("ACTIVE_POLE_REQUIRED")) return "pole_required";
   if (value.includes("REASON_REQUIRED")) return "reason_required";
@@ -137,7 +138,13 @@ export async function updateActivationWaveStatusAction(formData: FormData) {
   const parsed = z
     .object({
       waveId: uuid,
-      status: z.enum(["draft", "preparing", "running", "completed", "cancelled"]),
+      status: z.enum([
+        "draft",
+        "preparing",
+        "running",
+        "completed",
+        "cancelled",
+      ]),
       reason: z.string().trim().min(5).max(500),
     })
     .safeParse({
