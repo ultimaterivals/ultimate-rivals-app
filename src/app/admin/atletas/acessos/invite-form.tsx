@@ -7,7 +7,13 @@ import {
 } from "@/app/admin/atletas/acessos/actions";
 import { Button } from "@/components/ui";
 
-export function AthleteInviteForm({ athleteId }: { athleteId: string }) {
+export function AthleteInviteForm({
+  athleteId,
+  hasActiveInvite = false,
+}: {
+  athleteId: string;
+  hasActiveInvite?: boolean;
+}) {
   const [state, action, pending] = useActionState(
     issueAthleteInviteAction,
     initialInviteActionState,
@@ -41,9 +47,19 @@ export function AthleteInviteForm({ athleteId }: { athleteId: string }) {
           </select>
         </label>
         <Button type="submit" size="sm" disabled={pending}>
-          {pending ? "Emitindo..." : "Gerar primeiro acesso"}
+          {pending
+            ? "Emitindo..."
+            : hasActiveInvite
+              ? "Renovar acesso"
+              : "Gerar primeiro acesso"}
         </Button>
       </form>
+
+      {hasActiveInvite && state.status === "idle" && (
+        <p className="text-xs leading-5 text-zinc-500">
+          Renovar cria um novo token e revoga automaticamente o convite anterior.
+        </p>
+      )}
 
       {state.message && (
         <p
