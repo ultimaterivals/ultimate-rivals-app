@@ -3,9 +3,14 @@
 import { useActionState } from "react";
 import {
   claimAthleteAccessAction,
-  initialClaimActionState,
+  type ClaimActionState,
 } from "@/app/(auth)/claim/actions";
 import { Button } from "@/components/ui";
+
+const initialClaimActionState: ClaimActionState = {
+  status: "idle",
+  message: null,
+};
 
 export function ClaimAthleteForm({ token }: { token: string }) {
   const [state, action, pending] = useActionState(
