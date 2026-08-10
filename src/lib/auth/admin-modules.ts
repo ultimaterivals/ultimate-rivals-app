@@ -32,6 +32,7 @@ export type AdminModuleKey =
   | "command"
   | "agenda"
   | "athletes"
+  | "preview"
   | "teams"
   | "urPlay"
   | "competitions"
@@ -79,6 +80,16 @@ export const adminModules: readonly AdminModuleDefinition[] = [
       "Ciclo de vida, recorrência, desenvolvimento e relacionamento.",
     group: "Esportivo",
     allowedRoles: allAdminRoles,
+    icon: "athletes",
+  },
+  {
+    key: "preview",
+    label: "Prévia do Atleta",
+    href: "/admin/preview",
+    description:
+      "Validação read-only da experiência do App sem trocar a sessão administrativa.",
+    group: "Esportivo",
+    allowedRoles: ["admin"],
     icon: "athletes",
   },
   {
