@@ -19,8 +19,7 @@ function errorCode(message: string) {
     return "athlete_ineligible";
   if (value.includes("WAVE_MEMBER_NOT_ACTIVATABLE"))
     return "member_not_activatable";
-  if (value.includes("ATHLETE_ACTIVATION_BLOCKED"))
-    return "activation_blocked";
+  if (value.includes("ATHLETE_ACTIVATION_BLOCKED")) return "activation_blocked";
   if (value.includes("WAVE_IS_CLOSED")) return "wave_closed";
   if (value.includes("ACTIVE_POLE_REQUIRED")) return "pole_required";
   if (value.includes("REASON_REQUIRED")) return "reason_required";
@@ -311,15 +310,18 @@ export async function issueActivationWaveInviteBundleAction(
     };
   });
 
-  const { error } = await supabase.rpc("issue_athlete_activation_wave_invites", {
-    target_wave_id: parsed.data.waveId,
-    target_invites: generated.map((item) => ({
-      athlete_id: item.athleteId,
-      token_hash: item.tokenHash,
-      expires_at: expiresAt.toISOString(),
-    })),
-    target_reason: parsed.data.reason,
-  });
+  const { error } = await supabase.rpc(
+    "issue_athlete_activation_wave_invites",
+    {
+      target_wave_id: parsed.data.waveId,
+      target_invites: generated.map((item) => ({
+        athlete_id: item.athleteId,
+        token_hash: item.tokenHash,
+        expires_at: expiresAt.toISOString(),
+      })),
+      target_reason: parsed.data.reason,
+    },
+  );
   if (error) {
     return {
       status: "error",

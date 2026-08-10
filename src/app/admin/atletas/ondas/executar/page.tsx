@@ -54,34 +54,45 @@ export default async function AthleteWaveExecutionPage({
     (wave) => !["completed", "cancelled"].includes(wave.status),
   );
   const wave =
-    openWaves.find((item) => item.id === requestedWaveId) ?? openWaves[0] ?? null;
+    openWaves.find((item) => item.id === requestedWaveId) ??
+    openWaves[0] ??
+    null;
   const success = single(params.success);
   const error = single(params.error);
 
   const selectionComplete = Boolean(
     wave && wave.selectedCount === wave.targetSize && wave.targetSize > 0,
   );
-  const draftMembers = wave?.members.filter((member) => member.status === "draft") ?? [];
-  const activatableDrafts = draftMembers.filter((member) => member.readyToActivate);
-  const blockedDrafts = draftMembers.filter((member) => !member.readyToActivate);
+  const draftMembers =
+    wave?.members.filter((member) => member.status === "draft") ?? [];
+  const activatableDrafts = draftMembers.filter(
+    (member) => member.readyToActivate,
+  );
+  const blockedDrafts = draftMembers.filter(
+    (member) => !member.readyToActivate,
+  );
   const invalidStatusMembers =
     wave?.members.filter(
       (member) => !["draft", "active"].includes(member.status),
     ) ?? [];
-  const activeMembers = wave?.members.filter((member) => member.status === "active") ?? [];
+  const activeMembers =
+    wave?.members.filter((member) => member.status === "active") ?? [];
   const inviteEligible = activeMembers.filter((member) => !member.linked);
   const categoryReady =
-    wave?.members.filter((member) => ["female", "male"].includes(member.gender)) ?? [];
+    wave?.members.filter((member) =>
+      ["female", "male"].includes(member.gender),
+    ) ?? [];
   const availabilityReady =
     wave?.members.filter((member) => member.availabilityCount > 0) ?? [];
-  const pilotReady = wave?.members.filter((member) => member.readyForPilot) ?? [];
+  const pilotReady =
+    wave?.members.filter((member) => member.readyForPilot) ?? [];
   const canBatchActivate = Boolean(
     wave &&
-      selectionComplete &&
-      draftMembers.length > 0 &&
-      blockedDrafts.length === 0 &&
-      invalidStatusMembers.length === 0 &&
-      activatableDrafts.length === draftMembers.length,
+    selectionComplete &&
+    draftMembers.length > 0 &&
+    blockedDrafts.length === 0 &&
+    invalidStatusMembers.length === 0 &&
+    activatableDrafts.length === draftMembers.length,
   );
 
   return (
@@ -92,7 +103,11 @@ export default async function AthleteWaveExecutionPage({
         description="Aplique os próximos gates de uma onda já escolhida. Cada etapa exige confirmação humana, reutiliza as regras oficiais e mantém trilha de auditoria. Nenhuma mensagem é enviada automaticamente."
         action={
           <Link
-            href={wave ? `/admin/atletas/ondas?wave=${wave.id}` : "/admin/atletas/ondas"}
+            href={
+              wave
+                ? `/admin/atletas/ondas?wave=${wave.id}`
+                : "/admin/atletas/ondas"
+            }
             className="rounded-ur border px-3 py-2 text-xs font-bold text-zinc-300 uppercase"
           >
             Voltar à seleção
@@ -116,12 +131,16 @@ export default async function AthleteWaveExecutionPage({
       {openWaves.length === 0 ? (
         <Card>
           <div className="flex gap-3">
-            <LockKeyhole className="text-ur-gold mt-0.5" size={20} aria-hidden="true" />
+            <LockKeyhole
+              className="text-ur-gold mt-0.5"
+              size={20}
+              aria-hidden="true"
+            />
             <div>
               <p className="font-bold">Nenhuma onda aberta para executar.</p>
               <p className="mt-1 text-sm leading-6 text-zinc-500">
-                Crie a onda e escolha os atletas antes de chegar à execução. Esta tela
-                nunca cria uma seleção por conta própria.
+                Crie a onda e escolha os atletas antes de chegar à execução.
+                Esta tela nunca cria uma seleção por conta própria.
               </p>
               <Link
                 href="/admin/atletas/ondas"
@@ -136,7 +155,10 @@ export default async function AthleteWaveExecutionPage({
         <>
           <div className="grid gap-3 lg:grid-cols-3">
             {openWaves.map((item) => (
-              <Link key={item.id} href={`/admin/atletas/ondas/executar?wave=${item.id}`}>
+              <Link
+                key={item.id}
+                href={`/admin/atletas/ondas/executar?wave=${item.id}`}
+              >
                 <Card
                   className={`h-full transition ${wave?.id === item.id ? "border-ur-gold/50" : "hover:border-ur-gold/30"}`}
                 >
@@ -152,8 +174,8 @@ export default async function AthleteWaveExecutionPage({
                     <Badge>{item.status}</Badge>
                   </div>
                   <p className="mt-4 text-sm text-zinc-500">
-                    {item.selectedCount}/{item.targetSize} selecionados · {item.readyCount}{" "}
-                    prontos para piloto
+                    {item.selectedCount}/{item.targetSize} selecionados ·{" "}
+                    {item.readyCount} prontos para piloto
                   </p>
                 </Card>
               </Link>
@@ -169,11 +191,15 @@ export default async function AthleteWaveExecutionPage({
                       {wave.name}
                     </p>
                     <p className="mt-1 text-sm text-zinc-500">
-                      {wave.poleName ?? "Todos os polos"} · {wave.selectedCount}/
-                      {wave.targetSize} selecionados
+                      {wave.poleName ?? "Todos os polos"} · {wave.selectedCount}
+                      /{wave.targetSize} selecionados
                     </p>
                   </div>
-                  <Badge>{selectionComplete ? "seleção fechada" : "seleção incompleta"}</Badge>
+                  <Badge>
+                    {selectionComplete
+                      ? "seleção fechada"
+                      : "seleção incompleta"}
+                  </Badge>
                 </div>
 
                 <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
@@ -186,14 +212,23 @@ export default async function AthleteWaveExecutionPage({
                   ].map(([label, value, Icon]) => {
                     const MetricIcon = Icon as typeof CheckCircle2;
                     return (
-                      <div key={String(label)} className="rounded-ur border p-3">
+                      <div
+                        key={String(label)}
+                        className="rounded-ur border p-3"
+                      >
                         <div className="flex items-center justify-between gap-2">
                           <p className="text-[10px] font-bold text-zinc-600 uppercase">
                             {label}
                           </p>
-                          <MetricIcon className="text-ur-gold" size={14} aria-hidden="true" />
+                          <MetricIcon
+                            className="text-ur-gold"
+                            size={14}
+                            aria-hidden="true"
+                          />
                         </div>
-                        <p className="font-display mt-2 text-2xl font-black">{value}</p>
+                        <p className="font-display mt-2 text-2xl font-black">
+                          {value}
+                        </p>
                       </div>
                     );
                   })}
@@ -213,9 +248,9 @@ export default async function AthleteWaveExecutionPage({
                         1. Homologar grupo selecionado
                       </p>
                       <p className="mt-1 text-sm leading-6 text-zinc-500">
-                        Executa o mesmo gate de homologação individual para todos os
-                        integrantes. É transacional: se um único atleta estiver bloqueado,
-                        ninguém do lote é ativado.
+                        Executa o mesmo gate de homologação individual para
+                        todos os integrantes. É transacional: se um único atleta
+                        estiver bloqueado, ninguém do lote é ativado.
                       </p>
                     </div>
                   </div>
@@ -227,7 +262,9 @@ export default async function AthleteWaveExecutionPage({
                     </div>
                     <div className="flex justify-between gap-3 border-b pb-2">
                       <span className="text-zinc-500">Drafts bloqueados</span>
-                      <strong className={blockedDrafts.length ? "text-red-300" : ""}>
+                      <strong
+                        className={blockedDrafts.length ? "text-red-300" : ""}
+                      >
                         {blockedDrafts.length}
                       </strong>
                     </div>
@@ -239,8 +276,8 @@ export default async function AthleteWaveExecutionPage({
 
                   {!selectionComplete && (
                     <p className="rounded-ur mt-4 border border-amber-500/30 bg-amber-500/5 p-3 text-sm text-amber-200">
-                      Complete {wave.targetSize} integrantes antes de executar uma ação em
-                      lote.
+                      Complete {wave.targetSize} integrantes antes de executar
+                      uma ação em lote.
                     </p>
                   )}
 
@@ -253,7 +290,9 @@ export default async function AthleteWaveExecutionPage({
                       <div className="mt-2 grid gap-1 text-xs text-zinc-500">
                         {blockedDrafts.map((member) => (
                           <p key={member.athleteId}>
-                            {member.publicName}: {member.activationBlockers.join(", ") || "revisão necessária"}
+                            {member.publicName}:{" "}
+                            {member.activationBlockers.join(", ") ||
+                              "revisão necessária"}
                           </p>
                         ))}
                       </div>
@@ -262,12 +301,16 @@ export default async function AthleteWaveExecutionPage({
 
                   {draftMembers.length === 0 && selectionComplete && (
                     <p className="rounded-ur mt-4 border border-emerald-500/30 bg-emerald-500/5 p-3 text-sm text-emerald-200">
-                      Todos os integrantes já passaram pela homologação institucional.
+                      Todos os integrantes já passaram pela homologação
+                      institucional.
                     </p>
                   )}
 
                   {canBatchActivate && (
-                    <form action={activateActivationWaveBatchAction} className="mt-5 grid gap-3">
+                    <form
+                      action={activateActivationWaveBatchAction}
+                      className="mt-5 grid gap-3"
+                    >
                       <input type="hidden" name="waveId" value={wave.id} />
                       <label className="grid gap-1 text-xs font-bold text-zinc-500 uppercase">
                         Motivo operacional
@@ -291,7 +334,8 @@ export default async function AthleteWaveExecutionPage({
                         />
                       </label>
                       <Button type="submit">
-                        Homologar {draftMembers.length} atleta(s) em uma transação
+                        Homologar {draftMembers.length} atleta(s) em uma
+                        transação
                       </Button>
                     </form>
                   )}
@@ -311,20 +355,25 @@ export default async function AthleteWaveExecutionPage({
                   3. Concluir prontidão esportiva
                 </p>
                 <p className="mt-2 max-w-4xl text-sm leading-6 text-zinc-500">
-                  Depois do claim, cada atleta confirma a própria categoria e seus horários
-                  reais no portal. A UR não preenche esses dados por inferência. O grupo só
-                  aparece como pronto para piloto quando todos os gates individuais estão
-                  concluídos.
+                  Depois do claim, cada atleta confirma a própria categoria e
+                  seus horários reais no portal. A UR não preenche esses dados
+                  por inferência. O grupo só aparece como pronto para piloto
+                  quando todos os gates individuais estão concluídos.
                 </p>
                 <div className="mt-5 grid gap-3 md:grid-cols-3">
                   <div className="rounded-ur border p-4">
-                    <p className="text-xs font-bold text-zinc-600 uppercase">Contas vinculadas</p>
+                    <p className="text-xs font-bold text-zinc-600 uppercase">
+                      Contas vinculadas
+                    </p>
                     <p className="font-display mt-2 text-3xl font-black">
-                      {wave.members.filter((member) => member.linked).length}/{wave.targetSize}
+                      {wave.members.filter((member) => member.linked).length}/
+                      {wave.targetSize}
                     </p>
                   </div>
                   <div className="rounded-ur border p-4">
-                    <p className="text-xs font-bold text-zinc-600 uppercase">Categoria + horário</p>
+                    <p className="text-xs font-bold text-zinc-600 uppercase">
+                      Categoria + horário
+                    </p>
                     <p className="font-display mt-2 text-3xl font-black">
                       {
                         wave.members.filter(
@@ -337,7 +386,9 @@ export default async function AthleteWaveExecutionPage({
                     </p>
                   </div>
                   <div className="rounded-ur border border-emerald-500/20 p-4">
-                    <p className="text-xs font-bold text-zinc-600 uppercase">Prontos para piloto</p>
+                    <p className="text-xs font-bold text-zinc-600 uppercase">
+                      Prontos para piloto
+                    </p>
                     <p className="font-display mt-2 text-3xl font-black text-emerald-300">
                       {pilotReady.length}/{wave.targetSize}
                     </p>

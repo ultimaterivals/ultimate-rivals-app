@@ -48,32 +48,43 @@ export function WaveInviteBundle({
   return (
     <div className="grid gap-4">
       <div className="flex items-start gap-3">
-        <Link2 className="text-ur-gold mt-0.5 shrink-0" size={19} aria-hidden="true" />
+        <Link2
+          className="text-ur-gold mt-0.5 shrink-0"
+          size={19}
+          aria-hidden="true"
+        />
         <div>
           <p className="font-display text-lg font-black uppercase">
             2. Gerar pacote de primeiros acessos
           </p>
           <p className="mt-1 text-sm leading-6 text-zinc-500">
             Gera ou renova, em uma única transação, os convites dos atletas
-            selecionados que já estão ativos e ainda não vincularam conta. O sistema não
-            envia mensagens automaticamente.
+            selecionados que já estão ativos e ainda não vincularam conta. O
+            sistema não envia mensagens automaticamente.
           </p>
         </div>
       </div>
 
       {!selectionComplete && (
         <div className="rounded-ur flex gap-2 border border-amber-500/30 bg-amber-500/5 p-3 text-sm text-amber-200">
-          <ShieldAlert className="mt-0.5 shrink-0" size={16} aria-hidden="true" />
+          <ShieldAlert
+            className="mt-0.5 shrink-0"
+            size={16}
+            aria-hidden="true"
+          />
           Complete o tamanho alvo da onda antes de gerar acessos em lote.
         </div>
       )}
 
-      {selectionComplete && eligibleCount === 0 && state.status !== "success" && (
-        <p className="rounded-ur border p-3 text-sm text-zinc-500">
-          Nenhum integrante está simultaneamente ativo e sem conta. Homologue o grupo
-          primeiro ou aguarde quem já recebeu acesso concluir o vínculo.
-        </p>
-      )}
+      {selectionComplete &&
+        eligibleCount === 0 &&
+        state.status !== "success" && (
+          <p className="rounded-ur border p-3 text-sm text-zinc-500">
+            Nenhum integrante está simultaneamente ativo e sem conta. Homologue
+            o grupo primeiro ou aguarde quem já recebeu acesso concluir o
+            vínculo.
+          </p>
+        )}
 
       {selectionComplete && eligibleCount > 0 && state.status !== "success" && (
         <form action={action} className="grid gap-3">
@@ -142,11 +153,13 @@ export function WaveInviteBundle({
         <div className="rounded-ur border border-amber-500/30 bg-amber-500/5 p-4">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
-              <p className="font-bold text-amber-100">Links de exibição única</p>
+              <p className="font-bold text-amber-100">
+                Links de exibição única
+              </p>
               <p className="mt-1 text-xs leading-5 text-zinc-500">
-                Após atualizar ou sair desta página, estes tokens brutos não poderão ser
-                recuperados do banco. Um novo pacote revoga convites anteriores ainda não
-                usados.
+                Após atualizar ou sair desta página, estes tokens brutos não
+                poderão ser recuperados do banco. Um novo pacote revoga convites
+                anteriores ainda não usados.
               </p>
             </div>
             <button
