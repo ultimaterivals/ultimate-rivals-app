@@ -3,10 +3,12 @@ import { cn } from "@/lib/utils";
 
 type Props = ButtonHTMLAttributes<HTMLButtonElement> & {
   variant?: "primary" | "secondary" | "ghost";
+  size?: "sm" | "md";
 };
 export function Button({
   className,
   variant = "primary",
+  size = "md",
   type = "button",
   ...props
 }: Props) {
@@ -14,7 +16,9 @@ export function Button({
     <button
       type={type}
       className={cn(
-        "rounded-ur inline-flex min-h-11 cursor-pointer items-center justify-center px-5 text-sm font-bold tracking-wider uppercase transition-colors disabled:cursor-not-allowed disabled:opacity-50",
+        "rounded-ur inline-flex cursor-pointer items-center justify-center text-sm font-bold tracking-wider uppercase transition-colors disabled:cursor-not-allowed disabled:opacity-50",
+        size === "md" && "min-h-11 px-5",
+        size === "sm" && "min-h-9 px-3 text-xs",
         variant === "primary" &&
           "bg-ur-gold text-ur-black hover:bg-ur-gold-strong",
         variant === "secondary" &&
