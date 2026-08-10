@@ -5,9 +5,15 @@ import type {
 import { fetchAthleteAvailabilityRepositoryData } from "@/server/repositories/athlete-availability-repository";
 
 export async function getAthleteAvailabilitySnapshot(
-  userId: string,
+  subject:
+    | string
+    | { userId?: string | null; athleteId?: string | null },
 ): Promise<AthleteAvailabilitySnapshot> {
-  const raw = await fetchAthleteAvailabilityRepositoryData(userId);
+  const input =
+    typeof subject === "string"
+      ? { userId: subject, athleteId: null }
+      : subject;
+  const raw = await fetchAthleteAvailabilityRepositoryData(input);
   const poleNames = new Map(raw.poles.map((pole) => [pole.id, pole.name]));
 
   const windows: AthleteAvailabilityWindow[] = raw.windows.map((window) => ({
