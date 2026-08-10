@@ -1,0 +1,29 @@
+name: Format C27 Test
+
+on:
+  push:
+    branches: [sprint-c27-quarter-season-foundation]
+
+permissions:
+  contents: write
+
+jobs:
+  format:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: sprint-c27-quarter-season-foundation
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npx prettier --write src/server/services/admin-pilot-readiness-service.test.ts
+      - run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          if git diff --quiet; then exit 0; fi
+          git add src/server/services/admin-pilot-readiness-service.test.ts
+          git commit -m "chore: format c27 readiness test"
+          git push
