@@ -9,7 +9,9 @@ if (!password) {
   throw new Error("UR_TEST_PASSWORD is required for authenticated E2E tests.");
 }
 if (!supabaseUrl || !serviceRoleKey) {
-  throw new Error("Disposable Supabase admin credentials are required for authenticated E2E tests.");
+  throw new Error(
+    "Disposable Supabase admin credentials are required for authenticated E2E tests.",
+  );
 }
 
 const qaAdmin = createClient(supabaseUrl, serviceRoleKey, {
@@ -181,9 +183,9 @@ test("athlete reservation holds credit, Command reflects it, and cancellation re
 
   await login(page, "admin@test.ur.local", /\/admin/);
   await page.goto("/admin/agenda");
-  await expect(page.getByTestId(`demand-${reservationOpportunity}`)).toContainText(
-    "1 reservas",
-  );
+  await expect(
+    page.getByTestId(`demand-${reservationOpportunity}`),
+  ).toContainText("1 reservas");
 });
 
 test("admin Preview renders athlete App read-only without replacing admin Auth", async ({
