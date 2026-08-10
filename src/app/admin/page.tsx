@@ -23,7 +23,9 @@ export default async function AdminPage() {
   const user = await requireRole(adminPortalRoles);
   const [snapshot, pilotReadiness, modules] = await Promise.all([
     getAdminCommandSnapshot(),
-    user.role === "admin" ? getAdminPilotReadinessSnapshot() : Promise.resolve(null),
+    user.role === "admin"
+      ? getAdminPilotReadinessSnapshot()
+      : Promise.resolve(null),
     Promise.resolve(
       getAdminModulesForRole(user.role).filter(
         (item) => item.key !== "command",

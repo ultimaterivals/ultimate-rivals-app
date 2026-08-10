@@ -51,12 +51,19 @@ export async function getAdminPilotReadinessSnapshot(
       )[0] ?? null;
 
   const targetInfrastructure = currentWave?.poleId
-    ? infrastructure.poles.find((pole) => pole.id === currentWave.poleId) ?? null
-    : infrastructure.poles.find((pole) => pole.infrastructureReady) ?? null;
+    ? (infrastructure.poles.find((pole) => pole.id === currentWave.poleId) ??
+      null)
+    : (infrastructure.poles.find((pole) => pole.infrastructureReady) ?? null);
 
   const candidateSessions = courtOps.sessions
-    .filter((session) => session.status !== "cancelled" && session.status !== "completed")
-    .filter((session) => !currentWave?.poleId || session.poleId === currentWave.poleId)
+    .filter(
+      (session) =>
+        session.status !== "cancelled" && session.status !== "completed",
+    )
+    .filter(
+      (session) =>
+        !currentWave?.poleId || session.poleId === currentWave.poleId,
+    )
     .filter((session) => session.courts.length > 0)
     .sort((a, b) => {
       const statusDifference =
