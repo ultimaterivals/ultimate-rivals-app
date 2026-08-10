@@ -1,5 +1,5 @@
 import { Badge, Card, EmptyState, PageHeader, StatCard } from "@/components/ui";
-import { requireRole } from "@/lib/auth/session";
+import { requireAthleteViewer } from "@/lib/auth/athlete-viewer";
 import { createClient } from "@/lib/supabase/server";
 import { getAthleteWallet } from "@/server/repositories/wallet-media-reports.repository";
 import { Coins, ShieldCheck, Trophy } from "lucide-react";
@@ -12,10 +12,10 @@ const date = (value: string) =>
   });
 
 export default async function AthleteWalletPage() {
-  const identity = await requireRole("athlete");
+  const viewer = await requireAthleteViewer();
   const { projection, transactions, activeRules } = await getAthleteWallet(
     await createClient(),
-    identity.userId,
+    viewer.athleteId,
   );
 
   const credits = transactions

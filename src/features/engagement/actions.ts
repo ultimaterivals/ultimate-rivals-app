@@ -20,6 +20,7 @@ export async function trackEngagementEvent(input: {
   if (!engagementEventNames.includes(input.eventName)) return;
   const client = await createClient();
   const identity = await getSessionIdentity();
+  if (identity?.role === "admin") return;
   const metadata = sanitizeEngagementMetadata(input.metadata);
   const { error } = await client.from("acquisition_events").insert({
     event_name: input.eventName,

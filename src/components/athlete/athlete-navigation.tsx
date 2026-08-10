@@ -5,10 +5,12 @@ import {
   Bell,
   CalendarDays,
   CircleUserRound,
+  Clapperboard,
   Coins,
   Compass,
   House,
   ListChecks,
+  MapPin,
   Medal,
   ShoppingBag,
   Settings,
@@ -32,8 +34,10 @@ const secondary = [
   { href: "/athlete/competitions", label: "Competições", icon: Medal },
   { href: "/athlete/performance", label: "Performance", icon: Activity },
   { href: "/athlete/matches", label: "Meus jogos", icon: ListChecks },
+  { href: "/athlete/highlights", label: "Destaques", icon: Clapperboard },
   { href: "/athlete/journey", label: "Minha jornada", icon: Compass },
-  { href: "/athlete/development", label: "Desenvolvimento", icon: Medal },
+  { href: "/athlete/development", label: "Missões e evolução", icon: Medal },
+  { href: "/athlete/arenas", label: "Arenas UR", icon: MapPin },
   { href: "/athlete/market", label: "UR Market", icon: ShoppingBag },
   { href: "/athlete/wallet", label: "Wallet URC", icon: Coins },
   { href: "/athlete/points", label: "Meus pontos", icon: Shield },
@@ -46,7 +50,7 @@ function active(pathname: string, href: string, exact?: boolean) {
     : pathname === href || pathname.startsWith(`${href}/`);
 }
 
-export function AthleteDesktopNavigation() {
+export function AthleteDesktopNavigation({ mirror = false }: { mirror?: boolean }) {
   const pathname = usePathname();
   return (
     <nav
@@ -71,11 +75,12 @@ export function AthleteDesktopNavigation() {
           </Link>
         ))}
       </div>
-      <div className="border-t pt-5">
-        <p className="mb-2 px-3 text-[.65rem] font-black tracking-[.2em] text-zinc-600 uppercase">
-          Jornada e carreira
-        </p>
-        {secondary.map(({ href, label, icon: Icon }) => (
+      {!mirror && (
+        <div className="border-t pt-5">
+          <p className="mb-2 px-3 text-[.65rem] font-black tracking-[.2em] text-zinc-600 uppercase">
+            Jornada e carreira
+          </p>
+          {secondary.map(({ href, label, icon: Icon }) => (
           <Link
             key={`${href}-${label}`}
             href={href}
@@ -84,8 +89,9 @@ export function AthleteDesktopNavigation() {
             <Icon size={17} aria-hidden="true" />
             {label}
           </Link>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
     </nav>
   );
 }

@@ -2,6 +2,7 @@ import {
   AlertTriangle,
   CalendarDays,
   CheckCircle2,
+  Eye,
   Coins,
   HandCoins,
   ListChecks,
@@ -21,6 +22,7 @@ const quickActions: {
   label: string;
   icon: LucideIcon;
 }[] = [
+  { href: "/admin/preview", label: "Prévia do Atleta", icon: Eye },
   { href: "/admin/ur-play/new", label: "Criar UR Play", icon: CalendarDays },
   { href: "/admin/demand", label: "Abrir Demand", icon: CalendarDays },
   { href: "/admin/acquisition", label: "Ver Acquisition", icon: TrendingUp },
@@ -40,9 +42,9 @@ export default async function AdminPage() {
   return (
     <div className="grid gap-8">
       <PageHeader
-        eyebrow="Operacao hoje"
-        title="Central administrativa"
-        description="Cockpit da Temporada 1: agenda, pendencias, sinais de temporada e acoes rapidas sem depender de dashboard decorativo."
+        eyebrow="Ultimate Rivals · Race Control"
+        title="Central de Controle"
+        description="Controle operacional da Temporada 1: movimente o ecossistema, valide o impacto e abra o Prévia do Atleta sem trocar de sessão."
       />
 
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">

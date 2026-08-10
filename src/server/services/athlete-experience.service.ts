@@ -545,15 +545,18 @@ export function aggregatePerformance(matches: AthleteMatchView[]) {
 
 export async function getAthleteDashboard(
   client: SupabaseClient,
-  profileId: string,
+  subjectId: string,
+  lookup: "profile" | "athlete" = "profile",
 ) {
-  const { data: athlete, error } = await client
+  const athleteQuery = client
     .from("athletes")
     .select(
       "id,athlete_code,public_name,avatar_url,avatar_storage_path,created_at",
-    )
-    .eq("profile_id", profileId)
-    .maybeSingle();
+    );
+  const { data: athlete, error } = await (lookup === "athlete"
+    ? athleteQuery.eq("id", subjectId)
+    : athleteQuery.eq("profile_id", subjectId)
+  ).maybeSingle();
   if (error) throw error;
   if (!athlete) return null;
 
