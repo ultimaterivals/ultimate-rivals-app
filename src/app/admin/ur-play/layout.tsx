@@ -15,6 +15,12 @@ export default function UrPlayLayout({ children }: { children: ReactNode }) {
           Visão geral
         </Link>
         <Link
+          href="/admin/ur-play/preflight"
+          className="bg-ur-gold/10 text-ur-gold rounded-ur px-3 py-2 text-sm font-black transition hover:bg-ur-gold/15"
+        >
+          Preflight
+        </Link>
+        <Link
           href="/admin/ur-play/presenca"
           className="rounded-ur px-3 py-2 text-sm font-bold text-zinc-400 transition hover:bg-white/5 hover:text-white"
         >
