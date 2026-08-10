@@ -55,7 +55,7 @@ jobs:
             if [ -f "$path" ]; then
               return 0
             fi
-            commit="$(git log --all --format=%H -- "$path" | head -n 1)"
+            commit="$(git log -1 --all --format=%H -- "$path")"
             if [ -z "$commit" ]; then
               echo "Missing historical source: $path" >&2
               exit 1
