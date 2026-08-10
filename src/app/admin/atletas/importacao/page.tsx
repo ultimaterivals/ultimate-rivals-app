@@ -1,5 +1,11 @@
 import Link from "next/link";
-import { AlertTriangle, CheckCircle2, CircleSlash2, FileUp, UserCheck } from "lucide-react";
+import {
+  AlertTriangle,
+  CheckCircle2,
+  CircleSlash2,
+  FileUp,
+  UserCheck,
+} from "lucide-react";
 import {
   importAthleteStagingRowAction,
   reviewAthleteImportRowAction,
@@ -19,20 +25,27 @@ const single = (value: string | string[] | undefined) =>
 
 const resultMessages: Record<string, string> = {
   reviewed: "Revisão salva e auditada.",
-  imported: "Atleta criado como draft. Nenhuma conta foi criada automaticamente.",
-  "pole-not-active": "Importação bloqueada: o polo da linha ainda não está ativo.",
+  imported:
+    "Atleta criado como draft. Nenhuma conta foi criada e o atleta ainda não está ativo.",
+  "pole-not-configured":
+    "Importação bloqueada: o polo informado ainda não existe na configuração do UR.",
   duplicate: "Importação bloqueada: existe atleta potencialmente duplicado.",
-  "review-invalid": "Revisão inválida. Verifique os campos e a justificativa.",
+  "review-invalid":
+    "Revisão inválida. Verifique os campos e a justificativa.",
   "review-error": "Não foi possível salvar a revisão.",
   "import-error": "Não foi possível importar esta linha.",
   "import-invalid": "Linha de importação inválida.",
 };
 
 function badge(status: string) {
-  if (status === "ready") return "border-emerald-500/30 bg-emerald-500/10 text-emerald-300";
-  if (status === "review") return "border-amber-500/30 bg-amber-500/10 text-amber-200";
-  if (status === "blocked") return "border-red-500/30 bg-red-500/10 text-red-300";
-  if (status === "imported") return "border-sky-500/30 bg-sky-500/10 text-sky-300";
+  if (status === "ready")
+    return "border-emerald-500/30 bg-emerald-500/10 text-emerald-300";
+  if (status === "review")
+    return "border-amber-500/30 bg-amber-500/10 text-amber-200";
+  if (status === "blocked")
+    return "border-red-500/30 bg-red-500/10 text-red-300";
+  if (status === "imported")
+    return "border-sky-500/30 bg-sky-500/10 text-sky-300";
   return "border-zinc-700 bg-zinc-900 text-zinc-400";
 }
 
@@ -50,8 +63,13 @@ export default async function AthleteImportPage({
   const rows = snapshot.rows.filter((row) => {
     if (status !== "all" && row.status !== status) return false;
     if (!query) return true;
-    return [row.fullName, row.publicName ?? "", row.email ?? "", row.phone ?? "", row.legacyId ?? ""]
-      .some((value) => value.toLowerCase().includes(query));
+    return [
+      row.fullName,
+      row.publicName ?? "",
+      row.email ?? "",
+      row.phone ?? "",
+      row.legacyId ?? "",
+    ].some((value) => value.toLowerCase().includes(query));
   });
 
   const metrics = [
@@ -71,7 +89,13 @@ export default async function AthleteImportPage({
       />
 
       {result && resultMessages[result] && (
-        <Card className={result.includes("error") || result.includes("blocked") ? "border-red-500/30" : "border-ur-gold/30"}>
+        <Card
+          className={
+            result.includes("error") || result.includes("blocked")
+              ? "border-red-500/30"
+              : "border-ur-gold/30"
+          }
+        >
           <p className="text-sm text-zinc-300">{resultMessages[result]}</p>
         </Card>
       )}
@@ -93,17 +117,23 @@ export default async function AthleteImportPage({
           <div>
             <p className="font-bold text-white">Gate de polos</p>
             <p className="mt-1 text-sm leading-6 text-zinc-500">
-              {snapshot.metrics.activePoles} polo(s) ativo(s). A importação exige correspondência com um polo homologado.
+              {snapshot.metrics.configuredPoles} polo(s) configurado(s) ·{" "}
+              {snapshot.metrics.activePoles} homologado(s)/ativo(s).
+            </p>
+            <p className="mt-1 text-sm leading-6 text-zinc-500">
+              Um atleta draft pode ser relacionado a polo draft. Para ativar o atleta
+              e operar sessões reais, o polo continua sujeito à homologação operacional.
             </p>
             {snapshot.missingReadyPoles.length > 0 && (
               <p className="mt-2 text-sm text-amber-200">
-                Ausentes para linhas prontas: {snapshot.missingReadyPoles.join(", ")}.
+                Polos ainda não configurados para linhas prontas:{" "}
+                {snapshot.missingReadyPoles.join(", ")}.
               </p>
             )}
           </div>
           <Link
             href="/admin/agenda/configuracao"
-            className="rounded-ur border px-4 py-2 text-sm font-bold text-zinc-300 transition hover:border-ur-gold hover:text-white"
+            className="rounded-ur hover:border-ur-gold border px-4 py-2 text-sm font-bold text-zinc-300 transition hover:text-white"
           >
             Abrir configuração operacional
           </Link>
@@ -129,27 +159,34 @@ export default async function AthleteImportPage({
           <option value="imported">Importados</option>
           <option value="skipped">Ignorados</option>
         </select>
-        <Button type="submit" variant="secondary">Filtrar</Button>
+        <Button type="submit" variant="secondary">
+          Filtrar
+        </Button>
       </form>
 
       <div className="grid gap-4">
         {rows.map((row) => (
-          <Card key={row.id} className="p-0 overflow-hidden">
+          <Card key={row.id} className="overflow-hidden p-0">
             <div className="flex flex-wrap items-start justify-between gap-4 p-5">
               <div className="min-w-0">
                 <div className="flex flex-wrap items-center gap-2">
-                  <p className="font-bold text-white">{row.publicName || row.fullName}</p>
-                  <span className={`rounded-full border px-2 py-1 text-[11px] font-bold uppercase ${badge(row.status)}`}>
+                  <p className="font-bold text-white">
+                    {row.publicName || row.fullName}
+                  </p>
+                  <span
+                    className={`rounded-full border px-2 py-1 text-[11px] font-bold uppercase ${badge(row.status)}`}
+                  >
                     {row.status}
                   </span>
                   {row.activeCandidate && (
-                    <span className="rounded-full border border-ur-gold/30 bg-ur-gold/10 px-2 py-1 text-[11px] font-bold text-ur-gold uppercase">
+                    <span className="border-ur-gold/30 bg-ur-gold/10 text-ur-gold rounded-full border px-2 py-1 text-[11px] font-bold uppercase">
                       ativo legado
                     </span>
                   )}
                 </div>
                 <p className="mt-1 text-xs text-zinc-500">
-                  Linha {row.sourceRow} · {row.legacyId ?? "sem ID legado"} · {row.pole ?? "sem polo"}
+                  Linha {row.sourceRow} · {row.legacyId ?? "sem ID legado"} ·{" "}
+                  {row.pole ?? "sem polo"}
                 </p>
                 <p className="mt-2 text-sm text-zinc-400">
                   {row.email ?? "sem e-mail"} · {row.phone ?? "sem telefone"}
@@ -163,13 +200,20 @@ export default async function AthleteImportPage({
               {row.status === "ready" && (
                 <form action={importAthleteStagingRowAction}>
                   <input type="hidden" name="rowId" value={row.id} />
-                  <Button type="submit" size="sm" disabled={snapshot.missingReadyPoles.length > 0}>
+                  <Button
+                    type="submit"
+                    size="sm"
+                    disabled={snapshot.missingReadyPoles.length > 0}
+                  >
                     Importar como draft
                   </Button>
                 </form>
               )}
               {row.status === "imported" && row.importedAthleteId && (
-                <Link href="/admin/atletas" className="text-sm font-bold text-sky-300 hover:text-sky-200">
+                <Link
+                  href="/admin/atletas"
+                  className="text-sm font-bold text-sky-300 hover:text-sky-200"
+                >
                   Cadastro criado
                 </Link>
               )}
@@ -177,11 +221,18 @@ export default async function AthleteImportPage({
 
             {row.issues.length > 0 && (
               <div className="border-t px-5 py-4">
-                <p className="text-xs font-bold text-zinc-500 uppercase">Evidências do dry-run</p>
+                <p className="text-xs font-bold text-zinc-500 uppercase">
+                  Evidências do dry-run
+                </p>
                 <div className="mt-2 grid gap-2">
                   {row.issues.map((issue, index) => (
-                    <div key={`${issue.code ?? "issue"}-${index}`} className="rounded-ur bg-black/20 px-3 py-2 text-xs leading-5 text-zinc-400">
-                      <span className="font-bold text-zinc-300">{issue.code ?? "SINAL"}</span>
+                    <div
+                      key={`${issue.code ?? "issue"}-${index}`}
+                      className="rounded-ur bg-black/20 px-3 py-2 text-xs leading-5 text-zinc-400"
+                    >
+                      <span className="font-bold text-zinc-300">
+                        {issue.code ?? "SINAL"}
+                      </span>
                       {issue.detail ? ` — ${issue.detail}` : ""}
                     </div>
                   ))}
@@ -191,42 +242,80 @@ export default async function AthleteImportPage({
 
             {row.status !== "imported" && (
               <details className="border-t px-5 py-4">
-                <summary className="cursor-pointer text-sm font-bold text-ur-gold">
+                <summary className="text-ur-gold cursor-pointer text-sm font-bold">
                   Revisar / corrigir linha
                 </summary>
-                <form action={reviewAthleteImportRowAction} className="mt-4 grid gap-3 lg:grid-cols-2">
+                <form
+                  action={reviewAthleteImportRowAction}
+                  className="mt-4 grid gap-3 lg:grid-cols-2"
+                >
                   <input type="hidden" name="rowId" value={row.id} />
                   <label className="grid gap-1 text-xs font-bold text-zinc-500 uppercase">
                     Nome completo
-                    <input name="fullName" defaultValue={row.fullName} required className="rounded-ur bg-ur-black min-h-10 border px-3 text-sm text-white" />
+                    <input
+                      name="fullName"
+                      defaultValue={row.fullName}
+                      required
+                      className="rounded-ur bg-ur-black min-h-10 border px-3 text-sm text-white"
+                    />
                   </label>
                   <label className="grid gap-1 text-xs font-bold text-zinc-500 uppercase">
                     Nome público
-                    <input name="publicName" defaultValue={row.publicName ?? ""} className="rounded-ur bg-ur-black min-h-10 border px-3 text-sm text-white" />
+                    <input
+                      name="publicName"
+                      defaultValue={row.publicName ?? ""}
+                      className="rounded-ur bg-ur-black min-h-10 border px-3 text-sm text-white"
+                    />
                   </label>
                   <label className="grid gap-1 text-xs font-bold text-zinc-500 uppercase">
                     Data de nascimento
-                    <input type="date" name="birthDate" defaultValue={row.birthDate ?? ""} className="rounded-ur bg-ur-black min-h-10 border px-3 text-sm text-white" />
+                    <input
+                      type="date"
+                      name="birthDate"
+                      defaultValue={row.birthDate ?? ""}
+                      className="rounded-ur bg-ur-black min-h-10 border px-3 text-sm text-white"
+                    />
                   </label>
                   <label className="grid gap-1 text-xs font-bold text-zinc-500 uppercase">
                     Polo
-                    <input name="pole" defaultValue={row.pole ?? ""} className="rounded-ur bg-ur-black min-h-10 border px-3 text-sm text-white" />
+                    <input
+                      name="pole"
+                      defaultValue={row.pole ?? ""}
+                      className="rounded-ur bg-ur-black min-h-10 border px-3 text-sm text-white"
+                    />
                   </label>
                   <label className="grid gap-1 text-xs font-bold text-zinc-500 uppercase">
                     E-mail
-                    <input type="email" name="email" defaultValue={row.email ?? ""} className="rounded-ur bg-ur-black min-h-10 border px-3 text-sm text-white" />
+                    <input
+                      type="email"
+                      name="email"
+                      defaultValue={row.email ?? ""}
+                      className="rounded-ur bg-ur-black min-h-10 border px-3 text-sm text-white"
+                    />
                   </label>
                   <label className="grid gap-1 text-xs font-bold text-zinc-500 uppercase">
                     Telefone
-                    <input name="phone" defaultValue={row.phone ?? ""} className="rounded-ur bg-ur-black min-h-10 border px-3 text-sm text-white" />
+                    <input
+                      name="phone"
+                      defaultValue={row.phone ?? ""}
+                      className="rounded-ur bg-ur-black min-h-10 border px-3 text-sm text-white"
+                    />
                   </label>
                   <label className="grid gap-1 text-xs font-bold text-zinc-500 uppercase lg:col-span-2">
                     Categorias declaradas
-                    <input name="categories" defaultValue={row.categories ?? ""} className="rounded-ur bg-ur-black min-h-10 border px-3 text-sm text-white" />
+                    <input
+                      name="categories"
+                      defaultValue={row.categories ?? ""}
+                      className="rounded-ur bg-ur-black min-h-10 border px-3 text-sm text-white"
+                    />
                   </label>
                   <label className="grid gap-1 text-xs font-bold text-zinc-500 uppercase">
                     Decisão
-                    <select name="status" defaultValue={row.status} className="rounded-ur bg-ur-black min-h-10 border px-3 text-sm text-white">
+                    <select
+                      name="status"
+                      defaultValue={row.status}
+                      className="rounded-ur bg-ur-black min-h-10 border px-3 text-sm text-white"
+                    >
                       <option value="ready">Pronto para importar</option>
                       <option value="review">Continuar em revisão</option>
                       <option value="blocked">Bloqueado</option>
@@ -235,10 +324,18 @@ export default async function AthleteImportPage({
                   </label>
                   <label className="grid gap-1 text-xs font-bold text-zinc-500 uppercase lg:col-span-2">
                     Justificativa da decisão
-                    <textarea name="note" required minLength={3} placeholder="O que foi confirmado ou corrigido?" className="rounded-ur bg-ur-black min-h-24 border px-3 py-2 text-sm text-white" />
+                    <textarea
+                      name="note"
+                      required
+                      minLength={3}
+                      placeholder="O que foi confirmado ou corrigido?"
+                      className="rounded-ur bg-ur-black min-h-24 border px-3 py-2 text-sm text-white"
+                    />
                   </label>
                   <div className="lg:col-span-2">
-                    <Button type="submit" size="sm">Salvar revisão</Button>
+                    <Button type="submit" size="sm">
+                      Salvar revisão
+                    </Button>
                   </div>
                 </form>
               </details>
@@ -248,7 +345,9 @@ export default async function AthleteImportPage({
 
         {rows.length === 0 && (
           <Card>
-            <p className="text-center text-sm text-zinc-500">Nenhuma linha encontrada para este filtro.</p>
+            <p className="text-center text-sm text-zinc-500">
+              Nenhuma linha encontrada para este filtro.
+            </p>
           </Card>
         )}
       </div>
@@ -257,7 +356,9 @@ export default async function AthleteImportPage({
         <Card className="border-red-500/30">
           <p className="font-bold">Leitura parcial</p>
           <ul className="mt-2 text-sm text-zinc-500">
-            {snapshot.sourceErrors.map((error) => <li key={error}>{error}</li>)}
+            {snapshot.sourceErrors.map((error) => (
+              <li key={error}>{error}</li>
+            ))}
           </ul>
         </Card>
       )}
