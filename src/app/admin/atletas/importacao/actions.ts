@@ -20,7 +20,10 @@ const reviewSchema = z.object({
 });
 
 const importSchema = z.object({ rowId: z.string().uuid() });
-const batchSchema = z.object({ batchId: z.string().uuid() });
+const batchSchema = z.object({
+  batchId: z.string().uuid(),
+  confirmation: z.literal("IMPORTAR DRAFTS"),
+});
 
 function resultUrl(result: string) {
   return `/admin/atletas/importacao?result=${encodeURIComponent(result)}`;
@@ -92,7 +95,10 @@ export async function importAthleteStagingRowAction(formData: FormData) {
 
 export async function importReadyAthleteBatchAction(formData: FormData) {
   await requireRole(["admin"]);
-  const parsed = batchSchema.safeParse({ batchId: formData.get("batchId") });
+  const parsed = batchSchema.safeParse({
+    batchId: formData.get("batchId"),
+    confirmation: formData.get("confirmation"),
+  });
   if (!parsed.success) redirect(resultUrl("batch-invalid"));
 
   const supabase = await createClient();
