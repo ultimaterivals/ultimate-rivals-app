@@ -55,16 +55,6 @@ function fail(message: string): never {
   );
 }
 
-export async function homologateSeasonAction(formData: FormData) {
-  await requireRole(["admin"]);
-  const seasonId = z.string().uuid().safeParse(formData.get("seasonId"));
-  if (!seasonId.success) {
-    redirect("/admin/agenda/temporada?error=invalid_request");
-  }
-
-  redirect(`/admin/agenda/temporada?season=${seasonId.data}`);
-}
-
 export async function confirmUrPlayOpportunityAction(formData: FormData) {
   await requireRole(["admin"]);
   const parsed = confirmSchema.safeParse({
@@ -104,8 +94,10 @@ export async function confirmUrPlayOpportunityAction(formData: FormData) {
   });
   if (error) fail(error.message);
 
+  revalidatePath("/admin");
   revalidatePath("/admin/agenda");
   revalidatePath("/admin/agenda/piloto");
+  revalidatePath("/admin/agenda/confirmacao");
   revalidatePath("/admin/ur-play");
   revalidatePath("/athlete/agenda");
   redirect("/admin/agenda?confirmed=ur_play");
