@@ -40,7 +40,7 @@ const marketErrorMessage: Record<string, string> = {
 async function redeemMarketOfferUrc(formData: FormData) {
   "use server";
 
-  await requireRole("athlete");
+  await requireRole(["athlete"]);
 
   const offerId = String(formData.get("offerId") ?? "");
   const operationId = String(formData.get("operationId") ?? "");
