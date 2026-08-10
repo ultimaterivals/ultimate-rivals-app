@@ -75,8 +75,8 @@ export async function importAthleteStagingRowAction(formData: FormData) {
     p_row_id: parsed.data.rowId,
   });
   if (error) {
-    if (error.message.includes("IMPORT_POLE_NOT_ACTIVE")) {
-      redirect(resultUrl("pole-not-active"));
+    if (error.message.includes("IMPORT_POLE_NOT_FOUND")) {
+      redirect(resultUrl("pole-not-configured"));
     }
     if (error.message.includes("IMPORT_DUPLICATE_ATHLETE")) {
       redirect(resultUrl("duplicate"));
