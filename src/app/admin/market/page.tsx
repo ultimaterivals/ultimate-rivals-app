@@ -1,6 +1,13 @@
 import { revalidatePath } from "next/cache";
 import { Gift, Package, Ticket } from "lucide-react";
-import { Badge, Button, Card, EmptyState, PageHeader, StatCard } from "@/components/ui";
+import {
+  Badge,
+  Button,
+  Card,
+  EmptyState,
+  PageHeader,
+  StatCard,
+} from "@/components/ui";
 import { requireRole } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
 
@@ -38,19 +45,21 @@ export default async function AdminMarketPage() {
   await requireRole("admin");
   const client = await createClient();
 
-  const [{ data: offers, error: offersError }, { data: redemptions, error: redemptionsError }] =
-    await Promise.all([
-      client
-        .from("market_offers")
-        .select("id,name,status,accepts_brl,brl_amount,accepts_urc,urc_amount")
-        .order("created_at", { ascending: false }),
-      client
-        .from("market_redemptions")
-        .select(
-          "id,status,redemption_code,reserved_at,redeemed_at,market_offers(name),athletes(public_name)",
-        )
-        .order("created_at", { ascending: false }),
-    ]);
+  const [
+    { data: offers, error: offersError },
+    { data: redemptions, error: redemptionsError },
+  ] = await Promise.all([
+    client
+      .from("market_offers")
+      .select("id,name,status,accepts_brl,brl_amount,accepts_urc,urc_amount")
+      .order("created_at", { ascending: false }),
+    client
+      .from("market_redemptions")
+      .select(
+        "id,status,redemption_code,reserved_at,redeemed_at,market_offers(name),athletes(public_name)",
+      )
+      .order("created_at", { ascending: false }),
+  ]);
 
   if (offersError) throw offersError;
   if (redemptionsError) throw redemptionsError;
@@ -101,7 +110,9 @@ export default async function AdminMarketPage() {
                   <Badge>{offer.status}</Badge>
                 </div>
                 <p className="mt-3 text-sm text-zinc-400">
-                  {offer.accepts_urc ? `${offer.urc_amount ?? 0} URC` : "sem URC"}
+                  {offer.accepts_urc
+                    ? `${offer.urc_amount ?? 0} URC`
+                    : "sem URC"}
                   {offer.accepts_urc && offer.accepts_brl ? " · " : ""}
                   {offer.accepts_brl ? brl(offer.brl_amount) : ""}
                 </p>
@@ -121,7 +132,9 @@ export default async function AdminMarketPage() {
         {marketRedemptions.length ? (
           <div className="mt-4 grid gap-3">
             {marketRedemptions.map((redemption) => {
-              const actionable = ["reserved", "available"].includes(redemption.status);
+              const actionable = ["reserved", "available"].includes(
+                redemption.status,
+              );
               const offerName = Array.isArray(redemption.market_offers)
                 ? redemption.market_offers[0]?.name
                 : redemption.market_offers?.name;
@@ -133,7 +146,9 @@ export default async function AdminMarketPage() {
                 <div key={redemption.id} className="rounded-ur border p-4">
                   <div className="flex flex-wrap items-start justify-between gap-3">
                     <div>
-                      <p className="font-bold">{offerName ?? "Oferta UR Market"}</p>
+                      <p className="font-bold">
+                        {offerName ?? "Oferta UR Market"}
+                      </p>
                       <p className="text-sm text-zinc-400">
                         {athleteName ?? "Atleta"} · {redemption.status}
                       </p>
@@ -146,7 +161,11 @@ export default async function AdminMarketPage() {
 
                   {actionable ? (
                     <form action={fulfillRedemption} className="mt-4">
-                      <input type="hidden" name="redemptionId" value={redemption.id} />
+                      <input
+                        type="hidden"
+                        name="redemptionId"
+                        value={redemption.id}
+                      />
                       <Button type="submit" className="w-full">
                         Marcar benefício como entregue
                       </Button>

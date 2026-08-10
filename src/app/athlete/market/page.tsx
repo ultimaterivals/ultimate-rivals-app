@@ -18,7 +18,8 @@ function brl(value: number | string | null | undefined) {
 
 function marketErrorCode(message: string) {
   const normalized = message.toLowerCase();
-  if (normalized.includes("insufficient ur coins")) return "insufficient_balance";
+  if (normalized.includes("insufficient ur coins"))
+    return "insufficient_balance";
   if (normalized.includes("inventory exhausted")) return "inventory_exhausted";
   if (normalized.includes("redemption limit")) return "limit_reached";
   if (normalized.includes("not active")) return "offer_inactive";
@@ -27,7 +28,8 @@ function marketErrorCode(message: string) {
 }
 
 const marketErrorMessage: Record<string, string> = {
-  insufficient_balance: "Seu saldo de UR Coins não é suficiente para este resgate.",
+  insufficient_balance:
+    "Seu saldo de UR Coins não é suficiente para este resgate.",
   inventory_exhausted: "Esta oferta acabou de esgotar.",
   limit_reached: "Você atingiu o limite de resgates desta oferta.",
   offer_inactive: "Esta oferta não está mais disponível.",
@@ -47,7 +49,9 @@ async function redeemMarketOfferUrc(formData: FormData) {
     redirect("/athlete/market?marketError=redemption_failed");
   }
 
-  const { error } = await (await createClient()).rpc("redeem_market_offer_urc", {
+  const { error } = await (
+    await createClient()
+  ).rpc("redeem_market_offer_urc", {
     target_offer: offerId,
     operation_id: operationId,
   });
@@ -107,9 +111,12 @@ export default async function AthleteMarketPage({
 
       {query.redeemed === "1" ? (
         <Card className="border-emerald-500/40 bg-emerald-500/5">
-          <strong className="text-emerald-300">Resgate reservado com sucesso.</strong>
+          <strong className="text-emerald-300">
+            Resgate reservado com sucesso.
+          </strong>
           <p className="mt-1 text-sm text-zinc-400">
-            O débito já foi registrado no ledger de UR Coins e a operação pode concluir a entrega pelo Market.
+            O débito já foi registrado no ledger de UR Coins e a operação pode
+            concluir a entrega pelo Market.
           </p>
         </Card>
       ) : null}
@@ -118,7 +125,8 @@ export default async function AthleteMarketPage({
         <Card className="border-red-500/40 bg-red-500/5">
           <strong className="text-red-300">Resgate não concluído.</strong>
           <p className="mt-1 text-sm text-zinc-400">
-            {marketErrorMessage[query.marketError] ?? marketErrorMessage.redemption_failed}
+            {marketErrorMessage[query.marketError] ??
+              marketErrorMessage.redemption_failed}
           </p>
         </Card>
       ) : null}
@@ -136,7 +144,8 @@ export default async function AthleteMarketPage({
               Sua participação ganha utilidade
             </h2>
             <p className="mt-3 max-w-2xl text-zinc-400">
-              O catálogo abaixo vem das ofertas ativas do backend oficial. Nenhum produto fictício é criado para preencher a loja.
+              O catálogo abaixo vem das ofertas ativas do backend oficial.
+              Nenhum produto fictício é criado para preencher a loja.
             </p>
           </div>
           <div className="rounded-ur border-ur-gold/30 border bg-black/30 p-5 lg:min-w-64">
@@ -223,14 +232,25 @@ export default async function AthleteMarketPage({
 
                     {viewer.isPreview ? (
                       <p className="rounded-ur mt-4 border border-white/10 p-3 text-xs font-bold text-zinc-500">
-                        Prévia read-only: resgates ficam desabilitados para o administrador.
+                        Prévia read-only: resgates ficam desabilitados para o
+                        administrador.
                       </p>
                     ) : offer.accepts_urc ? (
                       <form action={redeemMarketOfferUrc} className="mt-4">
                         <input type="hidden" name="offerId" value={offer.id} />
-                        <input type="hidden" name="operationId" value={randomUUID()} />
-                        <Button type="submit" className="w-full" disabled={!canAfford}>
-                          {canAfford ? "Resgatar com UR Coins" : "Saldo insuficiente"}
+                        <input
+                          type="hidden"
+                          name="operationId"
+                          value={randomUUID()}
+                        />
+                        <Button
+                          type="submit"
+                          className="w-full"
+                          disabled={!canAfford}
+                        >
+                          {canAfford
+                            ? "Resgatar com UR Coins"
+                            : "Saldo insuficiente"}
                         </Button>
                       </form>
                     ) : null}
