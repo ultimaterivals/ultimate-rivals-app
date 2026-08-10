@@ -14,7 +14,13 @@ const venueSchema = z.object({
   venueName: z.string().trim().min(2).max(120),
   addressLine: z.string().trim().max(240),
   city: z.string().trim().max(100),
-  state: z.union([z.literal(""), z.string().trim().regex(/^[A-Za-z]{2}$/)]),
+  state: z.union([
+    z.literal(""),
+    z
+      .string()
+      .trim()
+      .regex(/^[A-Za-z]{2}$/),
+  ]),
   courtName: z.string().trim().min(2).max(100),
 });
 
@@ -163,7 +169,10 @@ export async function createPilotOpportunityAction(formData: FormData) {
     maxFormations: formData.get("maxFormations"),
     capacityAthletes: formData.get("capacityAthletes"),
   });
-  if (!parsed.success || parsed.data.maxFormations < parsed.data.targetFormations) {
+  if (
+    !parsed.success ||
+    parsed.data.maxFormations < parsed.data.targetFormations
+  ) {
     fail("invalid_request");
   }
 

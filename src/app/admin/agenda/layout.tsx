@@ -26,7 +26,7 @@ export default async function AgendaLayout({
           <>
             <Link
               href="/admin/agenda/piloto"
-              className="bg-ur-gold/10 text-ur-gold rounded-ur px-3 py-2 text-sm font-black transition hover:bg-ur-gold/15"
+              className="bg-ur-gold/10 text-ur-gold rounded-ur hover:bg-ur-gold/15 px-3 py-2 text-sm font-black transition"
             >
               Assistente do piloto
             </Link>

@@ -50,7 +50,8 @@ const successMessages: Record<string, string> = {
 
 const errorMessages: Record<string, string> = {
   invalid_request: "Revise os dados obrigatórios antes de continuar.",
-  invalid_confirmation: "A confirmação textual não corresponde à ação solicitada.",
+  invalid_confirmation:
+    "A confirmação textual não corresponde à ação solicitada.",
   ADMIN_REQUIRED: "Somente administrador pode executar este gate.",
   POLE_NOT_FOUND: "Polo não encontrado.",
   INVALID_VENUE_NAME: "Nome do local inválido.",
@@ -75,7 +76,8 @@ const errorMessages: Record<string, string> = {
   OPPORTUNITY_OUTSIDE_SEASON:
     "O horário escolhido está fora da temporada homologada.",
   SEASON_CYCLE_NOT_FOUND: "Macro-ciclo interno não encontrado.",
-  SEASON_CYCLE_NOT_READY: "O macro-ciclo interno ainda não pode receber sessão.",
+  SEASON_CYCLE_NOT_READY:
+    "O macro-ciclo interno ainda não pode receber sessão.",
   OPPORTUNITY_OUTSIDE_CYCLE:
     "A oportunidade não cabe integralmente no macro-ciclo selecionado.",
   COURT_NOT_READY: "A quadra escolhida não está pronta para operação.",
@@ -117,7 +119,8 @@ export default async function PilotSetupPage({
   const error = single(params.error);
   const season = quarter.currentSeason;
   const seasonReady = Boolean(
-    season?.structureReady && ["registration", "active"].includes(season.status),
+    season?.structureReady &&
+    ["registration", "active"].includes(season.status),
   );
   const poles = setup.poles ?? [];
   const venues = setup.venues ?? [];
@@ -176,7 +179,13 @@ export default async function PilotSetupPage({
         </Card>
       )}
 
-      <Card className={readiness.status === "go" ? "border-emerald-500/40" : "border-red-500/30"}>
+      <Card
+        className={
+          readiness.status === "go"
+            ? "border-emerald-500/40"
+            : "border-red-500/30"
+        }
+      >
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
             <p className="text-xs font-bold tracking-wider text-zinc-500 uppercase">
@@ -186,7 +195,8 @@ export default async function PilotSetupPage({
               {readiness.status === "go" ? "GO" : "NO-GO"}
             </p>
             <p className="mt-2 text-sm text-zinc-500">
-              {readiness.readyGates}/{readiness.totalGates} condições reais aprovadas.
+              {readiness.readyGates}/{readiness.totalGates} condições reais
+              aprovadas.
             </p>
           </div>
           {readiness.nextAction && (
@@ -208,14 +218,20 @@ export default async function PilotSetupPage({
                 <p className="text-sm font-bold">{gate.label}</p>
                 <Badge>{stateLabel[gate.state]}</Badge>
               </div>
-              <p className="mt-2 text-xs leading-5 text-zinc-600">{gate.detail}</p>
+              <p className="mt-2 text-xs leading-5 text-zinc-600">
+                {gate.detail}
+              </p>
             </div>
           ))}
         </div>
       </Card>
 
       <section className="grid gap-4 xl:grid-cols-2">
-        <Card className={seasonReady ? "border-emerald-500/25" : "border-amber-500/25"}>
+        <Card
+          className={
+            seasonReady ? "border-emerald-500/25" : "border-amber-500/25"
+          }
+        >
           <div className="flex items-start gap-3">
             {seasonReady ? (
               <CheckCircle2 className="mt-0.5 text-emerald-400" size={20} />
@@ -274,14 +290,19 @@ export default async function PilotSetupPage({
               Quadra real
             </h2>
             <p className="mt-2 max-w-3xl text-sm leading-6 text-zinc-500">
-              Os polos já existem. Cadastre o local e a quadra somente depois da parceria/reserva real; depois homologue o conjunto para liberar uso operacional.
+              Os polos já existem. Cadastre o local e a quadra somente depois da
+              parceria/reserva real; depois homologue o conjunto para liberar
+              uso operacional.
             </p>
           </div>
           <Badge>{activeCourts.length} quadra(s) ativa(s)</Badge>
         </div>
 
         <div className="mt-5 grid gap-5 xl:grid-cols-2">
-          <form action={createPilotVenueAction} className="rounded-ur grid gap-4 border p-4">
+          <form
+            action={createPilotVenueAction}
+            className="rounded-ur grid gap-4 border p-4"
+          >
             <p className="font-bold">Cadastrar local + primeira quadra</p>
             <label className="grid gap-2 text-sm font-medium">
               Polo real
@@ -301,13 +322,27 @@ export default async function PilotSetupPage({
                 ))}
               </select>
             </label>
-            <Input id="pilot-venue" name="venueName" label="Nome real do local" required />
+            <Input
+              id="pilot-venue"
+              name="venueName"
+              label="Nome real do local"
+              required
+            />
             <Input id="pilot-address" name="addressLine" label="Endereço" />
             <div className="grid gap-4 sm:grid-cols-[1fr_7rem]">
-              <Input id="pilot-city" name="city" label="Cidade (vazio = polo)" />
+              <Input
+                id="pilot-city"
+                name="city"
+                label="Cidade (vazio = polo)"
+              />
               <Input id="pilot-state" name="state" label="UF" maxLength={2} />
             </div>
-            <Input id="pilot-court" name="courtName" label="Nome da quadra" required />
+            <Input
+              id="pilot-court"
+              name="courtName"
+              label="Nome da quadra"
+              required
+            />
             <Button type="submit" disabled={poles.length === 0}>
               Registrar infraestrutura em rascunho
             </Button>
@@ -315,9 +350,13 @@ export default async function PilotSetupPage({
 
           <div className="grid gap-3">
             {poles.map((pole) => {
-              const poleVenues = venues.filter((venue) => venue.poleId === pole.id);
+              const poleVenues = venues.filter(
+                (venue) => venue.poleId === pole.id,
+              );
               const ids = new Set(poleVenues.map((venue) => venue.id));
-              const poleCourts = courts.filter((court) => ids.has(court.venueId));
+              const poleCourts = courts.filter((court) =>
+                ids.has(court.venueId),
+              );
               const ready =
                 poleVenues.some((venue) => venue.status === "active") &&
                 poleCourts.some((court) => court.status === "active");
@@ -327,13 +366,23 @@ export default async function PilotSetupPage({
                     <div>
                       <p className="font-bold">{pole.name}</p>
                       <p className="mt-1 text-xs text-zinc-600">
-                        {poleVenues.length} local(is) · {poleCourts.length} quadra(s)
+                        {poleVenues.length} local(is) · {poleCourts.length}{" "}
+                        quadra(s)
                       </p>
                     </div>
-                    <Badge>{ready ? "operacional" : poleCourts.length ? "rascunho" : "sem quadra"}</Badge>
+                    <Badge>
+                      {ready
+                        ? "operacional"
+                        : poleCourts.length
+                          ? "rascunho"
+                          : "sem quadra"}
+                    </Badge>
                   </div>
                   {!ready && poleVenues.length > 0 && poleCourts.length > 0 && (
-                    <form action={homologatePilotInfrastructureAction} className="mt-4 grid gap-3">
+                    <form
+                      action={homologatePilotInfrastructureAction}
+                      className="mt-4 grid gap-3"
+                    >
                       <input type="hidden" name="poleId" value={pole.id} />
                       <Input
                         id={`infra-confirm-${pole.id}`}
@@ -365,14 +414,24 @@ export default async function PilotSetupPage({
               Definir o primeiro UR Play
             </h2>
             <p className="mt-2 max-w-3xl text-sm leading-6 text-zinc-500">
-              Aqui o horário ainda é uma oportunidade em coleta de interesse, não uma reserva confirmada. Todos os parâmetros abaixo são decisões reais do administrador.
+              Aqui o horário ainda é uma oportunidade em coleta de interesse,
+              não uma reserva confirmada. Todos os parâmetros abaixo são
+              decisões reais do administrador.
             </p>
           </div>
           <Badge>{opportunities.length} aguardando confirmação</Badge>
         </div>
 
-        <form action={createPilotOpportunityAction} className="mt-5 grid gap-4 lg:grid-cols-2">
-          <Input id="pilot-title" name="title" label="Nome da oportunidade" required />
+        <form
+          action={createPilotOpportunityAction}
+          className="mt-5 grid gap-4 lg:grid-cols-2"
+        >
+          <Input
+            id="pilot-title"
+            name="title"
+            label="Nome da oportunidade"
+            required
+          />
           <label className="grid gap-2 text-sm font-medium">
             Quadra homologada
             <select
@@ -389,18 +448,38 @@ export default async function PilotSetupPage({
                 const pole = poles.find((item) => item.id === venue?.poleId);
                 return (
                   <option key={court.id} value={court.id}>
-                    {pole?.name ?? "Polo"} · {venue?.name ?? "Local"} · {court.name}
+                    {pole?.name ?? "Polo"} · {venue?.name ?? "Local"} ·{" "}
+                    {court.name}
                   </option>
                 );
               })}
             </select>
           </label>
-          <Input id="pilot-start" name="startsAt" label="Início real" type="datetime-local" required />
-          <Input id="pilot-end" name="endsAt" label="Fim real" type="datetime-local" required />
+          <Input
+            id="pilot-start"
+            name="startsAt"
+            label="Início real"
+            type="datetime-local"
+            required
+          />
+          <Input
+            id="pilot-end"
+            name="endsAt"
+            label="Fim real"
+            type="datetime-local"
+            required
+          />
           <label className="grid gap-2 text-sm font-medium">
             Nível
-            <select name="level" required defaultValue="" className="rounded-ur bg-ur-black min-h-11 border px-3 text-white">
-              <option value="" disabled>Selecione</option>
+            <select
+              name="level"
+              required
+              defaultValue=""
+              className="rounded-ur bg-ur-black min-h-11 border px-3 text-white"
+            >
+              <option value="" disabled>
+                Selecione
+              </option>
               <option value="leveling">Nivelamento</option>
               <option value="n3">N3</option>
               <option value="n2">N2</option>
@@ -409,30 +488,79 @@ export default async function PilotSetupPage({
           </label>
           <label className="grid gap-2 text-sm font-medium">
             Formato
-            <select name="formatCode" required defaultValue="" className="rounded-ur bg-ur-black min-h-11 border px-3 text-white">
-              <option value="" disabled>Selecione</option>
+            <select
+              name="formatCode"
+              required
+              defaultValue=""
+              className="rounded-ur bg-ur-black min-h-11 border px-3 text-white"
+            >
+              <option value="" disabled>
+                Selecione
+              </option>
               <option value="doubles">Duplas</option>
               <option value="fours">Quartetos</option>
             </select>
           </label>
           <label className="grid gap-2 text-sm font-medium">
             Categoria
-            <select name="categoryCode" required defaultValue="" className="rounded-ur bg-ur-black min-h-11 border px-3 text-white">
-              <option value="" disabled>Selecione</option>
+            <select
+              name="categoryCode"
+              required
+              defaultValue=""
+              className="rounded-ur bg-ur-black min-h-11 border px-3 text-white"
+            >
+              <option value="" disabled>
+                Selecione
+              </option>
               <option value="female">Feminino</option>
               <option value="male">Masculino</option>
               <option value="mixed">Misto</option>
             </select>
           </label>
-          <Input id="pilot-target" name="targetFormations" label="Formações-alvo" type="number" min={1} max={24} required />
-          <Input id="pilot-max" name="maxFormations" label="Máximo de formações" type="number" min={1} max={24} required />
-          <Input id="pilot-capacity" name="capacityAthletes" label="Capacidade de atletas" type="number" min={2} max={96} required />
+          <Input
+            id="pilot-target"
+            name="targetFormations"
+            label="Formações-alvo"
+            type="number"
+            min={1}
+            max={24}
+            required
+          />
+          <Input
+            id="pilot-max"
+            name="maxFormations"
+            label="Máximo de formações"
+            type="number"
+            min={1}
+            max={24}
+            required
+          />
+          <Input
+            id="pilot-capacity"
+            name="capacityAthletes"
+            label="Capacidade de atletas"
+            type="number"
+            min={2}
+            max={96}
+            required
+          />
           <div className="lg:col-span-2">
-            <Button type="submit" disabled={!seasonReady || activeCourts.length === 0}>
+            <Button
+              type="submit"
+              disabled={!seasonReady || activeCourts.length === 0}
+            >
               Abrir coleta de interesse
             </Button>
-            {!seasonReady && <p className="mt-2 text-xs text-amber-300">Homologue a temporada antes desta etapa.</p>}
-            {activeCourts.length === 0 && <p className="mt-2 text-xs text-amber-300">Homologue ao menos uma quadra antes desta etapa.</p>}
+            {!seasonReady && (
+              <p className="mt-2 text-xs text-amber-300">
+                Homologue a temporada antes desta etapa.
+              </p>
+            )}
+            {activeCourts.length === 0 && (
+              <p className="mt-2 text-xs text-amber-300">
+                Homologue ao menos uma quadra antes desta etapa.
+              </p>
+            )}
           </div>
         </form>
       </Card>
@@ -444,7 +572,9 @@ export default async function PilotSetupPage({
             Converter demanda em sessão oficial
           </h2>
           <p className="mt-2 max-w-4xl text-sm leading-6 text-zinc-500">
-            A confirmação cria calendário, sessão, escopo competitivo e vínculo com a quadra. Se a demanda mínima não existir, o banco só aceita override acompanhado de justificativa administrativa real.
+            A confirmação cria calendário, sessão, escopo competitivo e vínculo
+            com a quadra. Se a demanda mínima não existir, o banco só aceita
+            override acompanhado de justificativa administrativa real.
           </p>
         </div>
 
@@ -468,64 +598,142 @@ export default async function PilotSetupPage({
               const formationSize = opportunity.formatCode === "fours" ? 4 : 2;
               const demandReady =
                 opportunity.readyFormations >= opportunity.minFormations ||
-                opportunity.interestedCount >= opportunity.minFormations * formationSize;
+                opportunity.interestedCount >=
+                  opportunity.minFormations * formationSize;
 
               return (
-                <div key={opportunity.id} className="rounded-ur grid gap-5 border p-4 xl:grid-cols-[0.7fr_1.3fr]">
+                <div
+                  key={opportunity.id}
+                  className="rounded-ur grid gap-5 border p-4 xl:grid-cols-[0.7fr_1.3fr]"
+                >
                   <div>
                     <div className="flex items-start justify-between gap-3">
                       <div>
                         <p className="font-bold">{opportunity.title}</p>
                         <p className="mt-1 text-xs text-zinc-600">
-                          {dateFormatter.format(new Date(opportunity.startsAt))} → {dateFormatter.format(new Date(opportunity.endsAt))}
+                          {dateFormatter.format(new Date(opportunity.startsAt))}{" "}
+                          → {dateFormatter.format(new Date(opportunity.endsAt))}
                         </p>
                       </div>
-                      <Badge>{demandReady ? "demanda pronta" : "coletando"}</Badge>
+                      <Badge>
+                        {demandReady ? "demanda pronta" : "coletando"}
+                      </Badge>
                     </div>
                     <div className="mt-4 grid grid-cols-2 gap-2 text-sm">
                       <div className="rounded-ur border p-3">
                         <p className="text-xs text-zinc-600">Interessados</p>
-                        <p className="mt-1 font-black">{opportunity.interestedCount}</p>
+                        <p className="mt-1 font-black">
+                          {opportunity.interestedCount}
+                        </p>
                       </div>
                       <div className="rounded-ur border p-3">
                         <p className="text-xs text-zinc-600">Formações</p>
-                        <p className="mt-1 font-black">{opportunity.readyFormations}</p>
+                        <p className="mt-1 font-black">
+                          {opportunity.readyFormations}
+                        </p>
                       </div>
                     </div>
                   </div>
 
-                  <form action={confirmPilotSessionAction} className="grid gap-3 md:grid-cols-2">
-                    <input type="hidden" name="opportunityId" value={opportunity.id} />
+                  <form
+                    action={confirmPilotSessionAction}
+                    className="grid gap-3 md:grid-cols-2"
+                  >
+                    <input
+                      type="hidden"
+                      name="opportunityId"
+                      value={opportunity.id}
+                    />
                     <label className="grid gap-2 text-sm font-medium">
                       Macro interno compatível
-                      <select name="cycleId" required defaultValue="" className="rounded-ur bg-ur-black min-h-11 border px-3 text-white">
-                        <option value="" disabled>Selecione</option>
+                      <select
+                        name="cycleId"
+                        required
+                        defaultValue=""
+                        className="rounded-ur bg-ur-black min-h-11 border px-3 text-white"
+                      >
+                        <option value="" disabled>
+                          Selecione
+                        </option>
                         {validCycles.map((cycle) => (
-                          <option key={cycle.id} value={cycle.id}>{cycle.name}</option>
+                          <option key={cycle.id} value={cycle.id}>
+                            {cycle.name}
+                          </option>
                         ))}
                       </select>
                     </label>
                     <label className="grid gap-2 text-sm font-medium">
                       Quadra
-                      <select name="courtId" required defaultValue="" className="rounded-ur bg-ur-black min-h-11 border px-3 text-white">
-                        <option value="" disabled>Selecione</option>
+                      <select
+                        name="courtId"
+                        required
+                        defaultValue=""
+                        className="rounded-ur bg-ur-black min-h-11 border px-3 text-white"
+                      >
+                        <option value="" disabled>
+                          Selecione
+                        </option>
                         {compatibleCourts.map((court) => (
-                          <option key={court.id} value={court.id}>{court.name}</option>
+                          <option key={court.id} value={court.id}>
+                            {court.name}
+                          </option>
                         ))}
                       </select>
                     </label>
-                    <Input id={`close-${opportunity.id}`} name="registrationClosesAt" label="Fechamento das reservas" type="datetime-local" required />
-                    <Input id={`price-${opportunity.id}`} name="priceAmount" label="Preço por atleta (R$)" type="number" min={0} step="0.01" required />
-                    <Input id={`price-label-${opportunity.id}`} name="priceLabel" label="Descrição do preço" />
-                    <Input id={`cancel-${opportunity.id}`} name="cancellationHours" label="Janela sem cobrança (horas)" type="number" min={0} max={168} required />
+                    <Input
+                      id={`close-${opportunity.id}`}
+                      name="registrationClosesAt"
+                      label="Fechamento das reservas"
+                      type="datetime-local"
+                      required
+                    />
+                    <Input
+                      id={`price-${opportunity.id}`}
+                      name="priceAmount"
+                      label="Preço por atleta (R$)"
+                      type="number"
+                      min={0}
+                      step="0.01"
+                      required
+                    />
+                    <Input
+                      id={`price-label-${opportunity.id}`}
+                      name="priceLabel"
+                      label="Descrição do preço"
+                    />
+                    <Input
+                      id={`cancel-${opportunity.id}`}
+                      name="cancellationHours"
+                      label="Janela sem cobrança (horas)"
+                      type="number"
+                      min={0}
+                      max={168}
+                      required
+                    />
                     <div className="md:col-span-2">
-                      <Input id={`override-${opportunity.id}`} name="overrideReason" label="Justificativa de override (somente se demanda insuficiente)" />
+                      <Input
+                        id={`override-${opportunity.id}`}
+                        name="overrideReason"
+                        label="Justificativa de override (somente se demanda insuficiente)"
+                      />
                     </div>
                     <div className="md:col-span-2">
-                      <Input id={`confirm-${opportunity.id}`} name="confirmation" label="Digite CONFIRMAR" autoComplete="off" required />
+                      <Input
+                        id={`confirm-${opportunity.id}`}
+                        name="confirmation"
+                        label="Digite CONFIRMAR"
+                        autoComplete="off"
+                        required
+                      />
                     </div>
                     <div className="md:col-span-2">
-                      <Button type="submit" disabled={validCycles.length === 0 || compatibleCourts.length === 0}>
+                      <Button
+                        type="submit"
+                        disabled={
+                          validCycles.length === 0 ||
+                          compatibleCourts.length === 0
+                        }
+                      >
                         Confirmar UR Play oficial
                       </Button>
                     </div>
@@ -547,9 +755,14 @@ export default async function PilotSetupPage({
                 {readiness.targetSession.name}
               </p>
               <p className="mt-1 text-sm text-emerald-200/70">
-                {readiness.targetSession.status} · {readiness.targetSession.poleName ?? "Polo"} · {readiness.targetSession.courts} quadra(s)
+                {readiness.targetSession.status} ·{" "}
+                {readiness.targetSession.poleName ?? "Polo"} ·{" "}
+                {readiness.targetSession.courts} quadra(s)
               </p>
-              <Link href="/admin/ur-play/quadra" className="text-ur-gold mt-4 inline-flex items-center gap-2 text-sm font-black">
+              <Link
+                href="/admin/ur-play/quadra"
+                className="text-ur-gold mt-4 inline-flex items-center gap-2 text-sm font-black"
+              >
                 Abrir operação de quadra <ArrowRight size={15} />
               </Link>
             </div>
@@ -563,7 +776,10 @@ export default async function PilotSetupPage({
           <div>
             <p className="font-bold">Princípio do assistente</p>
             <p className="mt-1 text-sm leading-6 text-zinc-500">
-              Ele reduz navegação e risco operacional, mas não transforma hipótese em dado. Nome da quadra, endereço, horário, preço, janela de cancelamento, categoria, nível e eventual override continuam sendo decisões explícitas e auditáveis.
+              Ele reduz navegação e risco operacional, mas não transforma
+              hipótese em dado. Nome da quadra, endereço, horário, preço, janela
+              de cancelamento, categoria, nível e eventual override continuam
+              sendo decisões explícitas e auditáveis.
             </p>
           </div>
         </div>
