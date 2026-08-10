@@ -254,7 +254,7 @@ export default async function AttendancePage({
                                     name="registrationId"
                                     value={registration.id}
                                   />
-                                  <Button type="submit" size="sm">
+                                  <Button type="submit">
                                     <UserCheck size={15} aria-hidden="true" /> Check-in
                                   </Button>
                                 </form>
@@ -269,7 +269,7 @@ export default async function AttendancePage({
                                     name="reason"
                                     value="No-show registrado pela mesa de operação"
                                   />
-                                  <Button type="submit" size="sm" variant="secondary">
+                                  <Button type="submit" variant="secondary">
                                     <UserX size={15} aria-hidden="true" /> No-show
                                   </Button>
                                 </form>
