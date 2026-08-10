@@ -46,7 +46,11 @@ export function AthleteInviteForm({
             <option value="30">30 dias</option>
           </select>
         </label>
-        <Button type="submit" disabled={pending} className="min-h-10 px-3 py-2 text-sm">
+        <Button
+          type="submit"
+          disabled={pending}
+          className="min-h-10 px-3 py-2 text-sm"
+        >
           {pending
             ? "Emitindo..."
             : hasActiveInvite
@@ -57,7 +61,8 @@ export function AthleteInviteForm({
 
       {hasActiveInvite && state.status === "idle" && (
         <p className="text-xs leading-5 text-zinc-500">
-          Renovar cria um novo token e revoga automaticamente o convite anterior.
+          Renovar cria um novo token e revoga automaticamente o convite
+          anterior.
         </p>
       )}
 
@@ -71,8 +76,12 @@ export function AthleteInviteForm({
 
       {state.status === "success" && state.invitePath && (
         <div className="rounded-ur border-ur-gold/30 grid gap-2 border p-3">
-          <p className="text-xs font-bold text-zinc-500 uppercase">Link de uso único</p>
-          <code className="text-xs break-all text-zinc-300">{state.invitePath}</code>
+          <p className="text-xs font-bold text-zinc-500 uppercase">
+            Link de uso único
+          </p>
+          <code className="text-xs break-all text-zinc-300">
+            {state.invitePath}
+          </code>
           <Button
             type="button"
             variant="secondary"
