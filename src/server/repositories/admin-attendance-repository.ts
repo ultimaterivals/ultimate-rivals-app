@@ -39,8 +39,12 @@ export type RawAttendanceActivity = {
 export async function fetchAdminAttendanceRepositoryData(now = new Date()) {
   const supabase = await createClient();
   const errors: string[] = [];
-  const rangeStart = new Date(now.getTime() - 12 * 60 * 60 * 1000).toISOString();
-  const rangeEnd = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000).toISOString();
+  const rangeStart = new Date(
+    now.getTime() - 12 * 60 * 60 * 1000,
+  ).toISOString();
+  const rangeEnd = new Date(
+    now.getTime() + 7 * 24 * 60 * 60 * 1000,
+  ).toISOString();
 
   const sessionsResult = await supabase
     .from("ur_play_sessions")
