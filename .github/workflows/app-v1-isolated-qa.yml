@@ -192,6 +192,9 @@ jobs:
       - name: Run public E2E smoke
         run: npx playwright test tests/e2e/public.spec.ts --project=chromium --project=mobile
 
+      - name: Run authenticated Athlete App and Preview E2E
+        run: npx playwright test tests/e2e/authenticated-app.spec.ts --project=chromium
+
       - name: Stop disposable Supabase
         if: always()
         run: npx --yes supabase@2.111.0 stop --no-backup
