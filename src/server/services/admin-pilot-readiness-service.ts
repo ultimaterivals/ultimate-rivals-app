@@ -6,6 +6,7 @@ import type {
 import { getAdminAthleteWavesSnapshot } from "@/server/services/admin-athlete-waves-service";
 import { getAdminCourtOpsSnapshot } from "@/server/services/admin-court-ops-service";
 import { getAdminPolesInfrastructureSnapshot } from "@/server/services/admin-poles-infrastructure-service";
+import { getAdminQuarterSeasonSnapshot } from "@/server/services/admin-quarter-season-service";
 
 const sessionOrder = [
   "in_progress",
@@ -29,11 +30,18 @@ function gate(
 export async function getAdminPilotReadinessSnapshot(
   now = new Date(),
 ): Promise<AdminPilotReadinessSnapshot> {
-  const [waves, infrastructure, courtOps] = await Promise.all([
+  const [quarterSeason, waves, infrastructure, courtOps] = await Promise.all([
+    getAdminQuarterSeasonSnapshot(now),
     getAdminAthleteWavesSnapshot(now),
     getAdminPolesInfrastructureSnapshot(),
     getAdminCourtOpsSnapshot(now),
   ]);
+
+  const operationalSeason = quarterSeason.currentSeason;
+  const seasonOperational = Boolean(
+    operationalSeason?.structureReady &&
+      ["registration", "active"].includes(operationalSeason.status),
+  );
 
   const statusPriority = new Map([
     ["running", 0],
@@ -89,6 +97,7 @@ export async function getAdminPilotReadinessSnapshot(
 
   const sourceErrors = [
     ...new Set([
+      ...quarterSeason.sourceErrors,
       ...waves.sourceErrors,
       ...infrastructure.sourceErrors,
       ...courtOps.sourceErrors,
@@ -96,6 +105,22 @@ export async function getAdminPilotReadinessSnapshot(
   ];
 
   const gates: PilotReadinessGate[] = [
+    gate(
+      "season",
+      "Temporada operacional",
+      seasonOperational
+        ? "ready"
+        : operationalSeason?.structureReady
+          ? "attention"
+          : "blocked",
+      operationalSeason
+        ? seasonOperational
+          ? `${operationalSeason.name} · 13/13 semanas · status ${operationalSeason.status}${operationalSeason.currentWeek ? ` · W${operationalSeason.currentWeek.weekNumber}` : ""}.`
+          : `${operationalSeason.name} possui 13 semanas, mas ainda precisa de homologação institucional.`
+        : "Nenhuma temporada trimestral com W1–W13 foi criada.",
+      "/admin/agenda/temporada",
+      operationalSeason ? "Revisar temporada" : "Criar temporada",
+    ),
     gate(
       "wave",
       "Onda definida",
