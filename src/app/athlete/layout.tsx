@@ -1,15 +1,20 @@
 import type { ReactNode } from "react";
 import { AthleteShell } from "@/components/athlete/athlete-shell";
-import { requireRole } from "@/lib/auth/session";
+import { requireAthleteViewer } from "@/lib/auth/athlete-viewer";
 
 export default async function AthleteLayout({
   children,
 }: {
   children: ReactNode;
 }) {
-  const user = await requireRole(["athlete"]);
+  const viewer = await requireAthleteViewer();
 
   return (
-    <AthleteShell userLabel={user.email ?? "Atleta"}>{children}</AthleteShell>
+    <AthleteShell
+      userLabel={viewer.athlete.publicName}
+      preview={viewer.isPreview ? viewer.athlete : null}
+    >
+      {children}
+    </AthleteShell>
   );
 }
