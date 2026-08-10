@@ -8,6 +8,7 @@ import {
 } from "lucide-react";
 import {
   importAthleteStagingRowAction,
+  importReadyAthleteBatchAction,
   reviewAthleteImportRowAction,
 } from "@/app/admin/atletas/importacao/actions";
 import { Button, Card, PageHeader } from "@/components/ui";
@@ -27,6 +28,12 @@ const resultMessages: Record<string, string> = {
   reviewed: "Revisão salva e auditada.",
   imported:
     "Atleta criado como draft. Nenhuma conta foi criada e o atleta ainda não está ativo.",
+  "batch-imported":
+    "Linhas prontas importadas como draft em uma única transação atômica.",
+  "batch-import-error":
+    "O lote não foi importado. A transação foi revertida integralmente.",
+  "batch-invalid":
+    "Confirmação do lote inválida. Digite exatamente IMPORTAR DRAFTS.",
   "pole-not-configured":
     "Importação bloqueada: o polo informado ainda não existe na configuração do UR.",
   duplicate: "Importação bloqueada: existe atleta potencialmente duplicado.",
@@ -139,6 +146,46 @@ export default async function AthleteImportPage({
           </Link>
         </div>
       </Card>
+
+      {snapshot.selectedBatch && snapshot.metrics.ready > 0 && (
+        <Card className="border-ur-gold/30">
+          <div className="grid gap-4 lg:grid-cols-[1fr_auto] lg:items-end">
+            <div>
+              <p className="font-bold text-white">
+                Importar {snapshot.metrics.ready} registros prontos como draft
+              </p>
+              <p className="mt-1 max-w-3xl text-sm leading-6 text-zinc-500">
+                A operação é atômica: se uma linha falhar por duplicidade, polo ou
+                validação, nenhuma linha do lote é persistida. Conta, nível, equipe e
+                status ativo não são criados nesta etapa.
+              </p>
+            </div>
+            <form action={importReadyAthleteBatchAction} className="grid gap-2">
+              <input
+                type="hidden"
+                name="batchId"
+                value={snapshot.selectedBatch.id}
+              />
+              <label className="grid gap-1 text-xs font-bold text-zinc-500 uppercase">
+                Confirmação
+                <input
+                  name="confirmation"
+                  required
+                  placeholder="IMPORTAR DRAFTS"
+                  autoComplete="off"
+                  className="rounded-ur bg-ur-black min-h-10 border px-3 text-sm text-white"
+                />
+              </label>
+              <Button
+                type="submit"
+                disabled={snapshot.missingReadyPoles.length > 0}
+              >
+                Importar lote pronto
+              </Button>
+            </form>
+          </div>
+        </Card>
+      )}
 
       <form className="rounded-ur flex flex-wrap gap-2 border p-3" role="search">
         <input
