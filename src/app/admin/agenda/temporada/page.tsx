@@ -33,7 +33,8 @@ const successMessages: Record<string, string> = {
 
 const errorMessages: Record<string, string> = {
   invalid_request: "Revise nome, código e data inicial.",
-  invalid_confirmation: "Digite HOMOLOGAR para confirmar a ativação institucional.",
+  invalid_confirmation:
+    "Digite HOMOLOGAR para confirmar a ativação institucional.",
   ADMIN_REQUIRED: "Essa operação exige perfil administrador.",
   INVALID_SEASON_NAME: "Nome de temporada inválido.",
   INVALID_SEASON_CODE:
@@ -140,8 +141,8 @@ export default async function QuarterSeasonPage({
             Nova temporada trimestral
           </h2>
           <p className="mt-2 text-sm leading-6 text-zinc-500">
-            Nenhuma temporada é ativada automaticamente. Ela nasce em rascunho
-            e só entra em operação após homologação explícita.
+            Nenhuma temporada é ativada automaticamente. Ela nasce em rascunho e
+            só entra em operação após homologação explícita.
           </p>
 
           <form action={createQuarterSeasonAction} className="mt-5 grid gap-4">
@@ -259,7 +260,10 @@ export default async function QuarterSeasonPage({
               </div>
 
               {season.status === "draft" ? (
-                <form action={homologateQuarterSeasonAction} className="grid gap-3">
+                <form
+                  action={homologateQuarterSeasonAction}
+                  className="grid gap-3"
+                >
                   <input type="hidden" name="seasonId" value={season.id} />
                   <label className="grid gap-2 text-xs font-bold text-zinc-500 uppercase">
                     Confirmação institucional
@@ -355,8 +359,8 @@ export default async function QuarterSeasonPage({
               <p className="font-bold">Macro-ciclos são internos</p>
               <p className="mt-1 text-sm leading-6 text-zinc-500">
                 Os três registros abaixo existem apenas para compatibilidade com
-                sessões e módulos legados. Eles não substituem W1–W13 no produto,
-                no calendário ou na comunicação da temporada.
+                sessões e módulos legados. Eles não substituem W1–W13 no
+                produto, no calendário ou na comunicação da temporada.
               </p>
               <div className="mt-3 flex flex-wrap gap-2">
                 {season.compatibilityCycles.map((cycle) => (

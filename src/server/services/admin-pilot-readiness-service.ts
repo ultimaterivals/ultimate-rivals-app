@@ -40,7 +40,7 @@ export async function getAdminPilotReadinessSnapshot(
   const operationalSeason = quarterSeason.currentSeason;
   const seasonOperational = Boolean(
     operationalSeason?.structureReady &&
-      ["registration", "active"].includes(operationalSeason.status),
+    ["registration", "active"].includes(operationalSeason.status),
   );
 
   const statusPriority = new Map([
