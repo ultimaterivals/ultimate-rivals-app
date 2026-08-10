@@ -38,6 +38,12 @@ export default function AthletesLayout({ children }: { children: ReactNode }) {
         >
           Ondas de ativação
         </Link>
+        <Link
+          href="/admin/atletas/ondas/executar"
+          className="rounded-ur px-3 py-2 text-sm font-bold text-zinc-400 transition hover:bg-white/5 hover:text-white"
+        >
+          Execução assistida
+        </Link>
       </nav>
       {children}
     </div>
