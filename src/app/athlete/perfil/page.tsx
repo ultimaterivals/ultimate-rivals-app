@@ -92,7 +92,9 @@ export default async function AthleteProfilePage({
   ]);
   const athlete = snapshot.identity;
   const error = single(params.error);
-  const activeAvailability = availability.windows.filter((window) => window.active);
+  const activeAvailability = availability.windows.filter(
+    (window) => window.active,
+  );
 
   return (
     <div className="grid gap-8">
@@ -150,9 +152,10 @@ export default async function AthleteProfilePage({
                           : "Preparação para matchmaking"}
                       </p>
                       <p className="mt-2 max-w-3xl text-sm leading-6 text-zinc-400">
-                        O UR só coloca você automaticamente em partidas compatíveis
-                        quando cadastro institucional, polo, categoria esportiva e
-                        disponibilidade estiverem prontos. Disponibilidade não é reserva.
+                        O UR só coloca você automaticamente em partidas
+                        compatíveis quando cadastro institucional, polo,
+                        categoria esportiva e disponibilidade estiverem prontos.
+                        Disponibilidade não é reserva.
                       </p>
                     </div>
                     <Badge>{matchmakingReady ? "pronto" : "pendências"}</Badge>
@@ -200,7 +203,9 @@ export default async function AthleteProfilePage({
                           className="text-ur-gold inline-flex items-center gap-1 text-xs font-bold"
                         >
                           <Clock3 size={13} aria-hidden="true" />
-                          {availabilityReady ? "Revisar horários" : "Configurar horários"}
+                          {availabilityReady
+                            ? "Revisar horários"
+                            : "Configurar horários"}
                         </Link>
                       }
                     />
@@ -229,7 +234,9 @@ export default async function AthleteProfilePage({
                           {snapshot.summary?.level && (
                             <Badge>{snapshot.summary.level}</Badge>
                           )}
-                          <Badge>{genderLabels[athlete.gender] ?? athlete.gender}</Badge>
+                          <Badge>
+                            {genderLabels[athlete.gender] ?? athlete.gender}
+                          </Badge>
                         </div>
                         {athlete.bio && (
                           <p className="mt-4 max-w-2xl text-sm leading-6 text-zinc-400">
@@ -242,7 +249,9 @@ export default async function AthleteProfilePage({
                       {(athlete.city || athlete.state) && (
                         <span className="flex items-center gap-2">
                           <MapPin size={15} aria-hidden="true" />
-                          {[athlete.city, athlete.state].filter(Boolean).join(" / ")}
+                          {[athlete.city, athlete.state]
+                            .filter(Boolean)
+                            .join(" / ")}
                         </span>
                       )}
                       {athlete.instagramHandle && (
@@ -269,7 +278,9 @@ export default async function AthleteProfilePage({
                             />
                             <div>
                               <p className="font-bold">{team.name}</p>
-                              <p className="text-xs text-zinc-500">Equipe Oficial</p>
+                              <p className="text-xs text-zinc-500">
+                                Equipe Oficial
+                              </p>
                             </div>
                           </div>
                         ))
@@ -287,12 +298,12 @@ export default async function AthleteProfilePage({
                     Informação usada nas categorias
                   </p>
                   <p className="mt-2 max-w-3xl text-sm leading-6 text-zinc-500">
-                    Esta informação é escolhida por você. O Ultimate Rivals não infere
-                    categoria pelo seu nome, equipe ou inscrição antiga. No motor
-                    competitivo atual, feminino e masculino confirmados permitem o
-                    encaixe automático em Feminino, Masculino e Misto. Outras opções são
-                    preservadas no cadastro e exigem revisão operacional antes de uma
-                    competição por categoria.
+                    Esta informação é escolhida por você. O Ultimate Rivals não
+                    infere categoria pelo seu nome, equipe ou inscrição antiga.
+                    No motor competitivo atual, feminino e masculino confirmados
+                    permitem o encaixe automático em Feminino, Masculino e
+                    Misto. Outras opções são preservadas no cadastro e exigem
+                    revisão operacional antes de uma competição por categoria.
                   </p>
                   <form
                     action={updateMatchmakingIdentityAction}
@@ -309,7 +320,9 @@ export default async function AthleteProfilePage({
                         <option value="female">Feminino</option>
                         <option value="male">Masculino</option>
                         <option value="non_binary">Não binário</option>
-                        <option value="undisclosed">Prefiro não informar / ainda não confirmado</option>
+                        <option value="undisclosed">
+                          Prefiro não informar / ainda não confirmado
+                        </option>
                       </select>
                     </label>
                     <button
@@ -340,15 +353,21 @@ export default async function AthleteProfilePage({
                           >
                             <div>
                               <p className="text-sm font-bold">{item.name}</p>
-                              <p className="text-xs text-zinc-600">{item.code}</p>
+                              <p className="text-xs text-zinc-600">
+                                {item.code}
+                              </p>
                             </div>
                             <p className="font-display text-xl font-black">
-                              {item.unitsRemaining === null ? "—" : item.unitsRemaining}
+                              {item.unitsRemaining === null
+                                ? "—"
+                                : item.unitsRemaining}
                             </p>
                           </div>
                         ))
                       ) : (
-                        <p className="text-sm text-zinc-500">Nenhum pacote ativo.</p>
+                        <p className="text-sm text-zinc-500">
+                          Nenhum pacote ativo.
+                        </p>
                       )}
                     </div>
                   </Card>
@@ -363,13 +382,17 @@ export default async function AthleteProfilePage({
                     </p>
                     <div className="mt-5 grid grid-cols-2 gap-4">
                       <div>
-                        <p className="text-xs text-zinc-500 uppercase">UR Coins</p>
+                        <p className="text-xs text-zinc-500 uppercase">
+                          UR Coins
+                        </p>
                         <p className="font-display mt-1 text-3xl font-black">
                           {snapshot.summary?.urCoinBalance ?? "—"}
                         </p>
                       </div>
                       <div>
-                        <p className="text-xs text-zinc-500 uppercase">Créditos</p>
+                        <p className="text-xs text-zinc-500 uppercase">
+                          Créditos
+                        </p>
                         <p className="font-display mt-1 text-3xl font-black">
                           {snapshot.creditBalance ?? "—"}
                         </p>
