@@ -22,8 +22,10 @@ export function CommandLaunchDesk({
 }) {
   const go = snapshot.status === "go";
   const session = snapshot.targetSession;
-  const primaryHref = go && session ? "/admin/ur-play/quadra" : "/admin/agenda/piloto";
-  const primaryLabel = go && session ? "Abrir operação de quadra" : "Abrir assistente do piloto";
+  const primaryHref =
+    go && session ? "/admin/ur-play/quadra" : "/admin/agenda/piloto";
+  const primaryLabel =
+    go && session ? "Abrir operação de quadra" : "Abrir assistente do piloto";
 
   return (
     <Card
@@ -39,9 +41,17 @@ export function CommandLaunchDesk({
             className={`rounded-ur grid size-12 shrink-0 place-items-center border ${go ? "border-emerald-500/30 bg-emerald-500/10" : "border-ur-gold/30 bg-black/20"}`}
           >
             {go ? (
-              <Rocket className="text-emerald-300" size={22} aria-hidden="true" />
+              <Rocket
+                className="text-emerald-300"
+                size={22}
+                aria-hidden="true"
+              />
             ) : (
-              <CircleAlert className="text-ur-gold" size={22} aria-hidden="true" />
+              <CircleAlert
+                className="text-ur-gold"
+                size={22}
+                aria-hidden="true"
+              />
             )}
           </div>
 
@@ -55,7 +65,7 @@ export function CommandLaunchDesk({
             <h2 className="font-display mt-2 text-3xl font-black uppercase">
               {go && session
                 ? "Piloto liberado para operação"
-                : snapshot.nextAction?.label ?? "Preparar primeiro UR Play"}
+                : (snapshot.nextAction?.label ?? "Preparar primeiro UR Play")}
             </h2>
             <p className="mt-2 max-w-3xl text-sm leading-6 text-zinc-400">
               {go && session
@@ -67,12 +77,20 @@ export function CommandLaunchDesk({
 
             <div className="mt-4 flex flex-wrap items-center gap-4 text-xs text-zinc-500">
               <span className="flex items-center gap-2">
-                <CheckCircle2 className="text-emerald-400" size={14} aria-hidden="true" />
+                <CheckCircle2
+                  className="text-emerald-400"
+                  size={14}
+                  aria-hidden="true"
+                />
                 {snapshot.readyGates}/{snapshot.totalGates} gates aprovados
               </span>
               {session && (
                 <span className="flex items-center gap-2">
-                  <CalendarClock className="text-ur-gold" size={14} aria-hidden="true" />
+                  <CalendarClock
+                    className="text-ur-gold"
+                    size={14}
+                    aria-hidden="true"
+                  />
                   {dateFormatter.format(new Date(session.startsAt))}
                 </span>
               )}
