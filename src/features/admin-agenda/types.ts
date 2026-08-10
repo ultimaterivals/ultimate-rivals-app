@@ -55,6 +55,22 @@ export type AgendaDemandItem = {
   remainingCapacity: number;
 };
 
+export type AgendaAvailabilityCell = {
+  date: string;
+  dayOfWeek: number;
+  startMinute: number;
+  startLabel: string;
+  athleteCount: number;
+  flexibleAthletes: number;
+};
+
+export type AgendaAvailability = {
+  windows: number | null;
+  athletes: number | null;
+  peakAthletes: number | null;
+  cells: AgendaAvailabilityCell[] | null;
+};
+
 export type AgendaMetrics = {
   events: number | null;
   interested: number | null;
@@ -75,6 +91,7 @@ export type AdminAgendaSnapshot = {
   poles: AgendaPole[] | null;
   events: AgendaEvent[] | null;
   demand: AgendaDemandItem[] | null;
+  availability: AgendaAvailability;
   metrics: AgendaMetrics;
   sourceErrors: string[];
 };

@@ -68,6 +68,7 @@ describe("admin agenda service", () => {
           remaining_capacity: 2,
         },
       ],
+      availability: [],
       errors: [],
     });
 
@@ -113,6 +114,7 @@ describe("admin agenda service", () => {
         },
       ],
       demand: [],
+      availability: [],
       errors: [],
     });
 
@@ -123,5 +125,73 @@ describe("admin agenda service", () => {
 
     expect(snapshot.events).toHaveLength(1);
     expect(snapshot.events?.[0]?.name).toBe("Contagem");
+  });
+
+  it("aggregates unique athletes into recurring 30-minute availability cells", async () => {
+    repositoryMock.mockResolvedValue({
+      poles: [],
+      events: [],
+      demand: [],
+      availability: [
+        {
+          id: "window-1",
+          athlete_id: "athlete-1",
+          day_of_week: 4,
+          starts_at: "19:00:00",
+          ends_at: "21:00:00",
+          pole_id: "contagem",
+          modality: "beach_volleyball",
+          format_codes: ["doubles"],
+          category_codes: ["female"],
+          valid_from: null,
+          valid_until: null,
+          active: true,
+        },
+        {
+          id: "window-2",
+          athlete_id: "athlete-2",
+          day_of_week: 4,
+          starts_at: "19:30:00",
+          ends_at: "20:30:00",
+          pole_id: null,
+          modality: "beach_volleyball",
+          format_codes: ["doubles"],
+          category_codes: ["female"],
+          valid_from: "2026-08-01",
+          valid_until: "2026-08-31",
+          active: true,
+        },
+        {
+          id: "window-3",
+          athlete_id: "athlete-3",
+          day_of_week: 4,
+          starts_at: "19:30:00",
+          ends_at: "20:30:00",
+          pole_id: "bh",
+          modality: "beach_volleyball",
+          format_codes: ["doubles"],
+          category_codes: ["female"],
+          valid_from: null,
+          valid_until: null,
+          active: true,
+        },
+      ],
+      errors: [],
+    });
+
+    const snapshot = await getAdminAgendaSnapshot(
+      { week: "2026-08-10", pole: "contagem" },
+      new Date("2026-08-10T14:00:00.000Z"),
+    );
+
+    const thursday1930 = snapshot.availability.cells?.find(
+      (cell) => cell.date === "2026-08-13" && cell.startLabel === "19:30",
+    );
+
+    expect(snapshot.availability.athletes).toBe(2);
+    expect(snapshot.availability.windows).toBe(2);
+    expect(snapshot.availability.peakAthletes).toBe(2);
+    expect(thursday1930?.athleteCount).toBe(2);
+    expect(thursday1930?.flexibleAthletes).toBe(1);
   });
 });
