@@ -80,6 +80,7 @@ export function AthleteOpportunityCard({
 
   return (
     <Card
+      data-testid={`athlete-opportunity-${opportunity.id}`}
       className={
         opportunity.personalReservationStatus ? "border-ur-gold/60" : undefined
       }
