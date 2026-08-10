@@ -19,6 +19,13 @@ const athleteNavigation: readonly PortalNavItem[] = [
     icon: "calendar",
   },
   {
+    key: "athlete-availability",
+    label: "Disponibilidade",
+    href: "/athlete/disponibilidade",
+    group: "Portal",
+    icon: "calendar",
+  },
+  {
     key: "athlete-ranking",
     label: "Ranking",
     href: "/athlete/ranking",
