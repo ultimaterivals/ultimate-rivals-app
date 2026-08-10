@@ -1,0 +1,26 @@
+name: Format C31
+on:
+  push:
+    branches:
+      - sprint-c31-ur-play-preflight
+permissions:
+  contents: write
+jobs:
+  format:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: sprint-c31-ur-play-preflight
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npx prettier --write src/server/repositories/admin-ur-play-preflight-repository.ts src/server/services/admin-ur-play-preflight-service.ts src/server/services/admin-ur-play-preflight-service.test.ts
+      - run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add src/server/repositories/admin-ur-play-preflight-repository.ts src/server/services/admin-ur-play-preflight-service.ts src/server/services/admin-ur-play-preflight-service.test.ts
+          git commit -m "chore: format c31 preflight sources" || exit 0
+          git push
