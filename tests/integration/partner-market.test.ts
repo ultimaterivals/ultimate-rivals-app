@@ -30,6 +30,95 @@ describe("Venue partners, sponsors and Market MVP", () => {
     expect(privateRedemptionsError).not.toBeNull();
   });
 
+  it("redeems UR Coins atomically and idempotently", async () => {
+    const admin = await clientFor("admin");
+    const athlete = await clientFor("athlete");
+
+    const { data: athleteRow, error: athleteError } = await athlete
+      .from("athletes")
+      .select("id")
+      .single();
+    expect(athleteError).toBeNull();
+    expect(athleteRow?.id).toBeTruthy();
+
+    const { data: item, error: itemError } = await admin
+      .from("market_items")
+      .select("id")
+      .limit(1)
+      .single();
+    expect(itemError).toBeNull();
+
+    const suffix = crypto.randomUUID().slice(0, 8);
+    const { data: offer, error: offerError } = await admin
+      .from("market_offers")
+      .insert({
+        item_id: item?.id,
+        code: `integration_urc_${suffix}`,
+        name: "Oferta URC Integração",
+        status: "active",
+        accepts_brl: false,
+        accepts_urc: true,
+        urc_amount: 40,
+        inventory_limit: 2,
+        per_athlete_limit: 1,
+      })
+      .select("id")
+      .single();
+    expect(offerError).toBeNull();
+
+    const grantKey = `integration-urc-grant-${suffix}`;
+    const { error: grantError } = await admin.from("ur_coin_transactions").insert({
+      athlete_id: athleteRow?.id,
+      transaction_type: "grant",
+      direction: "credit",
+      amount: 100,
+      source_type: "integration_test",
+      idempotency_key: grantKey,
+      reason: "Crédito para teste de resgate",
+    });
+    expect(grantError).toBeNull();
+
+    const operationId = `integration-redemption-${suffix}`;
+    const first = await athlete.rpc("redeem_market_offer_urc", {
+      target_offer: offer?.id,
+      operation_id: operationId,
+    });
+    expect(first.error).toBeNull();
+    expect(first.data?.[0]?.new_balance).toBe(60);
+    expect(first.data?.[0]?.redemption_status).toBe("reserved");
+
+    const second = await athlete.rpc("redeem_market_offer_urc", {
+      target_offer: offer?.id,
+      operation_id: operationId,
+    });
+    expect(second.error).toBeNull();
+    expect(second.data?.[0]?.redemption_id).toBe(first.data?.[0]?.redemption_id);
+    expect(second.data?.[0]?.new_balance).toBe(60);
+
+    const { data: debits, error: debitError } = await athlete
+      .from("ur_coin_transactions")
+      .select("id,amount,direction,source_type")
+      .eq("source_type", "market_redemption");
+    expect(debitError).toBeNull();
+    expect(debits).toHaveLength(1);
+    expect(debits?.[0]).toMatchObject({ amount: 40, direction: "debit" });
+
+    const { data: redemptions, error: redemptionError } = await athlete
+      .from("market_redemptions")
+      .select("id,status,redemption_code")
+      .eq("offer_id", offer?.id);
+    expect(redemptionError).toBeNull();
+    expect(redemptions).toHaveLength(1);
+    expect(redemptions?.[0]?.status).toBe("reserved");
+
+    const secondOperation = await athlete.rpc("redeem_market_offer_urc", {
+      target_offer: offer?.id,
+      operation_id: `${operationId}-second`,
+    });
+    expect(secondOperation.error).not.toBeNull();
+    expect(secondOperation.error?.message.toLowerCase()).toContain("redemption limit");
+  }, 60000);
+
   it("keeps sponsor venue share allocations capped at 20 percent", async () => {
     const admin = await clientFor("admin");
 
