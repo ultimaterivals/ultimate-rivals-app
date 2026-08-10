@@ -43,12 +43,11 @@ test("athlete interest is reflected back into Command demand", async ({
   await login(page, "athlete@test.ur.local", /\/athlete/);
   await page.goto("/athlete/agenda");
 
-  const opportunity = page
-    .getByText("[QA] Interesse - Duplas", { exact: true })
-    .locator("xpath=ancestor::*[.//button[normalize-space()='Registrar interesse']][1]");
-
+  const opportunity = page.getByTestId(
+    "athlete-opportunity-61000000-0000-4000-8000-000000000001",
+  );
   await opportunity.getByRole("button", { name: "Registrar interesse" }).click();
-  await expect(page.getByText("interessado", { exact: true })).toBeVisible({
+  await expect(opportunity.getByText("interessado", { exact: true })).toBeVisible({
     timeout: 20_000,
   });
 
