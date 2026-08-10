@@ -107,14 +107,14 @@ export default async function AthleteProfilePage({
         description="Dados esportivos e vínculos usados pelo Ultimate Rivals para organizar sua jornada e formar jogos compatíveis."
       />
 
-      {single(params.saved) && (
+      {!viewer.isPreview && single(params.saved) && (
         <Card className="border-emerald-500/30 bg-emerald-500/5">
           <p className="text-sm font-bold text-emerald-200">
             Perfil esportivo atualizado.
           </p>
         </Card>
       )}
-      {error && (
+      {!viewer.isPreview && error && (
         <Card className="border-red-500/30 bg-red-500/5">
           <p className="text-sm font-bold text-red-300">
             {errorMessages[error] ?? "Não foi possível concluir a alteração."}
