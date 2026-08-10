@@ -14,6 +14,10 @@ on:
       - "package-lock.json"
       - "playwright.config.ts"
 
+concurrency:
+  group: app-v1-isolated-qa-${{ github.ref }}
+  cancel-in-progress: true
+
 permissions:
   contents: read
 
@@ -87,6 +91,35 @@ jobs:
           done
 
           echo "Reconstructed migration count: $(find supabase/migrations -maxdepth 1 -name '*.sql' | wc -l)"
+
+      - name: Normalize historical QA seed for current demand schema
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          path = Path("scripts/qa-local-test-seed.sql")
+          text = path.read_text()
+
+          columns = "  opportunity_type,\n  status,\n  title,"
+          values = "    'ur_play',\n    'collecting_interest',"
+
+          if text.count(columns) != 1:
+              raise SystemExit("Unexpected demand_opportunities seed column shape")
+          if text.count(values) != 2:
+              raise SystemExit("Unexpected demand_opportunities QA fixture count")
+
+          text = text.replace(
+              columns,
+              "  opportunity_type,\n  modality,\n  status,\n  title,",
+              1,
+          )
+          text = text.replace(
+              values,
+              "    'ur_play',\n    'beach_volleyball',\n    'collecting_interest',",
+              2,
+          )
+          path.write_text(text)
+          PY
 
       - name: Verify isolated Supabase CLI
         run: npx --yes supabase@2.111.0 --version
