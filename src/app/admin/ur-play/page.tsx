@@ -1,17 +1,20 @@
-import { AdminModulePlaceholder } from "@/components/admin/admin-module-placeholder";
+import { Activity, CalendarClock, MapPin, UsersRound, UserRoundCheck, Waves } from "lucide-react";
+import { Badge, Card, PageHeader } from "@/components/ui";
 import { requireAdminModule } from "@/lib/auth/admin-module-access";
+import { getAdminUrPlaySnapshot } from "@/server/services/admin-ur-play-service";
+
+const dateTime = new Intl.DateTimeFormat("pt-BR", { timeZone:"America/Sao_Paulo", weekday:"short", day:"2-digit", month:"2-digit", hour:"2-digit", minute:"2-digit" });
+const money = new Intl.NumberFormat("pt-BR", { style:"currency", currency:"BRL" });
 
 export default async function UrPlayPage() {
   await requireAdminModule("urPlay");
-  return (
-    <AdminModulePlaceholder
-      title="UR Play"
-      description="Infraestrutura semanal de jogo, dados, recorrência e entrada esportiva no ecossistema."
-      nextItems={[
-        "Sessões e capacidade por formação",
-        "Matchmaking, reservas e check-in",
-        "Operação e fechamento da sessão",
-      ]}
-    />
-  );
+  const snapshot = await getAdminUrPlaySnapshot();
+  const upcoming = snapshot.sessions.filter((session)=>new Date(session.startsAt).getTime()>=Date.now()).sort((a,b)=>new Date(a.startsAt).getTime()-new Date(b.startsAt).getTime());
+  const metrics = [["Sessões",snapshot.metrics.sessions,Activity],["Próximas",snapshot.metrics.upcoming,CalendarClock],["Capacidade futura",snapshot.metrics.capacity,UsersRound],["Confirmados",snapshot.metrics.confirmed,UserRoundCheck],["Espera",snapshot.metrics.waitlisted,Waves],["Ocupação média",snapshot.metrics.averageFillRate===null?"—":`${snapshot.metrics.averageFillRate}%`,Activity]] as const;
+  return <div className="grid gap-8">
+    <PageHeader eyebrow="Esportivo" title="UR Play" description="Sessões semanais, capacidade, inscrições, check-in e preparação para matchmaking em uma única visão." action={<Badge>Operação real</Badge>} />
+    <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">{metrics.map(([label,value,Icon])=><Card key={label}><div className="flex items-center justify-between gap-2"><p className="text-xs font-bold text-zinc-500 uppercase">{label}</p><Icon className="text-ur-gold" size={16} aria-hidden="true" /></div><p className="font-display mt-3 text-2xl font-black">{value}</p></Card>)}</div>
+    {upcoming.length===0?<Card><p className="font-bold">Nenhum UR Play futuro registrado.</p><p className="mt-2 text-sm text-zinc-500">A Agenda pode formar demanda antes da criação da sessão oficial.</p></Card>:<div className="grid gap-4 xl:grid-cols-2">{upcoming.slice(0,20).map((session)=><Card key={session.id} className={session.waitlisted>0?"border-ur-gold/60":undefined}><div className="flex items-start justify-between gap-3"><div><p className="font-display text-xl font-black uppercase">{session.name}</p><p className="mt-1 flex items-center gap-2 text-sm text-zinc-500"><MapPin size={14} aria-hidden="true" />{session.poleName??"Sem polo"} · {session.venueName??"Local a definir"}</p></div><Badge>{session.status}</Badge></div><p className="mt-4 flex items-center gap-2 text-sm text-zinc-300"><CalendarClock size={15} className="text-ur-gold" aria-hidden="true" />{dateTime.format(new Date(session.startsAt))}</p><div className="mt-5 grid grid-cols-4 gap-2 text-center"><div><p className="font-display text-xl font-black">{session.confirmed}/{session.capacity}</p><p className="text-[0.62rem] text-zinc-600 uppercase">Confirmados</p></div><div><p className="font-display text-xl font-black">{session.waitlisted}</p><p className="text-[0.62rem] text-zinc-600 uppercase">Espera</p></div><div><p className="font-display text-xl font-black">{session.courts}</p><p className="text-[0.62rem] text-zinc-600 uppercase">Quadras</p></div><div><p className="font-display text-xl font-black">{session.staff}</p><p className="text-[0.62rem] text-zinc-600 uppercase">Staff</p></div></div><div className="mt-4 flex flex-wrap items-center gap-2"><Badge>{session.fillRate}% ocupado</Badge>{session.readyForMatchmaking&&<Badge>Matchmaking pronto</Badge>}{session.scopes>0&&<Badge>{session.scopes} escopo(s)</Badge>}{session.priceAmount!==null&&<span className="ml-auto text-sm font-bold text-ur-gold">{money.format(session.priceAmount)}</span>}</div></Card>)}</div>}
+    {snapshot.sourceErrors.length>0&&<Card><p className="font-bold">Leitura parcial</p><ul className="mt-2 text-sm text-zinc-500">{snapshot.sourceErrors.map((error)=><li key={error}>{error}</li>)}</ul></Card>}
+  </div>;
 }
