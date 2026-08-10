@@ -22,9 +22,7 @@ export async function getAdminCourtOpsSnapshot(
     (raw.athleteGenders ?? []).map((athlete) => [athlete.id, athlete.gender]),
   );
   const poles = new Map((raw.poles ?? []).map((pole) => [pole.id, pole.name]));
-  const venues = new Map(
-    (raw.venues ?? []).map((venue) => [venue.id, venue]),
-  );
+  const venues = new Map((raw.venues ?? []).map((venue) => [venue.id, venue]));
   const courts = new Map((raw.courts ?? []).map((court) => [court.id, court]));
   const formats = new Map(
     (raw.formats ?? []).map((format) => [format.id, format]),
@@ -33,15 +31,25 @@ export async function getAdminCourtOpsSnapshot(
     (raw.categories ?? []).map((category) => [category.id, category]),
   );
   const scoreboards = new Map(
-    (raw.scoreboards ?? []).map((scoreboard) => [scoreboard.match_id, scoreboard]),
+    (raw.scoreboards ?? []).map((scoreboard) => [
+      scoreboard.match_id,
+      scoreboard,
+    ]),
   );
   const results = new Map(
     (raw.results ?? []).map((result) => [result.match_id, result]),
   );
-  const rankingRuns = new Map<string, (typeof raw.rankingRuns extends infer T ? never : never)>();
-  const latestRankingRun = new Map<string, NonNullable<typeof raw.rankingRuns>[number]>();
+  const rankingRuns = new Map<
+    string,
+    typeof raw.rankingRuns extends infer T ? never : never
+  >();
+  const latestRankingRun = new Map<
+    string,
+    NonNullable<typeof raw.rankingRuns>[number]
+  >();
   for (const run of raw.rankingRuns ?? []) {
-    if (!latestRankingRun.has(run.source_id)) latestRankingRun.set(run.source_id, run);
+    if (!latestRankingRun.has(run.source_id))
+      latestRankingRun.set(run.source_id, run);
   }
   void rankingRuns;
 
@@ -207,7 +215,9 @@ export async function getAdminCourtOpsSnapshot(
       queue: sessionQueue,
       matches: matches
         .filter((match) => match.sessionId === session.id)
-        .sort((a, b) => (a.scheduledOrder ?? 9999) - (b.scheduledOrder ?? 9999)),
+        .sort(
+          (a, b) => (a.scheduledOrder ?? 9999) - (b.scheduledOrder ?? 9999),
+        ),
     };
   });
 
@@ -235,21 +245,27 @@ export async function getAdminCourtOpsSnapshot(
       name: category.name,
     })),
     metrics: {
-      sessionsInProgress: sessions.filter((session) => session.status === "in_progress")
-        .length,
+      sessionsInProgress: sessions.filter(
+        (session) => session.status === "in_progress",
+      ).length,
       waiting: sessions.reduce(
         (sum, session) =>
           sum +
-          session.queue.filter((entry) => ["waiting", "resting"].includes(entry.status))
-            .length,
+          session.queue.filter((entry) =>
+            ["waiting", "resting"].includes(entry.status),
+          ).length,
         0,
       ),
-      called: allMatches.filter((match) => ["called", "ready"].includes(match.status))
+      called: allMatches.filter((match) =>
+        ["called", "ready"].includes(match.status),
+      ).length,
+      playing: allMatches.filter((match) => match.status === "in_progress")
         .length,
-      playing: allMatches.filter((match) => match.status === "in_progress").length,
-      pendingReview: allMatches.filter((match) => match.status === "pending_review")
+      pendingReview: allMatches.filter(
+        (match) => match.status === "pending_review",
+      ).length,
+      completed: allMatches.filter((match) => match.status === "completed")
         .length,
-      completed: allMatches.filter((match) => match.status === "completed").length,
     },
     infrastructureReady,
     sourceErrors: raw.errors,

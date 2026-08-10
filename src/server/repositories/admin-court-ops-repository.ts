@@ -16,10 +16,25 @@ export type RawSessionCourt = {
   position: number;
   status: string;
 };
-export type RawCourt = { id: string; venue_id: string; name: string; status: string };
-export type RawVenue = { id: string; pole_id: string; name: string; status: string };
+export type RawCourt = {
+  id: string;
+  venue_id: string;
+  name: string;
+  status: string;
+};
+export type RawVenue = {
+  id: string;
+  pole_id: string;
+  name: string;
+  status: string;
+};
 export type RawPole = { id: string; name: string };
-export type RawOption = { id: string; code: string; name: string; status: string };
+export type RawOption = {
+  id: string;
+  code: string;
+  name: string;
+  status: string;
+};
 export type RawQueueEntry = {
   id: string;
   session_id: string;
@@ -136,7 +151,9 @@ export async function fetchAdminCourtOpsRepositoryData() {
   ] = await Promise.all([
     supabase
       .from("ur_play_sessions")
-      .select("id,name,status,starts_at,ends_at,pole_id,venue_id,ready_for_matchmaking")
+      .select(
+        "id,name,status,starts_at,ends_at,pole_id,venue_id,ready_for_matchmaking",
+      )
       .neq("status", "cancelled")
       .order("starts_at", { ascending: false })
       .limit(150),
@@ -186,7 +203,9 @@ export async function fetchAdminCourtOpsRepositoryData() {
       .limit(3000),
     supabase
       .from("match_results")
-      .select("match_id,winner_side_id,score_a,score_b,result_status,homologated_at")
+      .select(
+        "match_id,winner_side_id,score_a,score_b,result_status,homologated_at",
+      )
       .limit(3000),
     supabase
       .from("match_rallies")
@@ -195,7 +214,9 @@ export async function fetchAdminCourtOpsRepositoryData() {
       .limit(30000),
     supabase
       .from("match_technical_summary")
-      .select("match_id,athlete_id,side_id,aces,attacks,blocks,defenses,assists")
+      .select(
+        "match_id,athlete_id,side_id,aces,attacks,blocks,defenses,assists",
+      )
       .limit(20000),
     supabase
       .from("ranking_processing_runs")
