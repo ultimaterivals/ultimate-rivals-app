@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
-import { PortalShell, type PortalNavItem } from "@/components/layout/portal-shell";
+import { PortalShell } from "@/components/layout/portal-shell";
+import type { PortalNavItem } from "@/components/layout/portal-navigation";
 import {
   adminPortalRoles,
   getAdminModulesForRole,
