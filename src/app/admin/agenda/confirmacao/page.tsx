@@ -28,7 +28,8 @@ const errorMessages: Record<string, string> = {
   invalid_request: "Revise os dados enviados.",
   SEASON_NOT_FOUND: "Temporada não encontrada.",
   SEASON_NOT_HOMOLOGATABLE: "A temporada não está em estado homologável.",
-  SEASON_REQUIRES_THREE_CYCLES: "A temporada precisa ter exatamente três ciclos.",
+  SEASON_REQUIRES_THREE_CYCLES:
+    "A temporada precisa ter exatamente três ciclos.",
   INVALID_SEASON_CYCLE_PERIOD: "Existe ciclo fora do período da temporada.",
   SEASON_CYCLES_OVERLAP: "Os ciclos da temporada estão sobrepostos.",
   OPPORTUNITY_NOT_FOUND: "Oportunidade não encontrada.",
@@ -38,26 +39,35 @@ const errorMessages: Record<string, string> = {
   INVALID_OPPORTUNITY_PERIOD: "O período da oportunidade é inválido.",
   UR_PLAY_REQUIRES_POLE: "O UR Play precisa ter um polo definido.",
   UR_PLAY_REQUIRES_FORMAT: "Defina Duplas ou Quartetos antes da confirmação.",
-  INVALID_REGISTRATION_CLOSE: "O fechamento das reservas precisa ficar entre agora e o início do UR Play.",
+  INVALID_REGISTRATION_CLOSE:
+    "O fechamento das reservas precisa ficar entre agora e o início do UR Play.",
   INVALID_PRICE_AMOUNT: "Valor informado inválido.",
   INVALID_CANCELLATION_WINDOW: "Janela de cancelamento inválida.",
   SEASON_NOT_READY: "Homologue a temporada antes de confirmar o UR Play.",
-  OPPORTUNITY_OUTSIDE_SEASON: "A oportunidade está fora do período da temporada.",
+  OPPORTUNITY_OUTSIDE_SEASON:
+    "A oportunidade está fora do período da temporada.",
   SEASON_CYCLE_NOT_FOUND: "Ciclo não encontrado para a temporada.",
   SEASON_CYCLE_NOT_READY: "O ciclo ainda não pode receber sessões.",
-  OPPORTUNITY_OUTSIDE_CYCLE: "O UR Play precisa ficar integralmente dentro do ciclo selecionado.",
+  OPPORTUNITY_OUTSIDE_CYCLE:
+    "O UR Play precisa ficar integralmente dentro do ciclo selecionado.",
   COURT_NOT_READY: "A quadra escolhida não está homologada.",
-  VENUE_NOT_READY: "O local da quadra não está homologado ou não pertence ao polo.",
-  COURT_VENUE_MISMATCH: "A quadra selecionada não pertence ao local já definido.",
+  VENUE_NOT_READY:
+    "O local da quadra não está homologado ou não pertence ao polo.",
+  COURT_VENUE_MISMATCH:
+    "A quadra selecionada não pertence ao local já definido.",
   FORMAT_NOT_FOUND: "O formato competitivo não está ativo no sistema.",
   CATEGORY_NOT_FOUND: "A categoria competitiva não está ativa no sistema.",
-  DEMAND_NOT_READY: "A demanda mínima ainda não foi atingida. Para confirmar mesmo assim, registre uma justificativa de override com pelo menos 10 caracteres.",
-  confirmation_failed: "A confirmação foi bloqueada e nenhuma operação parcial deve permanecer.",
+  DEMAND_NOT_READY:
+    "A demanda mínima ainda não foi atingida. Para confirmar mesmo assim, registre uma justificativa de override com pelo menos 10 caracteres.",
+  confirmation_failed:
+    "A confirmação foi bloqueada e nenhuma operação parcial deve permanecer.",
 };
 
 function within(value: string, startsAt: string, endsAt: string) {
   const time = new Date(value).getTime();
-  return time >= new Date(startsAt).getTime() && time <= new Date(endsAt).getTime();
+  return (
+    time >= new Date(startsAt).getTime() && time <= new Date(endsAt).getTime()
+  );
 }
 
 export default async function ConfirmationPage({
@@ -103,7 +113,8 @@ export default async function ConfirmationPage({
       {success === "season_homologated" && (
         <Card className="border-ur-gold/40">
           <p className="text-ur-gold text-sm font-bold">
-            Temporada homologada. Ela já pode receber sessões dentro dos ciclos válidos.
+            Temporada homologada. Ela já pode receber sessões dentro dos ciclos
+            válidos.
           </p>
         </Card>
       )}
@@ -117,9 +128,12 @@ export default async function ConfirmationPage({
 
       <section className="grid gap-4">
         <div>
-          <h2 className="font-display text-xl font-black uppercase">Temporadas</h2>
+          <h2 className="font-display text-xl font-black uppercase">
+            Temporadas
+          </h2>
           <p className="mt-1 text-sm text-zinc-500">
-            Uma temporada só é homologada quando possui três ciclos válidos e sem sobreposição.
+            Uma temporada só é homologada quando possui três ciclos válidos e
+            sem sobreposição.
           </p>
         </div>
         {seasons.length === 0 ? (
@@ -140,7 +154,10 @@ export default async function ConfirmationPage({
                 .sort((a, b) => a.cycleNumber - b.cycleNumber);
               const ready = ["registration", "active"].includes(season.status);
               return (
-                <Card key={season.id} className={ready ? "border-ur-gold/35" : undefined}>
+                <Card
+                  key={season.id}
+                  className={ready ? "border-ur-gold/35" : undefined}
+                >
                   <div className="flex items-start justify-between gap-3">
                     <div>
                       <p className="font-bold">{season.name}</p>
@@ -153,8 +170,13 @@ export default async function ConfirmationPage({
                   </div>
                   <div className="mt-4 grid gap-2 sm:grid-cols-3">
                     {seasonCycles.map((cycle) => (
-                      <div key={cycle.id} className="rounded-ur border p-3 text-xs">
-                        <p className="font-bold">C{cycle.cycleNumber} · {cycle.name}</p>
+                      <div
+                        key={cycle.id}
+                        className="rounded-ur border p-3 text-xs"
+                      >
+                        <p className="font-bold">
+                          C{cycle.cycleNumber} · {cycle.name}
+                        </p>
                         <p className="mt-1 text-zinc-600">{cycle.status}</p>
                       </div>
                     ))}
@@ -163,7 +185,8 @@ export default async function ConfirmationPage({
                     <form action={homologateSeasonAction} className="mt-4">
                       <input type="hidden" name="seasonId" value={season.id} />
                       <Button type="submit" className="w-full">
-                        <ShieldCheck size={16} aria-hidden="true" /> Homologar temporada
+                        <ShieldCheck size={16} aria-hidden="true" /> Homologar
+                        temporada
                       </Button>
                     </form>
                   )}
@@ -180,7 +203,8 @@ export default async function ConfirmationPage({
             Demandas aguardando confirmação
           </h2>
           <p className="mt-1 text-sm text-zinc-500">
-            A confirmação cria o evento de calendário, a sessão UR Play, escopo técnico e quadra; só então abre reservas.
+            A confirmação cria o evento de calendário, a sessão UR Play, escopo
+            técnico e quadra; só então abre reservas.
           </p>
         </div>
 
@@ -199,7 +223,9 @@ export default async function ConfirmationPage({
             {opportunities.map((opportunity) => {
               const pole = poles.find((item) => item.id === opportunity.poleId);
               const validCycles = cycles.filter((cycle) => {
-                const season = readySeasons.find((item) => item.id === cycle.seasonId);
+                const season = readySeasons.find(
+                  (item) => item.id === cycle.seasonId,
+                );
                 return (
                   season &&
                   ["planned", "active"].includes(cycle.status) &&
@@ -210,7 +236,12 @@ export default async function ConfirmationPage({
               const compatibleCourts = courts.filter((court) => {
                 if (court.status !== "active") return false;
                 const venue = venues.find((item) => item.id === court.venueId);
-                if (!venue || venue.status !== "active" || venue.poleId !== opportunity.poleId) return false;
+                if (
+                  !venue ||
+                  venue.status !== "active" ||
+                  venue.poleId !== opportunity.poleId
+                )
+                  return false;
                 return !opportunity.venueId || opportunity.venueId === venue.id;
               });
               const formationSize = opportunity.formatCode === "fours" ? 4 : 2;
@@ -227,49 +258,73 @@ export default async function ConfirmationPage({
                         <div>
                           <p className="font-bold">{opportunity.title}</p>
                           <p className="mt-1 text-sm text-zinc-500">
-                            {dateFormatter.format(new Date(opportunity.startsAt))} ·{" "}
-                            {pole?.name ?? "Polo"}
+                            {dateFormatter.format(
+                              new Date(opportunity.startsAt),
+                            )}{" "}
+                            · {pole?.name ?? "Polo"}
                           </p>
                         </div>
                         <Badge>{opportunity.status}</Badge>
                       </div>
                       <div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-4">
                         <div className="rounded-ur border p-3">
-                          <p className="text-xs text-zinc-500 uppercase">Interesse</p>
+                          <p className="text-xs text-zinc-500 uppercase">
+                            Interesse
+                          </p>
                           <p className="font-display mt-1 text-xl font-black">
                             {opportunity.interestedCount}
                           </p>
                         </div>
                         <div className="rounded-ur border p-3">
-                          <p className="text-xs text-zinc-500 uppercase">Formações</p>
+                          <p className="text-xs text-zinc-500 uppercase">
+                            Formações
+                          </p>
                           <p className="font-display mt-1 text-xl font-black">
-                            {opportunity.readyFormations}/{opportunity.targetFormations}
+                            {opportunity.readyFormations}/
+                            {opportunity.targetFormations}
                           </p>
                         </div>
                         <div className="rounded-ur border p-3">
-                          <p className="text-xs text-zinc-500 uppercase">Capacidade</p>
+                          <p className="text-xs text-zinc-500 uppercase">
+                            Capacidade
+                          </p>
                           <p className="font-display mt-1 text-xl font-black">
                             {opportunity.capacityAthletes}
                           </p>
                         </div>
                         <div className="rounded-ur border p-3">
-                          <p className="text-xs text-zinc-500 uppercase">Gate</p>
-                          <p className={`mt-1 text-sm font-bold ${demandReady ? "text-ur-gold" : "text-amber-300"}`}>
-                            {demandReady ? "Demanda mínima" : "Override necessário"}
+                          <p className="text-xs text-zinc-500 uppercase">
+                            Gate
+                          </p>
+                          <p
+                            className={`mt-1 text-sm font-bold ${demandReady ? "text-ur-gold" : "text-amber-300"}`}
+                          >
+                            {demandReady
+                              ? "Demanda mínima"
+                              : "Override necessário"}
                           </p>
                         </div>
                       </div>
                       <p className="mt-4 text-xs leading-5 text-zinc-600">
-                        {opportunity.level ?? "Nível aberto"} · {opportunity.formatCode ?? "Formato não definido"} ·{" "}
+                        {opportunity.level ?? "Nível aberto"} ·{" "}
+                        {opportunity.formatCode ?? "Formato não definido"} ·{" "}
                         {opportunity.categoryCode ?? "Categoria aberta"}
                       </p>
                     </div>
 
-                    <form action={confirmUrPlayOpportunityAction} className="grid gap-4">
-                      <input type="hidden" name="opportunityId" value={opportunity.id} />
+                    <form
+                      action={confirmUrPlayOpportunityAction}
+                      className="grid gap-4"
+                    >
+                      <input
+                        type="hidden"
+                        name="opportunityId"
+                        value={opportunity.id}
+                      />
                       {validCycles.length === 0 ? (
                         <p className="rounded-ur border border-amber-500/25 p-3 text-sm text-amber-200">
-                          Nenhum ciclo homologado cobre integralmente esta data. Ajuste a temporada/ciclos antes de confirmar.
+                          Nenhum ciclo homologado cobre integralmente esta data.
+                          Ajuste a temporada/ciclos antes de confirmar.
                         </p>
                       ) : (
                         <label className="grid gap-2 text-sm font-medium">
@@ -280,10 +335,13 @@ export default async function ConfirmationPage({
                             required
                           >
                             {validCycles.map((cycle) => {
-                              const season = readySeasons.find((item) => item.id === cycle.seasonId);
+                              const season = readySeasons.find(
+                                (item) => item.id === cycle.seasonId,
+                              );
                               return (
                                 <option key={cycle.id} value={cycle.id}>
-                                  {season?.name ?? "Temporada"} · C{cycle.cycleNumber} · {cycle.name}
+                                  {season?.name ?? "Temporada"} · C
+                                  {cycle.cycleNumber} · {cycle.name}
                                 </option>
                               );
                             })}
@@ -300,12 +358,16 @@ export default async function ConfirmationPage({
                           Quadra
                           <select
                             name="courtId"
-                            defaultValue={opportunity.courtId ?? compatibleCourts[0]?.id}
+                            defaultValue={
+                              opportunity.courtId ?? compatibleCourts[0]?.id
+                            }
                             className="rounded-ur bg-ur-black min-h-11 border px-3 text-white"
                             required
                           >
                             {compatibleCourts.map((court) => {
-                              const venue = venues.find((item) => item.id === court.venueId);
+                              const venue = venues.find(
+                                (item) => item.id === court.venueId,
+                              );
                               return (
                                 <option key={court.id} value={court.id}>
                                   {court.name} · {venue?.name ?? "Local"}
@@ -354,7 +416,8 @@ export default async function ConfirmationPage({
                         />
                       </div>
                       <label className="grid gap-2 text-sm font-medium">
-                        Justificativa de override (se a demanda mínima não foi atingida)
+                        Justificativa de override (se a demanda mínima não foi
+                        atingida)
                         <textarea
                           name="overrideReason"
                           rows={3}
@@ -364,9 +427,13 @@ export default async function ConfirmationPage({
                       </label>
                       <Button
                         type="submit"
-                        disabled={validCycles.length === 0 || compatibleCourts.length === 0}
+                        disabled={
+                          validCycles.length === 0 ||
+                          compatibleCourts.length === 0
+                        }
                       >
-                        <CalendarCheck2 size={16} aria-hidden="true" /> Confirmar e abrir reservas
+                        <CalendarCheck2 size={16} aria-hidden="true" />{" "}
+                        Confirmar e abrir reservas
                       </Button>
                     </form>
                   </div>
@@ -381,9 +448,11 @@ export default async function ConfirmationPage({
         <Card>
           <p className="font-bold">Leitura parcial</p>
           <ul className="mt-2 grid gap-1 text-sm text-zinc-500">
-            {[...setup.sourceErrors, ...confirmation.sourceErrors].map((item) => (
-              <li key={item}>{item}</li>
-            ))}
+            {[...setup.sourceErrors, ...confirmation.sourceErrors].map(
+              (item) => (
+                <li key={item}>{item}</li>
+              ),
+            )}
           </ul>
         </Card>
       )}

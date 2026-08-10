@@ -3,9 +3,7 @@ import { fetchAdminSessionConfirmationRepositoryData } from "@/server/repositori
 
 export async function getAdminSessionConfirmationSnapshot(): Promise<AdminSessionConfirmationSnapshot> {
   const raw = await fetchAdminSessionConfirmationRepositoryData();
-  const metrics = new Map(
-    (raw.demand ?? []).map((item) => [item.id, item]),
-  );
+  const metrics = new Map((raw.demand ?? []).map((item) => [item.id, item]));
 
   return {
     opportunities: raw.opportunities
