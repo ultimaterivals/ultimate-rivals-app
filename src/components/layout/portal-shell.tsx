@@ -1,37 +1,47 @@
-import { LayoutDashboard, LogOut, UserRound } from "lucide-react";
-import Link from "next/link";
+import { LogOut, UserRound } from "lucide-react";
 import type { ReactNode } from "react";
 import { BrandMark } from "./brand-mark";
+import { MobilePortalNavigation } from "./mobile-portal-navigation";
+import { PortalNavigation, type PortalNavItem } from "./portal-navigation";
+
+const athleteNavigation: readonly PortalNavItem[] = [
+  {
+    key: "athlete-home",
+    label: "Visão geral",
+    href: "/athlete",
+    group: "Portal",
+    icon: "dashboard",
+  },
+];
 
 export function PortalShell({
   portal,
   userLabel,
+  navigation,
   children,
 }: {
   portal: "Administração" | "Atleta";
   userLabel: string;
+  navigation?: readonly PortalNavItem[];
   children: ReactNode;
 }) {
-  const home = portal === "Atleta" ? "/athlete" : "/admin";
+  const items = navigation ?? athleteNavigation;
+
   return (
-    <div className="min-h-dvh lg:grid lg:grid-cols-[17rem_1fr]">
-      <aside className="bg-ur-graphite border-b lg:min-h-dvh lg:border-r lg:border-b-0">
-        <div className="flex h-18 items-center justify-between px-5 lg:block lg:h-auto lg:p-6">
+    <div className="min-h-dvh lg:grid lg:grid-cols-[18rem_1fr]">
+      <aside className="bg-ur-graphite hidden min-h-dvh border-r lg:flex lg:flex-col">
+        <div className="p-6">
           <BrandMark />
-          <span className="text-xs font-bold tracking-wider text-zinc-500 uppercase lg:mt-3 lg:block">
+          <span className="mt-3 block text-xs font-bold tracking-wider text-zinc-500 uppercase">
             Portal {portal}
           </span>
         </div>
-        <nav aria-label="Navegação principal" className="hidden px-4 lg:block">
-          <Link
-            href={home}
-            className="rounded-ur bg-ur-gold text-ur-black flex min-h-11 items-center gap-3 px-3 font-bold"
-          >
-            <LayoutDashboard size={18} aria-hidden="true" />
-            Visão geral
-          </Link>
-        </nav>
-        <div className="hidden border-t p-4 lg:fixed lg:bottom-0 lg:block lg:w-[17rem]">
+
+        <div className="min-h-0 flex-1 overflow-y-auto px-4 pb-6">
+          <PortalNavigation items={items} />
+        </div>
+
+        <div className="border-t p-4">
           <p className="flex items-center gap-2 truncate text-sm text-zinc-300">
             <UserRound size={16} aria-hidden="true" />
             {userLabel}
@@ -44,7 +54,19 @@ export function PortalShell({
           </form>
         </div>
       </aside>
-      <main className="min-w-0 p-5 sm:p-8 lg:p-10">{children}</main>
+
+      <div className="min-w-0">
+        <header className="bg-ur-black/95 sticky top-0 z-40 flex min-h-18 items-center justify-between border-b px-5 backdrop-blur lg:hidden">
+          <div>
+            <BrandMark />
+            <span className="mt-1 block text-[0.65rem] font-bold tracking-wider text-zinc-500 uppercase">
+              {portal}
+            </span>
+          </div>
+          <MobilePortalNavigation items={items} userLabel={userLabel} />
+        </header>
+        <main className="min-w-0 p-5 sm:p-8 lg:p-10">{children}</main>
+      </div>
     </div>
   );
 }
