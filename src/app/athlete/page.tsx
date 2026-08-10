@@ -131,7 +131,10 @@ export default async function AthletePage() {
           </Link>
         </div>
         {snapshot.nextReservation ? (
-          <AthleteOpportunityCard opportunity={snapshot.nextReservation} />
+          <AthleteOpportunityCard
+            opportunity={snapshot.nextReservation}
+            availableCredits={snapshot.creditBalance ?? 0}
+          />
         ) : (
           <Card>
             <p className="font-bold">
@@ -200,6 +203,7 @@ export default async function AthletePage() {
               <AthleteOpportunityCard
                 key={opportunity.id}
                 opportunity={opportunity}
+                availableCredits={snapshot.creditBalance ?? 0}
               />
             ))}
           </div>

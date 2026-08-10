@@ -26,6 +26,8 @@ export type AthletePackage = {
   unitsTotal: number | null;
   unitsUsed: number;
   unitsRemaining: number | null;
+  unitsReserved: number;
+  unitsConsumed: number;
   endsAt: string | null;
 };
 
@@ -56,6 +58,7 @@ export type AthleteOpportunity = {
   title: string;
   opportunityType: string;
   status: string;
+  configuredStatus: string;
   startsAt: string | null;
   endsAt: string | null;
   poleId: string | null;
@@ -64,9 +67,14 @@ export type AthleteOpportunity = {
   level: string | null;
   formatCode: string | null;
   categoryCode: string | null;
+  remainingCapacity: number;
+  personalReservationId: string | null;
   personalReservationStatus: string | null;
+  personalEligibilityStatus: string | null;
   waitlistPosition: number | null;
+  personalInterestId: string | null;
   personalInterestStatus: string | null;
+  personalInterestMode: string | null;
 };
 
 export type AthleteSeasonSummary = {
@@ -90,6 +98,8 @@ export type AthletePortalSnapshot = {
   teams: AthleteTeam[] | null;
   packages: AthletePackage[] | null;
   creditBalance: number | null;
+  creditReserved: number | null;
+  creditConsumed: number | null;
   summary: AthleteSeasonSummary | null;
   rankings: AthleteRanking[] | null;
   primaryRanking: AthleteRanking | null;
