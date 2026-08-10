@@ -141,6 +141,7 @@ const quickActions = [
   ["Abrir Market", "/admin/market"],
   ["Mover temporada", "/admin/seasons"],
   ["Atualizar agenda", "/admin/calendar"],
+  ["Prévia do Atleta", "/admin/preview"],
 ] as const;
 
 export default async function AdminStudioPage() {
@@ -180,15 +181,15 @@ export default async function AdminStudioPage() {
 
         <Card className="border-ur-gold/40">
           <Eye className="text-ur-gold" size={28} />
-          <h2 className="mt-3 text-xl font-black">Prévia do atleta</h2>
+          <h2 className="mt-3 text-xl font-black">Prévia do Atleta</h2>
           <p className="mt-2 text-sm text-zinc-400">
-            A prévia segura pertence ao Control Center e será integrada sem trocar a sessão administrativa ou duplicar a UI do atleta. Esta branch não cria uma rota insegura de impersonação.
+            Selecione um atleta e valide a experiência real em modo somente leitura. A sessão continua administrativa, sem impersonação de Auth.
           </p>
           <Link
-            href="/admin/athletes"
+            href="/admin/preview"
             className="mt-5 inline-flex min-h-11 items-center gap-2 font-black text-ur-gold"
           >
-            <UserRound size={17} /> Abrir atletas
+            <Eye size={17} /> Abrir Prévia do Atleta
           </Link>
         </Card>
       </section>
