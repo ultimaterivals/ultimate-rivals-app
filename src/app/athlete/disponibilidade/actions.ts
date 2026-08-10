@@ -18,7 +18,9 @@ const availabilitySchema = z.object({
 
 function minutes(value: string, midnightAsEnd = false) {
   if (midnightAsEnd && value === "00:00") return 24 * 60;
-  const [hour, minute] = value.split(":").map(Number);
+  const parts = value.split(":");
+  const hour = Number(parts[0] ?? 0);
+  const minute = Number(parts[1] ?? 0);
   return hour * 60 + minute;
 }
 
