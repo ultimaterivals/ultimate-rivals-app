@@ -35,7 +35,7 @@ export default async function PolesInfrastructurePage({
   const metrics = [
     ["Polos", snapshot.metrics.regions, MapPinned],
     ["Regiões ativas", snapshot.metrics.activeRegions, CheckCircle2],
-    ["Infra pronta", snapshot.metrics.infrastructureReady, CircleDot],
+    ["Infra operacional", snapshot.metrics.infrastructureReady, CircleDot],
     ["Locais", snapshot.metrics.venues, Building2],
     ["Quadras", snapshot.metrics.courts, SquareStack],
   ] as const;
@@ -86,7 +86,7 @@ export default async function PolesInfrastructurePage({
           </div>
           <div>
             <span className="font-bold text-amber-200">
-              2. Infraestrutura homologada
+              2. Infraestrutura operacional
             </span>
             <p>
               Exige local e quadra reais. A confirmação de uma sessão UR Play
