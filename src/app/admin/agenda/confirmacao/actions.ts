@@ -24,11 +24,6 @@ function timestamp(value: string) {
 function confirmationError(message: string) {
   const codes = [
     "ADMIN_REQUIRED",
-    "SEASON_NOT_FOUND",
-    "SEASON_NOT_HOMOLOGATABLE",
-    "SEASON_REQUIRES_THREE_CYCLES",
-    "INVALID_SEASON_CYCLE_PERIOD",
-    "SEASON_CYCLES_OVERLAP",
     "OPPORTUNITY_NOT_FOUND",
     "OPPORTUNITY_NOT_UR_PLAY",
     "OPPORTUNITY_NOT_CONFIRMABLE",
@@ -58,24 +53,6 @@ function fail(message: string): never {
   redirect(
     `/admin/agenda/confirmacao?error=${encodeURIComponent(confirmationError(message))}`,
   );
-}
-
-export async function homologateSeasonAction(formData: FormData) {
-  await requireRole(["admin"]);
-  const seasonId = z.string().uuid().safeParse(formData.get("seasonId"));
-  if (!seasonId.success) {
-    redirect("/admin/agenda/confirmacao?error=invalid_request");
-  }
-
-  const supabase = await createClient();
-  const { error } = await supabase.rpc("admin_homologate_season", {
-    p_season_id: seasonId.data,
-  });
-  if (error) fail(error.message);
-
-  revalidatePath("/admin/agenda/confirmacao");
-  revalidatePath("/admin/agenda/configuracao");
-  redirect("/admin/agenda/confirmacao?success=season_homologated");
 }
 
 export async function confirmUrPlayOpportunityAction(formData: FormData) {
@@ -117,7 +94,10 @@ export async function confirmUrPlayOpportunityAction(formData: FormData) {
   });
   if (error) fail(error.message);
 
+  revalidatePath("/admin");
   revalidatePath("/admin/agenda");
+  revalidatePath("/admin/agenda/piloto");
+  revalidatePath("/admin/agenda/confirmacao");
   revalidatePath("/admin/ur-play");
   revalidatePath("/athlete/agenda");
   redirect("/admin/agenda?confirmed=ur_play");

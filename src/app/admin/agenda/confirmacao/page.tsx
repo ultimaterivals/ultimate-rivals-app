@@ -1,12 +1,15 @@
-import { ArrowLeft, CalendarCheck2, ShieldCheck } from "lucide-react";
-import Link from "next/link";
 import {
-  confirmUrPlayOpportunityAction,
-  homologateSeasonAction,
-} from "@/app/admin/agenda/confirmacao/actions";
+  ArrowLeft,
+  CalendarCheck2,
+  CheckCircle2,
+  CircleAlert,
+} from "lucide-react";
+import Link from "next/link";
+import { confirmUrPlayOpportunityAction } from "@/app/admin/agenda/confirmacao/actions";
 import { Badge, Button, Card, Input, PageHeader } from "@/components/ui";
 import { requireRole } from "@/lib/auth/session";
 import { getAdminOperationalSetupSnapshot } from "@/server/services/admin-operational-setup-service";
+import { getAdminQuarterSeasonSnapshot } from "@/server/services/admin-quarter-season-service";
 import { getAdminSessionConfirmationSnapshot } from "@/server/services/admin-session-confirmation-service";
 
 type Params = Promise<{
@@ -26,12 +29,6 @@ const dateFormatter = new Intl.DateTimeFormat("pt-BR", {
 
 const errorMessages: Record<string, string> = {
   invalid_request: "Revise os dados enviados.",
-  SEASON_NOT_FOUND: "Temporada não encontrada.",
-  SEASON_NOT_HOMOLOGATABLE: "A temporada não está em estado homologável.",
-  SEASON_REQUIRES_THREE_CYCLES:
-    "A temporada precisa ter exatamente três ciclos.",
-  INVALID_SEASON_CYCLE_PERIOD: "Existe ciclo fora do período da temporada.",
-  SEASON_CYCLES_OVERLAP: "Os ciclos da temporada estão sobrepostos.",
   OPPORTUNITY_NOT_FOUND: "Oportunidade não encontrada.",
   OPPORTUNITY_NOT_UR_PLAY: "Essa oportunidade não é um UR Play.",
   OPPORTUNITY_NOT_CONFIRMABLE: "A oportunidade não está pronta para este gate.",
@@ -46,10 +43,11 @@ const errorMessages: Record<string, string> = {
   SEASON_NOT_READY: "Homologue a temporada antes de confirmar o UR Play.",
   OPPORTUNITY_OUTSIDE_SEASON:
     "A oportunidade está fora do período da temporada.",
-  SEASON_CYCLE_NOT_FOUND: "Ciclo não encontrado para a temporada.",
-  SEASON_CYCLE_NOT_READY: "O ciclo ainda não pode receber sessões.",
+  SEASON_CYCLE_NOT_FOUND:
+    "Macro interno compatível não encontrado para a temporada.",
+  SEASON_CYCLE_NOT_READY: "O macro interno ainda não pode receber sessões.",
   OPPORTUNITY_OUTSIDE_CYCLE:
-    "O UR Play precisa ficar integralmente dentro do ciclo selecionado.",
+    "O UR Play precisa ficar integralmente dentro do macro interno compatível.",
   COURT_NOT_READY: "A quadra escolhida não está homologada.",
   VENUE_NOT_READY:
     "O local da quadra não está homologado ou não pertence ao polo.",
@@ -76,23 +74,25 @@ export default async function ConfirmationPage({
   searchParams: Params;
 }) {
   await requireRole(["admin"]);
-  const [setup, confirmation, params] = await Promise.all([
+  const [setup, quarter, confirmation, params] = await Promise.all([
     getAdminOperationalSetupSnapshot(),
+    getAdminQuarterSeasonSnapshot(),
     getAdminSessionConfirmationSnapshot(),
     searchParams,
   ]);
 
-  const success = single(params.success);
   const error = single(params.error);
-  const seasons = setup.seasons ?? [];
   const cycles = setup.cycles ?? [];
   const poles = setup.poles ?? [];
   const venues = setup.venues ?? [];
   const courts = setup.courts ?? [];
   const opportunities = confirmation.opportunities ?? [];
-  const readySeasons = seasons.filter((season) =>
+  const season = quarter.currentSeason;
+  const seasonReady = Boolean(
+    season?.structureReady &&
     ["registration", "active"].includes(season.status),
   );
+  const readySeasonIds = new Set(seasonReady && season ? [season.id] : []);
 
   return (
     <div className="grid gap-8">
@@ -110,14 +110,6 @@ export default async function ConfirmationPage({
         }
       />
 
-      {success === "season_homologated" && (
-        <Card className="border-ur-gold/40">
-          <p className="text-ur-gold text-sm font-bold">
-            Temporada homologada. Ela já pode receber sessões dentro dos ciclos
-            válidos.
-          </p>
-        </Card>
-      )}
       {error && (
         <Card className="border-red-500/40">
           <p className="text-sm font-bold text-red-300">
@@ -129,71 +121,84 @@ export default async function ConfirmationPage({
       <section className="grid gap-4">
         <div>
           <h2 className="font-display text-xl font-black uppercase">
-            Temporadas
+            Temporada operacional
           </h2>
           <p className="mt-1 text-sm text-zinc-500">
-            Uma temporada só é homologada quando possui três ciclos válidos e
-            sem sobreposição.
+            W1–W13 são a estrutura oficial. Esta tela apenas confirma sessões
+            dentro de uma temporada já homologada.
           </p>
         </div>
-        {seasons.length === 0 ? (
+        {!season ? (
           <Card>
-            <p className="font-bold">Nenhuma temporada cadastrada.</p>
-            <Link
-              href="/admin/agenda/configuracao"
-              className="text-ur-gold mt-3 inline-block text-sm font-bold"
-            >
-              Abrir Setup Operacional
-            </Link>
+            <div className="flex items-start gap-3">
+              <CircleAlert
+                className="mt-0.5 text-amber-300"
+                size={18}
+                aria-hidden="true"
+              />
+              <div>
+                <p className="font-bold">
+                  Nenhuma temporada trimestral criada.
+                </p>
+                <p className="mt-1 text-sm text-zinc-500">
+                  Crie e homologue W1–W13 antes de converter uma oportunidade em
+                  sessão oficial.
+                </p>
+                <Link
+                  href="/admin/agenda/temporada"
+                  className="text-ur-gold mt-3 inline-block text-sm font-bold"
+                >
+                  Abrir temporada 13 semanas →
+                </Link>
+              </div>
+            </div>
           </Card>
         ) : (
-          <div className="grid gap-3 lg:grid-cols-2">
-            {seasons.map((season) => {
-              const seasonCycles = cycles
-                .filter((cycle) => cycle.seasonId === season.id)
-                .sort((a, b) => a.cycleNumber - b.cycleNumber);
-              const ready = ["registration", "active"].includes(season.status);
-              return (
-                <Card
-                  key={season.id}
-                  className={ready ? "border-ur-gold/35" : undefined}
+          <Card
+            className={
+              seasonReady ? "border-emerald-500/25" : "border-amber-500/25"
+            }
+          >
+            <div className="flex flex-wrap items-start justify-between gap-4">
+              <div className="flex items-start gap-3">
+                {seasonReady ? (
+                  <CheckCircle2
+                    className="mt-0.5 text-emerald-400"
+                    size={18}
+                    aria-hidden="true"
+                  />
+                ) : (
+                  <CircleAlert
+                    className="mt-0.5 text-amber-300"
+                    size={18}
+                    aria-hidden="true"
+                  />
+                )}
+                <div>
+                  <p className="font-bold">{season.name}</p>
+                  <p className="mt-1 text-sm text-zinc-500">
+                    {season.weeks.length}/13 semanas · status {season.status}
+                    {season.currentWeek
+                      ? ` · W${season.currentWeek.weekNumber} ${season.currentWeek.name}`
+                      : ""}
+                  </p>
+                  <p className="mt-2 text-xs leading-5 text-zinc-600">
+                    Os 3 macro-ciclos existem somente para compatibilidade
+                    técnica ao vincular a sessão.
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                <Badge>{seasonReady ? "homologada" : "pendente"}</Badge>
+                <Link
+                  href={`/admin/agenda/temporada?season=${season.id}`}
+                  className="rounded-ur border px-3 py-2 text-xs font-bold text-zinc-300"
                 >
-                  <div className="flex items-start justify-between gap-3">
-                    <div>
-                      <p className="font-bold">{season.name}</p>
-                      <p className="mt-1 text-sm text-zinc-500">
-                        {dateFormatter.format(new Date(season.startsAt))} →{" "}
-                        {dateFormatter.format(new Date(season.endsAt))}
-                      </p>
-                    </div>
-                    <Badge>{season.status}</Badge>
-                  </div>
-                  <div className="mt-4 grid gap-2 sm:grid-cols-3">
-                    {seasonCycles.map((cycle) => (
-                      <div
-                        key={cycle.id}
-                        className="rounded-ur border p-3 text-xs"
-                      >
-                        <p className="font-bold">
-                          C{cycle.cycleNumber} · {cycle.name}
-                        </p>
-                        <p className="mt-1 text-zinc-600">{cycle.status}</p>
-                      </div>
-                    ))}
-                  </div>
-                  {!ready && (
-                    <form action={homologateSeasonAction} className="mt-4">
-                      <input type="hidden" name="seasonId" value={season.id} />
-                      <Button type="submit" className="w-full">
-                        <ShieldCheck size={16} aria-hidden="true" /> Homologar
-                        temporada
-                      </Button>
-                    </form>
-                  )}
-                </Card>
-              );
-            })}
-          </div>
+                  Revisar temporada
+                </Link>
+              </div>
+            </div>
+          </Card>
         )}
       </section>
 
@@ -223,11 +228,8 @@ export default async function ConfirmationPage({
             {opportunities.map((opportunity) => {
               const pole = poles.find((item) => item.id === opportunity.poleId);
               const validCycles = cycles.filter((cycle) => {
-                const season = readySeasons.find(
-                  (item) => item.id === cycle.seasonId,
-                );
                 return (
-                  season &&
+                  readySeasonIds.has(cycle.seasonId) &&
                   ["planned", "active"].includes(cycle.status) &&
                   within(opportunity.startsAt, cycle.startsAt, cycle.endsAt) &&
                   within(opportunity.endsAt, cycle.startsAt, cycle.endsAt)
@@ -323,28 +325,23 @@ export default async function ConfirmationPage({
                       />
                       {validCycles.length === 0 ? (
                         <p className="rounded-ur border border-amber-500/25 p-3 text-sm text-amber-200">
-                          Nenhum ciclo homologado cobre integralmente esta data.
-                          Ajuste a temporada/ciclos antes de confirmar.
+                          Nenhum macro interno compatível cobre integralmente
+                          esta data. Revise a temporada de 13 semanas antes de
+                          confirmar.
                         </p>
                       ) : (
                         <label className="grid gap-2 text-sm font-medium">
-                          Temporada / ciclo
+                          Macro interno compatível
                           <select
                             name="cycleId"
                             className="rounded-ur bg-ur-black min-h-11 border px-3 text-white"
                             required
                           >
-                            {validCycles.map((cycle) => {
-                              const season = readySeasons.find(
-                                (item) => item.id === cycle.seasonId,
-                              );
-                              return (
-                                <option key={cycle.id} value={cycle.id}>
-                                  {season?.name ?? "Temporada"} · C
-                                  {cycle.cycleNumber} · {cycle.name}
-                                </option>
-                              );
-                            })}
+                            {validCycles.map((cycle) => (
+                              <option key={cycle.id} value={cycle.id}>
+                                {season?.name ?? "Temporada"} · {cycle.name}
+                              </option>
+                            ))}
                           </select>
                         </label>
                       )}

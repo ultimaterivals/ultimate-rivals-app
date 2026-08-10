@@ -1,9 +1,7 @@
 import { ArrowLeft, DatabaseZap, MapPinned, Settings2 } from "lucide-react";
 import Link from "next/link";
 import {
-  configureCycleAction,
   createPoleAction,
-  createSeasonAction,
   createVenueWithCourtAction,
 } from "@/app/admin/agenda/configuracao/actions";
 import { Badge, Button, Card, Input, PageHeader } from "@/components/ui";
@@ -20,9 +18,6 @@ function single(value: string | string[] | undefined) {
 }
 
 const successMessages: Record<string, string> = {
-  season_created:
-    "Temporada criada em rascunho. Os três ciclos-base foram gerados automaticamente pelo banco.",
-  cycle_configured: "Ciclo configurado e mantido em estado planejado.",
   pole_created: "Polo criado em rascunho.",
   venue_created: "Local e primeira quadra criados em rascunho.",
 };
@@ -30,20 +25,6 @@ const successMessages: Record<string, string> = {
 const errorMessages: Record<string, string> = {
   invalid_request: "Revise os campos enviados.",
   ADMIN_REQUIRED: "Essa configuração exige perfil administrador.",
-  INVALID_SEASON_NAME: "Nome de temporada inválido.",
-  INVALID_SEASON_CODE:
-    "Código inválido. Use letras minúsculas, números e hífens.",
-  INVALID_SEASON_PERIOD: "O período da temporada é inválido.",
-  INCOMPLETE_REGISTRATION_PERIOD:
-    "Preencha início e fim das inscrições, ou deixe os dois vazios.",
-  INVALID_REGISTRATION_PERIOD: "O período de inscrições é inválido.",
-  INVALID_RANKING_CUTOFF:
-    "O corte do ranking precisa estar dentro da temporada.",
-  SEASON_NOT_FOUND: "A temporada selecionada não existe mais.",
-  INVALID_CYCLE_NUMBER: "O ciclo deve estar entre 1 e 3.",
-  INVALID_CYCLE_NAME: "Nome do ciclo inválido.",
-  INVALID_CYCLE_PERIOD: "O período do ciclo é inválido.",
-  CYCLE_OUTSIDE_SEASON: "O ciclo precisa ficar totalmente dentro da temporada.",
   INVALID_POLE_NAME: "Nome do polo inválido.",
   INVALID_POLE_SLUG: "Slug inválido. Use letras minúsculas, números e hífens.",
   INVALID_POLE_CITY: "Cidade do polo inválida.",
@@ -85,7 +66,7 @@ export default async function OperationalSetupPage({
       <PageHeader
         eyebrow="Administração"
         title="Setup Operacional"
-        description="Crie a infraestrutura mínima da temporada em ordem controlada. Nada é ativado automaticamente: temporada, polos, locais e quadras nascem em rascunho/planejado."
+        description="Prepare polos, locais e quadras reais. A temporada trimestral possui um fluxo próprio de 13 semanas e não pode mais ser criada pelo setup legado."
         action={
           <Link
             href="/admin/agenda"
@@ -114,7 +95,7 @@ export default async function OperationalSetupPage({
       <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
         {[
           ["Temporadas", seasons.length],
-          ["Ciclos", cycles.length],
+          ["Macros internos", cycles.length],
           ["Polos", poles.length],
           ["Locais", venues.length],
           ["Quadras", courts.length],
@@ -138,150 +119,40 @@ export default async function OperationalSetupPage({
           <div>
             <p className="font-bold">Ordem recomendada</p>
             <p className="mt-1 text-sm leading-6 text-zinc-500">
-              1. Temporada → 2. revisar/configurar os 3 ciclos → 3. polos → 4.
-              locais + primeira quadra → 5. somente depois abrir oportunidades,
-              eventos e sessões UR Play.
+              1. Temporada de 13 semanas → 2. polos → 3. locais + primeira
+              quadra → 4. homologação da infraestrutura → 5. somente depois
+              abrir oportunidades, eventos e sessões UR Play.
             </p>
           </div>
+        </div>
+      </Card>
+
+      <Card className="border-ur-gold/25">
+        <div className="flex flex-wrap items-start justify-between gap-4">
+          <div>
+            <Badge>1 · Temporada</Badge>
+            <h2 className="font-display mt-3 text-xl font-black uppercase">
+              Temporada operacional de 13 semanas
+            </h2>
+            <p className="mt-2 max-w-3xl text-sm leading-6 text-zinc-500">
+              W1–W13 são a fonte oficial do trimestre. Os três macro-ciclos
+              exibidos neste setup existem apenas para compatibilidade técnica
+              com módulos que ainda utilizam season_cycle_id.
+            </p>
+          </div>
+          <Link
+            href="/admin/agenda/temporada"
+            className="bg-ur-gold text-ur-black rounded-ur px-4 py-3 text-sm font-black"
+          >
+            Abrir temporada 13 semanas
+          </Link>
         </div>
       </Card>
 
       <section className="grid gap-4 xl:grid-cols-2">
         <Card>
           <div className="mb-5">
-            <Badge>1 · Temporada</Badge>
-            <h2 className="font-display mt-3 text-xl font-black uppercase">
-              Criar temporada em rascunho
-            </h2>
-            <p className="mt-2 text-sm leading-6 text-zinc-500">
-              O banco gera automaticamente três ciclos-base. Datas abaixo são
-              interpretadas no horário de São Paulo.
-            </p>
-          </div>
-          <form action={createSeasonAction} className="grid gap-4">
-            <div className="grid gap-4 sm:grid-cols-2">
-              <Input id="season-name" name="name" label="Nome" required />
-              <Input
-                id="season-code"
-                name="code"
-                label="Código"
-                placeholder="temporada-1"
-                pattern="[a-z0-9][a-z0-9-]{1,31}"
-                required
-              />
-            </div>
-            <div className="grid gap-4 sm:grid-cols-2">
-              <Input
-                id="season-start"
-                name="startsAt"
-                label="Início"
-                type="datetime-local"
-                required
-              />
-              <Input
-                id="season-end"
-                name="endsAt"
-                label="Fim"
-                type="datetime-local"
-                required
-              />
-            </div>
-            <div className="grid gap-4 sm:grid-cols-2">
-              <Input
-                id="registration-start"
-                name="registrationStartsAt"
-                label="Abertura das inscrições (opcional)"
-                type="datetime-local"
-              />
-              <Input
-                id="registration-end"
-                name="registrationEndsAt"
-                label="Fechamento das inscrições (opcional)"
-                type="datetime-local"
-              />
-            </div>
-            <Input
-              id="ranking-cutoff"
-              name="rankingCutoffAt"
-              label="Corte final do ranking (opcional)"
-              type="datetime-local"
-            />
-            <Button type="submit">Criar temporada</Button>
-          </form>
-        </Card>
-
-        <Card>
-          <div className="mb-5">
-            <Badge>2 · Ciclos</Badge>
-            <h2 className="font-display mt-3 text-xl font-black uppercase">
-              Configurar ciclo existente
-            </h2>
-            <p className="mt-2 text-sm leading-6 text-zinc-500">
-              A criação da temporada gera ciclos 1, 2 e 3. Este formulário
-              ajusta nome e período sem duplicar registros.
-            </p>
-          </div>
-          {seasons.length === 0 ? (
-            <p className="text-sm text-zinc-500">
-              Crie a temporada antes de configurar ciclos.
-            </p>
-          ) : (
-            <form action={configureCycleAction} className="grid gap-4">
-              <label className="grid gap-2 text-sm font-medium">
-                Temporada
-                <select
-                  name="seasonId"
-                  className="rounded-ur bg-ur-black min-h-11 border px-3 text-white"
-                  required
-                >
-                  {seasons.map((season) => (
-                    <option key={season.id} value={season.id}>
-                      {season.name}
-                    </option>
-                  ))}
-                </select>
-              </label>
-              <div className="grid gap-4 sm:grid-cols-[8rem_1fr]">
-                <label className="grid gap-2 text-sm font-medium">
-                  Número
-                  <select
-                    name="cycleNumber"
-                    className="rounded-ur bg-ur-black min-h-11 border px-3 text-white"
-                    defaultValue="1"
-                  >
-                    <option value="1">1</option>
-                    <option value="2">2</option>
-                    <option value="3">3</option>
-                  </select>
-                </label>
-                <Input id="cycle-name" name="name" label="Nome" required />
-              </div>
-              <div className="grid gap-4 sm:grid-cols-2">
-                <Input
-                  id="cycle-start"
-                  name="startsAt"
-                  label="Início"
-                  type="datetime-local"
-                  required
-                />
-                <Input
-                  id="cycle-end"
-                  name="endsAt"
-                  label="Fim"
-                  type="datetime-local"
-                  required
-                />
-              </div>
-              <Button type="submit">Configurar ciclo</Button>
-            </form>
-          )}
-        </Card>
-      </section>
-
-      <section className="grid gap-4 xl:grid-cols-2">
-        <Card>
-          <div className="mb-5">
-            <Badge>3 · Polos</Badge>
+            <Badge>2 · Polos</Badge>
             <h2 className="font-display mt-3 text-xl font-black uppercase">
               Criar polo
             </h2>
@@ -317,13 +188,13 @@ export default async function OperationalSetupPage({
 
         <Card>
           <div className="mb-5">
-            <Badge>4 · Local e quadra</Badge>
+            <Badge>3 · Local e quadra</Badge>
             <h2 className="font-display mt-3 text-xl font-black uppercase">
               Criar local + primeira quadra
             </h2>
             <p className="mt-2 text-sm text-zinc-500">
-              Nesta primeira versão, a quadra é criada explicitamente como Vôlei
-              de Praia, modalidade já existente no schema atual.
+              A quadra é cadastrada explicitamente como Vôlei de Praia, a
+              modalidade operacional atual do piloto.
             </p>
           </div>
           {poles.length === 0 ? (
@@ -412,7 +283,7 @@ export default async function OperationalSetupPage({
                   .map((cycle) => (
                     <div key={cycle.id} className="rounded-ur border p-3">
                       <p className="text-xs font-bold text-zinc-500 uppercase">
-                        Ciclo {cycle.cycleNumber}
+                        Macro interno {cycle.cycleNumber}
                       </p>
                       <p className="mt-1 font-bold">{cycle.name}</p>
                       <p className="mt-1 text-xs text-zinc-600">
