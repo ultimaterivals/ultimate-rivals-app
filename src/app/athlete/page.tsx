@@ -115,7 +115,9 @@ export default async function AthletePage() {
               <p className="font-display text-ur-gold mt-2 text-4xl font-black">
                 {summary?.urCoinBalance.toLocaleString("pt-BR") ?? "—"}
               </p>
-              <p className="mt-1 text-xs font-bold text-zinc-500">saldo atual</p>
+              <p className="mt-1 text-xs font-bold text-zinc-500">
+                saldo atual
+              </p>
             </div>
           </div>
         </div>
@@ -241,13 +243,15 @@ export default async function AthletePage() {
                 {ranking?.currentPosition ? `#${ranking.currentPosition}` : "—"}
               </strong>
               <p className="text-ur-gold text-xl font-black">
-                {ranking ? `${ranking.totalPoints} PTS` : "Aguardando resultados"}
+                {ranking
+                  ? `${ranking.totalPoints} PTS`
+                  : "Aguardando resultados"}
               </p>
             </div>
             <div className="sm:text-right">
               <p className="text-sm text-zinc-500">
-                {ranking?.gamesPlayed ?? 0} jogos · {ranking?.wins ?? 0} vitórias ·{" "}
-                {ranking?.losses ?? 0} derrotas
+                {ranking?.gamesPlayed ?? 0} jogos · {ranking?.wins ?? 0}{" "}
+                vitórias · {ranking?.losses ?? 0} derrotas
               </p>
               <Link
                 href="/athlete/ranking"
@@ -263,16 +267,20 @@ export default async function AthletePage() {
           <p className="text-xs font-black tracking-[.18em] text-zinc-500 uppercase">
             Próxima arena
           </p>
-          <div className="mt-3 flex min-h-28 items-center justify-center rounded-ur border border-dashed border-white/10 bg-black/20">
+          <div className="rounded-ur mt-3 flex min-h-28 items-center justify-center border border-dashed border-white/10 bg-black/20">
             <MapPin className="text-ur-gold" size={30} aria-hidden="true" />
           </div>
           {nextReservation ? (
             <div className="mt-4">
               <h2 className="text-xl font-black">{nextReservation.title}</h2>
               <p className="mt-2 text-sm text-zinc-400">
-                {nextReservation.venueName ?? nextReservation.poleName ?? "Arena UR"}
+                {nextReservation.venueName ??
+                  nextReservation.poleName ??
+                  "Arena UR"}
               </p>
-              <Badge>{nextReservation.personalReservationStatus ?? "confirmado"}</Badge>
+              <Badge>
+                {nextReservation.personalReservationStatus ?? "confirmado"}
+              </Badge>
             </div>
           ) : (
             <p className="mt-4 text-sm text-zinc-500">
@@ -338,7 +346,11 @@ export default async function AthletePage() {
       {snapshot.billing && snapshot.billing.openItems > 0 && (
         <Card className="border-ur-gold/50">
           <div className="flex items-start gap-3">
-            <CreditCard className="text-ur-gold mt-0.5" size={18} aria-hidden="true" />
+            <CreditCard
+              className="text-ur-gold mt-0.5"
+              size={18}
+              aria-hidden="true"
+            />
             <div>
               <p className="font-bold">Financeiro pendente</p>
               <p className="mt-1 text-sm text-zinc-400">

@@ -45,7 +45,7 @@ export default async function AthleteArenasPage() {
         {opportunities.length > 0 ? (
           opportunities.map((opportunity) => (
             <Card key={opportunity.id} className="overflow-hidden">
-              <div className="flex min-h-32 items-center justify-center rounded-ur border border-dashed border-white/10 bg-black/20">
+              <div className="rounded-ur flex min-h-32 items-center justify-center border border-dashed border-white/10 bg-black/20">
                 <MapPin className="text-ur-gold" size={32} aria-hidden="true" />
               </div>
               <p className="text-ur-gold mt-4 text-xs font-black tracking-[.16em] uppercase">
@@ -57,16 +57,21 @@ export default async function AthleteArenasPage() {
               <p className="mt-2 text-sm text-zinc-400">{opportunity.title}</p>
               <div className="mt-4 flex flex-wrap gap-2">
                 {opportunity.level && <Badge>{opportunity.level}</Badge>}
-                {opportunity.formatCode && <Badge>{opportunity.formatCode}</Badge>}
+                {opportunity.formatCode && (
+                  <Badge>{opportunity.formatCode}</Badge>
+                )}
               </div>
             </Card>
           ))
         ) : (
           <Card className="lg:col-span-3">
             <MapPin className="text-ur-gold" aria-hidden="true" />
-            <h2 className="mt-3 text-xl font-black">Nenhuma arena publicada para você</h2>
+            <h2 className="mt-3 text-xl font-black">
+              Nenhuma arena publicada para você
+            </h2>
             <p className="mt-2 text-sm text-zinc-400">
-              Assim que houver uma oportunidade elegível com local oficial, ela aparecerá aqui.
+              Assim que houver uma oportunidade elegível com local oficial, ela
+              aparecerá aqui.
             </p>
           </Card>
         )}
@@ -77,16 +82,21 @@ export default async function AthleteArenasPage() {
           <ShieldCheck className="text-ur-gold" aria-hidden="true" />
           <h2 className="mt-3 text-xl font-black">Locais oficiais</h2>
           <p className="mt-2 text-sm text-zinc-400">
-            O App não cria arenas paralelas: ele reflete locais e polos homologados pela operação.
+            O App não cria arenas paralelas: ele reflete locais e polos
+            homologados pela operação.
           </p>
         </Card>
         <Card>
           <CalendarDays className="text-ur-gold" aria-hidden="true" />
           <h2 className="mt-3 text-xl font-black">Encontre onde jogar</h2>
           <p className="mt-2 text-sm text-zinc-400">
-            A agenda conecta disponibilidade, demanda, reserva e a arena real da atividade.
+            A agenda conecta disponibilidade, demanda, reserva e a arena real da
+            atividade.
           </p>
-          <Link href="/athlete/agenda" className="text-ur-gold mt-5 inline-flex items-center gap-1 font-black">
+          <Link
+            href="/athlete/agenda"
+            className="text-ur-gold mt-5 inline-flex items-center gap-1 font-black"
+          >
             Abrir agenda <ArrowRight size={15} aria-hidden="true" />
           </Link>
         </Card>

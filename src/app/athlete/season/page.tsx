@@ -1,4 +1,10 @@
-import { ArrowRight, CalendarDays, Medal, Sparkles, Trophy } from "lucide-react";
+import {
+  ArrowRight,
+  CalendarDays,
+  Medal,
+  Sparkles,
+  Trophy,
+} from "lucide-react";
 import Link from "next/link";
 import { Badge, Card, PageHeader } from "@/components/ui";
 import { requireRole } from "@/lib/auth/session";
@@ -59,7 +65,10 @@ export default async function AthleteSeasonPage() {
           <p className="mt-2 text-sm text-zinc-400">
             Jogue, registre resultados oficiais e construa sua campanha.
           </p>
-          <Link href="/athlete/agenda" className="text-ur-gold mt-5 inline-flex items-center gap-1 font-black">
+          <Link
+            href="/athlete/agenda"
+            className="text-ur-gold mt-5 inline-flex items-center gap-1 font-black"
+          >
             Entrar no próximo jogo <ArrowRight size={15} aria-hidden="true" />
           </Link>
         </Card>
@@ -70,7 +79,10 @@ export default async function AthleteSeasonPage() {
           <p className="mt-2 text-sm text-zinc-400">
             Sua classificação responde somente a resultados e pontos oficiais.
           </p>
-          <Link href="/athlete/ranking" className="text-ur-gold mt-5 inline-flex items-center gap-1 font-black">
+          <Link
+            href="/athlete/ranking"
+            className="text-ur-gold mt-5 inline-flex items-center gap-1 font-black"
+          >
             Ver classificação <ArrowRight size={15} aria-hidden="true" />
           </Link>
         </Card>
@@ -104,7 +116,10 @@ export default async function AthleteSeasonPage() {
           </div>
           <CalendarDays className="text-ur-gold" aria-hidden="true" />
         </div>
-        <Link href="/athlete/agenda" className="bg-ur-gold text-ur-black rounded-ur mt-5 inline-flex min-h-11 items-center px-4 font-black">
+        <Link
+          href="/athlete/agenda"
+          className="bg-ur-gold text-ur-black rounded-ur mt-5 inline-flex min-h-11 items-center px-4 font-black"
+        >
           Abrir agenda
         </Link>
       </Card>

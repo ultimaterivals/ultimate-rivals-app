@@ -73,7 +73,9 @@ export default async function AthleteWalletPage() {
       <Card>
         <h2 className="text-xl font-black">Regra econômica</h2>
         <p className="mt-2 max-w-3xl text-sm leading-6 text-zinc-400">
-          Pontos de ranking medem desempenho esportivo. UR Coins representam a economia de recompensas. Créditos representam direito de participação em atividades. Os três saldos permanecem separados.
+          Pontos de ranking medem desempenho esportivo. UR Coins representam a
+          economia de recompensas. Créditos representam direito de participação
+          em atividades. Os três saldos permanecem separados.
         </p>
       </Card>
     </div>
