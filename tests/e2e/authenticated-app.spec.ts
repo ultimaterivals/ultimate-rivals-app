@@ -37,6 +37,32 @@ test("athlete opens preserved Player Hub and core destinations", async ({
   }
 });
 
+test("athlete interest is reflected back into Command demand", async ({
+  page,
+}) => {
+  await login(page, "athlete@test.ur.local", /\/athlete/);
+  await page.goto("/athlete/agenda");
+
+  const opportunity = page
+    .getByText("[QA] Interesse - Duplas", { exact: true })
+    .locator("xpath=ancestor::*[.//button[normalize-space()='Registrar interesse']][1]");
+
+  await opportunity.getByRole("button", { name: "Registrar interesse" }).click();
+  await expect(page.getByText("interessado", { exact: true })).toBeVisible({
+    timeout: 20_000,
+  });
+
+  await login(page, "admin@test.ur.local", /\/admin/);
+  await page.goto("/admin/agenda");
+
+  const demand = page.getByTestId(
+    "demand-61000000-0000-4000-8000-000000000001",
+  );
+  await expect(demand).toContainText("[QA] Interesse - Duplas");
+  await expect(demand).toContainText("2");
+  await expect(demand).toContainText("Interesse");
+});
+
 test("admin Preview renders athlete App read-only without replacing admin Auth", async ({
   page,
 }) => {
