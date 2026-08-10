@@ -20,12 +20,14 @@ export const initialInviteActionState: InviteActionState = {
   message: null,
 };
 
-const schema = z.object({
+const issueSchema = z.object({
   athleteId: z.string().uuid(),
   expiresDays: z.coerce.number().int().min(1).max(30),
 });
 
-function errorMessage(message: string) {
+const revokeSchema = z.object({ inviteId: z.string().uuid() });
+
+function issueErrorMessage(message: string) {
   if (message.includes("ATHLETE_ALREADY_LINKED")) {
     return "Este atleta já possui uma conta vinculada.";
   }
@@ -46,7 +48,7 @@ export async function issueAthleteInviteAction(
   formData: FormData,
 ): Promise<InviteActionState> {
   await requireRole(["admin"]);
-  const parsed = schema.safeParse({
+  const parsed = issueSchema.safeParse({
     athleteId: formData.get("athleteId"),
     expiresDays: formData.get("expiresDays"),
   });
@@ -76,7 +78,7 @@ export async function issueAthleteInviteAction(
       status: "error",
       invitePath: null,
       expiresAt: null,
-      message: errorMessage(error.message),
+      message: issueErrorMessage(error.message),
     };
   }
 
@@ -88,4 +90,19 @@ export async function issueAthleteInviteAction(
     message:
       "Convite emitido. Este link é mostrado agora porque o token bruto não fica armazenado no banco.",
   };
+}
+
+export async function revokeAthleteInviteAction(formData: FormData) {
+  await requireRole(["admin"]);
+  const parsed = revokeSchema.safeParse({ inviteId: formData.get("inviteId") });
+  if (!parsed.success) return;
+
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("admin_revoke_athlete_access_invite", {
+    p_invite_id: parsed.data.inviteId,
+  });
+  if (error && !error.message.includes("INVITE_ALREADY_USED")) {
+    throw new Error("Não foi possível revogar o convite.");
+  }
+  revalidatePath("/admin/atletas/acessos");
 }
