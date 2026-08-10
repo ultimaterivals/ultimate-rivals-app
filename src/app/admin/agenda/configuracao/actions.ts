@@ -86,13 +86,13 @@ function setupError(message: string) {
   return codes.find((code) => message.includes(code)) ?? "setup_failed";
 }
 
-function finish(kind: string) {
+function finish(kind: string): never {
   revalidatePath("/admin/agenda");
   revalidatePath("/admin/agenda/configuracao");
   redirect(`/admin/agenda/configuracao?success=${encodeURIComponent(kind)}`);
 }
 
-function fail(message: string) {
+function fail(message: string): never {
   redirect(
     `/admin/agenda/configuracao?error=${encodeURIComponent(setupError(message))}`,
   );
