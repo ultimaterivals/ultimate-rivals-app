@@ -1,10 +1,11 @@
 import { DatabaseZap } from "lucide-react";
+import { AgendaAvailabilityHeatmap } from "@/components/admin/agenda/agenda-availability-heatmap";
 import { AgendaDemandBoard } from "@/components/admin/agenda/agenda-demand-board";
 import { AgendaMobileList } from "@/components/admin/agenda/agenda-mobile-list";
 import { AgendaSummary } from "@/components/admin/agenda/agenda-summary";
 import {
-  AgendaToolbar,
   AgendaPoleFilters,
+  AgendaToolbar,
 } from "@/components/admin/agenda/agenda-toolbar";
 import { AgendaWeekGrid } from "@/components/admin/agenda/agenda-week-grid";
 import { CommandSection } from "@/components/admin/command-section";
@@ -62,6 +63,13 @@ export default async function AgendaPage({
       >
         <AgendaWeekGrid snapshot={snapshot} />
         <AgendaMobileList snapshot={snapshot} />
+      </CommandSection>
+
+      <CommandSection
+        title="Disponibilidade recorrente"
+        description="Antes de abrir uma sessão, o Command mostra quantos atletas declararam disponibilidade em cada bloco. Isso é intenção de agenda, não reserva."
+      >
+        <AgendaAvailabilityHeatmap snapshot={snapshot} />
       </CommandSection>
 
       <CommandSection

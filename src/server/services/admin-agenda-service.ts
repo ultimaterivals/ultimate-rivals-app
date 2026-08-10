@@ -5,15 +5,18 @@ import {
 } from "@/features/admin-agenda/config";
 import type {
   AdminAgendaSnapshot,
+  AgendaAvailability,
+  AgendaAvailabilityCell,
   AgendaDay,
   AgendaDemandItem,
   AgendaEvent,
   AgendaQuery,
 } from "@/features/admin-agenda/types";
+import type { RawAgendaAvailability } from "@/server/repositories/admin-agenda-repository";
 import { fetchAdminAgendaRepositoryData } from "@/server/repositories/admin-agenda-repository";
 
-const DAY_MS = 24 * 60 * 60 * 1000;
 const DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
+const AGENDA_SLOT_MINUTES_FALLBACK = 30;
 
 function formatLocalDate(date: Date) {
   return new Intl.DateTimeFormat("en-CA", {
@@ -96,6 +99,113 @@ export function getAgendaRange(query: AgendaQuery, now = new Date()) {
   };
 }
 
+function timeToMinutes(value: string) {
+  if (value.startsWith("24:")) return 24 * 60;
+  const [hour = "0", minute = "0"] = value.split(":");
+  return Number(hour) * 60 + Number(minute);
+}
+
+function minuteLabel(value: number) {
+  const hour = Math.floor(value / 60) % 24;
+  const minute = value % 60;
+  return `${String(hour).padStart(2, "0")}:${String(minute).padStart(2, "0")}`;
+}
+
+function windowAppliesToDate(window: RawAgendaAvailability, date: string) {
+  if (window.valid_from && date < window.valid_from) return false;
+  if (window.valid_until && date > window.valid_until) return false;
+  return true;
+}
+
+function buildAvailability({
+  windows,
+  days,
+  selectedPoleId,
+  startHour,
+  endHour,
+}: {
+  windows: RawAgendaAvailability[] | null;
+  days: AgendaDay[];
+  selectedPoleId: string | null;
+  startHour: number;
+  endHour: number;
+}): AgendaAvailability {
+  if (windows === null) {
+    return { windows: null, athletes: null, peakAthletes: null, cells: null };
+  }
+
+  const eligibleWindows = windows.filter(
+    (window) =>
+      window.active &&
+      (!selectedPoleId ||
+        window.pole_id === null ||
+        window.pole_id === selectedPoleId),
+  );
+  const distinctAthletes = new Set<string>();
+  const cellAthletes = new Map<string, Set<string>>();
+  const flexibleAthletes = new Map<string, Set<string>>();
+  let validWindowCount = 0;
+
+  for (const window of eligibleWindows) {
+    const matchingDay = days.find(
+      (day) =>
+        new Date(`${day.date}T12:00:00.000Z`).getUTCDay() ===
+        window.day_of_week,
+    );
+    if (!matchingDay || !windowAppliesToDate(window, matchingDay.date))
+      continue;
+
+    const start = Math.max(
+      startHour * 60,
+      Math.ceil(timeToMinutes(window.starts_at) / 30) * 30,
+    );
+    const end = Math.min(endHour * 60, timeToMinutes(window.ends_at));
+    if (end <= start) continue;
+
+    validWindowCount += 1;
+    distinctAthletes.add(window.athlete_id);
+
+    for (let minute = start; minute < end; minute += 30) {
+      const key = `${matchingDay.date}:${minute}`;
+      const athletes = cellAthletes.get(key) ?? new Set<string>();
+      athletes.add(window.athlete_id);
+      cellAthletes.set(key, athletes);
+
+      if (window.pole_id === null) {
+        const flexible = flexibleAthletes.get(key) ?? new Set<string>();
+        flexible.add(window.athlete_id);
+        flexibleAthletes.set(key, flexible);
+      }
+    }
+  }
+
+  const cells: AgendaAvailabilityCell[] = [];
+  for (const day of days) {
+    const dayOfWeek = new Date(`${day.date}T12:00:00.000Z`).getUTCDay();
+    for (let minute = startHour * 60; minute < endHour * 60; minute += 30) {
+      const key = `${day.date}:${minute}`;
+      cells.push({
+        date: day.date,
+        dayOfWeek,
+        startMinute: minute,
+        startLabel: minuteLabel(minute),
+        athleteCount: cellAthletes.get(key)?.size ?? 0,
+        flexibleAthletes: flexibleAthletes.get(key)?.size ?? 0,
+      });
+    }
+  }
+
+  return {
+    windows: validWindowCount,
+    athletes: distinctAthletes.size,
+    peakAthletes: cells.reduce(
+      (peak, cell) => Math.max(peak, cell.athleteCount),
+      0,
+    ),
+    cells,
+  };
+}
+
 export async function getAdminAgendaSnapshot(
   query: AgendaQuery,
   now = new Date(),
@@ -107,6 +217,7 @@ export async function getAdminAgendaSnapshot(
   });
 
   const selectedPoleId = query.pole && query.pole !== "all" ? query.pole : null;
+  const days = buildDays(range.weekStart, range.today);
 
   const rawEvents = raw.events
     ? raw.events.filter(
@@ -174,6 +285,14 @@ export async function getAdminAgendaSnapshot(
       })
     : null;
 
+  const availability = buildAvailability({
+    windows: raw.availability,
+    days,
+    selectedPoleId,
+    startHour: range.startHour,
+    endHour: range.endHour,
+  });
+
   const metrics = {
     events: events ? events.length : null,
     interested: demand
@@ -197,7 +316,7 @@ export async function getAdminAgendaSnapshot(
     generatedAt: now.toISOString(),
     weekStart: range.weekStart,
     weekEnd: range.weekEnd,
-    days: buildDays(range.weekStart, range.today),
+    days,
     startHour: range.startHour,
     endHour: range.endHour,
     selectedPoleId,
@@ -212,6 +331,7 @@ export async function getAdminAgendaSnapshot(
       : null,
     events,
     demand,
+    availability,
     metrics,
     sourceErrors: raw.errors,
   };
@@ -250,6 +370,3 @@ export function durationMinutes(startsAt: string, endsAt: string) {
     ),
   );
 }
-
-const AGENDA_SLOT_MINUTES_FALLBACK = 30;
-void DAY_MS;
