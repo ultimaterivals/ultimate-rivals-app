@@ -22,7 +22,7 @@ O Command opera, homologa, publica e audita. O App preserva sua experiência esp
 | Missões/Evolução         |                                            SIM | dados existentes de progressão/nível/atividade; sem engine paralela                                                 | Command registra/evolui; App traduz em objetivo/progresso          |
 | Wallet UR Coins          |                                            SIM | projeção/ledger de UR Coins                                                                                         | Command administra regras autorizadas; App lê ledger próprio       |
 | UR Market                |                                            SIM | ofertas públicas ativas + redemption transacional                                                                   | Command administra oferta/fulfillment; App resgata                 |
-| Perfil                   |                                            SIM | atleta canônico + privacidade/autorização                                                                           | Command gerencia dados internos; App mostra/edita apenas permitido |
+| Perfil                   |                                            SIM | atleta canônico + privacidade/autorização + prontidão C23                                                           | Command homologa dados institucionais; atleta edita apenas o permitido |
 | Equipe/Formação          |                                            SIM | memberships/rosters/formations oficiais                                                                             | Command opera vínculo; App mostra contexto competitivo             |
 | Prévia do Atleta         |     preservar como validação interna read-only | viewer server-side                                                                                                  | Command valida exatamente o App sem impersonar                     |
 | Primeiro acesso          | preservar experiência do App após autenticação | fluxo seguro C18 já incorporado à main                                                                              | Command administra convite; atleta reivindica acesso               |
@@ -43,7 +43,20 @@ Antes da confirmação oficial, o Command cria oportunidade, define escopo e obs
 
 Após C16, a confirmação administrativa transforma a demanda em sessão UR Play oficial, associa ciclo, quadra/venue, preço e janela de cancelamento e sincroniza reservas com `ur_play_registrations`.
 
-Após C17, check-in/no-show e consumo de crédito são consequências operacionais canônicas. O App deve refletir apenas estados simples e autorizados: confirmado, check-in realizado, ausência quando aplicável e participação concluída.
+Após C17, check-in/no-show e consumo de crédito são consequências operacionais canônicas. O App reflete estados simples e autorizados. A integração atual mantém uma janela curta pós-início para que `consumed` e `no_show` continuem visíveis ao atleta como `participação concluída` e `ausência registrada`.
+
+## Perfil e prontidão — contrato C23
+
+C23 adiciona a prontidão do atleta para matchmaking sem transformar o App em painel administrativo.
+
+O App mostra quatro condições objetivas:
+
+- cadastro institucional ativo;
+- polo principal homologado;
+- categoria esportiva compatível com o motor atual;
+- disponibilidade ativa cadastrada.
+
+O atleta autenticado pode atualizar apenas a própria categoria esportiva pelo RPC seguro `update_own_athlete_matchmaking_identity`. A Prévia administrativa reutiliza a mesma tela e os mesmos dados, mas não recebe ação de escrita e continua sem trocar a sessão Auth.
 
 ## Player Hub — dados que devem alimentar sem alterar o produto
 
@@ -90,21 +103,23 @@ Não levar para o Hub:
 - C16: incorporado à `main` no commit `fe63077971a44c346328a14ae2c52dbbe9033f9a`.
 - C17: incorporado — presença/no-show e consumo de créditos sincronizados.
 - C18: incorporado — primeiro acesso seguro dos atletas.
-- Branch final de integração criada a partir dessa `main`: `integration/app-v1-command-data`.
+- C22: incorporado — Court Ops permanece superfície interna do Command.
+- C23: reconciliado — prontidão para matchmaking e identidade esportiva segura incorporadas à experiência do App, preservando Preview read-only.
+- Branch final de integração: `integration/app-v1-command-data`.
 
 ## Gate final
 
 Antes de merge final do App:
 
-- portar superfícies únicas do App sem importar migrations antigas fora de ordem;
-- recriar Market redemption como migration forward-only posterior ao head atual de produção;
-- adaptar Agenda/Hub às RPCs e entidades atuais;
+- manter superfícies únicas do App sem importar migrations antigas fora de ordem;
+- manter Market redemption como migration forward-only posterior ao head real de produção no momento do deploy;
 - executar E2E bidirecional:
   - Command cria/publica → App reflete;
   - App manifesta/reserva/cancela → Command reflete;
   - Command confirma UR Play → App mostra sessão/inscrição oficial;
   - Command registra presença/no-show → App reflete estado autorizado;
   - Admin Preview → App real read-only;
-  - Market redemption → Wallet/Command coerentes.
+  - Market redemption → Wallet/Command coerentes;
+  - C23 prontidão → App mostra estado; somente atleta real pode alterar categoria esportiva.
 
 A integração termina quando Command e App compartilham a mesma verdade operacional sem compartilhar a mesma interface.
