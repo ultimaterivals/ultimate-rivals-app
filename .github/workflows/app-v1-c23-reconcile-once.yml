@@ -1,0 +1,84 @@
+name: App V1 C23 Reconcile Once
+
+on:
+  push:
+    branches:
+      - integration/app-v1-command-data
+
+permissions:
+  contents: write
+
+jobs:
+  reconcile:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: integration/app-v1-command-data
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Reconcile C23 contracts into preserved App
+        run: |
+          git fetch origin main
+          git checkout origin/main -- \
+            src/app/athlete/perfil/actions.ts \
+            src/server/services/athlete-portal-service.test.ts \
+            supabase/migrations/20260810203500_secure_athlete_self_matchmaking_identity.sql
+          git show origin/main:src/app/athlete/perfil/page.tsx > /tmp/c23-profile.tsx
+          cp /tmp/c23-profile.tsx src/app/athlete/perfil/page.tsx
+
+          python - <<'PY'
+          from pathlib import Path
+
+          types = Path('src/features/athlete-portal/types.ts')
+          text = types.read_text()
+          if '  gender: string;\n' not in text:
+              text = text.replace('  primaryPoleId: string | null;\n', '  primaryPoleId: string | null;\n  gender: string;\n')
+          types.write_text(text)
+
+          repo = Path('src/server/repositories/athlete-portal-repository.ts')
+          text = repo.read_text()
+          if '  gender: string;\n' not in text.split('export type RawAthleteIdentity', 1)[1].split('};', 1)[0]:
+              text = text.replace('  primary_pole_id: string | null;\n', '  primary_pole_id: string | null;\n  gender: string;\n', 1)
+          text = text.replace(
+              '"id,public_name,athlete_code,avatar_url,city,state,bio,instagram_handle,status,primary_pole_id",',
+              '"id,public_name,athlete_code,avatar_url,city,state,bio,instagram_handle,status,primary_pole_id,gender",',
+          )
+          repo.write_text(text)
+
+          service = Path('src/server/services/athlete-portal-service.ts')
+          text = service.read_text()
+          if '      gender: raw.athlete.gender,\n' not in text:
+              text = text.replace('      primaryPoleId: raw.athlete.primary_pole_id,\n', '      primaryPoleId: raw.athlete.primary_pole_id,\n      gender: raw.athlete.gender,\n')
+          service.write_text(text)
+
+          profile = Path('src/app/athlete/perfil/page.tsx')
+          text = profile.read_text()
+          text = text.replace('import { requireRole } from "@/lib/auth/session";\n', 'import { requireAthleteViewer } from "@/lib/auth/athlete-viewer";\n')
+          text = text.replace('import { getAthletePortalSnapshot } from "@/server/services/athlete-portal-service";\n', 'import { getAthleteSnapshotForViewer } from "@/server/services/athlete-viewer-snapshot-service";\n')
+          text = text.replace(
+              '  const user = await requireRole(["athlete"]);\n  const [snapshot, availability, params] = await Promise.all([\n    getAthletePortalSnapshot({ userId: user.userId }),\n    getAthleteAvailabilitySnapshot(user.userId),\n    searchParams,\n  ]);',
+              '  const viewer = await requireAthleteViewer();\n  const [snapshot, availability, params] = await Promise.all([\n    getAthleteSnapshotForViewer(viewer),\n    getAthleteAvailabilitySnapshot({\n      userId: viewer.isPreview ? null : viewer.userId,\n      athleteId: viewer.athleteId,\n    }),\n    searchParams,\n  ]);',
+          )
+          opening = '''                  <form\n                    action={updateMatchmakingIdentityAction}\n                    className="mt-5 grid gap-3 md:grid-cols-[1fr_auto] md:items-end"\n                  >'''
+          replacement = '''                  {!viewer.isPreview ? (\n                    <form\n                      action={updateMatchmakingIdentityAction}\n                      className="mt-5 grid gap-3 md:grid-cols-[1fr_auto] md:items-end"\n                    >'''
+          text = text.replace(opening, replacement)
+          closing = '''                  </form>\n                </Card>'''
+          replacement_close = '''                    </form>\n                  ) : (\n                    <p className="mt-5 text-sm font-bold text-zinc-500">\n                      Prévia somente leitura · a categoria esportiva só pode ser alterada pelo próprio atleta.\n                    </p>\n                  )}\n                </Card>'''
+          text = text.replace(closing, replacement_close, 1)
+          profile.write_text(text)
+          PY
+
+      - run: npx prettier --write src/app/athlete/perfil/actions.ts src/app/athlete/perfil/page.tsx src/features/athlete-portal/types.ts src/server/repositories/athlete-portal-repository.ts src/server/services/athlete-portal-service.ts src/server/services/athlete-portal-service.test.ts
+      - name: Commit C23 reconciliation
+        run: |
+          if git diff --quiet; then exit 0; fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add src/app/athlete/perfil/actions.ts src/app/athlete/perfil/page.tsx src/features/athlete-portal/types.ts src/server/repositories/athlete-portal-repository.ts src/server/services/athlete-portal-service.ts src/server/services/athlete-portal-service.test.ts supabase/migrations/20260810203500_secure_athlete_self_matchmaking_identity.sql
+          git commit -m "feat: reconcile C23 matchmaking readiness into Athlete App"
+          git push origin HEAD:integration/app-v1-command-data
