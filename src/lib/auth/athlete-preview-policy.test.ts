@@ -14,7 +14,9 @@ describe("athlete preview policy", () => {
   });
 
   it("accepts valid UUID athlete ids and rejects malformed values", () => {
-    expect(isAthletePreviewId("123e4567-e89b-12d3-a456-426614174000")).toBe(true);
+    expect(
+      isAthletePreviewId("123e4567-e89b-12d3-a456-426614174000"),
+    ).toBe(true);
     expect(isAthletePreviewId("not-an-athlete-id")).toBe(false);
     expect(isAthletePreviewId("")).toBe(false);
   });
