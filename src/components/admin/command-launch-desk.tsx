@@ -3,6 +3,7 @@ import {
   CalendarClock,
   CheckCircle2,
   CircleAlert,
+  ClipboardCheck,
   Rocket,
 } from "lucide-react";
 import Link from "next/link";
@@ -22,10 +23,18 @@ export function CommandLaunchDesk({
 }) {
   const go = snapshot.status === "go";
   const session = snapshot.targetSession;
-  const primaryHref =
-    go && session ? "/admin/ur-play/quadra" : "/admin/agenda/piloto";
-  const primaryLabel =
-    go && session ? "Abrir operação de quadra" : "Abrir assistente do piloto";
+  const sessionRunning = session?.status === "in_progress";
+  const needsPreflight = Boolean(go && session && !sessionRunning);
+  const primaryHref = sessionRunning
+    ? "/admin/ur-play/quadra"
+    : needsPreflight
+      ? "/admin/ur-play/preflight"
+      : "/admin/agenda/piloto";
+  const primaryLabel = sessionRunning
+    ? "Abrir operação de quadra"
+    : needsPreflight
+      ? "Concluir preflight"
+      : "Abrir assistente do piloto";
 
   return (
     <Card
@@ -40,8 +49,14 @@ export function CommandLaunchDesk({
           <div
             className={`rounded-ur grid size-12 shrink-0 place-items-center border ${go ? "border-emerald-500/30 bg-emerald-500/10" : "border-ur-gold/30 bg-black/20"}`}
           >
-            {go ? (
+            {sessionRunning ? (
               <Rocket
+                className="text-emerald-300"
+                size={22}
+                aria-hidden="true"
+              />
+            ) : needsPreflight ? (
+              <ClipboardCheck
                 className="text-emerald-300"
                 size={22}
                 aria-hidden="true"
@@ -60,19 +75,23 @@ export function CommandLaunchDesk({
               <p className="text-[10px] font-black tracking-[0.16em] text-zinc-500 uppercase">
                 Próximo movimento
               </p>
-              <Badge>{go ? "GO" : "NO-GO"}</Badge>
+              <Badge>{go ? "Implantação GO" : "NO-GO"}</Badge>
             </div>
             <h2 className="font-display mt-2 text-3xl font-black uppercase">
-              {go && session
-                ? "Piloto liberado para operação"
-                : (snapshot.nextAction?.label ?? "Preparar primeiro UR Play")}
+              {sessionRunning
+                ? "Sessão em operação"
+                : needsPreflight
+                  ? "Sessão estruturada — concluir preflight"
+                  : (snapshot.nextAction?.label ?? "Preparar primeiro UR Play")}
             </h2>
             <p className="mt-2 max-w-3xl text-sm leading-6 text-zinc-400">
-              {go && session
-                ? `${session.name} está com os gates críticos aprovados. A próxima responsabilidade é executar a sessão e homologar os dados produzidos em quadra.`
-                : snapshot.nextAction
-                  ? `${snapshot.nextAction.detail} Use o fluxo guiado para resolver os gates na ordem correta sem navegar entre módulos isolados.`
-                  : "Use o fluxo guiado para preparar a primeira operação real."}
+              {sessionRunning && session
+                ? `${session.name} já está em andamento. A prioridade agora é conduzir a quadra e preservar o registro oficial dos jogos.`
+                : needsPreflight && session
+                  ? `${session.name} passou pelos gates de implantação. Antes do placar, confirme acesso à quadra, materiais, primeiros socorros, dispositivo/offline, responsável e briefing dos atletas.`
+                  : snapshot.nextAction
+                    ? `${snapshot.nextAction.detail} Use o fluxo guiado para resolver os gates na ordem correta sem navegar entre módulos isolados.`
+                    : "Use o fluxo guiado para preparar a primeira operação real."}
             </p>
 
             <div className="mt-4 flex flex-wrap items-center gap-4 text-xs text-zinc-500">
@@ -82,7 +101,7 @@ export function CommandLaunchDesk({
                   size={14}
                   aria-hidden="true"
                 />
-                {snapshot.readyGates}/{snapshot.totalGates} gates aprovados
+                {snapshot.readyGates}/{snapshot.totalGates} gates de implantação
               </span>
               {session && (
                 <span className="flex items-center gap-2">
