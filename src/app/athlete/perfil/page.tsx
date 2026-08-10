@@ -45,7 +45,7 @@ function ReadinessItem({
 }: {
   ready: boolean;
   title: string;
-  description: string;
+  description: string | undefined;
   action?: React.ReactNode;
 }) {
   return (
