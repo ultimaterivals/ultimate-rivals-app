@@ -5,7 +5,7 @@ Esta matriz define o que deve ser preservado no App do Atleta e o que deve ser a
 | Área do App | Preservar UI/UX do App | Fonte/ação canônica a usar | Relação com Command |
 |---|---:|---|---|
 | Player Hub `/athlete` | SIM | snapshots/serviços atuais da main + ranking + coins + próxima reserva/sessão | Command publica/opera; Hub reflete |
-| Agenda `/athlete/agenda` | preservar linguagem/experiência do App; incorporar ações atuais | `set_activity_interest`, `reserve_activity_opportunity`, `cancel_activity_reservation`, `athlete_credit_balances` | Command abre demanda/confirmará sessão; atleta manifesta/reserva |
+| Agenda `/athlete/agenda` | preservar linguagem/experiência do App; incorporar ações atuais | `set_activity_interest`, `reserve_activity_opportunity`, `cancel_activity_reservation`, `athlete_credit_balances` | Command abre demanda/confirma sessão; atleta manifesta/reserva |
 | Disponibilidade | integrar como função do App sem transformar em foco visual do Hub | `athlete_availability_windows` | Command agrega sinal para planejamento |
 | Temporada | SIM | `seasons`, `season_cycles`, agenda/sessões homologadas | Command configura/homologa; App mostra campanha |
 | Ranking | SIM | projeções oficiais derivadas de `ranking_transactions` | Command homologa resultado; App lê consequência |
@@ -28,7 +28,7 @@ Quando a `main` tiver uma rota `/athlete/*` mais recente e o PR do App tiver uma
 4. adaptar o App para consumir esses contratos;
 5. remover apenas duplicações de lógica, nunca a identidade da experiência do atleta.
 
-## Agenda — integração concreta C12/C16
+## Agenda — integração concreta C12/C16/C17
 
 A Agenda é o principal ponto de alimentação bidirecional.
 
@@ -66,6 +66,25 @@ App:
 - próxima atividade do Player Hub deve priorizar a sessão oficial correspondente;
 - não precisa conhecer os detalhes internos do gate administrativo.
 
+### Presença e consumo de crédito (C17)
+
+C17 já foi incorporado à linha principal e fecha a consequência operacional da participação:
+
+- check-in oficial consome o crédito reservado exatamente uma vez;
+- no-show consome o mesmo hold exatamente uma vez;
+- estados incompatíveis são bloqueados;
+- `activity_reservations` acompanha `consumed`/`no_show`;
+- o Command opera presença e o App deve apenas refletir o estado final autorizado.
+
+No App, isso deve aparecer como estado esportivo simples:
+
+- confirmado;
+- presente/check-in realizado;
+- ausência/no-show quando aplicável;
+- participação concluída.
+
+Não expor ao atleta detalhes internos de ledger, idempotência, auditoria ou operação administrativa.
+
 ## Player Hub — fontes que devem alimentar sem alterar o produto
 
 O Hub deve receber dados derivados, não a estrutura do Command:
@@ -94,12 +113,81 @@ Não levar para o Hub:
 - métricas de patrocinador/comercial;
 - notas internas.
 
+## Mapa técnico de integração do App
+
+A implementação final deve seguir esta ordem para reduzir retrabalho:
+
+### 1. Shell e identidade
+
+Preservar do App:
+- `src/app/athlete/layout.tsx` da experiência imersiva;
+- `src/components/athlete/athlete-navigation.tsx`;
+- Player Hub;
+- Preview admin read-only.
+
+Adaptar:
+- autenticação/viewer para contratos atuais da `main`;
+- navegação apenas quando houver uma nova função de atleta realmente necessária.
+
+### 2. Agenda e participação
+
+Preservar:
+- narrativa e composição visual do App.
+
+Consumir da `main`:
+- interesse;
+- reserva;
+- waitlist;
+- cancelamento;
+- disponibilidade;
+- saldo de créditos;
+- vínculo com sessão UR Play oficial quando C16 estiver incorporado;
+- estado final de presença/consumo do C17.
+
+### 3. Temporada + Ranking + Progressão
+
+Preservar superfícies existentes do App.
+
+Usar apenas:
+- temporada/ciclos homologados;
+- ranking oficial e movimentos derivados;
+- nível/progressão existente;
+- nenhuma pontuação paralela.
+
+### 4. Wallet + Market
+
+Preservar Wallet e Market do App.
+
+Obrigatório:
+- ledger UR Coins separado de ranking;
+- resgate via RPC transacional;
+- Preview sem ação de resgate;
+- fulfillment permanece interno no Command/Admin.
+
+### 5. Arenas + Destaques
+
+Preservar composição visual já construída.
+
+Alimentar por:
+- venue/court reais da sessão;
+- mídia apenas `publishable`/`public`;
+- nunca usar asset privado como fallback.
+
+## Estado atual do gate
+
+- C12: incorporado — ações transacionais do atleta.
+- C13: incorporado — disponibilidade agregada para planejamento interno.
+- C14/C15: incorporados — setup, homologação e abertura de demanda.
+- C16: PR aberto e atualmente mergeável, mas ainda não incorporado à `main`.
+- C17: incorporado — presença/no-show e consumo de créditos sincronizados.
+- Vercel do C16 está bloqueando preview por rate limit do plano; isso não substitui o gate de Quality nem autoriza merge automático.
+
 ## Gate de integração final
 
-Antes de qualquer merge final:
+Antes de qualquer merge final do App:
 
-- C16 deve estar estabilizado na `main` ou sua API final deve estar congelada;
-- criar branch de integração a partir da `main` atual;
+- C16 deve estar incorporado à `main` ou sua API final deve estar congelada;
+- criar branch de integração a partir da `main` mais recente;
 - portar superfícies únicas do App sem importar migrations antigas;
 - recriar Market redemption como migration forward-only sobre o head de PROD;
 - adaptar Agenda/Hub às RPCs e entidades atuais;
@@ -107,5 +195,14 @@ Antes de qualquer merge final:
   - Command cria/publica → App reflete;
   - App manifesta/reserva/cancela → Command reflete;
   - Command confirma UR Play → App passa a mostrar sessão/inscrição oficial;
+  - Command registra presença/no-show → App reflete o estado autorizado;
   - Admin Preview → App real read-only;
   - Market redemption → Wallet/Command coerentes.
+
+## Regra final
+
+A integração termina quando Command e App compartilham a mesma verdade operacional sem compartilhar a mesma experiência de interface.
+
+`COMMAND ≠ APP`
+
+`COMMAND ↔ BACKEND CANÔNICO ↔ APP`
