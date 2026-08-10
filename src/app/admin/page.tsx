@@ -1,5 +1,6 @@
 import { ArrowUpRight, DatabaseZap } from "lucide-react";
 import Link from "next/link";
+import { CommandPilotReadiness } from "@/components/admin/command-pilot-readiness";
 import { CommandSection } from "@/components/admin/command-section";
 import {
   CommandActions,
@@ -16,11 +17,13 @@ import {
 } from "@/lib/auth/admin-modules";
 import { requireRole } from "@/lib/auth/session";
 import { getAdminCommandSnapshot } from "@/server/services/admin-command-service";
+import { getAdminPilotReadinessSnapshot } from "@/server/services/admin-pilot-readiness-service";
 
 export default async function AdminPage() {
   const user = await requireRole(adminPortalRoles);
-  const [snapshot, modules] = await Promise.all([
+  const [snapshot, pilotReadiness, modules] = await Promise.all([
     getAdminCommandSnapshot(),
+    user.role === "admin" ? getAdminPilotReadinessSnapshot() : Promise.resolve(null),
     Promise.resolve(
       getAdminModulesForRole(user.role).filter(
         (item) => item.key !== "command",
@@ -64,6 +67,15 @@ export default async function AdminPage() {
       >
         <CommandMetricGrid snapshot={snapshot} />
       </CommandSection>
+
+      {pilotReadiness && (
+        <CommandSection
+          title="Gate de implantação"
+          description="Uma leitura objetiva do que ainda impede o primeiro UR Play real de ponta a ponta."
+        >
+          <CommandPilotReadiness snapshot={pilotReadiness} />
+        </CommandSection>
+      )}
 
       <div className="grid gap-6 xl:grid-cols-2">
         <CommandAttention snapshot={snapshot} />
