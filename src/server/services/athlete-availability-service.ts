@@ -5,9 +5,7 @@ import type {
 import { fetchAthleteAvailabilityRepositoryData } from "@/server/repositories/athlete-availability-repository";
 
 export async function getAthleteAvailabilitySnapshot(
-  subject:
-    | string
-    | { userId?: string | null; athleteId?: string | null },
+  subject: string | { userId?: string | null; athleteId?: string | null },
 ): Promise<AthleteAvailabilitySnapshot> {
   const input =
     typeof subject === "string"

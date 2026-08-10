@@ -39,7 +39,9 @@ export default async function AdminAthletePreviewPage({
               Prévia segura
             </h2>
             <p className="mt-1 text-sm text-zinc-400">
-              Sem troca de Auth, sem senha do atleta, sem service role no navegador e sem ações de escrita dentro da experiência visualizada.
+              Sem troca de Auth, sem senha do atleta, sem service role no
+              navegador e sem ações de escrita dentro da experiência
+              visualizada.
             </p>
           </div>
         </div>

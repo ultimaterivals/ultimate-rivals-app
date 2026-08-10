@@ -73,7 +73,8 @@ export default async function AthleteAgendaPage({
       {viewer.isPreview && (
         <Card className="border-ur-gold/40">
           <p className="text-ur-gold text-sm font-bold">
-            Prévia somente leitura: interesse, reserva e cancelamento estão desabilitados.
+            Prévia somente leitura: interesse, reserva e cancelamento estão
+            desabilitados.
           </p>
         </Card>
       )}

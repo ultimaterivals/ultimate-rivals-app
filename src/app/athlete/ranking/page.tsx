@@ -47,7 +47,9 @@ export default async function AthleteRankingPage() {
                       {ranking.categoryCode && (
                         <Badge>{ranking.categoryCode}</Badge>
                       )}
-                      {ranking.formatCode && <Badge>{ranking.formatCode}</Badge>}
+                      {ranking.formatCode && (
+                        <Badge>{ranking.formatCode}</Badge>
+                      )}
                     </div>
                     <p className="mt-3 text-sm text-zinc-400">
                       {ranking.gamesPlayed} jogos · {ranking.wins} vitórias ·{" "}

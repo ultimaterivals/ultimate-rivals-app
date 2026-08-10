@@ -182,7 +182,9 @@ export function AthleteShell({
           <DesktopNavigation />
         </div>
         <div className="border-t p-4">
-          <p className="truncate text-sm font-bold text-zinc-300">{userLabel}</p>
+          <p className="truncate text-sm font-bold text-zinc-300">
+            {userLabel}
+          </p>
           {!preview && (
             <form action="/auth/signout" method="post">
               <button className="rounded-ur mt-3 flex min-h-11 w-full items-center gap-2 px-3 text-sm text-zinc-400 transition-colors hover:bg-white/5 hover:text-white">

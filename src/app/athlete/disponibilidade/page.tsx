@@ -51,18 +51,20 @@ export default async function AthleteAvailabilityPage({
       {viewer.isPreview && (
         <Card className="border-ur-gold/40">
           <p className="text-ur-gold text-sm font-bold">
-            Prévia somente leitura: as janelas abaixo refletem o cadastro atual do atleta.
+            Prévia somente leitura: as janelas abaixo refletem o cadastro atual
+            do atleta.
           </p>
         </Card>
       )}
 
-      {!viewer.isPreview && (single(params.saved) || single(params.deleted)) && (
-        <Card className="border-ur-gold/40">
-          <p className="text-ur-gold text-sm font-bold">
-            Disponibilidade atualizada.
-          </p>
-        </Card>
-      )}
+      {!viewer.isPreview &&
+        (single(params.saved) || single(params.deleted)) && (
+          <Card className="border-ur-gold/40">
+            <p className="text-ur-gold text-sm font-bold">
+              Disponibilidade atualizada.
+            </p>
+          </Card>
+        )}
 
       {!viewer.isPreview && error && (
         <Card className="border-red-500/40">
@@ -100,7 +102,9 @@ export default async function AthleteAvailabilityPage({
                 {(window.formatCodes.length > 0 ||
                   window.categoryCodes.length > 0) && (
                   <p className="mt-3 text-xs text-zinc-600">
-                    {[...window.formatCodes, ...window.categoryCodes].join(" · ")}
+                    {[...window.formatCodes, ...window.categoryCodes].join(
+                      " · ",
+                    )}
                   </p>
                 )}
               </Card>
