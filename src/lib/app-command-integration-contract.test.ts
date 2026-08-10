@@ -35,6 +35,28 @@ describe("App V1 ↔ Command integration contracts", () => {
     expect(athleteShell).toContain("Voltar ao Command");
   });
 
+  it("reflects official UR Play attendance outcomes back into the athlete App", () => {
+    const attendanceActions = source(
+      "src/app/admin/ur-play/presenca/actions.ts",
+    );
+    const athleteRepository = source(
+      "src/server/repositories/athlete-portal-repository.ts",
+    );
+    const opportunityCard = source(
+      "src/components/athlete/athlete-opportunity-card.tsx",
+    );
+
+    expect(attendanceActions).toContain('rpc("admin_manual_checkin_ur_play"');
+    expect(attendanceActions).toContain('rpc("admin_mark_ur_play_no_show"');
+    expect(attendanceActions).toContain('revalidatePath("/athlete")');
+    expect(attendanceActions).toContain('revalidatePath("/athlete/agenda")');
+    expect(athleteRepository).toContain('"consumed"');
+    expect(athleteRepository).toContain('"no_show"');
+    expect(athleteRepository).toContain("opportunityStart");
+    expect(opportunityCard).toContain("Participação concluída");
+    expect(opportunityCard).toContain("Ausência registrada");
+  });
+
   it("keeps athlete Market writes behind the transactional RPC", () => {
     const athleteMarket = source("src/app/athlete/market/page.tsx");
 
