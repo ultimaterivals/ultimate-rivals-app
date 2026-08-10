@@ -1,0 +1,35 @@
+name: App V1 Format Pass
+
+on:
+  push:
+    branches:
+      - integration/app-v1-command-data
+
+permissions:
+  contents: write
+
+jobs:
+  format:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: integration/app-v1-command-data
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Format App V1 files
+        run: npx prettier --write src/app/athlete/page.tsx src/app/athlete/season/page.tsx src/app/athlete/arenas/page.tsx src/app/athlete/wallet/page.tsx src/app/athlete/highlights/page.tsx src/app/athlete/development/page.tsx src/app/athlete/market/page.tsx src/components/athlete/athlete-shell.tsx docs/app-preservation-matrix.md
+      - name: Commit formatting if needed
+        run: |
+          if git diff --quiet; then
+            echo "No formatting changes required."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add src/app/athlete src/components/athlete/athlete-shell.tsx docs/app-preservation-matrix.md
+          git commit -m "style: format restored App V1 surfaces"
+          git push origin HEAD:integration/app-v1-command-data
