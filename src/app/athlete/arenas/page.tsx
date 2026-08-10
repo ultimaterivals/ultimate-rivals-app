@@ -1,12 +1,12 @@
 import { ArrowRight, CalendarDays, MapPin, ShieldCheck } from "lucide-react";
 import Link from "next/link";
 import { Badge, Card, PageHeader } from "@/components/ui";
-import { requireRole } from "@/lib/auth/session";
-import { getAthletePortalSnapshot } from "@/server/services/athlete-portal-service";
+import { requireAthleteViewer } from "@/lib/auth/athlete-viewer";
+import { getAthleteSnapshotForViewer } from "@/server/services/athlete-viewer-snapshot-service";
 
 export default async function AthleteArenasPage() {
-  const user = await requireRole(["athlete"]);
-  const snapshot = await getAthletePortalSnapshot({ userId: user.userId });
+  const viewer = await requireAthleteViewer();
+  const snapshot = await getAthleteSnapshotForViewer(viewer);
   const next = snapshot.nextReservation;
   const opportunities = (snapshot.opportunities ?? [])
     .filter((item) => item.venueName || item.poleName)
