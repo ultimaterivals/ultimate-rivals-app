@@ -25,6 +25,12 @@ export default async function AgendaLayout({
         {isAdmin && (
           <>
             <Link
+              href="/admin/agenda/piloto"
+              className="bg-ur-gold/10 text-ur-gold rounded-ur hover:bg-ur-gold/15 px-3 py-2 text-sm font-black transition"
+            >
+              Assistente do piloto
+            </Link>
+            <Link
               href="/admin/agenda/temporada"
               className="rounded-ur px-3 py-2 text-sm font-bold text-zinc-400 transition hover:bg-white/5 hover:text-white"
             >
@@ -55,7 +61,7 @@ export default async function AgendaLayout({
               Nova oportunidade
             </Link>
             <Link
-              href="/admin/agenda/confirmar-sessao"
+              href="/admin/agenda/confirmacao"
               className="rounded-ur px-3 py-2 text-sm font-bold text-zinc-400 transition hover:bg-white/5 hover:text-white"
             >
               Confirmar sessão
