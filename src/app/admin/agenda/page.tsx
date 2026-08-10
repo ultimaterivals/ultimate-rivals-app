@@ -1,4 +1,5 @@
-import { DatabaseZap } from "lucide-react";
+import { DatabaseZap, Settings2 } from "lucide-react";
+import Link from "next/link";
 import { AgendaAvailabilityHeatmap } from "@/components/admin/agenda/agenda-availability-heatmap";
 import { AgendaDemandBoard } from "@/components/admin/agenda/agenda-demand-board";
 import { AgendaMobileList } from "@/components/admin/agenda/agenda-mobile-list";
@@ -35,7 +36,7 @@ export default async function AgendaPage({
 }: {
   searchParams: AgendaSearchParams;
 }) {
-  await requireAdminModule("agenda");
+  const identity = await requireAdminModule("agenda");
   const params = await searchParams;
   const snapshot = await getAdminAgendaSnapshot({
     week: single(params.week),
@@ -50,7 +51,19 @@ export default async function AgendaPage({
         eyebrow="Operação"
         title="Agenda e Demanda"
         description="Visão semanal das operações, disponibilidade de capacidade e sinais reais de interesse entre 06:00 e 00:00."
-        action={<Badge>Dados reais</Badge>}
+        action={
+          <div className="flex items-center gap-2">
+            <Badge>Dados reais</Badge>
+            {identity.role === "admin" && (
+              <Link
+                href="/admin/agenda/configuracao"
+                className="rounded-ur flex min-h-11 items-center gap-2 border px-4 text-sm font-bold"
+              >
+                <Settings2 size={16} aria-hidden="true" /> Setup
+              </Link>
+            )}
+          </div>
+        }
       />
 
       <AgendaSummary metrics={snapshot.metrics} />
