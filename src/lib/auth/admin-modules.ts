@@ -147,9 +147,11 @@ export const adminModules: readonly AdminModuleDefinition[] = [
 ] as const;
 
 export function getAdminModule(key: AdminModuleKey) {
-  const module = adminModules.find((item) => item.key === key);
-  if (!module) throw new Error(`Módulo administrativo desconhecido: ${key}`);
-  return module;
+  const adminModule = adminModules.find((item) => item.key === key);
+  if (!adminModule) {
+    throw new Error(`Módulo administrativo desconhecido: ${key}`);
+  }
+  return adminModule;
 }
 
 export function canAccessAdminModule(role: AppRole, key: AdminModuleKey) {
@@ -157,5 +159,7 @@ export function canAccessAdminModule(role: AppRole, key: AdminModuleKey) {
 }
 
 export function getAdminModulesForRole(role: AppRole) {
-  return adminModules.filter((module) => module.allowedRoles.includes(role));
+  return adminModules.filter((adminModule) =>
+    adminModule.allowedRoles.includes(role),
+  );
 }
