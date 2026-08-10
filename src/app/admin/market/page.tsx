@@ -21,7 +21,7 @@ function brl(value: number | string | null | undefined) {
 async function fulfillRedemption(formData: FormData) {
   "use server";
 
-  await requireRole("admin");
+  await requireRole(["admin"]);
   const redemptionId = String(formData.get("redemptionId") ?? "");
   if (!redemptionId) return;
 
@@ -42,7 +42,7 @@ async function fulfillRedemption(formData: FormData) {
 }
 
 export default async function AdminMarketPage() {
-  await requireRole("admin");
+  await requireRole(["admin"]);
   const client = await createClient();
 
   const [
@@ -56,7 +56,7 @@ export default async function AdminMarketPage() {
     client
       .from("market_redemptions")
       .select(
-        "id,status,redemption_code,reserved_at,redeemed_at,market_offers(name),athletes(public_name)",
+        "id,offer_id,athlete_id,status,redemption_code,reserved_at,redeemed_at",
       )
       .order("created_at", { ascending: false }),
   ]);
@@ -66,6 +66,24 @@ export default async function AdminMarketPage() {
 
   const marketOffers = offers ?? [];
   const marketRedemptions = redemptions ?? [];
+  const athleteIds = Array.from(
+    new Set(marketRedemptions.map((redemption) => redemption.athlete_id)),
+  );
+  const { data: athletes, error: athletesError } = athleteIds.length
+    ? await client
+        .from("athletes")
+        .select("id,public_name")
+        .in("id", athleteIds)
+    : { data: [], error: null };
+
+  if (athletesError) throw athletesError;
+
+  const offerNames = new Map(
+    marketOffers.map((offer) => [offer.id, offer.name] as const),
+  );
+  const athleteNames = new Map(
+    (athletes ?? []).map((athlete) => [athlete.id, athlete.public_name] as const),
+  );
   const pending = marketRedemptions.filter((redemption) =>
     ["reserved", "available"].includes(redemption.status),
   ).length;
@@ -135,12 +153,8 @@ export default async function AdminMarketPage() {
               const actionable = ["reserved", "available"].includes(
                 redemption.status,
               );
-              const offerName = Array.isArray(redemption.market_offers)
-                ? redemption.market_offers[0]?.name
-                : redemption.market_offers?.name;
-              const athleteName = Array.isArray(redemption.athletes)
-                ? redemption.athletes[0]?.public_name
-                : redemption.athletes?.public_name;
+              const offerName = offerNames.get(redemption.offer_id);
+              const athleteName = athleteNames.get(redemption.athlete_id);
 
               return (
                 <div key={redemption.id} className="rounded-ur border p-4">
