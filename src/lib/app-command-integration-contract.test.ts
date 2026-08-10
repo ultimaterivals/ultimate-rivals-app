@@ -103,10 +103,10 @@ describe("App V1 ↔ Command integration contracts", () => {
 
   it("uses a forward-only, atomic and idempotent URC Market migration", () => {
     const migrationPath =
-      "supabase/migrations/20260811001000_atomic_urc_market_redemption.sql";
+      "supabase/migrations/20260811004000_atomic_urc_market_redemption.sql";
     const migration = source(migrationPath);
 
-    expect("20260811001000" > "20260810234500").toBe(true);
+    expect("20260811004000" > "20260811003500").toBe(true);
     expect(migration).toContain("security definer");
     expect(migration).toContain("set search_path = ''");
     expect(migration).toContain("pg_advisory_xact_lock");
