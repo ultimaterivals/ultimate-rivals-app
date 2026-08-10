@@ -117,7 +117,9 @@ export type CourtOpsSession = {
   startsAt: string;
   endsAt: string;
   readyForMatchmaking: boolean;
+  poleId: string;
   poleName: string;
+  venueId: string;
   venueName: string;
   courts: CourtOpsCourt[];
   queue: CourtOpsQueueEntry[];
