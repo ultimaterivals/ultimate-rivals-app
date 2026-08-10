@@ -20,6 +20,12 @@ export default function UrPlayLayout({ children }: { children: ReactNode }) {
         >
           Presença
         </Link>
+        <Link
+          href="/admin/ur-play/quadra"
+          className="rounded-ur px-3 py-2 text-sm font-bold text-zinc-400 transition hover:bg-white/5 hover:text-white"
+        >
+          Operação de quadra
+        </Link>
       </nav>
       {children}
     </div>
