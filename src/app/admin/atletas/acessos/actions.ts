@@ -13,13 +13,6 @@ export type InviteActionState = {
   message: string | null;
 };
 
-export const initialInviteActionState: InviteActionState = {
-  status: "idle",
-  invitePath: null,
-  expiresAt: null,
-  message: null,
-};
-
 const issueSchema = z.object({
   athleteId: z.string().uuid(),
   expiresDays: z.coerce.number().int().min(1).max(30),
