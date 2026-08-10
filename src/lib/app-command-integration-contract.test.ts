@@ -71,7 +71,7 @@ describe("App V1 ↔ Command integration contracts", () => {
     expect(profile).toContain("getAthleteSnapshotForViewer");
     expect(profile).toContain("getAthleteAvailabilitySnapshot");
     expect(action).toContain('requireRole(["athlete"])');
-    expect(action).toContain("update_own_athlete_matchmaking_identity");
+    expect(action).toContain('rpc("update_own_athlete_matchmaking_identity"');
     expect(repository).toContain("primary_pole_id,gender");
     expect(types).toContain("gender: string");
   });
