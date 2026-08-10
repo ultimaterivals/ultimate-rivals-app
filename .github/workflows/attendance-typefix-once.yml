@@ -1,0 +1,44 @@
+name: Attendance Typefix Once
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: write
+
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Remove unsupported Button size props
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          path = Path('src/app/admin/ur-play/presenca/page.tsx')
+          text = path.read_text()
+          text = text.replace('<Button type="submit" size="sm">', '<Button type="submit">')
+          text = text.replace('<Button type="submit" size="sm" variant="secondary">', '<Button type="submit" variant="secondary">')
+          path.write_text(text)
+          PY
+          npx prettier --write src/app/admin/ur-play/presenca/page.tsx
+      - name: Commit type fix if needed
+        run: |
+          if git diff --quiet; then
+            echo "No changes required."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add src/app/admin/ur-play/presenca/page.tsx
+          git commit -m "fix: remove unsupported attendance button size props"
+          git push origin HEAD:main
