@@ -62,7 +62,9 @@ export default async function PolesInfrastructurePage({
         {metrics.map(([label, value, Icon]) => (
           <Card key={label}>
             <div className="flex items-center justify-between gap-2">
-              <p className="text-xs font-bold text-zinc-500 uppercase">{label}</p>
+              <p className="text-xs font-bold text-zinc-500 uppercase">
+                {label}
+              </p>
               <Icon className="text-ur-gold" size={16} aria-hidden="true" />
             </div>
             <p className="font-display mt-3 text-2xl font-black">{value}</p>
@@ -74,10 +76,12 @@ export default async function PolesInfrastructurePage({
         <p className="font-bold text-white">Dois gates independentes</p>
         <div className="mt-3 grid gap-3 text-sm leading-6 text-zinc-400 lg:grid-cols-2">
           <div>
-            <span className="font-bold text-sky-200">1. Polo oficial ativo</span>
+            <span className="font-bold text-sky-200">
+              1. Polo oficial ativo
+            </span>
             <p>
-              Libera identidade regional, vínculo de atletas e coleta de demanda. Não
-              cria agenda física por conta própria.
+              Libera identidade regional, vínculo de atletas e coleta de
+              demanda. Não cria agenda física por conta própria.
             </p>
           </div>
           <div>
@@ -85,8 +89,8 @@ export default async function PolesInfrastructurePage({
               2. Infraestrutura homologada
             </span>
             <p>
-              Exige local e quadra reais. A confirmação de uma sessão UR Play continua
-              bloqueada sem uma quadra válida.
+              Exige local e quadra reais. A confirmação de uma sessão UR Play
+              continua bloqueada sem uma quadra válida.
             </p>
           </div>
         </div>
@@ -97,7 +101,7 @@ export default async function PolesInfrastructurePage({
           <Card key={pole.id}>
             <div className="flex items-start justify-between gap-3">
               <div>
-                <p className="font-display text-xl font-black uppercase text-white">
+                <p className="font-display text-xl font-black text-white uppercase">
                   {pole.name}
                 </p>
                 <p className="mt-1 text-xs text-zinc-500">
@@ -117,18 +121,26 @@ export default async function PolesInfrastructurePage({
 
             <div className="mt-5 grid grid-cols-2 gap-2">
               <div className="rounded-ur border p-3">
-                <p className="text-xs font-bold text-zinc-500 uppercase">Locais</p>
+                <p className="text-xs font-bold text-zinc-500 uppercase">
+                  Locais
+                </p>
                 <p className="font-display mt-2 text-xl font-black">
                   {pole.activeVenueCount}/{pole.venueCount}
                 </p>
-                <p className="mt-1 text-xs text-zinc-600">ativos / cadastrados</p>
+                <p className="mt-1 text-xs text-zinc-600">
+                  ativos / cadastrados
+                </p>
               </div>
               <div className="rounded-ur border p-3">
-                <p className="text-xs font-bold text-zinc-500 uppercase">Quadras</p>
+                <p className="text-xs font-bold text-zinc-500 uppercase">
+                  Quadras
+                </p>
                 <p className="font-display mt-2 text-xl font-black">
                   {pole.activeCourtCount}/{pole.courtCount}
                 </p>
-                <p className="mt-1 text-xs text-zinc-600">ativas / cadastradas</p>
+                <p className="mt-1 text-xs text-zinc-600">
+                  ativas / cadastradas
+                </p>
               </div>
             </div>
 
@@ -140,7 +152,8 @@ export default async function PolesInfrastructurePage({
                     : "border-amber-500/30 bg-amber-500/10 text-amber-200"
                 }`}
               >
-                infraestrutura {pole.infrastructureReady ? "pronta" : "pendente"}
+                infraestrutura{" "}
+                {pole.infrastructureReady ? "pronta" : "pendente"}
               </span>
             </div>
 

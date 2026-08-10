@@ -2,7 +2,11 @@ import type { ReactNode } from "react";
 import Link from "next/link";
 import { getSessionIdentity } from "@/lib/auth/session";
 
-export default async function AgendaLayout({ children }: { children: ReactNode }) {
+export default async function AgendaLayout({
+  children,
+}: {
+  children: ReactNode;
+}) {
   const identity = await getSessionIdentity();
   const isAdmin = identity?.role === "admin";
 

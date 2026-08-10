@@ -16,8 +16,12 @@ export async function getAdminPolesInfrastructureSnapshot() {
     const poleCourts = poleVenues.flatMap(
       (venue) => courtsByVenue.get(venue.id) ?? [],
     );
-    const activeVenues = poleVenues.filter((venue) => venue.status === "active");
-    const activeCourts = poleCourts.filter((court) => court.status === "active");
+    const activeVenues = poleVenues.filter(
+      (venue) => venue.status === "active",
+    );
+    const activeCourts = poleCourts.filter(
+      (court) => court.status === "active",
+    );
     const infrastructureReady =
       activeVenues.length > 0 && activeCourts.length > 0;
 
@@ -44,7 +48,8 @@ export async function getAdminPolesInfrastructureSnapshot() {
     metrics: {
       regions: poles.length,
       activeRegions: poles.filter((pole) => pole.regionActive).length,
-      infrastructureReady: poles.filter((pole) => pole.infrastructureReady).length,
+      infrastructureReady: poles.filter((pole) => pole.infrastructureReady)
+        .length,
       venues: venues.length,
       courts: courts.length,
       activeVenues: venues.filter((venue) => venue.status === "active").length,
