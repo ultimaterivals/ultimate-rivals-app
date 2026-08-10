@@ -21,6 +21,7 @@ export type AdminUrPlaySession = {
 };
 
 export type AdminUrPlaySnapshot = {
+  generatedAt: string;
   sessions: AdminUrPlaySession[];
   metrics: {
     sessions: number;
