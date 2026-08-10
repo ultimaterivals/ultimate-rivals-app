@@ -18,7 +18,10 @@ export async function getAdminAthleteAccessSnapshot(
     };
   }
 
-  const inviteByAthlete = new Map<string, (NonNullable<typeof raw.invites>)[number]>();
+  const inviteByAthlete = new Map<
+    string,
+    NonNullable<typeof raw.invites>[number]
+  >();
   for (const invite of raw.invites ?? []) {
     if (!inviteByAthlete.has(invite.athlete_id)) {
       inviteByAthlete.set(invite.athlete_id, invite);
@@ -30,9 +33,9 @@ export async function getAdminAthleteAccessSnapshot(
     const invite = inviteByAthlete.get(athlete.id);
     const inviteActive = Boolean(
       invite &&
-        !invite.used_at &&
-        !invite.revoked_at &&
-        new Date(invite.expires_at).getTime() > nowMs,
+      !invite.used_at &&
+      !invite.revoked_at &&
+      new Date(invite.expires_at).getTime() > nowMs,
     );
     return {
       id: athlete.id,

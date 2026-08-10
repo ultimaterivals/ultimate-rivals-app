@@ -17,7 +17,8 @@ export function ClaimAthleteForm({ token }: { token: string }) {
     <form action={action} className="grid gap-4">
       <input type="hidden" name="token" value={token} />
       <div className="rounded-ur border border-emerald-500/20 bg-emerald-500/5 p-4 text-sm leading-6 text-zinc-300">
-        Sua conta está autenticada. Ao confirmar, ela será vinculada ao cadastro esportivo indicado neste convite e passará a acessar o Portal do Atleta.
+        Sua conta está autenticada. Ao confirmar, ela será vinculada ao cadastro
+        esportivo indicado neste convite e passará a acessar o Portal do Atleta.
       </div>
       {state.message && (
         <p

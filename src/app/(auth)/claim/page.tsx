@@ -39,17 +39,21 @@ export default async function ClaimPage({
             Primeiro acesso
           </h1>
           <p className="mt-2 mb-7 text-sm leading-6 text-zinc-400">
-            Este vínculo associa sua conta ao histórico esportivo já existente no Ultimate Rivals.
+            Este vínculo associa sua conta ao histórico esportivo já existente
+            no Ultimate Rivals.
           </p>
 
           {!validToken ? (
             <div className="rounded-ur border border-red-500/30 bg-red-500/10 p-4 text-sm leading-6 text-red-200">
-              O link de primeiro acesso é inválido. Solicite um novo convite à organização do UR.
+              O link de primeiro acesso é inválido. Solicite um novo convite à
+              organização do UR.
             </div>
           ) : administrativeRole ? (
             <div className="grid gap-3">
               <div className="rounded-ur border border-amber-500/30 bg-amber-500/10 p-4 text-sm leading-6 text-amber-100">
-                Você está autenticado com uma conta administrativa. Para proteger as permissões do sistema, esse tipo de conta não pode assumir um cadastro de atleta.
+                Você está autenticado com uma conta administrativa. Para
+                proteger as permissões do sistema, esse tipo de conta não pode
+                assumir um cadastro de atleta.
               </div>
               <form action="/auth/signout" method="post">
                 <button
@@ -67,7 +71,8 @@ export default async function ClaimPage({
           )}
         </Card>
         <p className="mt-5 text-center text-xs leading-5 text-zinc-600">
-          O convite é individual, temporário e de uso único. O token original não é armazenado no banco.
+          O convite é individual, temporário e de uso único. O token original
+          não é armazenado no banco.
         </p>
       </div>
     </main>

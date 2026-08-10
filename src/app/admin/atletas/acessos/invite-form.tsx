@@ -57,7 +57,8 @@ export function AthleteInviteForm({
 
       {hasActiveInvite && state.status === "idle" && (
         <p className="text-xs leading-5 text-zinc-500">
-          Renovar cria um novo token e revoga automaticamente o convite anterior.
+          Renovar cria um novo token e revoga automaticamente o convite
+          anterior.
         </p>
       )}
 
@@ -74,10 +75,15 @@ export function AthleteInviteForm({
           <p className="text-xs font-bold text-zinc-500 uppercase">
             Link de uso único
           </p>
-          <code className="break-all text-xs text-zinc-300">
+          <code className="text-xs break-all text-zinc-300">
             {state.invitePath}
           </code>
-          <Button type="button" size="sm" variant="secondary" onClick={copyInvite}>
+          <Button
+            type="button"
+            size="sm"
+            variant="secondary"
+            onClick={copyInvite}
+          >
             {copied ? "Copiado" : "Copiar link completo"}
           </Button>
         </div>
