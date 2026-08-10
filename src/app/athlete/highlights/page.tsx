@@ -6,13 +6,13 @@ import {
   Trophy,
 } from "lucide-react";
 import { Badge, Card, EmptyState, PageHeader } from "@/components/ui";
-import { requireRole } from "@/lib/auth/session";
+import { requireAthleteViewer } from "@/lib/auth/athlete-viewer";
 import { createClient } from "@/lib/supabase/server";
-import { getAthletePortalSnapshot } from "@/server/services/athlete-portal-service";
+import { getAthleteSnapshotForViewer } from "@/server/services/athlete-viewer-snapshot-service";
 
 export default async function AthleteHighlightsPage() {
-  const user = await requireRole(["athlete"]);
-  const snapshot = await getAthletePortalSnapshot({ userId: user.userId });
+  const viewer = await requireAthleteViewer();
+  const snapshot = await getAthleteSnapshotForViewer(viewer);
 
   if (!snapshot.identity) {
     return (
