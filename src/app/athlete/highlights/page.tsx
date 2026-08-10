@@ -1,26 +1,19 @@
 import { Clapperboard, ExternalLink, Play, Sparkles, Trophy } from "lucide-react";
-import { redirect } from "next/navigation";
 import { Badge, Card, EmptyState, PageHeader } from "@/components/ui";
-import { requireRole } from "@/lib/auth/session";
+import { requireAthleteViewer } from "@/lib/auth/athlete-viewer";
 import { createClient } from "@/lib/supabase/server";
 
 export default async function AthleteHighlightsPage() {
-  const identity = await requireRole("athlete");
+  const viewer = await requireAthleteViewer();
   const client = await createClient();
-  const { data: athlete } = await client
-    .from("athletes")
-    .select("id,public_name")
-    .eq("profile_id", identity.userId)
-    .maybeSingle();
-
-  if (!athlete) redirect("/athlete");
+  const athleteId = viewer.athleteId;
 
   const { data: clips, error } = await client
     .from("highlight_clips")
     .select(
       "id,title,status,starts_at_ms,ends_at_ms,updated_at,media_assets(title,asset_type,external_url)",
     )
-    .eq("athlete_id", athlete.id)
+    .eq("athlete_id", athleteId)
     .in("status", ["publishable", "public"])
     .order("updated_at", { ascending: false })
     .limit(18);
