@@ -1,0 +1,39 @@
+name: App V1 Market Timestamp Once
+
+on:
+  push:
+    branches:
+      - integration/app-v1-command-data
+    paths:
+      - ".github/workflows/app-v1-market-timestamp-once.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: integration/app-v1-command-data
+      - name: Update Market migration contract
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          path = Path('src/lib/app-command-integration-contract.test.ts')
+          text = path.read_text()
+          text = text.replace('20260811001000_atomic_urc_market_redemption.sql', '20260811004000_atomic_urc_market_redemption.sql')
+          text = text.replace('expect("20260811001000" > "20260810234500").toBe(true);', 'expect("20260811004000" > "20260811003500").toBe(true);')
+          path.write_text(text)
+          PY
+      - name: Commit update
+        run: |
+          if git diff --quiet; then
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add src/lib/app-command-integration-contract.test.ts
+          git commit -m "test: gate Market migration after C32"
+          git push
