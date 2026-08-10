@@ -1,5 +1,5 @@
-import { render, screen } from "@testing-library/react";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { cleanup, render, screen } from "@testing-library/react";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { PortalNavigation, type PortalNavItem } from "./portal-navigation";
 
 let pathname = "/admin";
@@ -28,6 +28,10 @@ const items: PortalNavItem[] = [
 describe("PortalNavigation", () => {
   beforeEach(() => {
     pathname = "/admin";
+  });
+
+  afterEach(() => {
+    cleanup();
   });
 
   it("marks the current route with aria-current", () => {
