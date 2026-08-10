@@ -20,12 +20,16 @@ describe("App V1 ↔ Command integration contracts", () => {
 
   it("keeps Preview admin-only, read-only and without Auth impersonation", () => {
     const previewPage = source("src/app/admin/preview/page.tsx");
-    const previewActions = source("src/features/admin-athlete-preview/actions.ts");
+    const previewActions = source(
+      "src/features/admin-athlete-preview/actions.ts",
+    );
     const athleteShell = source("src/components/athlete/athlete-shell.tsx");
 
     expect(previewPage).toContain('requireRole(["admin"])');
     expect(previewPage).toContain("Sem troca de Auth");
-    expect(previewActions).not.toMatch(/signInWithPassword|admin\.auth|service_role/i);
+    expect(previewActions).not.toMatch(
+      /signInWithPassword|admin\.auth|service_role/i,
+    );
     expect(athleteShell).toContain("Prévia do Atleta · somente leitura");
     expect(athleteShell).toContain("pointer-events-none");
     expect(athleteShell).toContain("Voltar ao Command");
@@ -36,7 +40,9 @@ describe("App V1 ↔ Command integration contracts", () => {
 
     expect(athleteMarket).toContain('requireRole(["athlete"])');
     expect(athleteMarket).toContain('.rpc("redeem_market_offer_urc"');
-    expect(athleteMarket).not.toMatch(/\.from\("ur_coin_transactions"\)\.insert/);
+    expect(athleteMarket).not.toMatch(
+      /\.from\("ur_coin_transactions"\)\.insert/,
+    );
     expect(athleteMarket).not.toMatch(/\.from\("market_redemptions"\)\.insert/);
     expect(athleteMarket).toContain("viewer.isPreview");
   });
@@ -49,7 +55,9 @@ describe("App V1 ↔ Command integration contracts", () => {
     expect(modules).toContain('href: "/admin/market"');
     expect(adminMarket).toContain('requireRole(["admin"])');
     expect(adminMarket).toContain("Marcar benefício como entregue");
-    expect(adminMarket).not.toMatch(/refund|reembolso|cancelled_at|reversal_of/i);
+    expect(adminMarket).not.toMatch(
+      /refund|reembolso|cancelled_at|reversal_of/i,
+    );
   });
 
   it("uses a forward-only, atomic and idempotent URC Market migration", () => {
@@ -68,7 +76,11 @@ describe("App V1 ↔ Command integration contracts", () => {
     expect(migration).toContain("Insufficient UR Coins balance");
     expect(migration).toContain("public.ur_coin_transactions");
     expect(migration).toContain("'debit'::public.ur_coin_direction");
-    expect(migration).toContain("revoke all on function public.redeem_market_offer_urc(uuid, text) from public, anon");
-    expect(migration).toContain("grant execute on function public.redeem_market_offer_urc(uuid, text) to authenticated");
+    expect(migration).toContain(
+      "revoke all on function public.redeem_market_offer_urc(uuid, text) from public, anon",
+    );
+    expect(migration).toContain(
+      "grant execute on function public.redeem_market_offer_urc(uuid, text) to authenticated",
+    );
   });
 });
