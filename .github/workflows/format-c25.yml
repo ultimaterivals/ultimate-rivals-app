@@ -1,0 +1,29 @@
+name: Format C25
+
+on:
+  push:
+    branches: [sprint-c25-pilot-readiness-gate]
+
+permissions:
+  contents: write
+
+jobs:
+  format:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: sprint-c25-pilot-readiness-gate
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npx prettier --write src/app/admin/page.tsx src/components/admin/command-pilot-readiness.tsx src/server/services/admin-pilot-readiness-service.ts
+      - run: |
+          if git diff --quiet; then exit 0; fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add src/app/admin/page.tsx src/components/admin/command-pilot-readiness.tsx src/server/services/admin-pilot-readiness-service.ts
+          git commit -m "style: format c25 files"
+          git push
