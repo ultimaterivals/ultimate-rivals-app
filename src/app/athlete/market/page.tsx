@@ -1,7 +1,7 @@
 import { Coins, Gift, ShoppingBag, Sparkles, Tag } from "lucide-react";
 import Link from "next/link";
 import { Badge, Card, EmptyState, PageHeader } from "@/components/ui";
-import { requireRole } from "@/lib/auth/session";
+import { requireAthleteViewer } from "@/lib/auth/athlete-viewer";
 import { createClient } from "@/lib/supabase/server";
 import { listPublicMarketOffers } from "@/server/repositories/partner-market.repository";
 import { getAthleteDashboard } from "@/server/services/athlete-experience.service";
@@ -14,11 +14,11 @@ function brl(value: number | string | null | undefined) {
 }
 
 export default async function AthleteMarketPage() {
-  const identity = await requireRole("athlete");
+  const viewer = await requireAthleteViewer();
   const client = await createClient();
   const [offers, dashboard] = await Promise.all([
     listPublicMarketOffers(client),
-    getAthleteDashboard(client, identity.userId),
+    getAthleteDashboard(client, viewer.athleteId, "athlete"),
   ]);
   const balance = dashboard?.wallet.projection?.balance ?? 0;
 
