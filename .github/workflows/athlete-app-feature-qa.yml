@@ -1,4 +1,4 @@
-name: Athlete App Feature QA
+name: Season 1 Final QA
 
 on:
   workflow_dispatch:
