@@ -27,6 +27,7 @@ export async function getAthleteSnapshotForViewer(
       instagramHandle: null,
       status: "unlinked",
       primaryPoleId: null,
+      gender: "undisclosed",
     },
     teams: null,
     packages: null,
