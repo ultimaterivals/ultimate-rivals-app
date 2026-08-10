@@ -19,11 +19,7 @@ function formatDate(value: string | null) {
   }).format(new Date(value));
 }
 
-export default async function AthleteAccessPage({
-  searchParams,
-}: {
-  searchParams: Params;
-}) {
+export default async function AthleteAccessPage({ searchParams }: { searchParams: Params }) {
   await requireAdminModule("athletes");
   const params = await searchParams;
   const query = (single(params.q) ?? "").trim().toLowerCase();
@@ -57,31 +53,22 @@ export default async function AthleteAccessPage({
         {metrics.map(([label, value, Icon]) => (
           <Card key={label}>
             <div className="flex items-center justify-between gap-2">
-              <p className="text-xs font-bold text-zinc-500 uppercase">
-                {label}
-              </p>
+              <p className="text-xs font-bold text-zinc-500 uppercase">{label}</p>
               <Icon className="text-ur-gold" size={16} aria-hidden="true" />
             </div>
-            <p className="font-display mt-3 text-2xl font-black">
-              {value ?? "—"}
-            </p>
+            <p className="font-display mt-3 text-2xl font-black">{value ?? "—"}</p>
           </Card>
         ))}
       </div>
 
-      <form
-        className="rounded-ur flex flex-wrap gap-2 border p-3"
-        role="search"
-      >
+      <form className="rounded-ur flex flex-wrap gap-2 border p-3" role="search">
         <input
           name="q"
           defaultValue={single(params.q) ?? ""}
           placeholder="Buscar atleta, código, e-mail ou telefone"
           className="rounded-ur bg-ur-black min-h-10 min-w-64 flex-1 border px-3 text-sm text-white"
         />
-        <Button type="submit" variant="secondary">
-          Buscar
-        </Button>
+        <Button type="submit" variant="secondary">Buscar</Button>
       </form>
 
       <CommandSection
@@ -101,15 +88,10 @@ export default async function AthleteAccessPage({
             </thead>
             <tbody>
               {rows.map((athlete) => (
-                <tr
-                  key={athlete.id}
-                  className="border-b align-top last:border-0"
-                >
+                <tr key={athlete.id} className="border-b align-top last:border-0">
                   <td className="px-3 py-4">
                     <p className="font-bold text-white">{athlete.publicName}</p>
-                    <p className="mt-1 text-xs text-zinc-500">
-                      {athlete.athleteCode}
-                    </p>
+                    <p className="mt-1 text-xs text-zinc-500">{athlete.athleteCode}</p>
                   </td>
                   <td className="px-3 py-4 text-xs leading-5 text-zinc-400">
                     <p>{athlete.emailContact ?? "Sem e-mail"}</p>
@@ -128,16 +110,13 @@ export default async function AthleteAccessPage({
                         <p className="text-ur-gold font-bold">Ativo</p>
                         <p>Expira {formatDate(athlete.inviteExpiresAt)}</p>
                         {athlete.inviteId && (
-                          <form
-                            action={revokeAthleteInviteAction}
-                            className="mt-2"
-                          >
-                            <input
-                              type="hidden"
-                              name="inviteId"
-                              value={athlete.inviteId}
-                            />
-                            <Button type="submit" size="sm" variant="secondary">
+                          <form action={revokeAthleteInviteAction} className="mt-2">
+                            <input type="hidden" name="inviteId" value={athlete.inviteId} />
+                            <Button
+                              type="submit"
+                              variant="secondary"
+                              className="min-h-10 px-3 py-2 text-sm"
+                            >
                               Revogar convite
                             </Button>
                           </form>
@@ -150,14 +129,10 @@ export default async function AthleteAccessPage({
                   <td className="px-3 py-4">
                     {athlete.linked ? (
                       <p className="text-xs leading-5 text-zinc-500">
-                        Nenhuma ação necessária. O cadastro esportivo já está
-                        associado a uma conta.
+                        Nenhuma ação necessária. O cadastro esportivo já está associado a uma conta.
                       </p>
                     ) : (
-                      <AthleteInviteForm
-                        athleteId={athlete.id}
-                        hasActiveInvite={athlete.inviteActive}
-                      />
+                      <AthleteInviteForm athleteId={athlete.id} hasActiveInvite={athlete.inviteActive} />
                     )}
                   </td>
                 </tr>
