@@ -6,6 +6,7 @@ on:
     branches:
       - feature/athlete-identity-ranking-visuals
       - feature/ur-player-experience-studio
+      - release/season-1-app-final
     paths:
       - ".github/workflows/athlete-app-feature-qa.yml"
       - "docs/season-1-athlete-app-completion.md"
@@ -28,7 +29,6 @@ jobs:
     timeout-minutes: 45
     env:
       SUPABASE_INTERNAL_IMAGE_REGISTRY: ghcr.io
-      UR_TEST_PASSWORD: "LocalQaPassword123!"
 
     steps:
       - name: Checkout
@@ -42,6 +42,12 @@ jobs:
 
       - name: Install dependencies
         run: npm ci
+
+      - name: Generate ephemeral QA password
+        run: |
+          value="$(openssl rand -hex 24)"
+          echo "::add-mask::${value}"
+          echo "UR_TEST_PASSWORD=${value}" >> "$GITHUB_ENV"
 
       - name: Verify deterministic Supabase CLI
         run: |
@@ -82,7 +88,6 @@ jobs:
             echo "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=${ANON_KEY}"
             echo "SUPABASE_SERVICE_ROLE_KEY=${SERVICE_ROLE_KEY}"
             echo "DATABASE_URL=${DB_URL}"
-            echo "UR_TEST_PASSWORD=${UR_TEST_PASSWORD}"
           } >> "$GITHUB_ENV"
 
       - name: Apply production reference data idempotently
