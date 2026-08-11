@@ -28,6 +28,11 @@ function errorCode(message: string) {
   if (value.includes("SYSTEM_POST_SESSION_TASK_READ_ONLY")) return "system_task";
   if (value.includes("POST_SESSION_ALREADY_CLOSED")) return "already_closed";
   if (value.includes("POST_SESSION_NOT_READY")) return "not_ready";
+  if (value.includes("FINANCE_NOT_READY")) return "finance_not_ready";
+  if (value.includes("UR_PLAY_FINANCE_NOT_RECONCILED")) return "finance_not_reconciled";
+  if (value.includes("ADMIN_FINANCE_REOPEN_REQUIRED")) return "admin_required";
+  if (value.includes("FINANCE_REOPEN_REASON_REQUIRED")) return "finance_reopen_reason";
+  if (value.includes("FINANCE_SCOPE_NOT_CONFIRMED")) return "finance_not_confirmed";
   if (value.includes("POST_SESSION_WAIVER_REASON_REQUIRED")) return "waiver_reason";
   if (value.includes("ADMIN_POST_SESSION_WAIVER_REQUIRED")) return "admin_required";
   if (value.includes("POST_SESSION_REOPEN_REASON_REQUIRED")) return "reopen_reason";
@@ -97,6 +102,44 @@ export async function refreshPostSessionAction(formData: FormData) {
   });
   if (error) fail(parsed.data, error.message);
   finish(parsed.data, "refreshed");
+}
+
+export async function confirmFinanceScopeAction(formData: FormData) {
+  await requireRole(["admin", "operator"]);
+  const parsed = z
+    .object({ sessionId: uuid, notes: z.string().trim().max(1000) })
+    .safeParse({
+      sessionId: formData.get("sessionId"),
+      notes: String(formData.get("notes") ?? ""),
+    });
+  if (!parsed.success) fail(null, "invalid_request");
+
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("confirm_ur_play_financial_scope", {
+    target_session: parsed.data.sessionId,
+    target_notes: parsed.data.notes || null,
+  });
+  if (error) fail(parsed.data.sessionId, error.message);
+  finish(parsed.data.sessionId, "finance_confirmed");
+}
+
+export async function reopenFinanceScopeAction(formData: FormData) {
+  await requireRole(["admin"]);
+  const parsed = z
+    .object({ sessionId: uuid, reason: z.string().trim().min(10).max(500) })
+    .safeParse({
+      sessionId: formData.get("sessionId"),
+      reason: String(formData.get("reason") ?? ""),
+    });
+  if (!parsed.success) fail(null, "FINANCE_REOPEN_REASON_REQUIRED");
+
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("reopen_ur_play_financial_scope", {
+    target_session: parsed.data.sessionId,
+    target_reason: parsed.data.reason,
+  });
+  if (error) fail(parsed.data.sessionId, error.message);
+  finish(parsed.data.sessionId, "finance_reopened");
 }
 
 export async function finalizePostSessionAction(formData: FormData) {
