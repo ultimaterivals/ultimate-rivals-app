@@ -1,8 +1,10 @@
 import {
   ArrowRight,
   CalendarDays,
+  Clapperboard,
   Coins,
   CreditCard,
+  ExternalLink,
   MapPin,
   Sparkles,
   Target,
@@ -14,6 +16,7 @@ import { AthleteOpportunityCard } from "@/components/athlete/athlete-opportunity
 import { AthleteSourceHealth } from "@/components/athlete/athlete-source-health";
 import { Badge, Card, PageHeader } from "@/components/ui";
 import { requireAthleteViewer } from "@/lib/auth/athlete-viewer";
+import { createClient } from "@/lib/supabase/server";
 import { getAthleteSnapshotForViewer } from "@/server/services/athlete-viewer-snapshot-service";
 
 const money = new Intl.NumberFormat("pt-BR", {
@@ -25,6 +28,18 @@ function movementLabel(movement: string | null | undefined) {
   if (movement === "up") return "Subindo";
   if (movement === "down") return "Em disputa";
   return "Posição estável";
+}
+
+function safeExternalUrl(value: string | null | undefined) {
+  if (!value) return null;
+  try {
+    const url = new URL(value);
+    return url.protocol === "https:" || url.protocol === "http:"
+      ? url.toString()
+      : null;
+  } catch {
+    return null;
+  }
 }
 
 export default async function AthletePage() {
@@ -53,6 +68,28 @@ export default async function AthletePage() {
     );
   }
 
+  const client = await createClient();
+  const highlightResult = await client
+    .from("highlight_clips")
+    .select(
+      "id,title,status,updated_at,media_assets!inner(title,external_url,status)",
+    )
+    .eq("athlete_id", snapshot.identity.id)
+    .in("status", ["publishable", "public"])
+    .in("media_assets.status", ["publishable", "public"])
+    .not("media_assets.external_url", "is", null)
+    .order("updated_at", { ascending: false })
+    .limit(1);
+  const latestHighlight = highlightResult.error
+    ? null
+    : (highlightResult.data?.[0] ?? null);
+  const latestHighlightAsset = latestHighlight
+    ? Array.isArray(latestHighlight.media_assets)
+      ? latestHighlight.media_assets[0]
+      : latestHighlight.media_assets
+    : null;
+  const latestHighlightUrl = safeExternalUrl(latestHighlightAsset?.external_url);
+
   const ranking = snapshot.primaryRanking;
   const summary = snapshot.summary;
   const nextReservation = snapshot.nextReservation;
@@ -75,6 +112,21 @@ export default async function AthletePage() {
           "Confira as oportunidades abertas e escolha onde sua próxima evolução começa.",
         href: "/athlete/agenda",
         cta: "Explorar agenda",
+      };
+  const mission = nextReservation
+    ? {
+        title: "Transforme sua reserva em resultado",
+        description:
+          "Participe da próxima atividade oficial. Presença e resultado homologados alimentam sua evolução, ranking e economia do jogador.",
+        href: "/athlete/development",
+        cta: "Ver sua evolução",
+      }
+    : {
+        title: "Volte para o ciclo de jogo",
+        description:
+          "Encontre uma oportunidade elegível, reserve sua participação e gere a próxima evidência oficial da sua jornada.",
+        href: "/athlete/agenda",
+        cta: "Encontrar oportunidade",
       };
 
   return (
@@ -166,6 +218,65 @@ export default async function AthletePage() {
                 {snapshot.creditReserved ?? "—"}
               </p>
             </div>
+          </div>
+        </Card>
+      </section>
+
+      <section className="grid gap-5 lg:grid-cols-2">
+        <Card className="border-ur-gold/30">
+          <div className="flex items-start justify-between gap-4">
+            <div>
+              <p className="text-xs font-black tracking-[.18em] text-zinc-500 uppercase">
+                Sua missão agora
+              </p>
+              <h2 className="mt-2 text-2xl font-black">{mission.title}</h2>
+            </div>
+            <Target className="text-ur-gold" size={26} aria-hidden="true" />
+          </div>
+          <p className="mt-3 text-sm leading-6 text-zinc-400">
+            {mission.description}
+          </p>
+          <Link
+            href={mission.href}
+            className="text-ur-gold mt-4 inline-flex items-center gap-1 font-black"
+          >
+            {mission.cta} <ArrowRight size={15} aria-hidden="true" />
+          </Link>
+        </Card>
+
+        <Card>
+          <div className="flex items-start justify-between gap-4">
+            <div>
+              <p className="text-xs font-black tracking-[.18em] text-zinc-500 uppercase">
+                Último destaque
+              </p>
+              <h2 className="mt-2 text-2xl font-black">
+                {latestHighlight?.title ?? "Sua história está sendo construída"}
+              </h2>
+            </div>
+            <Clapperboard className="text-ur-gold" size={26} aria-hidden="true" />
+          </div>
+          <p className="mt-3 text-sm leading-6 text-zinc-400">
+            {latestHighlightAsset?.title ??
+              "Quando a operação publicar uma jogada elegível, ela aparece aqui sem expor mídia privada."}
+          </p>
+          <div className="mt-4 flex flex-wrap gap-3">
+            <Link
+              href="/athlete/highlights"
+              className="text-ur-gold inline-flex items-center gap-1 font-black"
+            >
+              Abrir destaques <ArrowRight size={15} aria-hidden="true" />
+            </Link>
+            {latestHighlightUrl && (
+              <a
+                href={latestHighlightUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center gap-1 font-black text-zinc-300"
+              >
+                Assistir <ExternalLink size={14} aria-hidden="true" />
+              </a>
+            )}
           </div>
         </Card>
       </section>
