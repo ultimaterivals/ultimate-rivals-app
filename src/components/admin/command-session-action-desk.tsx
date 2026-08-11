@@ -52,8 +52,9 @@ export async function CommandSessionActionDesk() {
   const operationalSession =
     attendanceOperationalSession ?? courtOperationalSession ?? null;
   const attendanceFocus = operationalSession
-    ? (attendanceSessions.find((session) => session.id === operationalSession.id) ??
-      null)
+    ? (attendanceSessions.find(
+        (session) => session.id === operationalSession.id,
+      ) ?? null)
     : null;
 
   const startReadiness = startSnapshot.sessions.find(
