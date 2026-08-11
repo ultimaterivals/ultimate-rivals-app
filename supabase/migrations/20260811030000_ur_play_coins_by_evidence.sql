@@ -244,7 +244,7 @@ begin
   loop
     if v_participation.amount > 0 then
       v_inserted := null;
-      v_key := concat_ws(':','urc',target_session,v_entitlement.match_id,v_entitlement.athlete_id,v_participation.code,v_fingerprint);
+      v_key := concat_ws(':','urc',target_session,v_entitlement.match_id,v_entitlement.athlete_id,v_participation.code,'run',v_run.id);
       insert into public.ur_coin_transactions(
         athlete_id,rule_id,transaction_type,direction,amount,source_type,source_id,
         season_id,idempotency_key,reason,created_by,metadata
@@ -284,7 +284,7 @@ begin
 
     if v_result_rule.amount > 0 then
       v_inserted := null;
-      v_key := concat_ws(':','urc',target_session,v_entitlement.match_id,v_entitlement.athlete_id,v_result_rule.code,v_fingerprint);
+      v_key := concat_ws(':','urc',target_session,v_entitlement.match_id,v_entitlement.athlete_id,v_result_rule.code,'run',v_run.id);
       insert into public.ur_coin_transactions(
         athlete_id,rule_id,transaction_type,direction,amount,source_type,source_id,
         season_id,idempotency_key,reason,created_by,metadata
