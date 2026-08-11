@@ -32,6 +32,18 @@ export default function UrPlayLayout({ children }: { children: ReactNode }) {
         >
           Operação de quadra
         </Link>
+        <Link
+          href="/admin/ur-play/fechamento"
+          className="rounded-ur px-3 py-2 text-sm font-bold text-zinc-400 transition hover:bg-white/5 hover:text-white"
+        >
+          Fechamento esportivo
+        </Link>
+        <Link
+          href="/admin/ur-play/pos-sessao"
+          className="rounded-ur px-3 py-2 text-sm font-bold text-zinc-400 transition hover:bg-white/5 hover:text-white"
+        >
+          Pós-Sessão 360
+        </Link>
       </nav>
       {children}
     </div>
