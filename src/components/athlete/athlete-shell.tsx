@@ -131,7 +131,8 @@ function MobileNavigation() {
   return (
     <nav
       aria-label="Navegação principal do atleta"
-      className="fixed inset-x-0 bottom-0 z-[100] border-t border-zinc-800 bg-[#0b0b0b]/[.98] pb-[env(safe-area-inset-bottom)] backdrop-blur lg:hidden"
+      className="fixed inset-x-0 bottom-0 border-t border-zinc-800 bg-[#0b0b0b]/[.98] pb-[env(safe-area-inset-bottom)] backdrop-blur lg:hidden"
+      style={{ zIndex: 2147483647 }}
     >
       <div className="mx-auto grid max-w-lg grid-cols-5">
         {primary.map(({ href, label, icon: Icon, exact }) => {
