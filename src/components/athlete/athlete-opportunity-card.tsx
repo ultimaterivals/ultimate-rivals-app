@@ -163,8 +163,8 @@ export function AthleteOpportunityCard({
       <div className="mt-5 grid gap-3 border-t pt-4">
         {readOnly ? (
           <p className="text-xs leading-5 text-zinc-500">
-            Prévia somente leitura. As ações de interesse, reserva e cancelamento
-            não são renderizadas para a sessão administrativa.
+            Prévia somente leitura. As ações de interesse, reserva e
+            cancelamento não são renderizadas para a sessão administrativa.
           </p>
         ) : (
           <>
@@ -191,7 +191,10 @@ export function AthleteOpportunityCard({
               )}
 
             {canExpressInterest && !opportunity.personalInterestStatus && (
-              <form action={setAthleteOpportunityInterest} className="grid gap-2">
+              <form
+                action={setAthleteOpportunityInterest}
+                className="grid gap-2"
+              >
                 <input
                   type="hidden"
                   name="opportunityId"
@@ -231,9 +234,7 @@ export function AthleteOpportunityCard({
                   className="w-full"
                   disabled={lacksCreditForDirectReservation}
                 >
-                  {willWaitlist
-                    ? "Entrar na lista de espera"
-                    : "Reservar vaga"}
+                  {willWaitlist ? "Entrar na lista de espera" : "Reservar vaga"}
                 </Button>
               </form>
             )}
