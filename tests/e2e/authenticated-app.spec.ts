@@ -108,6 +108,14 @@ function creditTotals() {
   };
 }
 
+function reservationAgendaWeek() {
+  return runDisposableSql(`
+    select to_char(starts_at at time zone 'America/Sao_Paulo', 'YYYY-MM-DD')
+    from public.demand_opportunities
+    where id = '${reservationOpportunity}'::uuid;
+  `);
+}
+
 test("athlete opens preserved Player Hub and core destinations", async ({
   page,
 }) => {
@@ -188,7 +196,7 @@ test("athlete reservation holds credit, Command reflects it, and cancellation re
   expect(creditTotals().events).toContain("hold");
 
   await login(page, "admin@test.ur.local", /\/admin/);
-  await page.goto("/admin/agenda");
+  await page.goto(`/admin/agenda?week=${reservationAgendaWeek()}`);
   const commandDemand = page.getByTestId(`demand-${reservationOpportunity}`);
   await expect(commandDemand).toContainText("2 reservas");
 
@@ -214,7 +222,7 @@ test("athlete reservation holds credit, Command reflects it, and cancellation re
   expect(creditTotals().events).toContain("release");
 
   await login(page, "admin@test.ur.local", /\/admin/);
-  await page.goto("/admin/agenda");
+  await page.goto(`/admin/agenda?week=${reservationAgendaWeek()}`);
   await expect(
     page.getByTestId(`demand-${reservationOpportunity}`),
   ).toContainText("1 reservas");
