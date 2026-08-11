@@ -2,7 +2,20 @@ import { ArrowRight, CalendarDays, MapPin, ShieldCheck } from "lucide-react";
 import Link from "next/link";
 import { Badge, Card, PageHeader } from "@/components/ui";
 import { requireAthleteViewer } from "@/lib/auth/athlete-viewer";
+import { createClient } from "@/lib/supabase/server";
 import { getAthleteSnapshotForViewer } from "@/server/services/athlete-viewer-snapshot-service";
+
+function safeExternalUrl(value: string | null | undefined) {
+  if (!value) return null;
+  try {
+    const url = new URL(value);
+    return url.protocol === "https:" || url.protocol === "http:"
+      ? url.toString()
+      : null;
+  } catch {
+    return null;
+  }
+}
 
 export default async function AthleteArenasPage() {
   const viewer = await requireAthleteViewer();
@@ -12,12 +25,70 @@ export default async function AthleteArenasPage() {
     .filter((item) => item.venueName || item.poleName)
     .slice(0, 6);
 
+  const venueNames = [
+    ...new Set(
+      opportunities
+        .map((item) => item.venueName)
+        .filter((name): name is string => Boolean(name)),
+    ),
+  ];
+  const arenaMedia = new Map<string, { url: string; title: string | null }>();
+
+  if (venueNames.length > 0) {
+    const client = await createClient();
+    const venuesResult = await client
+      .from("venues")
+      .select("id,name")
+      .in("name", venueNames);
+
+    const venues = venuesResult.error ? [] : (venuesResult.data ?? []);
+    const venueIds = venues.map((venue) => venue.id);
+
+    if (venueIds.length > 0) {
+      const sessionsResult = await client
+        .from("ur_play_sessions")
+        .select("id,venue_id")
+        .in("venue_id", venueIds)
+        .order("starts_at", { ascending: false })
+        .limit(200);
+      const sessions = sessionsResult.error ? [] : (sessionsResult.data ?? []);
+      const sessionIds = sessions.map((session) => session.id);
+
+      if (sessionIds.length > 0) {
+        const mediaResult = await client
+          .from("media_assets")
+          .select("id,ur_play_session_id,title,external_url,status,updated_at")
+          .in("ur_play_session_id", sessionIds)
+          .in("status", ["publishable", "public"])
+          .not("external_url", "is", null)
+          .order("updated_at", { ascending: false })
+          .limit(200);
+        const assets = mediaResult.error ? [] : (mediaResult.data ?? []);
+        const venueNameById = new Map(
+          venues.map((venue) => [venue.id, venue.name] as const),
+        );
+        const venueIdBySession = new Map(
+          sessions.map((session) => [session.id, session.venue_id] as const),
+        );
+
+        for (const asset of assets) {
+          const venueId = venueIdBySession.get(asset.ur_play_session_id);
+          const venueName = venueId ? venueNameById.get(venueId) : null;
+          const url = safeExternalUrl(asset.external_url);
+          if (venueName && url && !arenaMedia.has(venueName)) {
+            arenaMedia.set(venueName, { url, title: asset.title });
+          }
+        }
+      }
+    }
+  }
+
   return (
     <div className="mx-auto grid max-w-7xl gap-6">
       <PageHeader
         eyebrow="Arenas UR"
         title="Onde o jogo acontece"
-        description="Quadras e locais aparecem para você a partir da operação oficial e das oportunidades abertas."
+        description="Quadras e locais aparecem para você a partir da operação oficial e das oportunidades abertas. Mídia só é exibida quando estiver publicada para consumo externo."
       />
 
       <section className="ranking-hero border-ur-gold/40 rounded-ur border p-5 sm:p-7">
@@ -43,26 +114,50 @@ export default async function AthleteArenasPage() {
 
       <section className="grid gap-4 lg:grid-cols-3">
         {opportunities.length > 0 ? (
-          opportunities.map((opportunity) => (
-            <Card key={opportunity.id} className="overflow-hidden">
-              <div className="rounded-ur flex min-h-32 items-center justify-center border border-dashed border-white/10 bg-black/20">
-                <MapPin className="text-ur-gold" size={32} aria-hidden="true" />
-              </div>
-              <p className="text-ur-gold mt-4 text-xs font-black tracking-[.16em] uppercase">
-                {opportunity.poleName ?? "Polo UR"}
-              </p>
-              <h2 className="mt-1 text-xl font-black">
-                {opportunity.venueName ?? "Local a definir"}
-              </h2>
-              <p className="mt-2 text-sm text-zinc-400">{opportunity.title}</p>
-              <div className="mt-4 flex flex-wrap gap-2">
-                {opportunity.level && <Badge>{opportunity.level}</Badge>}
-                {opportunity.formatCode && (
-                  <Badge>{opportunity.formatCode}</Badge>
+          opportunities.map((opportunity) => {
+            const media = opportunity.venueName
+              ? arenaMedia.get(opportunity.venueName)
+              : null;
+            return (
+              <Card key={opportunity.id} className="overflow-hidden">
+                {media ? (
+                  <div
+                    role="img"
+                    aria-label={
+                      media.title ??
+                      `Mídia publicada de ${opportunity.venueName ?? "Arena UR"}`
+                    }
+                    className="rounded-ur min-h-40 border border-white/10 bg-cover bg-center"
+                    style={{ backgroundImage: `url(${JSON.stringify(media.url)})` }}
+                  />
+                ) : (
+                  <div className="rounded-ur flex min-h-40 items-center justify-center border border-dashed border-white/10 bg-black/20">
+                    <MapPin
+                      className="text-ur-gold"
+                      size={32}
+                      aria-hidden="true"
+                    />
+                  </div>
                 )}
-              </div>
-            </Card>
-          ))
+                <p className="text-ur-gold mt-4 text-xs font-black tracking-[.16em] uppercase">
+                  {opportunity.poleName ?? "Polo UR"}
+                </p>
+                <h2 className="mt-1 text-xl font-black">
+                  {opportunity.venueName ?? "Local a definir"}
+                </h2>
+                <p className="mt-2 text-sm text-zinc-400">
+                  {opportunity.title}
+                </p>
+                <div className="mt-4 flex flex-wrap gap-2">
+                  {opportunity.level && <Badge>{opportunity.level}</Badge>}
+                  {opportunity.formatCode && (
+                    <Badge>{opportunity.formatCode}</Badge>
+                  )}
+                  {media && <Badge>Mídia publicada</Badge>}
+                </div>
+              </Card>
+            );
+          })
         ) : (
           <Card className="lg:col-span-3">
             <MapPin className="text-ur-gold" aria-hidden="true" />
@@ -82,8 +177,8 @@ export default async function AthleteArenasPage() {
           <ShieldCheck className="text-ur-gold" aria-hidden="true" />
           <h2 className="mt-3 text-xl font-black">Locais oficiais</h2>
           <p className="mt-2 text-sm text-zinc-400">
-            O App não cria arenas paralelas: ele reflete locais e polos
-            homologados pela operação.
+            O App não cria arenas paralelas e não expõe caminhos de storage
+            privado: reflete somente locais homologados e URLs externas elegíveis.
           </p>
         </Card>
         <Card>
