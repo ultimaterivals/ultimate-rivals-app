@@ -23,7 +23,7 @@ function task(task_key: string, status = "completed") {
     session_id: "session-1",
     task_key,
     status,
-    managed_by: ["ranking_data", "ur_coins"].includes(task_key)
+    managed_by: ["ranking_data", "ur_coins", "finance"].includes(task_key)
       ? "system"
       : "human",
     blocking: true,

@@ -9,8 +9,10 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import {
+  confirmFinanceScopeAction,
   finalizePostSessionAction,
   refreshPostSessionAction,
+  reopenFinanceScopeAction,
   reopenPostSessionAction,
   updatePostSessionTaskAction,
 } from "@/app/admin/ur-play/pos-sessao/actions";
@@ -53,6 +55,10 @@ const errorMessages: Record<string, string> = {
   system_task: "Esta frente é controlada automaticamente pelo sistema.",
   already_closed: "O Pós-Sessão 360 já está fechado. Reabra antes de alterar tarefas.",
   not_ready: "Ainda existem frentes obrigatórias pendentes.",
+  finance_not_ready: "O fechamento 360 foi bloqueado porque o financeiro deixou de estar conciliado.",
+  finance_not_reconciled: "Ainda existem pendências comerciais, lançamentos abertos ou diferença de receita direta. Resolva antes de confirmar o escopo financeiro.",
+  finance_reopen_reason: "A reabertura financeira exige justificativa com pelo menos 10 caracteres.",
+  finance_not_confirmed: "O escopo financeiro ainda não foi confirmado.",
   waiver_reason: "Dispensa exige uma justificativa com pelo menos 10 caracteres.",
   reopen_reason: "Reabertura exige uma justificativa com pelo menos 10 caracteres.",
   admin_required: "Esta exceção é exclusiva do administrador.",
@@ -66,6 +72,8 @@ const successMessages: Record<string, string> = {
   task_completed: "Tarefa concluída e auditada.",
   task_waived: "Tarefa dispensada por exceção administrativa.",
   refreshed: "Evidências automáticas reprocessadas.",
+  finance_confirmed: "Escopo financeiro confirmado e evidência reconciliada.",
+  finance_reopened: "Escopo financeiro reaberto para correção.",
   post_session_closed: "Pós-Sessão 360 encerrado oficialmente.",
   post_session_reopened: "Pós-Sessão 360 reaberto para correção.",
 };
@@ -78,6 +86,10 @@ function evidenceNumber(evidence: Record<string, unknown>, key: string) {
 function evidenceText(evidence: Record<string, unknown>, key: string) {
   const value = evidence[key];
   return typeof value === "string" ? value : null;
+}
+
+function evidenceBoolean(evidence: Record<string, unknown>, key: string) {
+  return evidence[key] === true;
 }
 
 export default async function PostSessionPage({
@@ -308,6 +320,77 @@ export default async function PostSessionPage({
                   <p className="mt-3 rounded-ur border border-red-500/30 bg-red-500/5 p-3 text-xs font-bold text-red-300">
                     {evidenceText(task.evidence, "error")}
                   </p>
+                )}
+              </>
+            )}
+
+                      {task.key === "finance" && (
+              <>
+                <div className="mt-4 grid grid-cols-2 gap-2 rounded-ur border p-3 text-center sm:grid-cols-4">
+                  <div>
+                    <p className="text-[10px] font-bold text-zinc-600 uppercase">Confirmados</p>
+                    <p className="mt-1 font-black">{evidenceNumber(task.evidence, "confirmed_registrations")}</p>
+                  </div>
+                  <div>
+                    <p className="text-[10px] font-bold text-zinc-600 uppercase">Pagto. pendente</p>
+                    <p className="mt-1 font-black">{evidenceNumber(task.evidence, "pending_registration_payments")}</p>
+                  </div>
+                  <div>
+                    <p className="text-[10px] font-bold text-zinc-600 uppercase">Créditos consumidos</p>
+                    <p className="mt-1 font-black">{evidenceNumber(task.evidence, "consumed_credit_units")}</p>
+                  </div>
+                  <div>
+                    <p className="text-[10px] font-bold text-zinc-600 uppercase">Cobranças abertas</p>
+                    <p className="mt-1 font-black">{evidenceNumber(task.evidence, "open_charge_count")}</p>
+                  </div>
+                  <div>
+                    <p className="text-[10px] font-bold text-zinc-600 uppercase">Receita registrada</p>
+                    <p className="mt-1 font-black">R$ {evidenceNumber(task.evidence, "verified_revenue_amount") + evidenceNumber(task.evidence, "reconciled_revenue_amount")}</p>
+                  </div>
+                  <div>
+                    <p className="text-[10px] font-bold text-zinc-600 uppercase">Despesas registradas</p>
+                    <p className="mt-1 font-black">R$ {evidenceNumber(task.evidence, "verified_expense_amount") + evidenceNumber(task.evidence, "reconciled_expense_amount")}</p>
+                  </div>
+                  <div>
+                    <p className="text-[10px] font-bold text-zinc-600 uppercase">Líquido registrado</p>
+                    <p className="mt-1 font-black">R$ {evidenceNumber(task.evidence, "recorded_net_amount")}</p>
+                  </div>
+                  <div>
+                    <p className="text-[10px] font-bold text-zinc-600 uppercase">Gap receita direta</p>
+                    <p className="mt-1 font-black">R$ {evidenceNumber(task.evidence, "direct_revenue_gap")}</p>
+                  </div>
+                </div>
+                <div className="mt-3 flex flex-wrap gap-2 text-xs">
+                  <Badge>{evidenceBoolean(task.evidence, "commercial_ready") ? "Comercial conciliado" : "Comercial pendente"}</Badge>
+                  <Badge>{evidenceBoolean(task.evidence, "scope_confirmed") ? "Escopo confirmado" : "Escopo não confirmado"}</Badge>
+                </div>
+
+                {!selected.readiness.closed && evidenceBoolean(task.evidence, "commercial_ready") && !evidenceBoolean(task.evidence, "scope_confirmed") && (
+                  <form action={confirmFinanceScopeAction} className="mt-4 grid gap-2">
+                    <input type="hidden" name="sessionId" value={selected.id} />
+                    <textarea
+                      name="notes"
+                      maxLength={1000}
+                      placeholder="Confirme que todos os custos, receitas e exceções conhecidas desta sessão foram lançados. Nota opcional..."
+                      className="rounded-ur min-h-20 w-full border bg-black/20 p-3 text-sm"
+                    />
+                    <Button type="submit">Confirmar escopo financeiro completo</Button>
+                  </form>
+                )}
+
+                {!selected.readiness.closed && identity.role === "admin" && evidenceBoolean(task.evidence, "scope_confirmed") && (
+                  <form action={reopenFinanceScopeAction} className="mt-4 flex flex-wrap gap-2">
+                    <input type="hidden" name="sessionId" value={selected.id} />
+                    <input
+                      name="reason"
+                      required
+                      minLength={10}
+                      maxLength={500}
+                      placeholder="Motivo da reabertura financeira"
+                      className="rounded-ur min-h-11 min-w-64 flex-1 border bg-black/20 px-3 text-sm"
+                    />
+                    <Button type="submit" variant="secondary">Reabrir financeiro</Button>
+                  </form>
                 )}
               </>
             )}
