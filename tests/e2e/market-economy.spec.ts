@@ -265,8 +265,7 @@ function creditTotals() {
       coalesce(sum(reserved_delta), 0)::integer || '|' ||
       coalesce(sum(consumed_delta), 0)::integer
     from public.commercial_credit_ledger
-    where athlete_id = '${athleteA}'::uuid
-      and athlete_package_id = '${qaAthletePackageId}'::uuid;
+    where athlete_id = '${athleteA}'::uuid;
   `);
   const [available, reserved, consumed] = output.split("|");
   return {
