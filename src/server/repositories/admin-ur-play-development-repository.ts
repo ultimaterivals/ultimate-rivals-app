@@ -81,7 +81,8 @@ export async function fetchAdminDevelopmentRepositoryData() {
           .in("id", athleteIds)
       : { data: [] as RawAthlete[], error: null };
 
-  if (athletesResult.error) errors.push(`athletes: ${athletesResult.error.message}`);
+  if (athletesResult.error)
+    errors.push(`athletes: ${athletesResult.error.message}`);
 
   return {
     cases,

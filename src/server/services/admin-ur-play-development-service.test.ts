@@ -8,7 +8,10 @@ vi.mock("@/server/repositories/admin-ur-play-development-repository", () => ({
 
 const repositoryMock = vi.mocked(fetchAdminDevelopmentRepositoryData);
 
-function caseRow(status: "pending" | "in_progress" | "resolved" | "waived", id: string) {
+function caseRow(
+  status: "pending" | "in_progress" | "resolved" | "waived",
+  id: string,
+) {
   return {
     id,
     session_id: "session-1",
@@ -24,10 +27,12 @@ function caseRow(status: "pending" | "in_progress" | "resolved" | "waived", id: 
     status,
     recommended_action: "continue_observation",
     resolution_action: status === "resolved" ? "continue_observation" : null,
-    resolution_notes: status === "resolved" ? "Manter observação nas próximas sessões." : null,
+    resolution_notes:
+      status === "resolved" ? "Manter observação nas próximas sessões." : null,
     due_at: "2026-08-12T20:00:00.000Z",
     resolved_at: status === "resolved" ? "2026-08-11T12:00:00.000Z" : null,
-    waiver_reason: status === "waived" ? "Exceção administrativa documentada" : null,
+    waiver_reason:
+      status === "waived" ? "Exceção administrativa documentada" : null,
   };
 }
 
@@ -42,13 +47,21 @@ describe("admin UR Play development service", () => {
         { id: "athlete-2", public_name: "Bia", athlete_code: "ATL-002" },
       ],
       sessions: [
-        { id: "session-1", name: "UR Play 01", ends_at: "2026-08-11T20:00:00.000Z" },
+        {
+          id: "session-1",
+          name: "UR Play 01",
+          ends_at: "2026-08-11T20:00:00.000Z",
+        },
       ],
       errors: [],
     });
 
     const snapshot = await getAdminDevelopmentSnapshot();
-    expect(snapshot.metrics).toMatchObject({ total: 2, pending: 1, resolved: 1 });
+    expect(snapshot.metrics).toMatchObject({
+      total: 2,
+      pending: 1,
+      resolved: 1,
+    });
     expect(snapshot.sessions[0]?.cases[0]).toMatchObject({
       athleteName: "Ana",
       currentLevel: "leveling",
@@ -61,7 +74,11 @@ describe("admin UR Play development service", () => {
       cases: [],
       athletes: [],
       sessions: [
-        { id: "session-1", name: "UR Play 01", ends_at: "2026-08-11T20:00:00.000Z" },
+        {
+          id: "session-1",
+          name: "UR Play 01",
+          ends_at: "2026-08-11T20:00:00.000Z",
+        },
       ],
       errors: [],
     });

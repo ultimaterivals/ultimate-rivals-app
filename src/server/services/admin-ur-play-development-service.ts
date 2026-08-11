@@ -58,7 +58,8 @@ export async function getAdminDevelopmentSnapshot(): Promise<AdminDevelopmentSna
       counts: {
         total: cases.length,
         pending: cases.filter((item) => item.status === "pending").length,
-        inProgress: cases.filter((item) => item.status === "in_progress").length,
+        inProgress: cases.filter((item) => item.status === "in_progress")
+          .length,
         resolved: cases.filter((item) => item.status === "resolved").length,
         waived: cases.filter((item) => item.status === "waived").length,
         overdue: cases.filter(
@@ -77,7 +78,8 @@ export async function getAdminDevelopmentSnapshot(): Promise<AdminDevelopmentSna
     metrics: {
       total: allCases.length,
       pending: allCases.filter((item) => item.status === "pending").length,
-      inProgress: allCases.filter((item) => item.status === "in_progress").length,
+      inProgress: allCases.filter((item) => item.status === "in_progress")
+        .length,
       resolved: allCases.filter((item) => item.status === "resolved").length,
       waived: allCases.filter((item) => item.status === "waived").length,
       overdue: allCases.filter(
