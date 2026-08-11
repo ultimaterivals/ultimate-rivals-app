@@ -16,7 +16,8 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import type { ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
+import { createPortal } from "react-dom";
 import { stopAthletePreviewAction } from "@/features/admin-athlete-preview/actions";
 import { BrandMark } from "@/components/layout/brand-mark";
 import { cn } from "@/lib/utils";
@@ -128,11 +129,19 @@ function DesktopNavigation() {
 
 function MobileNavigation() {
   const pathname = usePathname();
-  return (
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) return null;
+
+  return createPortal(
     <nav
       aria-label="Navegação principal do atleta"
       className="fixed inset-x-0 bottom-0 border-t border-zinc-800 bg-[#0b0b0b]/[.98] pb-[env(safe-area-inset-bottom)] backdrop-blur lg:hidden"
-      style={{ zIndex: 2147483647 }}
+      style={{ zIndex: 2147483647, pointerEvents: "auto", isolation: "isolate" }}
     >
       <div className="mx-auto grid max-w-lg grid-cols-5">
         {primary.map(({ href, label, icon: Icon, exact }) => {
@@ -143,7 +152,7 @@ function MobileNavigation() {
               href={href}
               aria-current={isActive ? "page" : undefined}
               className={cn(
-                "flex min-h-16 flex-col items-center justify-center gap-1 px-1 text-[.65rem] font-bold transition-colors",
+                "relative z-10 flex min-h-16 flex-col items-center justify-center gap-1 px-1 text-[.65rem] font-bold transition-colors",
                 isActive ? "text-ur-gold" : "text-zinc-500 hover:text-white",
               )}
             >
@@ -157,7 +166,8 @@ function MobileNavigation() {
           );
         })}
       </div>
-    </nav>
+    </nav>,
+    document.body,
   );
 }
 
