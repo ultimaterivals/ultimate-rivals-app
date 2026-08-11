@@ -42,7 +42,9 @@ export async function getAdminRetentionSnapshot(): Promise<AdminRetentionSnapsho
     };
   });
 
-  const converted = followups.filter((row) => row.status === "converted").length;
+  const converted = followups.filter(
+    (row) => row.status === "converted",
+  ).length;
   const contactedBase = followups.filter((row) =>
     ["contacted", "converted"].includes(row.status),
   ).length;

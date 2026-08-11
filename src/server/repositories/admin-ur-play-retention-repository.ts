@@ -34,7 +34,9 @@ export async function fetchAdminRetentionRepositoryData() {
     .limit(1000);
 
   if (followupsResult.error) {
-    errors.push(`ur_play_retention_followups: ${followupsResult.error.message}`);
+    errors.push(
+      `ur_play_retention_followups: ${followupsResult.error.message}`,
+    );
     return {
       followups: [] as RawFollowup[],
       athletes: [] as RawAthlete[],
@@ -73,24 +75,26 @@ export async function fetchAdminRetentionRepositoryData() {
     ),
   ];
 
-  const [athletesResult, sessionsResult, opportunitiesResult] = await Promise.all([
-    supabase
-      .from("athletes")
-      .select("id,public_name,athlete_code")
-      .in("id", athleteIds),
-    supabase
-      .from("ur_play_sessions")
-      .select("id,name,ends_at")
-      .in("id", sessionIds),
-    opportunityIds.length > 0
-      ? supabase
-          .from("demand_opportunities")
-          .select("id,title,starts_at")
-          .in("id", opportunityIds)
-      : Promise.resolve({ data: [] as RawOpportunity[], error: null }),
-  ]);
+  const [athletesResult, sessionsResult, opportunitiesResult] =
+    await Promise.all([
+      supabase
+        .from("athletes")
+        .select("id,public_name,athlete_code")
+        .in("id", athleteIds),
+      supabase
+        .from("ur_play_sessions")
+        .select("id,name,ends_at")
+        .in("id", sessionIds),
+      opportunityIds.length > 0
+        ? supabase
+            .from("demand_opportunities")
+            .select("id,title,starts_at")
+            .in("id", opportunityIds)
+        : Promise.resolve({ data: [] as RawOpportunity[], error: null }),
+    ]);
 
-  if (athletesResult.error) errors.push(`athletes: ${athletesResult.error.message}`);
+  if (athletesResult.error)
+    errors.push(`athletes: ${athletesResult.error.message}`);
   if (sessionsResult.error)
     errors.push(`ur_play_sessions: ${sessionsResult.error.message}`);
   if (opportunitiesResult.error)
