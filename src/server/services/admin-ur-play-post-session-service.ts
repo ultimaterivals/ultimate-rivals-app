@@ -83,6 +83,7 @@ function int(value: unknown) {
 }
 
 export async function getAdminPostSessionSnapshot(): Promise<AdminPostSessionSnapshot> {
+  const generatedAt = new Date().toISOString();
   const raw = await fetchAdminPostSessionRepositoryData();
   const poles = new Map(raw.poles.map((row) => [row.id, row.name]));
   const venues = new Map(raw.venues.map((row) => [row.id, row.name]));
@@ -163,6 +164,7 @@ export async function getAdminPostSessionSnapshot(): Promise<AdminPostSessionSna
   });
 
   return {
+    generatedAt,
     sessions,
     metrics: {
       total: sessions.length,
