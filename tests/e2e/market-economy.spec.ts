@@ -24,6 +24,7 @@ const reservationSession = "70000000-0000-4000-8000-000000000001";
 const reservationRegistration = "71000000-0000-4000-8000-000000000001";
 const qaPackageId = "64000000-0000-4000-8000-000000000001";
 const qaAthletePackageId = "65000000-0000-4000-8000-000000000001";
+let noShowRegistration = reservationRegistration;
 
 async function login(page: Page, email: string, expectedPath: RegExp) {
   await page.context().clearCookies();
@@ -122,13 +123,26 @@ function prepareMarketFixture() {
 }
 
 function prepareNoShowReservationFixture() {
+  const activeRegistration = runDisposableSql(`
+    select id
+    from public.ur_play_registrations
+    where session_id = '${reservationSession}'::uuid
+      and athlete_id = '${athleteA}'::uuid
+      and registration_status = 'confirmed'
+    order by confirmed_at desc nulls last, created_at desc
+    limit 1;
+  `);
+  noShowRegistration = activeRegistration || reservationRegistration;
+
   runDisposableSql(`
     -- This suite runs after the authenticated check-in journey against the same
-    -- disposable database. Reset only the synthetic reservation artifacts so
-    -- the no-show path gets a fresh hold and a fresh attendance idempotency key.
+    -- disposable database. Reuse the currently active official registration
+    -- instead of forcing the seed UUID back to confirmed, which would violate
+    -- the one-active-registration invariant when the prior journey created a
+    -- replacement row.
     set session_replication_role = replica;
     delete from public.ur_play_checkins
-    where registration_id = '${reservationRegistration}'::uuid;
+    where registration_id = '${noShowRegistration}'::uuid;
     delete from public.commercial_credit_ledger
     where reservation_id in (
       select id
@@ -164,7 +178,7 @@ function prepareNoShowReservationFixture() {
       registration_status = 'confirmed',
       attendance_status = 'expected',
       updated_at = now()
-    where id = '${reservationRegistration}'::uuid;
+    where id = '${noShowRegistration}'::uuid;
 
     insert into public.packages (
       id, code, name, included_units, currency, list_amount, active, benefits
@@ -233,7 +247,7 @@ function openNoShowWindow() {
 
     update public.ur_play_registrations
     set attendance_status = 'expected', updated_at = now()
-    where id = '${reservationRegistration}'::uuid;
+    where id = '${noShowRegistration}'::uuid;
   `);
 }
 
