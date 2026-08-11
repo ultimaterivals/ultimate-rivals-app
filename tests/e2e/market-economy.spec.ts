@@ -178,7 +178,9 @@ test("UR Coins redemption debits Wallet and appears reserved in Command", async 
 
   await login(page, "admin@test.ur.local", /\/admin/);
   await page.goto("/admin/market");
-  const redemption = page.getByText(redemptionCode, { exact: true }).locator("..");
+  const redemption = page
+    .getByText(redemptionCode, { exact: true })
+    .locator("..");
   await expect(redemption).toContainText(marketOfferName);
   await expect(redemption).toContainText("reserved");
 });
