@@ -19,6 +19,11 @@ const marketItem = "66000000-0000-4000-8000-000000000001";
 const marketOffer = "67000000-0000-4000-8000-000000000001";
 const marketOfferName = "[QA] Resgate URC";
 const marketOfferCost = 40;
+const reservationOpportunity = "61000000-0000-4000-8000-000000000002";
+const reservationSession = "70000000-0000-4000-8000-000000000001";
+const reservationRegistration = "71000000-0000-4000-8000-000000000001";
+const qaPackageId = "64000000-0000-4000-8000-000000000001";
+const qaAthletePackageId = "65000000-0000-4000-8000-000000000001";
 
 async function login(page: Page, email: string, expectedPath: RegExp) {
   await page.context().clearCookies();
@@ -116,6 +121,72 @@ function prepareMarketFixture() {
   `);
 }
 
+function prepareNoShowReservationFixture() {
+  runDisposableSql(`
+    update public.demand_opportunities
+    set
+      status = 'forming',
+      starts_at = now() + interval '2 hours',
+      ends_at = now() + interval '4 hours',
+      updated_at = now()
+    where id = '${reservationOpportunity}'::uuid;
+
+    update public.ur_play_sessions
+    set
+      session_date = current_date,
+      starts_at = now() + interval '2 hours',
+      ends_at = now() + interval '4 hours',
+      registration_closes_at = now() + interval '90 minutes',
+      status = 'registration_open',
+      updated_at = now()
+    where id = '${reservationSession}'::uuid;
+
+    update public.ur_play_registrations
+    set attendance_status = 'expected', updated_at = now()
+    where id = '${reservationRegistration}'::uuid;
+
+    insert into public.packages (
+      id, code, name, included_units, currency, list_amount, active, benefits
+    ) values (
+      '${qaPackageId}'::uuid,
+      'qa-app-reservation-credit',
+      '[QA] App reservation credits',
+      3,
+      'BRL',
+      0,
+      true,
+      '[]'::jsonb
+    )
+    on conflict (id) do update set active = true;
+  `);
+}
+
+function openNoShowWindow() {
+  runDisposableSql(`
+    update public.ur_play_sessions
+    set
+      session_date = current_date,
+      starts_at = now() - interval '30 minutes',
+      ends_at = now() + interval '90 minutes',
+      registration_closes_at = now() - interval '45 minutes',
+      status = 'in_progress',
+      updated_at = now()
+    where id = '${reservationSession}'::uuid;
+
+    update public.demand_opportunities
+    set
+      status = 'confirmed',
+      starts_at = now() - interval '30 minutes',
+      ends_at = now() + interval '90 minutes',
+      updated_at = now()
+    where id = '${reservationOpportunity}'::uuid;
+
+    update public.ur_play_registrations
+    set attendance_status = 'expected', updated_at = now()
+    where id = '${reservationRegistration}'::uuid;
+  `);
+}
+
 function urcBalance() {
   return Number(
     runDisposableSql(`
@@ -126,6 +197,24 @@ function urcBalance() {
       where athlete_id = '${athleteA}'::uuid;
     `),
   );
+}
+
+function creditTotals() {
+  const output = runDisposableSql(`
+    select
+      coalesce(sum(available_delta), 0)::integer || '|' ||
+      coalesce(sum(reserved_delta), 0)::integer || '|' ||
+      coalesce(sum(consumed_delta), 0)::integer
+    from public.commercial_credit_ledger
+    where athlete_id = '${athleteA}'::uuid
+      and athlete_package_id = '${qaAthletePackageId}'::uuid;
+  `);
+  const [available, reserved, consumed] = output.split("|");
+  return {
+    available: Number(available),
+    reserved: Number(reserved),
+    consumed: Number(consumed),
+  };
 }
 
 function redemptionSnapshot() {
@@ -185,4 +274,50 @@ test("UR Coins redemption debits Wallet and appears reserved in Command", async 
     .locator("..");
   await expect(redemption).toContainText(marketOfferName);
   await expect(redemption).toContainText("reserved");
+});
+
+test("official no-show consumes held credit and reflects absence back into the athlete App", async ({
+  page,
+}) => {
+  prepareNoShowReservationFixture();
+  const before = creditTotals();
+  expect(before.available).toBeGreaterThan(0);
+
+  await login(page, "athlete@test.ur.local", /\/athlete/);
+  await page.goto("/athlete/agenda");
+  await page
+    .getByTestId(`athlete-opportunity-${reservationOpportunity}`)
+    .getByRole("button", { name: "Reservar vaga" })
+    .click();
+  await expect(page).toHaveURL(/\/athlete\/agenda\?success=reserved/, {
+    timeout: 20_000,
+  });
+  await expect.poll(() => creditTotals().reserved).toBe(before.reserved + 1);
+
+  openNoShowWindow();
+
+  await login(page, "admin@test.ur.local", /\/admin/);
+  await page.goto(`/admin/ur-play/presenca?session=${reservationSession}`);
+  await expect(
+    page.getByRole("heading", { name: "Presença UR Play" }),
+  ).toBeVisible();
+  await page.getByRole("button", { name: "No-show", exact: true }).click();
+  await expect(page).toHaveURL(/success=no_show/, { timeout: 20_000 });
+  await expect(
+    page.getByText("No-show registrado e crédito consumido de forma auditável.", {
+      exact: true,
+    }),
+  ).toBeVisible();
+
+  await expect.poll(() => creditTotals().available).toBe(before.available - 1);
+  await expect.poll(() => creditTotals().reserved).toBe(before.reserved);
+  await expect.poll(() => creditTotals().consumed).toBe(before.consumed + 1);
+
+  await login(page, "athlete@test.ur.local", /\/athlete/);
+  await page.goto("/athlete/agenda");
+  await expect(
+    page
+      .getByTestId(`athlete-opportunity-${reservationOpportunity}`)
+      .getByText("Ausência registrada", { exact: true }),
+  ).toBeVisible({ timeout: 20_000 });
 });
