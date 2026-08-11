@@ -68,6 +68,12 @@ export default function UrPlayLayout({ children }: { children: ReactNode }) {
         >
           Mídia pós-jogo
         </Link>
+        <Link
+          href="/admin/ur-play/feedback"
+          className="rounded-ur px-3 py-2 text-sm font-bold text-zinc-400 transition hover:bg-white/5 hover:text-white"
+        >
+          Feedback & NPS
+        </Link>
       </nav>
       {children}
     </div>
