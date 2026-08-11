@@ -1,5 +1,9 @@
 export type IncidentSeverity = "low" | "medium" | "high" | "critical";
-export type IncidentStatus = "open" | "monitoring" | "resolved" | "closed_no_action";
+export type IncidentStatus =
+  | "open"
+  | "monitoring"
+  | "resolved"
+  | "closed_no_action";
 export type IncidentType =
   | "injury"
   | "medical"

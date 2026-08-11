@@ -34,7 +34,9 @@ type RawReview = {
   reopen_reason: string | null;
 };
 
-export async function fetchAdminIncidentDeskRepositoryData(requestedSessionId?: string) {
+export async function fetchAdminIncidentDeskRepositoryData(
+  requestedSessionId?: string,
+) {
   const supabase = await createClient();
   const errors: string[] = [];
 
@@ -59,7 +61,9 @@ export async function fetchAdminIncidentDeskRepositoryData(requestedSessionId?: 
 
   const sessions = (sessionsResult.data as RawSession[] | null) ?? [];
   const selectedSessionId =
-    sessions.find((session) => session.id === requestedSessionId)?.id ?? sessions[0]?.id ?? null;
+    sessions.find((session) => session.id === requestedSessionId)?.id ??
+    sessions[0]?.id ??
+    null;
 
   if (!selectedSessionId) {
     return {
@@ -86,12 +90,19 @@ export async function fetchAdminIncidentDeskRepositoryData(requestedSessionId?: 
       .select("status,reviewed_at,no_incidents,notes,reopened_at,reopen_reason")
       .eq("session_id", selectedSessionId)
       .maybeSingle(),
-    supabase.rpc("get_ur_play_incident_snapshot", { target_session: selectedSessionId }),
+    supabase.rpc("get_ur_play_incident_snapshot", {
+      target_session: selectedSessionId,
+    }),
   ]);
 
-  if (incidentsResult.error) errors.push(`ur_play_incidents: ${incidentsResult.error.message}`);
-  if (reviewResult.error) errors.push(`ur_play_incident_reviews: ${reviewResult.error.message}`);
-  if (readinessResult.error) errors.push(`get_ur_play_incident_snapshot: ${readinessResult.error.message}`);
+  if (incidentsResult.error)
+    errors.push(`ur_play_incidents: ${incidentsResult.error.message}`);
+  if (reviewResult.error)
+    errors.push(`ur_play_incident_reviews: ${reviewResult.error.message}`);
+  if (readinessResult.error)
+    errors.push(
+      `get_ur_play_incident_snapshot: ${readinessResult.error.message}`,
+    );
 
   const incidents = incidentsResult.error
     ? []
@@ -110,7 +121,8 @@ export async function fetchAdminIncidentDeskRepositoryData(requestedSessionId?: 
       .from("athletes")
       .select("id,public_name,athlete_code")
       .in("id", athleteIds);
-    if (athletesResult.error) errors.push(`athletes: ${athletesResult.error.message}`);
+    if (athletesResult.error)
+      errors.push(`athletes: ${athletesResult.error.message}`);
     else athletes = (athletesResult.data as RawAthlete[] | null) ?? [];
   }
 
@@ -125,7 +137,9 @@ export async function fetchAdminIncidentDeskRepositoryData(requestedSessionId?: 
     selectedSessionId,
     incidents,
     athletes,
-    review: reviewResult.error ? null : ((reviewResult.data as RawReview | null) ?? null),
+    review: reviewResult.error
+      ? null
+      : ((reviewResult.data as RawReview | null) ?? null),
     readiness: readinessResult.error ? null : (readinessRows[0] ?? null),
     errors,
   };

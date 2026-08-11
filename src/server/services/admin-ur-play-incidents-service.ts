@@ -37,12 +37,17 @@ export async function getAdminIncidentDeskSnapshot(
   requestedSessionId?: string,
 ): Promise<AdminIncidentDeskSnapshot> {
   const raw = await fetchAdminIncidentDeskRepositoryData(requestedSessionId);
-  const athletes = new Map(raw.athletes.map((athlete) => [athlete.id, athlete]));
+  const athletes = new Map(
+    raw.athletes.map((athlete) => [athlete.id, athlete]),
+  );
   const selectedSession =
-    raw.sessions.find((session) => session.id === raw.selectedSessionId) ?? null;
+    raw.sessions.find((session) => session.id === raw.selectedSessionId) ??
+    null;
 
   const incidents: IncidentDeskIncident[] = raw.incidents.map((incident) => {
-    const athlete = incident.athlete_id ? athletes.get(incident.athlete_id) : null;
+    const athlete = incident.athlete_id
+      ? athletes.get(incident.athlete_id)
+      : null;
     return {
       id: incident.id,
       sessionId: incident.session_id,
