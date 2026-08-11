@@ -24,7 +24,7 @@ export const POST_SESSION_TASKS: Array<{
     key: "ur_coins",
     label: "UR Coins",
     description:
-      "Reconciliar ganhos, bônus e eventuais ajustes de moedas ligados à sessão.",
+      "Conciliação automática do ledger pelas regras ativas e pelas evidências homologadas de cada partida.",
     sla: "Até 24h",
   },
   {
