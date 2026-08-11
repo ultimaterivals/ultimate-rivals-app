@@ -38,6 +38,8 @@ jobs:
           src/components/admin/command-today-control-room.tsx
           src/components/admin/command-ur-play-cycle-control.tsx
           src/components/admin/command-session-margin-control.tsx
+          src/components/admin/command-session-action-desk.tsx
+          src/components/admin/command-source-audit.tsx
           docs/command-c42-final-audit.md
 
       - name: Commit formatted sources
@@ -48,6 +50,6 @@ jobs:
           fi
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add src/app/admin/page.tsx src/components/admin/command-today-control-room.tsx src/components/admin/command-ur-play-cycle-control.tsx src/components/admin/command-session-margin-control.tsx docs/command-c42-final-audit.md
+          git add src/app/admin/page.tsx src/components/admin/command-today-control-room.tsx src/components/admin/command-ur-play-cycle-control.tsx src/components/admin/command-session-margin-control.tsx src/components/admin/command-session-action-desk.tsx src/components/admin/command-source-audit.tsx docs/command-c42-final-audit.md
           git commit -m "style: format C42 command sources"
           git push origin HEAD:c42-command-final-audit-control-room
