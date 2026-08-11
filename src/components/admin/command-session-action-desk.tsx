@@ -42,14 +42,19 @@ export async function CommandSessionActionDesk() {
     inProgress.map((session) => session.id),
   );
 
-  const operationalSession =
+  const attendanceOperationalSession =
     attendanceSessions.find((session) =>
       ["checkin_open", "registration_closed", "registration_open"].includes(
         session.status,
       ),
-    ) ??
-    inProgress[0] ??
-    null;
+    ) ?? null;
+  const courtOperationalSession = inProgress[0] ?? null;
+  const operationalSession =
+    attendanceOperationalSession ?? courtOperationalSession ?? null;
+  const attendanceFocus = operationalSession
+    ? (attendanceSessions.find((session) => session.id === operationalSession.id) ??
+      null)
+    : null;
 
   const startReadiness = startSnapshot.sessions.find(
     (item) => item.sessionId === operationalSession?.id,
@@ -72,10 +77,12 @@ export async function CommandSessionActionDesk() {
     ? [
         {
           label: "Presença",
-          detail: `${operationalSession.checkedInCount}/${operationalSession.confirmedCount} check-ins`,
+          detail: attendanceFocus
+            ? `${attendanceFocus.checkedInCount}/${attendanceFocus.confirmedCount} check-ins`
+            : "Abrir presença da sessão",
           href: `/admin/ur-play/presenca?session=${operationalSession.id}`,
           icon: UsersRound,
-          attention: operationalSession.pendingAttendanceCount > 0,
+          attention: Boolean(attendanceFocus?.pendingAttendanceCount),
         },
         {
           label: "Gate de início",
@@ -83,7 +90,9 @@ export async function CommandSessionActionDesk() {
             ? startReadiness.ready
               ? "GO aprovado pelo banco"
               : "NO-GO: revisar preflight, quadra ou presença"
-            : "Prontidão ainda não calculada",
+            : operationalSession.status === "in_progress"
+              ? "Sessão já iniciada"
+              : "Prontidão ainda não calculada",
           href: `/admin/ur-play/presenca?session=${operationalSession.id}`,
           icon: PlayCircle,
           attention: Boolean(startReadiness && !startReadiness.ready),
