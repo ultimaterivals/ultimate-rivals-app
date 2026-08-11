@@ -133,6 +133,21 @@ A economia das sessões reutiliza:
 
 Estados parciais, vazios ou indisponíveis continuam explícitos. As fontes especializadas permanecem como fonte de verdade.
 
+## Homologação automatizada
+
+A C42 agora possui uma suíte Playwright autenticada específica do Command em `tests/e2e/command.spec.ts`.
+
+Ela valida, em desktop e mobile:
+
+- login administrativo com credenciais fornecidas por ambiente;
+- carregamento do Command;
+- ausência de overflow horizontal;
+- presença das camadas executivas da C42;
+- acesso às rotas críticas do ciclo UR Play;
+- ausência de redirecionamento indevido para login durante a navegação administrativa.
+
+As credenciais não ficam versionadas. A suíte exige `E2E_ADMIN_EMAIL` e `E2E_ADMIN_PASSWORD`; sem essas variáveis, os testes autenticados são explicitamente ignorados em vez de gerar falso positivo com dados simulados.
+
 ## Critérios de aceite C42
 
 - [x] Preservar todos os módulos existentes.
@@ -153,16 +168,24 @@ Estados parciais, vazios ou indisponíveis continuam explícitos. As fontes espe
 - [x] Adicionar rastreabilidade do momento da leitura sem confundir leitura com atualização individual dos registros.
 - [x] Validar a primeira consolidação da C42 em format, lint, typecheck, testes e build.
 - [x] Corrigir a tipagem entre snapshots de Presença e Operação de Quadra na Mesa de Ação.
-- [ ] Revalidar o CI final após a correção de tipagem.
+- [x] Revalidar o CI final após a correção de tipagem.
+- [x] Adicionar suíte E2E autenticada para o Command sem versionar credenciais.
+- [x] Revalidar format, lint, typecheck, testes e production build após a inclusão do E2E.
+- [ ] Executar a suíte autenticada com uma conta administrativa de QA e dados reais.
 - [ ] Revisar render desktop/mobile com dados reais, parciais e base vazia.
 - [ ] Executar homologação real do fluxo completo do UR Play.
+
+## Estado de conclusão
+
+A construção funcional e a validação técnica automatizável da C42 estão concluídas. O PR deve permanecer sem merge até a homologação autenticada com conta administrativa e dados reais confirmar o fluxo ponta a ponta.
 
 ## Próxima etapa
 
 Sem ampliar escopo funcional:
 
-1. deixar o CI final totalmente verde;
-2. revisar desktop/mobile;
-3. homologar o fluxo completo com dados reais;
-4. corrigir somente bloqueadores encontrados na homologação;
-5. concluir a C42 e preparar merge.
+1. fornecer uma conta administrativa de QA por segredo/variável de ambiente;
+2. executar `npm run test:e2e` em desktop e mobile;
+3. revisar os estados real, parcial e vazio do Command;
+4. homologar um UR Play real do preflight ao Pós-Sessão 360;
+5. corrigir somente bloqueadores encontrados;
+6. concluir a C42 e fazer merge.
