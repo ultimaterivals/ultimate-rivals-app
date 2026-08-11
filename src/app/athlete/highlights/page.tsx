@@ -26,9 +26,13 @@ export default async function AthleteHighlightsPage() {
   const client = await createClient();
   const { data, error } = await client
     .from("highlight_clips")
-    .select("id,title,status,updated_at,media_assets(title,external_url)")
+    .select(
+      "id,title,status,updated_at,media_assets!inner(title,external_url,status)",
+    )
     .eq("athlete_id", snapshot.identity.id)
     .in("status", ["publishable", "public"])
+    .in("media_assets.status", ["publishable", "public"])
+    .not("media_assets.external_url", "is", null)
     .order("updated_at", { ascending: false })
     .limit(18);
 
