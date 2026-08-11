@@ -22,8 +22,8 @@ const marketOfferCost = 40;
 const reservationOpportunity = "61000000-0000-4000-8000-000000000002";
 const reservationSession = "70000000-0000-4000-8000-000000000001";
 const reservationRegistration = "71000000-0000-4000-8000-000000000001";
-const qaPackageId = "64000000-0000-4000-8000-000000000001";
-const qaAthletePackageId = "65000000-0000-4000-8000-000000000001";
+const qaPackageId = "64000000-0000-4000-8000-000000000002";
+const qaAthletePackageId = "65000000-0000-4000-8000-000000000002";
 let noShowRegistration = reservationRegistration;
 
 async function login(page: Page, email: string, expectedPath: RegExp) {
@@ -139,7 +139,8 @@ function prepareNoShowReservationFixture() {
     -- disposable database. Reuse the currently active official registration
     -- instead of forcing the seed UUID back to confirmed, which would violate
     -- the one-active-registration invariant when the prior journey created a
-    -- replacement row.
+    -- replacement row. Use a dedicated synthetic package so this test never
+    -- mutates the immutable entitlement consumed by the earlier check-in test.
     set session_replication_role = replica;
     delete from public.ur_play_checkins
     where registration_id = '${noShowRegistration}'::uuid;
@@ -184,17 +185,15 @@ function prepareNoShowReservationFixture() {
       id, code, name, included_units, currency, list_amount, active, benefits
     ) values (
       '${qaPackageId}'::uuid,
-      'qa-app-reservation-credit',
-      '[QA] App reservation credits',
+      'qa-app-no-show-credit',
+      '[QA] No-show reservation credits',
       3,
       'BRL',
       0,
       true,
       '[]'::jsonb
     )
-    on conflict (id) do update set
-      included_units = excluded.included_units,
-      active = excluded.active;
+    on conflict (id) do nothing;
 
     insert into public.athlete_commercial_packages (
       id,
@@ -217,11 +216,7 @@ function prepareNoShowReservationFixture() {
       now() - interval '1 minute',
       'a0000000-0000-4000-8000-000000000001'::uuid
     )
-    on conflict (id) do update set
-      status = 'active',
-      units_total = 3,
-      units_used = 0,
-      starts_at = now() - interval '1 minute';
+    on conflict (id) do nothing;
   `);
 }
 
