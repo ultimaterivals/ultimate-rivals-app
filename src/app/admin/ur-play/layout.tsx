@@ -33,6 +33,12 @@ export default function UrPlayLayout({ children }: { children: ReactNode }) {
           Operação de quadra
         </Link>
         <Link
+          href="/admin/ur-play/ocorrencias"
+          className="rounded-ur px-3 py-2 text-sm font-bold text-zinc-400 transition hover:bg-white/5 hover:text-white"
+        >
+          Ocorrências
+        </Link>
+        <Link
           href="/admin/ur-play/fechamento"
           className="rounded-ur px-3 py-2 text-sm font-bold text-zinc-400 transition hover:bg-white/5 hover:text-white"
         >
