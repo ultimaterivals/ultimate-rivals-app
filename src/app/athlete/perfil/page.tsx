@@ -65,7 +65,7 @@ function ReadinessItem({
       )}
       <div className="min-w-0 flex-1">
         <div className="grid gap-1 sm:flex sm:flex-wrap sm:items-center sm:justify-between sm:gap-2">
-          <p className="min-w-0 break-words text-sm font-bold text-white">
+          <p className="min-w-0 text-sm font-bold break-words text-white">
             {title}
           </p>
           <span
@@ -321,7 +321,7 @@ export default async function AthleteProfilePage({
                           name="gender"
                           defaultValue={athlete.gender}
                           required
-                          className="rounded-ur min-w-0 w-full max-w-full border bg-black/30 px-3 py-3 text-sm text-white"
+                          className="rounded-ur w-full max-w-full min-w-0 border bg-black/30 px-3 py-3 text-sm text-white"
                         >
                           <option value="female">Feminino</option>
                           <option value="male">Masculino</option>
