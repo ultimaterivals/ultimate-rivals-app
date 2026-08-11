@@ -123,7 +123,9 @@ export async function fetchAdminReportRepositoryData() {
   if (sessionsResult.error)
     errors.push(`ur_play_sessions: ${sessionsResult.error.message}`);
   if (closuresResult.error)
-    errors.push(`ur_play_post_session_closures: ${closuresResult.error.message}`);
+    errors.push(
+      `ur_play_post_session_closures: ${closuresResult.error.message}`,
+    );
   if (registrationsResult.error)
     errors.push(`ur_play_registrations: ${registrationsResult.error.message}`);
   if (tasksResult.error)
