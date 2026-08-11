@@ -52,6 +52,7 @@ describe("App V1 ↔ Command integration contracts", () => {
     const opportunityCard = source(
       "src/components/athlete/athlete-opportunity-card.tsx",
     );
+    const economyE2e = source("tests/e2e/market-economy.spec.ts");
 
     expect(attendanceActions).toContain('rpc("admin_manual_checkin_ur_play"');
     expect(attendanceActions).toContain('rpc("admin_mark_ur_play_no_show"');
@@ -62,6 +63,8 @@ describe("App V1 ↔ Command integration contracts", () => {
     expect(athleteRepository).toContain("opportunityStart");
     expect(opportunityCard).toContain("Participação concluída");
     expect(opportunityCard).toContain("Ausência registrada");
+    expect(economyE2e).toContain("official no-show consumes held credit");
+    expect(economyE2e).toContain("Ausência registrada");
   });
 
   it("preserves C23 matchmaking readiness without breaking Preview", () => {
@@ -81,6 +84,29 @@ describe("App V1 ↔ Command integration contracts", () => {
     expect(action).toContain("update_own_athlete_matchmaking_identity");
     expect(repository).toContain("primary_pole_id,gender");
     expect(types).toContain("gender: string");
+  });
+
+  it("keeps the complete athlete progression loop tied to canonical economy", () => {
+    const development = source("src/app/athlete/development/page.tsx");
+    const playerHub = source("src/app/athlete/page.tsx");
+
+    for (const stage of [
+      "Jogar",
+      "Ganhar pontos",
+      "Subir no ranking",
+      "Cumprir missões",
+      "Ganhar UR Coins",
+      "Desbloquear e resgatar",
+      "Evoluir",
+      "Jogar novamente",
+    ]) {
+      expect(development).toContain(stage);
+    }
+    expect(development).toContain('/athlete/market');
+    expect(development).toContain('/athlete/wallet');
+    expect(development).toContain("não são simulados nesta V1");
+    expect(playerHub).toContain("Sua missão agora");
+    expect(playerHub).toContain("Último destaque");
   });
 
   it("keeps athlete Market writes behind the transactional RPC", () => {
@@ -121,8 +147,10 @@ describe("App V1 ↔ Command integration contracts", () => {
     expect(fulfillment).toContain("request_id");
   });
 
-  it("exposes only publishable external media in athlete Highlights", () => {
+  it("exposes only publishable external media in athlete surfaces", () => {
     const highlights = source("src/app/athlete/highlights/page.tsx");
+    const arenas = source("src/app/athlete/arenas/page.tsx");
+    const playerHub = source("src/app/athlete/page.tsx");
 
     expect(highlights).toContain("media_assets!inner");
     expect(highlights).toContain('.in("status", ["publishable", "public"])');
@@ -132,6 +160,18 @@ describe("App V1 ↔ Command integration contracts", () => {
     expect(highlights).toContain(
       '.not("media_assets.external_url", "is", null)',
     );
+
+    expect(arenas).toContain('.from("media_assets")');
+    expect(arenas).toContain('.in("status", ["publishable", "public"])');
+    expect(arenas).toContain('.not("external_url", "is", null)');
+    expect(arenas).toContain("safeExternalUrl");
+    expect(arenas).not.toContain('.storage.from(');
+
+    expect(playerHub).toContain("media_assets!inner");
+    expect(playerHub).toContain(
+      '.in("media_assets.status", ["publishable", "public"])',
+    );
+    expect(playerHub).toContain("safeExternalUrl");
   });
 
   it("keeps all App V1 migrations forward-only after current main C41", () => {
