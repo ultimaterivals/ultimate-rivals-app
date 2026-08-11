@@ -85,8 +85,10 @@ describe("admin UR Play post-session 360 service", () => {
     });
 
     const snapshot = await getAdminPostSessionSnapshot();
+    const selected = snapshot.sessions[0];
+    expect(selected).toBeDefined();
 
-    expect(snapshot.sessions[0]).toMatchObject({
+    expect(selected).toMatchObject({
       name: "UR Play Teste",
       poleName: "Belo Horizonte",
       venueName: "Arena UR",
@@ -96,8 +98,7 @@ describe("admin UR Play post-session 360 service", () => {
     });
     expect(snapshot.metrics.ready).toBe(1);
     expect(
-      snapshot.sessions[0].tasks.find((item) => item.key === "ranking_data")
-        ?.evidence,
+      selected?.tasks.find((item) => item.key === "ranking_data")?.evidence,
     ).toMatchObject({
       completed_matches: 2,
       ranked_matches: 2,
@@ -132,8 +133,10 @@ describe("admin UR Play post-session 360 service", () => {
     });
 
     const snapshot = await getAdminPostSessionSnapshot();
+    const selected = snapshot.sessions[0];
+    expect(selected).toBeDefined();
     expect(snapshot.metrics.pending).toBe(1);
     expect(snapshot.metrics.closed).toBe(0);
-    expect(snapshot.sessions[0].readiness.ready).toBe(false);
+    expect(selected?.readiness.ready).toBe(false);
   });
 });
