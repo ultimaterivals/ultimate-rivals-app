@@ -62,6 +62,12 @@ export default function UrPlayLayout({ children }: { children: ReactNode }) {
         >
           Retenção 1º → 2º jogo
         </Link>
+        <Link
+          href="/admin/ur-play/midia"
+          className="rounded-ur px-3 py-2 text-sm font-bold text-zinc-400 transition hover:bg-white/5 hover:text-white"
+        >
+          Mídia pós-jogo
+        </Link>
       </nav>
       {children}
     </div>
