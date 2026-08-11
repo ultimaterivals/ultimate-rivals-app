@@ -25,7 +25,8 @@ async function capture(page: Page, name: string) {
   });
 }
 
-test("desktop athlete App visual evidence", async ({ page }) => {
+test("desktop athlete App visual evidence", async ({ page }, testInfo) => {
+  test.skip(testInfo.project.name !== "chromium", "desktop evidence only");
   await login(page);
 
   await expect(
