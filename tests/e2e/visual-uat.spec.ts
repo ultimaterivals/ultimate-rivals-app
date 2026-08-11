@@ -1,5 +1,5 @@
-import { expect, test, type Page } from "@playwright/test";
 import { mkdir } from "node:fs/promises";
+import { expect, test, type Page } from "@playwright/test";
 
 const password = process.env.UR_TEST_PASSWORD ?? "";
 const evidenceDir = "test-results/visual-uat";
@@ -23,6 +23,14 @@ async function capture(page: Page, name: string) {
     path: `${evidenceDir}/${name}.png`,
     fullPage: true,
   });
+}
+
+async function expectNoHorizontalOverflow(page: Page) {
+  const dimensions = await page.evaluate(() => ({
+    scrollWidth: document.documentElement.scrollWidth,
+    innerWidth: window.innerWidth,
+  }));
+  expect(dimensions.scrollWidth).toBeLessThanOrEqual(dimensions.innerWidth);
 }
 
 test("desktop athlete App visual evidence", async ({ page }, testInfo) => {
@@ -52,9 +60,11 @@ test("mobile athlete App visual evidence", async ({ page }, testInfo) => {
   await expect(
     page.getByRole("navigation", { name: "Navegação principal do atleta" }),
   ).toBeVisible();
+  await expectNoHorizontalOverflow(page);
   await capture(page, "mobile-player-hub");
 
   await page.goto("/athlete/perfil");
   await expect(page.getByRole("heading", { name: /perfil/i })).toBeVisible();
+  await expectNoHorizontalOverflow(page);
   await capture(page, "mobile-profile");
 });
