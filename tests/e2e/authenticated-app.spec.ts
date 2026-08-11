@@ -229,6 +229,15 @@ test("admin Preview renders athlete App read-only without replacing admin Auth",
 
   await page.goto("/athlete/agenda");
   await expect(page.getByText(/Prévia somente leitura/i)).toBeVisible();
+  await expect(
+    page.getByRole("button", { name: "Registrar interesse" }),
+  ).toHaveCount(0);
+  await expect(page.getByRole("button", { name: "Reservar vaga" })).toHaveCount(
+    0,
+  );
+  await expect(
+    page.getByRole("button", { name: "Cancelar reserva" }),
+  ).toHaveCount(0);
 
   await page.getByRole("button", { name: "Voltar ao Command" }).click();
   await expect(page).toHaveURL(/\/admin\/preview/, { timeout: 20_000 });
