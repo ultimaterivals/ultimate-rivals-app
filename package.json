@@ -9,7 +9,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint src tests *.config.* next.config.ts --max-warnings=0",
+    "lint": "eslint src tests *.config.* next.config.ts --max-warnings=0 --format json > /tmp/eslint.json; status=$?; node -e \"const fs=require('fs');const path=require('path');const rows=JSON.parse(fs.readFileSync('/tmp/eslint.json','utf8'));for(const f of rows){for(const m of f.messages){const file=path.relative(process.cwd(),f.filePath);const msg=((m.ruleId?m.ruleId+': ':'')+m.message).replace(/%/g,'%25').replace(/\\r/g,'%0D').replace(/\\n/g,'%0A');console.log('::error file='+file+',line='+(m.line||1)+',col='+(m.column||1)+'::'+msg)}}\"; exit $status",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
