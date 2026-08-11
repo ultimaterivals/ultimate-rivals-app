@@ -227,7 +227,7 @@ export default async function PostSessionPage({
                   const definition = taskDefinitions.get(task.key);
                   const overdue =
                     !["completed", "waived"].includes(task.status) &&
-                    new Date(task.dueAt).getTime() < Date.now();
+                    new Date(task.dueAt).getTime() < new Date(snapshot.generatedAt).getTime();
                   const systemTask = task.managedBy === "system";
                   return (
                     <Card
