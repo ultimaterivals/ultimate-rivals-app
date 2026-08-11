@@ -22,7 +22,9 @@ test.describe("Command Center autenticado", () => {
     await loginAsAdmin(page);
   });
 
-  test("carrega a sala de controle sem overflow horizontal", async ({ page }) => {
+  test("carrega a sala de controle sem overflow horizontal", async ({
+    page,
+  }) => {
     await page.goto("/admin");
 
     await expect(
@@ -31,13 +33,17 @@ test.describe("Command Center autenticado", () => {
     await expect(page.getByText("Sala de controle · Hoje")).toBeVisible();
 
     const hasHorizontalOverflow = await page.evaluate(
-      () => document.documentElement.scrollWidth > document.documentElement.clientWidth,
+      () =>
+        document.documentElement.scrollWidth >
+        document.documentElement.clientWidth,
     );
 
     expect(hasHorizontalOverflow).toBe(false);
   });
 
-  test("preserva as camadas executivas e operacionais da C42", async ({ page }) => {
+  test("preserva as camadas executivas e operacionais da C42", async ({
+    page,
+  }) => {
     await page.goto("/admin");
 
     await expect(page.getByText("Sala de controle · Hoje")).toBeVisible();
