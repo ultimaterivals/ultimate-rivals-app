@@ -44,9 +44,7 @@ export async function fetchAdminMediaRepositoryData() {
 
   const deliverables =
     (deliverablesResult.data as RawDeliverable[] | null) ?? [];
-  const sessionIds = [
-    ...new Set(deliverables.map((row) => row.session_id)),
-  ];
+  const sessionIds = [...new Set(deliverables.map((row) => row.session_id))];
 
   if (sessionIds.length === 0) {
     return {
@@ -71,7 +69,9 @@ export async function fetchAdminMediaRepositoryData() {
   if (sessionsResult.error)
     errors.push(`ur_play_sessions: ${sessionsResult.error.message}`);
   if (closuresResult.error)
-    errors.push(`ur_play_post_session_closures: ${closuresResult.error.message}`);
+    errors.push(
+      `ur_play_post_session_closures: ${closuresResult.error.message}`,
+    );
 
   return {
     deliverables,
