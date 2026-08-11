@@ -1,8 +1,4 @@
-export type FeedbackRequestStatus =
-  | "pending"
-  | "sent"
-  | "responded"
-  | "waived";
+export type FeedbackRequestStatus = "pending" | "sent" | "responded" | "waived";
 
 export type FeedbackChannel =
   | "app"
