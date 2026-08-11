@@ -28,11 +28,15 @@ async function capture(page: Page, name: string) {
 test("desktop athlete App visual evidence", async ({ page }) => {
   await login(page);
 
-  await expect(page.getByRole("navigation", { name: "Navegação do atleta" })).toBeVisible();
+  await expect(
+    page.getByRole("navigation", { name: "Navegação do atleta" }),
+  ).toBeVisible();
   await capture(page, "desktop-player-hub");
 
   await page.goto("/athlete/development");
-  await expect(page.getByRole("heading", { name: "Sua progressão" })).toBeVisible();
+  await expect(
+    page.getByRole("heading", { name: "Sua progressão" }),
+  ).toBeVisible();
   await capture(page, "desktop-development");
 
   await page.goto("/athlete/market");
