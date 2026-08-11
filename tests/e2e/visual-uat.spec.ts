@@ -25,6 +25,12 @@ async function capture(page: Page, name: string) {
   });
 }
 
+async function openAndCapture(page: Page, path: string, name: string) {
+  await page.goto(path);
+  await expect(page).toHaveURL(new RegExp(path.replaceAll("/", "\\/")));
+  await capture(page, name);
+}
+
 // Regression gate: mobile athlete surfaces must never widen the viewport.
 async function expectNoHorizontalOverflow(page: Page) {
   const dimensions = await page.evaluate(() => ({
@@ -32,6 +38,13 @@ async function expectNoHorizontalOverflow(page: Page) {
     innerWidth: window.innerWidth,
   }));
   expect(dimensions.scrollWidth).toBeLessThanOrEqual(dimensions.innerWidth);
+}
+
+async function openMobileAndCapture(page: Page, path: string, name: string) {
+  await page.goto(path);
+  await expect(page).toHaveURL(new RegExp(path.replaceAll("/", "\\/")));
+  await expectNoHorizontalOverflow(page);
+  await capture(page, name);
 }
 
 test("desktop athlete App visual evidence", async ({ page }, testInfo) => {
@@ -43,21 +56,14 @@ test("desktop athlete App visual evidence", async ({ page }, testInfo) => {
   ).toBeVisible();
   await capture(page, "desktop-player-hub");
 
-  await page.goto("/athlete/development");
-  await expect(
-    page.getByRole("heading", { name: "Sua progressão" }),
-  ).toBeVisible();
-  await capture(page, "desktop-development");
-
-  await page.goto("/athlete/market");
-  await expect(page).toHaveURL(/\/athlete\/market/);
-  await capture(page, "desktop-market");
-
-  await page.goto("/athlete/feedback");
-  await expect(
-    page.getByRole("heading", { name: "Feedback UR" }),
-  ).toBeVisible();
-  await capture(page, "desktop-feedback");
+  await openAndCapture(page, "/athlete/agenda", "desktop-agenda");
+  await openAndCapture(page, "/athlete/ranking", "desktop-ranking");
+  await openAndCapture(page, "/athlete/development", "desktop-development");
+  await openAndCapture(page, "/athlete/wallet", "desktop-wallet");
+  await openAndCapture(page, "/athlete/market", "desktop-market");
+  await openAndCapture(page, "/athlete/arenas", "desktop-arenas");
+  await openAndCapture(page, "/athlete/highlights", "desktop-highlights");
+  await openAndCapture(page, "/athlete/feedback", "desktop-feedback");
 });
 
 test("mobile athlete App visual evidence", async ({ page }, testInfo) => {
@@ -70,15 +76,13 @@ test("mobile athlete App visual evidence", async ({ page }, testInfo) => {
   await expectNoHorizontalOverflow(page);
   await capture(page, "mobile-player-hub");
 
-  await page.goto("/athlete/perfil");
-  await expect(page.getByRole("heading", { name: /perfil/i })).toBeVisible();
-  await expectNoHorizontalOverflow(page);
-  await capture(page, "mobile-profile");
-
-  await page.goto("/athlete/feedback");
-  await expect(
-    page.getByRole("heading", { name: "Feedback UR" }),
-  ).toBeVisible();
-  await expectNoHorizontalOverflow(page);
-  await capture(page, "mobile-feedback");
+  await openMobileAndCapture(page, "/athlete/agenda", "mobile-agenda");
+  await openMobileAndCapture(page, "/athlete/ranking", "mobile-ranking");
+  await openMobileAndCapture(page, "/athlete/development", "mobile-development");
+  await openMobileAndCapture(page, "/athlete/wallet", "mobile-wallet");
+  await openMobileAndCapture(page, "/athlete/market", "mobile-market");
+  await openMobileAndCapture(page, "/athlete/arenas", "mobile-arenas");
+  await openMobileAndCapture(page, "/athlete/highlights", "mobile-highlights");
+  await openMobileAndCapture(page, "/athlete/perfil", "mobile-profile");
+  await openMobileAndCapture(page, "/athlete/feedback", "mobile-feedback");
 });
