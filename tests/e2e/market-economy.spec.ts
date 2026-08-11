@@ -9,7 +9,9 @@ if (!password) {
   throw new Error("UR_TEST_PASSWORD is required for authenticated E2E tests.");
 }
 if (!databaseUrl) {
-  throw new Error("Disposable DATABASE_URL is required for authenticated E2E tests.");
+  throw new Error(
+    "Disposable DATABASE_URL is required for authenticated E2E tests.",
+  );
 }
 
 const athleteA = "b0000000-0000-4000-8000-000000000001";
