@@ -48,6 +48,19 @@ function attendanceError(message: string) {
   return codes.find((code) => normalized.includes(code)) ?? "attendance_failed";
 }
 
+function logAttendanceRpcFailure(
+  operation: "manual_checkin" | "no_show",
+  error: { code?: string; message: string; details?: string; hint?: string },
+) {
+  console.error("UR_PLAY_ATTENDANCE_RPC_FAILED", {
+    operation,
+    code: error.code ?? null,
+    message: error.message,
+    details: error.details ?? null,
+    hint: error.hint ?? null,
+  });
+}
+
 function fail(sessionId: string | null, message: string): never {
   const query = new URLSearchParams({ error: attendanceError(message) });
   if (sessionId) query.set("session", sessionId);
@@ -95,7 +108,10 @@ export async function manualCheckinAction(formData: FormData) {
     p_registration_id: parsed.data,
     p_operation_id: randomUUID(),
   });
-  if (error) fail(lookup.sessionId, error.message);
+  if (error) {
+    logAttendanceRpcFailure("manual_checkin", error);
+    fail(lookup.sessionId, error.message);
+  }
   finish(lookup.sessionId, "checked_in");
 }
 
@@ -115,7 +131,10 @@ export async function markNoShowAction(formData: FormData) {
     p_operation_id: randomUUID(),
     p_reason: reason || null,
   });
-  if (error) fail(lookup.sessionId, error.message);
+  if (error) {
+    logAttendanceRpcFailure("no_show", error);
+    fail(lookup.sessionId, error.message);
+  }
   finish(lookup.sessionId, "no_show");
 }
 
