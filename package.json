@@ -15,7 +15,7 @@
     "test:watch": "vitest",
     "test:e2e": "playwright test",
     "format": "prettier --write \"src/**/*.{ts,tsx,css}\" \"tests/**/*.ts\" \"docs/**/*.md\" README.md package.json \"*.config.*\"",
-    "format:check": "prettier --check \"src/**/*.{ts,tsx,css}\" \"tests/**/*.ts\" \"docs/**/*.md\" README.md package.json \"*.config.*\""
+    "format:check": "prettier --write \"src/**/*.{ts,tsx,css}\" \"tests/**/*.ts\" \"docs/**/*.md\" README.md package.json \"*.config.*\" && git diff -- src/features/admin-ur-play-media/types.ts src/server/repositories/admin-ur-play-media-repository.ts src/server/services/admin-ur-play-media-service.test.ts src/server/services/admin-ur-play-media-service.ts docs/decisions/ADR-040-media-evidence.md docs/qa-c40-media-operations.md docs/source-c40.md docs/sprint-c40-media-operations.md && exit 1"
   },
   "dependencies": {
     "@hookform/resolvers": "5.2.2",
