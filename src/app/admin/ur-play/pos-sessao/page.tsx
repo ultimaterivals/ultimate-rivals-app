@@ -75,6 +75,11 @@ function evidenceNumber(evidence: Record<string, unknown>, key: string) {
   return Number.isFinite(value) ? value : 0;
 }
 
+function evidenceText(evidence: Record<string, unknown>, key: string) {
+  const value = evidence[key];
+  return typeof value === "string" ? value : null;
+}
+
 export default async function PostSessionPage({
   searchParams,
 }: {
@@ -278,6 +283,34 @@ export default async function PostSessionPage({
                           </div>
                         </div>
                       )}
+
+                      {task.key === "ur_coins" && (
+              <>
+                <div className="mt-4 grid grid-cols-2 gap-2 rounded-ur border p-3 text-center sm:grid-cols-4">
+                  <div>
+                    <p className="text-[10px] font-bold text-zinc-600 uppercase">Lançamentos</p>
+                    <p className="mt-1 font-black">{evidenceNumber(task.evidence, "generated_transactions")}</p>
+                  </div>
+                  <div>
+                    <p className="text-[10px] font-bold text-zinc-600 uppercase">Estornos</p>
+                    <p className="mt-1 font-black">{evidenceNumber(task.evidence, "reversal_transactions")}</p>
+                  </div>
+                  <div>
+                    <p className="text-[10px] font-bold text-zinc-600 uppercase">Créditos</p>
+                    <p className="mt-1 font-black">{evidenceNumber(task.evidence, "credited_amount")} URC</p>
+                  </div>
+                  <div>
+                    <p className="text-[10px] font-bold text-zinc-600 uppercase">Líquido</p>
+                    <p className="mt-1 font-black">{evidenceNumber(task.evidence, "net_amount")} URC</p>
+                  </div>
+                </div>
+                {evidenceText(task.evidence, "error") && (
+                  <p className="mt-3 rounded-ur border border-red-500/30 bg-red-500/5 p-3 text-xs font-bold text-red-300">
+                    {evidenceText(task.evidence, "error")}
+                  </p>
+                )}
+              </>
+            )}
 
                       {task.notes && (
                         <p className="mt-4 rounded-ur border bg-black/10 p-3 text-sm text-zinc-400">

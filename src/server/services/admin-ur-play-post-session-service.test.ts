@@ -23,7 +23,9 @@ function task(task_key: string, status = "completed") {
     session_id: "session-1",
     task_key,
     status,
-    managed_by: task_key === "ranking_data" ? "system" : "human",
+    managed_by: ["ranking_data", "ur_coins"].includes(task_key)
+      ? "system"
+      : "human",
     blocking: true,
     due_at: "2026-08-12T22:00:00.000Z",
     notes: null,
