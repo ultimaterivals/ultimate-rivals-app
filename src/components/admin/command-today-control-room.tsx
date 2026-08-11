@@ -1,8 +1,15 @@
-import { AlertTriangle, ArrowUpRight, CalendarClock, CircleDollarSign, Gauge, Users } from "lucide-react";
+import {
+  AlertTriangle,
+  ArrowUpRight,
+  CalendarClock,
+  CircleDollarSign,
+  Gauge,
+  Users,
+} from "lucide-react";
 import Link from "next/link";
-import type { AdminCommandSnapshot } from "@/features/admin-command/types";
-import { Badge, Card } from "@/components/ui";
 import { CommandSection } from "@/components/admin/command-section";
+import { Badge, Card } from "@/components/ui";
+import type { AdminCommandSnapshot } from "@/features/admin-command/types";
 
 const SAO_PAULO_TIME_ZONE = "America/Sao_Paulo";
 
@@ -50,10 +57,10 @@ function Metric({
       <Card className="h-full transition-transform group-hover:-translate-y-0.5">
         <div className="flex items-start justify-between gap-4">
           <div>
-            <p className="text-xs font-bold uppercase tracking-[0.16em] text-zinc-500">
+            <p className="text-xs font-bold tracking-[0.16em] text-zinc-500 uppercase">
               {label}
             </p>
-            <p className="mt-2 font-display text-3xl font-black uppercase text-white">
+            <p className="font-display mt-2 text-3xl font-black text-white uppercase">
               {value}
             </p>
           </div>
@@ -139,11 +146,12 @@ export function CommandTodayControlRoom({
         <Card>
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
-              <p className="font-display text-xl font-black uppercase text-white">
+              <p className="font-display text-xl font-black text-white uppercase">
                 Linha operacional de hoje
               </p>
               <p className="mt-1 text-sm text-zinc-500">
-                Visão resumida; check-in, quadra, preflight, partidas e fechamento continuam nos módulos atuais.
+                Visão resumida; check-in, quadra, preflight, partidas e fechamento
+                continuam nos módulos atuais.
               </p>
             </div>
             <Link
@@ -182,7 +190,8 @@ export function CommandTodayControlRoom({
               ))
             ) : (
               <div className="rounded-xl border border-dashed border-white/10 p-5 text-sm text-zinc-500">
-                Nenhuma operação de hoje foi encontrada nesta leitura. A agenda existente permanece como fonte operacional.
+                Nenhuma operação de hoje foi encontrada nesta leitura. A agenda
+                existente permanece como fonte operacional.
               </div>
             )}
           </div>
@@ -191,15 +200,21 @@ export function CommandTodayControlRoom({
         <div className="grid gap-5">
           <Card>
             <div className="flex items-center gap-2">
-              <Gauge className="text-ur-gold" size={18} aria-hidden="true" />
-              <p className="font-display text-xl font-black uppercase text-white">
+              <Gauge
+                className="text-ur-gold"
+                size={18}
+                aria-hidden="true"
+              />
+              <p className="font-display text-xl font-black text-white uppercase">
                 Próxima decisão
               </p>
             </div>
             {primaryAction ? (
               <div className="mt-4">
                 <Badge>{primaryAction.priority}</Badge>
-                <p className="mt-3 font-bold text-white">{primaryAction.title}</p>
+                <p className="mt-3 font-bold text-white">
+                  {primaryAction.title}
+                </p>
                 <p className="mt-2 text-sm leading-6 text-zinc-400">
                   {primaryAction.detail}
                 </p>
@@ -207,7 +222,8 @@ export function CommandTodayControlRoom({
                   href={primaryAction.href}
                   className="text-ur-gold mt-4 inline-flex items-center gap-1 text-sm font-bold"
                 >
-                  Executar no módulo <ArrowUpRight size={15} aria-hidden="true" />
+                  Executar no módulo
+                  <ArrowUpRight size={15} aria-hidden="true" />
                 </Link>
               </div>
             ) : (
@@ -218,7 +234,7 @@ export function CommandTodayControlRoom({
           </Card>
 
           <Card>
-            <p className="font-display text-xl font-black uppercase text-white">
+            <p className="font-display text-xl font-black text-white uppercase">
               Sinais de capacidade
             </p>
             <p className="mt-1 text-sm text-zinc-500">
@@ -234,7 +250,8 @@ export function CommandTodayControlRoom({
                   >
                     <p className="text-sm font-bold text-white">{item.title}</p>
                     <p className="mt-1 text-xs leading-5 text-zinc-500">
-                      {item.interestedCount} interessados · {item.readyFormations}/{item.targetFormations} formações · {item.waitlistCount} espera
+                      {item.interestedCount} interessados · {item.readyFormations}/
+                      {item.targetFormations} formações · {item.waitlistCount} espera
                     </p>
                   </Link>
                 ))
