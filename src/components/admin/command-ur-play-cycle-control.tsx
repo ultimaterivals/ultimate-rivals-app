@@ -123,8 +123,7 @@ export async function CommandUrPlayCycleControl() {
     .filter((session) => new Date(session.startsAt).getTime() >= now)
     .filter((session) => session.courts === 0 || session.staff === 0)
     .sort(
-      (a, b) =>
-        new Date(a.startsAt).getTime() - new Date(b.startsAt).getTime(),
+      (a, b) => new Date(a.startsAt).getTime() - new Date(b.startsAt).getTime(),
     );
   const sourceErrors = [
     ...new Set([
@@ -224,7 +223,9 @@ export async function CommandUrPlayCycleControl() {
               </p>
             </div>
             <Badge>
-              {sourceErrors.length === 0 ? "Fontes íntegras" : "Leitura parcial"}
+              {sourceErrors.length === 0
+                ? "Fontes íntegras"
+                : "Leitura parcial"}
             </Badge>
           </div>
 
@@ -303,7 +304,8 @@ export async function CommandUrPlayCycleControl() {
             </p>
           </div>
           <p className="mt-2 text-sm leading-6 text-zinc-500">
-            Sessões futuras sem quadra ativa ou staff registrado na fonte UR Play.
+            Sessões futuras sem quadra ativa ou staff registrado na fonte UR
+            Play.
           </p>
 
           <div className="mt-4 grid gap-2">

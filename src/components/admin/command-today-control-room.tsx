@@ -150,8 +150,8 @@ export function CommandTodayControlRoom({
                 Linha operacional de hoje
               </p>
               <p className="mt-1 text-sm text-zinc-500">
-                Visão resumida; check-in, quadra, preflight, partidas e fechamento
-                continuam nos módulos atuais.
+                Visão resumida; check-in, quadra, preflight, partidas e
+                fechamento continuam nos módulos atuais.
               </p>
             </div>
             <Link
@@ -200,11 +200,7 @@ export function CommandTodayControlRoom({
         <div className="grid gap-5">
           <Card>
             <div className="flex items-center gap-2">
-              <Gauge
-                className="text-ur-gold"
-                size={18}
-                aria-hidden="true"
-              />
+              <Gauge className="text-ur-gold" size={18} aria-hidden="true" />
               <p className="font-display text-xl font-black text-white uppercase">
                 Próxima decisão
               </p>
@@ -250,8 +246,9 @@ export function CommandTodayControlRoom({
                   >
                     <p className="text-sm font-bold text-white">{item.title}</p>
                     <p className="mt-1 text-xs leading-5 text-zinc-500">
-                      {item.interestedCount} interessados · {item.readyFormations}/
-                      {item.targetFormations} formações · {item.waitlistCount} espera
+                      {item.interestedCount} interessados ·{" "}
+                      {item.readyFormations}/{item.targetFormations} formações ·{" "}
+                      {item.waitlistCount} espera
                     </p>
                   </Link>
                 ))

@@ -163,7 +163,8 @@ export async function CommandSessionMarginControl() {
         <div className="mt-5 grid gap-2">
           {sessionEvents.length === 0 ? (
             <div className="rounded-ur border border-dashed p-4 text-sm text-zinc-500">
-              Nenhum evento financeiro vinculado a sessão UR Play foi encontrado.
+              Nenhum evento financeiro vinculado a sessão UR Play foi
+              encontrado.
             </div>
           ) : (
             sessionEvents.slice(0, 8).map((event, index) => (
