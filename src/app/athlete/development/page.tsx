@@ -1,4 +1,4 @@
-import { CheckCircle2, Target, Trophy } from "lucide-react";
+import { CheckCircle2, Coins, ShoppingBag, Target, Trophy } from "lucide-react";
 import Link from "next/link";
 import { Badge, Card, EmptyState, PageHeader } from "@/components/ui";
 import { requireAthleteViewer } from "@/lib/auth/athlete-viewer";
@@ -58,7 +58,7 @@ export default async function AthleteDevelopmentPage() {
           <p className="mt-2 text-sm text-zinc-400">
             {hasNextActivity
               ? "Sua reserva oficial já está registrada. O próximo passo é participar e gerar resultado homologado."
-              : "Acesse a Agenda UR e entre novamente no ciclo Jogar → Evoluir."}
+              : "Acesse a Agenda UR e entre novamente no ciclo Jogar → Evoluir → Jogar novamente."}
           </p>
           <Link
             href="/athlete/agenda"
@@ -69,7 +69,7 @@ export default async function AthleteDevelopmentPage() {
         </Card>
       </section>
 
-      <section className="grid gap-5 lg:grid-cols-3">
+      <section className="grid gap-5 lg:grid-cols-4">
         <Card>
           <Trophy className="text-ur-gold" />
           <p className="mt-4 text-xs font-black tracking-[.18em] text-zinc-500 uppercase">
@@ -97,6 +97,21 @@ export default async function AthleteDevelopmentPage() {
           </p>
         </Card>
         <Card>
+          <Coins className="text-ur-gold" />
+          <p className="mt-4 text-xs font-black tracking-[.18em] text-zinc-500 uppercase">
+            UR Coins
+          </p>
+          <strong className="font-display mt-2 block text-4xl">
+            {summary?.urCoinBalance.toLocaleString("pt-BR") ?? 0}
+          </strong>
+          <Link
+            href="/athlete/wallet"
+            className="text-ur-gold mt-2 inline-flex text-sm font-black"
+          >
+            Abrir Wallet →
+          </Link>
+        </Card>
+        <Card>
           <Target className="text-ur-gold" />
           <p className="mt-4 text-xs font-black tracking-[.18em] text-zinc-500 uppercase">
             Hunter
@@ -114,21 +129,39 @@ export default async function AthleteDevelopmentPage() {
         <p className="text-xs font-black tracking-[.18em] text-zinc-500 uppercase">
           Loop de evolução
         </p>
-        <div className="mt-4 grid gap-3 sm:grid-cols-5">
+        <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           {[
             "Jogar",
             "Ganhar pontos",
             "Subir no ranking",
             "Cumprir missões",
+            "Ganhar UR Coins",
+            "Desbloquear e resgatar",
             "Evoluir",
-          ].map((stage) => (
+            "Jogar novamente",
+          ].map((stage, index) => (
             <div
               key={stage}
               className="rounded-ur border border-white/10 p-4 text-center text-sm font-black"
             >
+              <span className="text-ur-gold mr-2">{index + 1}.</span>
               {stage}
             </div>
           ))}
+        </div>
+        <div className="mt-5 flex flex-wrap gap-3">
+          <Link
+            href="/athlete/market"
+            className="bg-ur-gold text-ur-black rounded-ur inline-flex min-h-11 items-center gap-2 px-4 text-sm font-black"
+          >
+            <ShoppingBag size={16} aria-hidden="true" /> Explorar UR Market
+          </Link>
+          <Link
+            href="/athlete/agenda"
+            className="rounded-ur inline-flex min-h-11 items-center border px-4 text-sm font-black"
+          >
+            Voltar ao jogo
+          </Link>
         </div>
         <p className="mt-4 text-sm text-zinc-500">
           Missões avançadas, badges e árvores de XP só entram quando houver uma
