@@ -33,6 +33,13 @@ const athleteNavigation: readonly PortalNavItem[] = [
     icon: "competitions",
   },
   {
+    key: "athlete-feedback",
+    label: "Feedback",
+    href: "/athlete/feedback",
+    group: "Portal",
+    icon: "intelligence",
+  },
+  {
     key: "athlete-profile",
     label: "Perfil",
     href: "/athlete/perfil",
