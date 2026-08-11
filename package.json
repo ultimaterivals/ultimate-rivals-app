@@ -15,7 +15,7 @@
     "test:watch": "vitest",
     "test:e2e": "playwright test",
     "format": "prettier --write \"src/**/*.{ts,tsx,css}\" \"tests/**/*.ts\" \"docs/**/*.md\" README.md package.json \"*.config.*\"",
-    "format:check": "prettier --write src/app/athlete/feedback/page.tsx src/features/admin-ur-play-feedback/types.ts src/server/repositories/admin-ur-play-feedback-repository.ts src/server/services/admin-ur-play-feedback-service.test.ts src/server/services/admin-ur-play-feedback-service.ts && git diff -- src/app/athlete/feedback/page.tsx src/features/admin-ur-play-feedback/types.ts src/server/repositories/admin-ur-play-feedback-repository.ts src/server/services/admin-ur-play-feedback-service.test.ts src/server/services/admin-ur-play-feedback-service.ts && exit 1"
+    "format:check": "prettier --check \"src/**/*.{ts,tsx,css}\" \"tests/**/*.ts\" \"docs/**/*.md\" README.md package.json \"*.config.*\""
   },
   "dependencies": {
     "@hookform/resolvers": "5.2.2",
