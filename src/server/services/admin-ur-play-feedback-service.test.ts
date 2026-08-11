@@ -24,8 +24,7 @@ function request(
     sent_at: status === "pending" ? null : "2026-08-11T20:00:00.000Z",
     recommendation_score: score,
     response_comment: null,
-    responded_at:
-      status === "responded" ? "2026-08-11T21:00:00.000Z" : null,
+    responded_at: status === "responded" ? "2026-08-11T21:00:00.000Z" : null,
     waiver_reason: status === "waived" ? "Canal indisponível" : null,
   };
 }
