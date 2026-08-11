@@ -4,6 +4,7 @@ import { CommandLaunchDesk } from "@/components/admin/command-launch-desk";
 import { CommandPilotReadiness } from "@/components/admin/command-pilot-readiness";
 import { CommandSection } from "@/components/admin/command-section";
 import { CommandTodayControlRoom } from "@/components/admin/command-today-control-room";
+import { CommandUrPlayCycleControl } from "@/components/admin/command-ur-play-cycle-control";
 import {
   CommandActions,
   CommandAttention,
@@ -15,6 +16,7 @@ import {
 import { Badge, Card, PageHeader } from "@/components/ui";
 import {
   adminPortalRoles,
+  canAccessAdminModule,
   getAdminModulesForRole,
 } from "@/lib/auth/admin-modules";
 import { requireRole } from "@/lib/auth/session";
@@ -66,6 +68,10 @@ export default async function AdminPage() {
       </div>
 
       <CommandTodayControlRoom snapshot={snapshot} />
+
+      {canAccessAdminModule(user.role, "urPlay") && (
+        <CommandUrPlayCycleControl />
+      )}
 
       {pilotReadiness && <CommandLaunchDesk snapshot={pilotReadiness} />}
 
