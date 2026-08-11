@@ -5,8 +5,10 @@ import {
   CircleDot,
   ClipboardCheck,
   Flag,
+  MapPin,
   PlayCircle,
   RotateCcw,
+  ShieldAlert,
   UsersRound,
 } from "lucide-react";
 import Link from "next/link";
@@ -16,6 +18,7 @@ import { getAdminAttendanceSnapshot } from "@/server/services/admin-attendance-s
 import { getAdminCourtOpsSnapshot } from "@/server/services/admin-court-ops-service";
 import { getAdminPostSessionSnapshot } from "@/server/services/admin-ur-play-post-session-service";
 import { getAdminUrPlayCloseSnapshot } from "@/server/services/admin-ur-play-close-service";
+import { getAdminUrPlaySnapshot } from "@/server/services/admin-ur-play-service";
 import { getAdminUrPlayStartSnapshot } from "@/server/services/admin-ur-play-start-service";
 
 function StageCard({
@@ -65,10 +68,11 @@ function StageCard({
 }
 
 export async function CommandUrPlayCycleControl() {
-  const [attendance, courtOps, postSession] = await Promise.all([
+  const [attendance, courtOps, postSession, urPlay] = await Promise.all([
     getAdminAttendanceSnapshot(),
     getAdminCourtOpsSnapshot(),
     getAdminPostSessionSnapshot(),
+    getAdminUrPlaySnapshot(),
   ]);
 
   const attendanceSessions = attendance.sessions ?? [];
@@ -114,6 +118,14 @@ export async function CommandUrPlayCycleControl() {
     (total, session) => total + session.pendingResults,
     0,
   );
+  const now = new Date(urPlay.generatedAt).getTime();
+  const operationalRisks = urPlay.sessions
+    .filter((session) => new Date(session.startsAt).getTime() >= now)
+    .filter((session) => session.courts === 0 || session.staff === 0)
+    .sort(
+      (a, b) =>
+        new Date(a.startsAt).getTime() - new Date(b.startsAt).getTime(),
+    );
   const sourceErrors = [
     ...new Set([
       ...attendance.sourceErrors,
@@ -121,6 +133,7 @@ export async function CommandUrPlayCycleControl() {
       ...startSnapshot.sourceErrors,
       ...closeSnapshot.sourceErrors,
       ...postSession.sourceErrors,
+      ...urPlay.sourceErrors,
     ]),
   ];
 
@@ -145,9 +158,7 @@ export async function CommandUrPlayCycleControl() {
         <StageCard
           label="Gate de início"
           value={
-            startSnapshot.sessions.length === 0
-              ? "—"
-              : `${readyToStart} GO`
+            startSnapshot.sessions.length === 0 ? "—" : `${readyToStart} GO`
           }
           detail={
             blockedToStart > 0
@@ -192,80 +203,144 @@ export async function CommandUrPlayCycleControl() {
         />
       </div>
 
-      <Card className="border-ur-gold/20">
-        <div className="flex flex-wrap items-start justify-between gap-4">
-          <div>
-            <div className="flex items-center gap-2">
-              <ClipboardCheck
-                className="text-ur-gold"
-                size={18}
-                aria-hidden="true"
-              />
-              <p className="font-display text-xl font-black text-white uppercase">
-                Integridade do ciclo
+      <div className="grid gap-4 xl:grid-cols-[1.2fr_0.8fr]">
+        <Card className="border-ur-gold/20">
+          <div className="flex flex-wrap items-start justify-between gap-4">
+            <div>
+              <div className="flex items-center gap-2">
+                <ClipboardCheck
+                  className="text-ur-gold"
+                  size={18}
+                  aria-hidden="true"
+                />
+                <p className="font-display text-xl font-black text-white uppercase">
+                  Integridade do ciclo
+                </p>
+              </div>
+              <p className="mt-2 max-w-3xl text-sm leading-6 text-zinc-500">
+                O Command resume os gates reais sem duplicar regras. Toda ação
+                continua sendo executada nas mesas especializadas e validada
+                pelas fontes atuais.
               </p>
             </div>
-            <p className="mt-2 max-w-3xl text-sm leading-6 text-zinc-500">
-              O Command agora resume os gates reais sem duplicar regras. Toda ação continua sendo executada nas mesas especializadas e validada pelas fontes atuais.
-            </p>
+            <Badge>
+              {sourceErrors.length === 0 ? "Fontes íntegras" : "Leitura parcial"}
+            </Badge>
           </div>
-          <Badge>{sourceErrors.length === 0 ? "Fontes íntegras" : "Leitura parcial"}</Badge>
-        </div>
 
-        <div className="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-          <div className="rounded-ur border p-3">
-            <p className="text-[10px] font-bold text-zinc-600 uppercase">
-              Fila de quadra
-            </p>
-            <p className="font-display mt-2 text-2xl font-black">
-              {courtOps.metrics.waiting}
-            </p>
-          </div>
-          <div className="rounded-ur border p-3">
-            <p className="text-[10px] font-bold text-zinc-600 uppercase">
-              Chamados
-            </p>
-            <p className="font-display mt-2 text-2xl font-black">
-              {courtOps.metrics.called}
-            </p>
-          </div>
-          <div className="rounded-ur border p-3">
-            <p className="text-[10px] font-bold text-zinc-600 uppercase">
-              Partidas concluídas
-            </p>
-            <p className="font-display mt-2 text-2xl font-black">
-              {courtOps.metrics.completed}
-            </p>
-          </div>
-          <div
-            className={`rounded-ur border p-3 ${sourceErrors.length > 0 ? "border-amber-500/30" : "border-emerald-500/25"}`}
-          >
-            <p className="text-[10px] font-bold text-zinc-600 uppercase">
-              Saúde das leituras
-            </p>
-            <div className="mt-2 flex items-center gap-2">
-              {sourceErrors.length === 0 ? (
-                <CheckCircle2
-                  className="text-emerald-400"
-                  size={18}
-                  aria-hidden="true"
-                />
-              ) : (
-                <AlertTriangle
-                  className="text-amber-300"
-                  size={18}
-                  aria-hidden="true"
-                />
-              )}
-              <p className="font-bold">
-                {sourceErrors.length === 0
-                  ? "Sem falhas"
-                  : `${sourceErrors.length} fonte(s)`}
+          <div className="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+            <div className="rounded-ur border p-3">
+              <p className="text-[10px] font-bold text-zinc-600 uppercase">
+                Fila de quadra
+              </p>
+              <p className="font-display mt-2 text-2xl font-black">
+                {courtOps.metrics.waiting}
               </p>
             </div>
+            <div className="rounded-ur border p-3">
+              <p className="text-[10px] font-bold text-zinc-600 uppercase">
+                Chamados
+              </p>
+              <p className="font-display mt-2 text-2xl font-black">
+                {courtOps.metrics.called}
+              </p>
+            </div>
+            <div className="rounded-ur border p-3">
+              <p className="text-[10px] font-bold text-zinc-600 uppercase">
+                Partidas concluídas
+              </p>
+              <p className="font-display mt-2 text-2xl font-black">
+                {courtOps.metrics.completed}
+              </p>
+            </div>
+            <div
+              className={`rounded-ur border p-3 ${sourceErrors.length > 0 ? "border-amber-500/30" : "border-emerald-500/25"}`}
+            >
+              <p className="text-[10px] font-bold text-zinc-600 uppercase">
+                Saúde das leituras
+              </p>
+              <div className="mt-2 flex items-center gap-2">
+                {sourceErrors.length === 0 ? (
+                  <CheckCircle2
+                    className="text-emerald-400"
+                    size={18}
+                    aria-hidden="true"
+                  />
+                ) : (
+                  <AlertTriangle
+                    className="text-amber-300"
+                    size={18}
+                    aria-hidden="true"
+                  />
+                )}
+                <p className="font-bold">
+                  {sourceErrors.length === 0
+                    ? "Sem falhas"
+                    : `${sourceErrors.length} fonte(s)`}
+                </p>
+              </div>
+            </div>
           </div>
-        </div>
-      </Card>
+        </Card>
+
+        <Card
+          className={
+            operationalRisks.length > 0
+              ? "border-amber-500/30 bg-amber-500/5"
+              : undefined
+          }
+        >
+          <div className="flex items-center gap-2">
+            <ShieldAlert
+              className={
+                operationalRisks.length > 0 ? "text-amber-300" : "text-ur-gold"
+              }
+              size={18}
+              aria-hidden="true"
+            />
+            <p className="font-display text-xl font-black text-white uppercase">
+              Riscos de estrutura
+            </p>
+          </div>
+          <p className="mt-2 text-sm leading-6 text-zinc-500">
+            Sessões futuras sem quadra ativa ou staff registrado na fonte UR Play.
+          </p>
+
+          <div className="mt-4 grid gap-2">
+            {operationalRisks.length === 0 ? (
+              <div className="rounded-ur border p-3 text-sm text-zinc-500">
+                Nenhuma sessão futura com ausência de quadra ou staff nesta
+                leitura.
+              </div>
+            ) : (
+              operationalRisks.slice(0, 4).map((session) => (
+                <Link
+                  key={session.id}
+                  href="/admin/ur-play"
+                  className="rounded-ur border border-amber-500/20 p-3 transition-colors hover:border-amber-500/40"
+                >
+                  <div className="flex items-start justify-between gap-3">
+                    <div>
+                      <p className="text-sm font-bold text-white">
+                        {session.name}
+                      </p>
+                      <p className="mt-1 flex items-center gap-1 text-xs text-zinc-500">
+                        <MapPin size={12} aria-hidden="true" />
+                        {session.poleName ?? "Sem polo"} ·{" "}
+                        {session.venueName ?? "Local a definir"}
+                      </p>
+                    </div>
+                    <div className="flex flex-wrap justify-end gap-1">
+                      {session.courts === 0 && <Badge>Sem quadra</Badge>}
+                      {session.staff === 0 && <Badge>Sem staff</Badge>}
+                    </div>
+                  </div>
+                </Link>
+              ))
+            )}
+          </div>
+        </Card>
+      </div>
     </CommandSection>
   );
 }
