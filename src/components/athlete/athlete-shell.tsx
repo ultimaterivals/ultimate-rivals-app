@@ -16,8 +16,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useState, type ReactNode } from "react";
-import { createPortal } from "react-dom";
+import type { ReactNode } from "react";
 import { stopAthletePreviewAction } from "@/features/admin-athlete-preview/actions";
 import { BrandMark } from "@/components/layout/brand-mark";
 import { cn } from "@/lib/utils";
@@ -129,19 +128,10 @@ function DesktopNavigation() {
 
 function MobileNavigation() {
   const pathname = usePathname();
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  if (!mounted) return null;
-
-  return createPortal(
+  return (
     <nav
       aria-label="Navegação principal do atleta"
-      className="fixed inset-x-0 bottom-0 border-t border-zinc-800 bg-[#0b0b0b]/[.98] pb-[env(safe-area-inset-bottom)] backdrop-blur lg:hidden"
-      style={{ zIndex: 2147483647, pointerEvents: "auto", isolation: "isolate" }}
+      className="relative shrink-0 border-t border-zinc-800 bg-[#0b0b0b]/[.98] pb-[env(safe-area-inset-bottom)] backdrop-blur lg:hidden"
     >
       <div className="mx-auto grid max-w-lg grid-cols-5">
         {primary.map(({ href, label, icon: Icon, exact }) => {
@@ -152,7 +142,7 @@ function MobileNavigation() {
               href={href}
               aria-current={isActive ? "page" : undefined}
               className={cn(
-                "relative z-10 flex min-h-16 flex-col items-center justify-center gap-1 px-1 text-[.65rem] font-bold transition-colors",
+                "flex min-h-16 flex-col items-center justify-center gap-1 px-1 text-[.65rem] font-bold transition-colors",
                 isActive ? "text-ur-gold" : "text-zinc-500 hover:text-white",
               )}
             >
@@ -166,8 +156,7 @@ function MobileNavigation() {
           );
         })}
       </div>
-    </nav>,
-    document.body,
+    </nav>
   );
 }
 
@@ -181,7 +170,7 @@ export function AthleteShell({
   children: ReactNode;
 }) {
   return (
-    <div className="min-h-dvh bg-[#080808] text-white lg:grid lg:grid-cols-[17rem_1fr]">
+    <div className="grid h-dvh grid-rows-[minmax(0,1fr)_auto] overflow-hidden bg-[#080808] text-white lg:h-auto lg:min-h-dvh lg:grid-cols-[17rem_1fr] lg:grid-rows-none lg:overflow-visible">
       <aside className="bg-ur-graphite hidden min-h-dvh border-r lg:flex lg:flex-col">
         <div className="p-6">
           <BrandMark />
@@ -206,7 +195,7 @@ export function AthleteShell({
           )}
         </div>
       </aside>
-      <div className="min-w-0">
+      <div className="min-h-0 min-w-0 overflow-y-auto lg:overflow-visible">
         {preview && (
           <div className="border-ur-gold/40 bg-ur-gold/10 sticky top-0 z-50 flex flex-wrap items-center justify-between gap-3 border-b px-4 py-3 backdrop-blur sm:px-8 lg:px-10">
             <div>
@@ -237,7 +226,7 @@ export function AthleteShell({
         </header>
         <main
           className={cn(
-            "min-w-0 p-4 pb-24 sm:p-8 sm:pb-24 lg:p-10",
+            "min-w-0 p-4 sm:p-8 lg:p-10",
             preview &&
               "[&_button]:pointer-events-none [&_button]:opacity-60 [&_form]:pointer-events-none [&_form]:opacity-75 [&_input]:pointer-events-none [&_select]:pointer-events-none [&_textarea]:pointer-events-none",
           )}
