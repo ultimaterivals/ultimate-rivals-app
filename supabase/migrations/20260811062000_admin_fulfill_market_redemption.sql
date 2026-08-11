@@ -16,6 +16,7 @@ set search_path = ''
 as $$
 declare
   v_redemption public.market_redemptions%rowtype;
+  v_before public.market_redemptions%rowtype;
   v_idempotency_key text;
 begin
   if private.current_app_role() <> 'admin'::public.app_role then
@@ -61,12 +62,37 @@ begin
       using errcode = 'P0001';
   end if;
 
+  v_before := v_redemption;
+
   update public.market_redemptions mr
   set
     status = 'redeemed'::public.market_redemption_status,
     redeemed_at = coalesce(mr.redeemed_at, now())
   where mr.id = v_redemption.id
   returning mr.* into v_redemption;
+
+  insert into public.audit_logs (
+    actor_user_id,
+    action,
+    entity_type,
+    entity_id,
+    before_data,
+    after_data,
+    metadata,
+    request_id
+  ) values (
+    auth.uid(),
+    'market_redemption.fulfilled',
+    'market_redemption',
+    v_redemption.id,
+    pg_catalog.to_jsonb(v_before),
+    pg_catalog.to_jsonb(v_redemption),
+    pg_catalog.jsonb_build_object(
+      'source', 'command_market',
+      'idempotency_key', v_idempotency_key
+    ),
+    trim(operation_id)
+  );
 
   return query
   select v_redemption.id, v_redemption.status, v_redemption.redeemed_at;
