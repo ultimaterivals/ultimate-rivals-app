@@ -24,6 +24,10 @@ describe("App V1 ↔ Command integration contracts", () => {
       "src/features/admin-athlete-preview/actions.ts",
     );
     const athleteShell = source("src/components/athlete/athlete-shell.tsx");
+    const athleteAgenda = source("src/app/athlete/agenda/page.tsx");
+    const opportunityCard = source(
+      "src/components/athlete/athlete-opportunity-card.tsx",
+    );
 
     expect(previewPage).toContain('requireRole(["admin"])');
     expect(previewPage).toContain("Sem troca de Auth");
@@ -33,6 +37,9 @@ describe("App V1 ↔ Command integration contracts", () => {
     expect(athleteShell).toContain("Prévia do Atleta · somente leitura");
     expect(athleteShell).toContain("pointer-events-none");
     expect(athleteShell).toContain("Voltar ao Command");
+    expect(athleteAgenda).toContain("readOnly={viewer.isPreview}");
+    expect(opportunityCard).toContain("readOnly = false");
+    expect(opportunityCard).toContain("não são renderizadas");
   });
 
   it("reflects official UR Play attendance outcomes back into the athlete App", () => {
