@@ -64,7 +64,7 @@ function ReadinessItem({
         />
       )}
       <div className="min-w-0 flex-1">
-        <div className="grid min-w-0 gap-1 sm:flex sm:flex-wrap sm:items-center sm:justify-between sm:gap-2">
+        <div className="grid gap-1 sm:flex sm:flex-wrap sm:items-center sm:justify-between sm:gap-2">
           <p className="min-w-0 break-words text-sm font-bold text-white">
             {title}
           </p>
@@ -74,10 +74,8 @@ function ReadinessItem({
             {ready ? "pronto" : "pendente"}
           </span>
         </div>
-        <p className="mt-1 min-w-0 break-words text-xs leading-5 text-zinc-500">
-          {description}
-        </p>
-        {action && <div className="mt-2 min-w-0">{action}</div>}
+        <p className="mt-1 text-xs leading-5 text-zinc-500">{description}</p>
+        {action && <div className="mt-2">{action}</div>}
       </div>
     </div>
   );
@@ -147,18 +145,18 @@ export default async function AthleteProfilePage({
                 <Card
                   className={
                     matchmakingReady
-                      ? "min-w-0 border-emerald-500/30 bg-emerald-500/5"
-                      : "min-w-0 border-amber-500/30 bg-amber-500/5"
+                      ? "border-emerald-500/30 bg-emerald-500/5"
+                      : "border-amber-500/30 bg-amber-500/5"
                   }
                 >
-                  <div className="flex min-w-0 flex-wrap items-start justify-between gap-4">
-                    <div className="min-w-0 flex-1">
-                      <p className="font-display break-words text-xl font-black uppercase">
+                  <div className="flex flex-wrap items-start justify-between gap-4">
+                    <div className="min-w-0">
+                      <p className="font-display text-xl font-black uppercase">
                         {matchmakingReady
                           ? "Pronto para matchmaking"
                           : "Preparação para matchmaking"}
                       </p>
-                      <p className="mt-2 max-w-3xl break-words text-sm leading-6 text-zinc-400">
+                      <p className="mt-2 max-w-3xl text-sm leading-6 text-zinc-400">
                         O UR só coloca você automaticamente em partidas
                         compatíveis quando cadastro institucional, polo,
                         categoria esportiva e disponibilidade estiverem prontos.
@@ -207,9 +205,9 @@ export default async function AthleteProfilePage({
                       action={
                         <Link
                           href="/athlete/disponibilidade"
-                          className="text-ur-gold inline-flex max-w-full items-center gap-1 break-words text-xs font-bold"
+                          className="text-ur-gold inline-flex items-center gap-1 text-xs font-bold"
                         >
-                          <Clock3 size={13} className="shrink-0" aria-hidden="true" />
+                          <Clock3 size={13} aria-hidden="true" />
                           {availabilityReady
                             ? "Revisar horários"
                             : "Configurar horários"}
@@ -220,9 +218,9 @@ export default async function AthleteProfilePage({
                 </Card>
 
                 <div className="grid min-w-0 gap-4 lg:grid-cols-[1.2fr_.8fr]">
-                  <Card className="min-w-0">
-                    <div className="flex min-w-0 items-start gap-4">
-                      <div className="shrink-0 rounded-full border bg-white/5 p-4">
+                  <Card>
+                    <div className="flex items-start gap-4">
+                      <div className="rounded-full border bg-white/5 p-4">
                         <UserRound
                           className="text-ur-gold"
                           size={28}
@@ -230,10 +228,10 @@ export default async function AthleteProfilePage({
                         />
                       </div>
                       <div className="min-w-0">
-                        <p className="font-display break-words text-2xl font-black uppercase">
+                        <p className="font-display text-2xl font-black uppercase">
                           {athlete.publicName}
                         </p>
-                        <p className="mt-1 break-words text-sm text-zinc-500">
+                        <p className="mt-1 text-sm text-zinc-500">
                           {athlete.athleteCode}
                         </p>
                         <div className="mt-3 flex flex-wrap gap-2">
@@ -246,47 +244,45 @@ export default async function AthleteProfilePage({
                           </Badge>
                         </div>
                         {athlete.bio && (
-                          <p className="mt-4 max-w-2xl break-words text-sm leading-6 text-zinc-400">
+                          <p className="mt-4 max-w-2xl text-sm leading-6 text-zinc-400">
                             {athlete.bio}
                           </p>
                         )}
                       </div>
                     </div>
-                    <div className="mt-6 flex min-w-0 flex-wrap gap-4 border-t pt-4 text-sm text-zinc-500">
+                    <div className="mt-6 flex flex-wrap gap-4 border-t pt-4 text-sm text-zinc-500">
                       {(athlete.city || athlete.state) && (
-                        <span className="flex min-w-0 items-center gap-2 break-words">
-                          <MapPin size={15} className="shrink-0" aria-hidden="true" />
+                        <span className="flex items-center gap-2">
+                          <MapPin size={15} aria-hidden="true" />
                           {[athlete.city, athlete.state]
                             .filter(Boolean)
                             .join(" / ")}
                         </span>
                       )}
                       {athlete.instagramHandle && (
-                        <span className="min-w-0 break-all">
-                          @{athlete.instagramHandle}
-                        </span>
+                        <span>@{athlete.instagramHandle}</span>
                       )}
                     </div>
                   </Card>
 
-                  <Card className="min-w-0">
+                  <Card>
                     <p className="text-xs font-bold tracking-wider text-zinc-500 uppercase">
                       Vínculo esportivo
                     </p>
-                    <div className="mt-4 grid min-w-0 gap-3">
+                    <div className="mt-4 grid gap-3">
                       {snapshot.teams && snapshot.teams.length > 0 ? (
                         snapshot.teams.map((team) => (
                           <div
                             key={team.id}
-                            className="rounded-ur flex min-w-0 items-center gap-3 border p-3"
+                            className="rounded-ur flex items-center gap-3 border p-3"
                           >
                             <Shield
-                              className="text-ur-gold shrink-0"
+                              className="text-ur-gold"
                               size={18}
                               aria-hidden="true"
                             />
                             <div className="min-w-0">
-                              <p className="break-words font-bold">{team.name}</p>
+                              <p className="font-bold">{team.name}</p>
                               <p className="text-xs text-zinc-500">
                                 Equipe Oficial
                               </p>
@@ -302,11 +298,11 @@ export default async function AthleteProfilePage({
                   </Card>
                 </div>
 
-                <Card className="min-w-0">
+                <Card>
                   <p className="font-display text-lg font-black uppercase">
                     Informação usada nas categorias
                   </p>
-                  <p className="mt-2 max-w-3xl break-words text-sm leading-6 text-zinc-500">
+                  <p className="mt-2 max-w-3xl text-sm leading-6 text-zinc-500">
                     Esta informação é escolhida por você. O Ultimate Rivals não
                     infere categoria pelo seu nome, equipe ou inscrição antiga.
                     No motor competitivo atual, feminino e masculino confirmados
@@ -337,7 +333,7 @@ export default async function AthleteProfilePage({
                       </label>
                       <button
                         type="submit"
-                        className="bg-ur-gold rounded-ur max-w-full px-5 py-3 text-sm font-black break-words text-black uppercase"
+                        className="bg-ur-gold rounded-ur px-5 py-3 text-sm font-black text-black uppercase"
                       >
                         Salvar no perfil
                       </button>
@@ -351,7 +347,7 @@ export default async function AthleteProfilePage({
                 </Card>
 
                 <div className="grid min-w-0 gap-4 md:grid-cols-2">
-                  <Card className="min-w-0">
+                  <Card>
                     <p className="flex items-center gap-2 font-bold">
                       <CreditCard
                         className="text-ur-gold"
@@ -360,22 +356,20 @@ export default async function AthleteProfilePage({
                       />{" "}
                       Pacotes ativos
                     </p>
-                    <div className="mt-4 grid min-w-0 gap-3">
+                    <div className="mt-4 grid gap-3">
                       {snapshot.packages && snapshot.packages.length > 0 ? (
                         snapshot.packages.map((item) => (
                           <div
                             key={item.id}
-                            className="flex min-w-0 items-center justify-between gap-3 border-b pb-3 last:border-b-0 last:pb-0"
+                            className="flex items-center justify-between gap-3 border-b pb-3 last:border-b-0 last:pb-0"
                           >
                             <div className="min-w-0">
-                              <p className="break-words text-sm font-bold">
-                                {item.name}
-                              </p>
-                              <p className="break-words text-xs text-zinc-600">
+                              <p className="text-sm font-bold">{item.name}</p>
+                              <p className="text-xs text-zinc-600">
                                 {item.code}
                               </p>
                             </div>
-                            <p className="font-display shrink-0 text-xl font-black">
+                            <p className="font-display text-xl font-black">
                               {item.unitsRemaining === null
                                 ? "—"
                                 : item.unitsRemaining}
@@ -389,7 +383,7 @@ export default async function AthleteProfilePage({
                       )}
                     </div>
                   </Card>
-                  <Card className="min-w-0">
+                  <Card>
                     <p className="flex items-center gap-2 font-bold">
                       <Coins
                         className="text-ur-gold"
@@ -399,7 +393,7 @@ export default async function AthleteProfilePage({
                       Economia UR
                     </p>
                     <div className="mt-5 grid grid-cols-2 gap-4">
-                      <div className="min-w-0">
+                      <div>
                         <p className="text-xs text-zinc-500 uppercase">
                           UR Coins
                         </p>
@@ -407,7 +401,7 @@ export default async function AthleteProfilePage({
                           {snapshot.summary?.urCoinBalance ?? "—"}
                         </p>
                       </div>
-                      <div className="min-w-0">
+                      <div>
                         <p className="text-xs text-zinc-500 uppercase">
                           Créditos
                         </p>
