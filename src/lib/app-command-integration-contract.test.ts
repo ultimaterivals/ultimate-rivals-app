@@ -106,7 +106,9 @@ describe("App V1 ↔ Command integration contracts", () => {
     expect(modules).toContain('href: "/admin/market"');
     expect(adminMarket).toContain('requireRole(["admin"])');
     expect(adminMarket).toContain('.rpc("admin_fulfill_market_redemption"');
-    expect(adminMarket).not.toMatch(/\.from\("market_redemptions"\)\s*\.update/);
+    expect(adminMarket).not.toMatch(
+      /\.from\("market_redemptions"\)\s*\.update/,
+    );
     expect(adminMarket).toContain("Marcar benefício como entregue");
     expect(adminMarket).not.toMatch(
       /refund|reembolso|cancelled_at|reversal_of/i,
