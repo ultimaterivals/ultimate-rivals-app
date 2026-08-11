@@ -128,7 +128,9 @@ export default async function AthleteArenasPage() {
                       `Mídia publicada de ${opportunity.venueName ?? "Arena UR"}`
                     }
                     className="rounded-ur min-h-40 border border-white/10 bg-cover bg-center"
-                    style={{ backgroundImage: `url(${JSON.stringify(media.url)})` }}
+                    style={{
+                      backgroundImage: `url(${JSON.stringify(media.url)})`,
+                    }}
                   />
                 ) : (
                   <div className="rounded-ur flex min-h-40 items-center justify-center border border-dashed border-white/10 bg-black/20">
@@ -178,7 +180,8 @@ export default async function AthleteArenasPage() {
           <h2 className="mt-3 text-xl font-black">Locais oficiais</h2>
           <p className="mt-2 text-sm text-zinc-400">
             O App não cria arenas paralelas e não expõe caminhos de storage
-            privado: reflete somente locais homologados e URLs externas elegíveis.
+            privado: reflete somente locais homologados e URLs externas
+            elegíveis.
           </p>
         </Card>
         <Card>

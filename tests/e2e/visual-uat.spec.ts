@@ -78,7 +78,11 @@ test("mobile athlete App visual evidence", async ({ page }, testInfo) => {
 
   await openMobileAndCapture(page, "/athlete/agenda", "mobile-agenda");
   await openMobileAndCapture(page, "/athlete/ranking", "mobile-ranking");
-  await openMobileAndCapture(page, "/athlete/development", "mobile-development");
+  await openMobileAndCapture(
+    page,
+    "/athlete/development",
+    "mobile-development",
+  );
   await openMobileAndCapture(page, "/athlete/wallet", "mobile-wallet");
   await openMobileAndCapture(page, "/athlete/market", "mobile-market");
   await openMobileAndCapture(page, "/athlete/arenas", "mobile-arenas");

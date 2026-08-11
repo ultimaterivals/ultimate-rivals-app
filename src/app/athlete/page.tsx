@@ -88,7 +88,9 @@ export default async function AthletePage() {
       ? latestHighlight.media_assets[0]
       : latestHighlight.media_assets
     : null;
-  const latestHighlightUrl = safeExternalUrl(latestHighlightAsset?.external_url);
+  const latestHighlightUrl = safeExternalUrl(
+    latestHighlightAsset?.external_url,
+  );
 
   const ranking = snapshot.primaryRanking;
   const summary = snapshot.summary;
@@ -254,7 +256,11 @@ export default async function AthletePage() {
                 {latestHighlight?.title ?? "Sua história está sendo construída"}
               </h2>
             </div>
-            <Clapperboard className="text-ur-gold" size={26} aria-hidden="true" />
+            <Clapperboard
+              className="text-ur-gold"
+              size={26}
+              aria-hidden="true"
+            />
           </div>
           <p className="mt-3 text-sm leading-6 text-zinc-400">
             {latestHighlightAsset?.title ??

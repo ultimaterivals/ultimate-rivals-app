@@ -304,9 +304,12 @@ test("official no-show consumes held credit and reflects absence back into the a
   await page.getByRole("button", { name: "No-show", exact: true }).click();
   await expect(page).toHaveURL(/success=no_show/, { timeout: 20_000 });
   await expect(
-    page.getByText("No-show registrado e crédito consumido de forma auditável.", {
-      exact: true,
-    }),
+    page.getByText(
+      "No-show registrado e crédito consumido de forma auditável.",
+      {
+        exact: true,
+      },
+    ),
   ).toBeVisible();
 
   await expect.poll(() => creditTotals().available).toBe(before.available - 1);

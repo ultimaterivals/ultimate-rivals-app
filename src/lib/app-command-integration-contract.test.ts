@@ -102,8 +102,8 @@ describe("App V1 ↔ Command integration contracts", () => {
     ]) {
       expect(development).toContain(stage);
     }
-    expect(development).toContain('/athlete/market');
-    expect(development).toContain('/athlete/wallet');
+    expect(development).toContain("/athlete/market");
+    expect(development).toContain("/athlete/wallet");
     expect(development).toContain("não são simulados nesta V1");
     expect(playerHub).toContain("Sua missão agora");
     expect(playerHub).toContain("Último destaque");
@@ -165,7 +165,7 @@ describe("App V1 ↔ Command integration contracts", () => {
     expect(arenas).toContain('.in("status", ["publishable", "public"])');
     expect(arenas).toContain('.not("external_url", "is", null)');
     expect(arenas).toContain("safeExternalUrl");
-    expect(arenas).not.toContain('.storage.from(');
+    expect(arenas).not.toContain(".storage.from(");
 
     expect(playerHub).toContain("media_assets!inner");
     expect(playerHub).toContain(
