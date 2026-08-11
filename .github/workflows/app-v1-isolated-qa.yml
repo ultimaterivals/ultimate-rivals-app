@@ -29,10 +29,8 @@ jobs:
     timeout-minutes: 45
 
     steps:
-      - name: Checkout full repository history
+      - name: Checkout release source
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
 
       - name: Setup Node
         uses: actions/setup-node@v4
@@ -49,25 +47,10 @@ jobs:
           echo "::add-mask::${value}"
           echo "UR_TEST_PASSWORD=${value}" >> "$GITHUB_ENV"
 
-      - name: Reconstruct production baseline from repository history
+      - name: Validate self-contained release baseline
         shell: bash
         run: |
           set -euo pipefail
-          mkdir -p supabase/migrations scripts
-
-          restore_file() {
-            path="$1"
-            if [ -f "$path" ]; then
-              return 0
-            fi
-            commit="$(git log -1 --all --format=%H -- "$path")"
-            if [ -z "$commit" ]; then
-              echo "Missing historical source: $path" >&2
-              exit 1
-            fi
-            git show "$commit:$path" > "$path"
-          }
-
           for path in \
             supabase/migrations/20260806000000_season_1_v1_production_baseline.sql \
             supabase/migrations/20260807020524_fix_public_competitions_anon_grants.sql \
@@ -88,10 +71,10 @@ jobs:
             scripts/qa-local-test-seed.sql \
             scripts/production-reference-data.sql
           do
-            restore_file "$path"
+            test -f "$path"
           done
 
-          echo "Reconstructed migration count: $(find supabase/migrations -maxdepth 1 -name '*.sql' | wc -l)"
+          echo "Release migration count: $(find supabase/migrations -maxdepth 1 -name '*.sql' | wc -l)"
 
       - name: Normalize historical QA seed for current demand schema
         run: |
@@ -217,6 +200,9 @@ jobs:
 
       - name: Run authenticated Market economy E2E
         run: npx playwright test tests/e2e/market-economy.spec.ts --project=chromium
+
+      - name: Prove competitive outcome, ranking and official UR Coins
+        run: npx playwright test tests/e2e/competitive-outcome.spec.ts --project=chromium
 
       - name: Stop disposable Supabase
         if: always()
