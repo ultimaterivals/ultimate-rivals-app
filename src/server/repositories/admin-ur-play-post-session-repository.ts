@@ -84,39 +84,41 @@ export async function fetchAdminPostSessionRepositoryData() {
     };
   }
 
-  const [tasksResult, closuresResult, registrationsResult, ...readinessResults] =
-    await Promise.all([
-      supabase
-        .from("ur_play_post_session_tasks")
-        .select(
-          "id,session_id,task_key,status,managed_by,blocking,due_at,notes,evidence,completed_at,waived_at,waiver_reason",
-        )
-        .in("session_id", sessionIds)
-        .order("due_at", { ascending: true }),
-      supabase
-        .from("ur_play_post_session_closures")
-        .select(
-          "session_id,status,closed_at,notes,reopened_at,reopen_reason",
-        )
-        .in("session_id", sessionIds),
-      supabase
-        .from("ur_play_registrations")
-        .select(
-          "session_id,registration_status,attendance_status,payment_status",
-        )
-        .in("session_id", sessionIds)
-        .limit(10000),
-      ...sessionIds.map((sessionId) =>
-        supabase.rpc("get_ur_play_post_session_readiness", {
-          target_session: sessionId,
-        }),
-      ),
-    ]);
+  const [
+    tasksResult,
+    closuresResult,
+    registrationsResult,
+    ...readinessResults
+  ] = await Promise.all([
+    supabase
+      .from("ur_play_post_session_tasks")
+      .select(
+        "id,session_id,task_key,status,managed_by,blocking,due_at,notes,evidence,completed_at,waived_at,waiver_reason",
+      )
+      .in("session_id", sessionIds)
+      .order("due_at", { ascending: true }),
+    supabase
+      .from("ur_play_post_session_closures")
+      .select("session_id,status,closed_at,notes,reopened_at,reopen_reason")
+      .in("session_id", sessionIds),
+    supabase
+      .from("ur_play_registrations")
+      .select("session_id,registration_status,attendance_status,payment_status")
+      .in("session_id", sessionIds)
+      .limit(10000),
+    ...sessionIds.map((sessionId) =>
+      supabase.rpc("get_ur_play_post_session_readiness", {
+        target_session: sessionId,
+      }),
+    ),
+  ]);
 
   if (tasksResult.error)
     errors.push(`ur_play_post_session_tasks: ${tasksResult.error.message}`);
   if (closuresResult.error)
-    errors.push(`ur_play_post_session_closures: ${closuresResult.error.message}`);
+    errors.push(
+      `ur_play_post_session_closures: ${closuresResult.error.message}`,
+    );
   if (registrationsResult.error)
     errors.push(`ur_play_registrations: ${registrationsResult.error.message}`);
 

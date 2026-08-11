@@ -86,33 +86,39 @@ export async function getAdminPostSessionSnapshot(): Promise<AdminPostSessionSna
   const raw = await fetchAdminPostSessionRepositoryData();
   const poles = new Map(raw.poles.map((row) => [row.id, row.name]));
   const venues = new Map(raw.venues.map((row) => [row.id, row.name]));
-  const readiness = new Map(raw.readiness.map((row) => [row.sessionId, row.row]));
+  const readiness = new Map(
+    raw.readiness.map((row) => [row.sessionId, row.row]),
+  );
   const closures = new Map(raw.closures.map((row) => [row.session_id, row]));
 
   const sessions = raw.sessions.map((session) => {
     const registrations = raw.registrations.filter(
-      (row) => row.session_id === session.id && row.registration_status === "confirmed",
+      (row) =>
+        row.session_id === session.id &&
+        row.registration_status === "confirmed",
     );
     const taskRows = raw.tasks.filter((row) => row.session_id === session.id);
-    const tasks: PostSessionTask[] = POST_SESSION_TASKS.flatMap((definition) => {
-      const row = taskRows.find((item) => item.task_key === definition.key);
-      if (!row) return [];
-      return [
-        {
-          id: row.id,
-          key: definition.key,
-          status: row.status as PostSessionTaskStatus,
-          managedBy: row.managed_by === "system" ? "system" : "human",
-          blocking: row.blocking,
-          dueAt: row.due_at,
-          notes: row.notes,
-          evidence: row.evidence ?? {},
-          completedAt: row.completed_at,
-          waivedAt: row.waived_at,
-          waiverReason: row.waiver_reason,
-        },
-      ];
-    });
+    const tasks: PostSessionTask[] = POST_SESSION_TASKS.flatMap(
+      (definition) => {
+        const row = taskRows.find((item) => item.task_key === definition.key);
+        if (!row) return [];
+        return [
+          {
+            id: row.id,
+            key: definition.key,
+            status: row.status as PostSessionTaskStatus,
+            managedBy: row.managed_by === "system" ? "system" : "human",
+            blocking: row.blocking,
+            dueAt: row.due_at,
+            notes: row.notes,
+            evidence: row.evidence ?? {},
+            completedAt: row.completed_at,
+            waivedAt: row.waived_at,
+            waiverReason: row.waiver_reason,
+          },
+        ];
+      },
+    );
     const row = readiness.get(session.id);
     const closure = closures.get(session.id);
 

@@ -31,8 +31,7 @@ function task(task_key: string, status = "completed") {
       task_key === "ranking_data"
         ? { completed_matches: 2, ranked_matches: 2, ranking_transactions: 8 }
         : {},
-    completed_at:
-      status === "completed" ? "2026-08-10T23:00:00.000Z" : null,
+    completed_at: status === "completed" ? "2026-08-10T23:00:00.000Z" : null,
     waived_at: null,
     waiver_reason: null,
   };
@@ -96,7 +95,10 @@ describe("admin UR Play post-session 360 service", () => {
       readiness: { totalTasks: 9, pendingTasks: 0, ready: true, closed: false },
     });
     expect(snapshot.metrics.ready).toBe(1);
-    expect(snapshot.sessions[0].tasks.find((item) => item.key === "ranking_data")?.evidence).toMatchObject({
+    expect(
+      snapshot.sessions[0].tasks.find((item) => item.key === "ranking_data")
+        ?.evidence,
+    ).toMatchObject({
       completed_matches: 2,
       ranked_matches: 2,
     });
@@ -107,7 +109,9 @@ describe("admin UR Play post-session 360 service", () => {
       sessions: [session],
       poles: [],
       venues: [],
-      tasks: allKeys.map((key) => task(key, key === "media" ? "pending" : "completed")),
+      tasks: allKeys.map((key) =>
+        task(key, key === "media" ? "pending" : "completed"),
+      ),
       closures: [],
       registrations: [],
       readiness: [

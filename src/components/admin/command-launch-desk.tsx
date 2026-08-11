@@ -97,7 +97,8 @@ export function CommandLaunchDesk({
                   ? "Sessão em operação"
                   : needsPreflight
                     ? "Sessão estruturada — concluir preflight"
-                    : (snapshot.nextAction?.label ?? "Preparar primeiro UR Play")}
+                    : (snapshot.nextAction?.label ??
+                      "Preparar primeiro UR Play")}
             </h2>
             <p className="mt-2 max-w-3xl text-sm leading-6 text-zinc-400">
               {sessionCompleted && session
