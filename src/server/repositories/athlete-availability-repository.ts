@@ -19,21 +19,31 @@ export type RawAvailabilityPole = {
   name: string;
 };
 
-export async function fetchAthleteAvailabilityRepositoryData(userId: string) {
+export async function fetchAthleteAvailabilityRepositoryData({
+  userId,
+  athleteId: explicitAthleteId,
+}: {
+  userId?: string | null;
+  athleteId?: string | null;
+}) {
   const supabase = await createClient();
   const errors: string[] = [];
 
-  const athleteResult = await supabase
-    .from("athletes")
-    .select("id")
-    .eq("profile_id", userId)
-    .maybeSingle();
+  let athleteId = explicitAthleteId ?? null;
 
-  if (athleteResult.error) {
-    errors.push(`athletes: ${athleteResult.error.message}`);
+  if (!athleteId && userId) {
+    const athleteResult = await supabase
+      .from("athletes")
+      .select("id")
+      .eq("profile_id", userId)
+      .maybeSingle();
+
+    if (athleteResult.error) {
+      errors.push(`athletes: ${athleteResult.error.message}`);
+    }
+
+    athleteId = athleteResult.data?.id ?? null;
   }
-
-  const athleteId = athleteResult.data?.id ?? null;
 
   const polesResult = await supabase
     .from("poles")

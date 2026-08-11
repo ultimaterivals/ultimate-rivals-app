@@ -1,8 +1,8 @@
 import { AthleteOpportunityCard } from "@/components/athlete/athlete-opportunity-card";
 import { AthleteSourceHealth } from "@/components/athlete/athlete-source-health";
 import { Card, PageHeader } from "@/components/ui";
-import { requireRole } from "@/lib/auth/session";
-import { getAthletePortalSnapshot } from "@/server/services/athlete-portal-service";
+import { requireAthleteViewer } from "@/lib/auth/athlete-viewer";
+import { getAthleteSnapshotForViewer } from "@/server/services/athlete-viewer-snapshot-service";
 
 type Params = Promise<{
   success?: string | string[];
@@ -54,9 +54,9 @@ export default async function AthleteAgendaPage({
 }: {
   searchParams: Params;
 }) {
-  const user = await requireRole(["athlete"]);
+  const viewer = await requireAthleteViewer();
   const [snapshot, params] = await Promise.all([
-    getAthletePortalSnapshot({ userId: user.userId }),
+    getAthleteSnapshotForViewer(viewer),
     searchParams,
   ]);
   const success = single(params.success);
@@ -70,7 +70,16 @@ export default async function AthleteAgendaPage({
         description="Demonstre interesse, reserve vagas e acompanhe lista de espera. Disponibilidade, interesse e reserva continuam sendo estados diferentes."
       />
 
-      {success && (
+      {viewer.isPreview && (
+        <Card className="border-ur-gold/40">
+          <p className="text-ur-gold text-sm font-bold">
+            Prévia somente leitura: interesse, reserva e cancelamento estão
+            desabilitados.
+          </p>
+        </Card>
+      )}
+
+      {success && !viewer.isPreview && (
         <Card className="border-ur-gold/40">
           <p className="text-ur-gold text-sm font-bold">
             {successMessages[success] ?? "Agenda atualizada."}
@@ -78,7 +87,7 @@ export default async function AthleteAgendaPage({
         </Card>
       )}
 
-      {error && (
+      {error && !viewer.isPreview && (
         <Card className="border-red-500/40">
           <p className="text-sm font-bold text-red-300">
             {errorMessages[error] ?? errorMessages.transaction_failed}
@@ -128,6 +137,7 @@ export default async function AthleteAgendaPage({
               key={opportunity.id}
               opportunity={opportunity}
               availableCredits={snapshot.creditBalance ?? 0}
+              readOnly={viewer.isPreview}
             />
           ))}
         </div>

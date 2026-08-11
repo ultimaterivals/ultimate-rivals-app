@@ -15,12 +15,18 @@ function toNumber(value: number | string | null | undefined) {
 
 export async function getAthletePortalSnapshot({
   userId,
+  athleteId,
   now = new Date(),
 }: {
-  userId: string;
+  userId?: string;
+  athleteId?: string;
   now?: Date;
 }): Promise<AthletePortalSnapshot> {
-  const raw = await fetchAthletePortalRepositoryData({ userId, now });
+  const raw = await fetchAthletePortalRepositoryData({
+    userId,
+    athleteId,
+    now,
+  });
 
   if (!raw.athlete) {
     return {

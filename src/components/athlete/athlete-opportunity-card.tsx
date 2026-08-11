@@ -37,15 +37,35 @@ const reservableStatuses = new Set([
 ]);
 const cancellableStatuses = new Set(["reserved", "confirmed", "waitlisted"]);
 
+function personalStateLabel(status: string | null) {
+  switch (status) {
+    case "reserved":
+    case "confirmed":
+      return "reserva ativa";
+    case "waitlisted":
+      return "lista de espera";
+    case "checked_in":
+      return "check-in realizado";
+    case "consumed":
+      return "participação concluída";
+    case "no_show":
+      return "ausência registrada";
+    default:
+      return status;
+  }
+}
+
 export function AthleteOpportunityCard({
   opportunity,
   availableCredits,
+  readOnly = false,
 }: {
   opportunity: AthleteOpportunity;
   availableCredits: number;
+  readOnly?: boolean;
 }) {
   const personalState =
-    opportunity.personalReservationStatus ??
+    personalStateLabel(opportunity.personalReservationStatus) ??
     (opportunity.personalInterestStatus ? "interessado" : null);
   const hasReservation = Boolean(opportunity.personalReservationStatus);
   const canCancel =
@@ -62,6 +82,7 @@ export function AthleteOpportunityCard({
 
   return (
     <Card
+      data-testid={`athlete-opportunity-${opportunity.id}`}
       className={
         opportunity.personalReservationStatus ? "border-ur-gold/60" : undefined
       }
@@ -121,6 +142,16 @@ export function AthleteOpportunityCard({
             <TicketCheck size={15} aria-hidden="true" /> Check-in concluído
           </p>
         )}
+        {opportunity.personalReservationStatus === "consumed" && (
+          <p className="text-ur-gold flex items-center gap-2 font-bold">
+            <TicketCheck size={15} aria-hidden="true" /> Participação concluída
+          </p>
+        )}
+        {opportunity.personalReservationStatus === "no_show" && (
+          <p className="flex items-center gap-2 font-bold text-zinc-400">
+            <TicketCheck size={15} aria-hidden="true" /> Ausência registrada
+          </p>
+        )}
         {opportunity.personalEligibilityStatus === "pending" && (
           <p className="text-xs text-amber-300">
             Elegibilidade esportiva pendente de validação. A vaga não altera seu
@@ -130,93 +161,113 @@ export function AthleteOpportunityCard({
       </div>
 
       <div className="mt-5 grid gap-3 border-t pt-4">
-        {canExpressInterest &&
-          opportunity.personalInterestStatus === "active" && (
-            <form action={setAthleteOpportunityInterest}>
-              <input
-                type="hidden"
-                name="opportunityId"
-                value={opportunity.id}
-              />
-              <input type="hidden" name="active" value="false" />
-              <input
-                type="hidden"
-                name="interestMode"
-                value={
-                  opportunity.personalInterestMode ?? "individual_interest"
-                }
-              />
-              <Button type="submit" variant="ghost" className="w-full">
-                Retirar interesse
-              </Button>
-            </form>
-          )}
-
-        {canExpressInterest && !opportunity.personalInterestStatus && (
-          <form action={setAthleteOpportunityInterest} className="grid gap-2">
-            <input type="hidden" name="opportunityId" value={opportunity.id} />
-            <input type="hidden" name="active" value="true" />
-            <label className="grid gap-1 text-xs font-bold tracking-wider text-zinc-500 uppercase">
-              Como você quer participar?
-              <select
-                name="interestMode"
-                defaultValue="individual_interest"
-                className="rounded-ur bg-ur-panel min-h-11 border px-3 text-sm text-white"
-              >
-                <option value="individual_interest">Tenho interesse</option>
-                <option value="looking_for_partner">Procuro dupla</option>
-                <option value="have_formation">Já tenho formação</option>
-                <option value="available_to_join">
-                  Posso completar uma formação
-                </option>
-              </select>
-            </label>
-            <Button type="submit" variant="secondary" className="w-full">
-              Registrar interesse
-            </Button>
-          </form>
-        )}
-
-        {canReserve && (
-          <form action={reserveAthleteOpportunity}>
-            <input type="hidden" name="opportunityId" value={opportunity.id} />
-            <Button
-              type="submit"
-              className="w-full"
-              disabled={lacksCreditForDirectReservation}
-            >
-              {willWaitlist ? "Entrar na lista de espera" : "Reservar vaga"}
-            </Button>
-          </form>
-        )}
-
-        {lacksCreditForDirectReservation && (
-          <p className="flex items-center gap-2 text-xs text-zinc-500">
-            <CircleDollarSign size={14} aria-hidden="true" />
-            Você precisa de pelo menos 1 crédito disponível para reservar uma
-            vaga. Entrar em lista de espera não segura crédito.
+        {readOnly ? (
+          <p className="text-xs leading-5 text-zinc-500">
+            Prévia somente leitura. As ações de interesse, reserva e
+            cancelamento não são renderizadas para a sessão administrativa.
           </p>
-        )}
+        ) : (
+          <>
+            {canExpressInterest &&
+              opportunity.personalInterestStatus === "active" && (
+                <form action={setAthleteOpportunityInterest}>
+                  <input
+                    type="hidden"
+                    name="opportunityId"
+                    value={opportunity.id}
+                  />
+                  <input type="hidden" name="active" value="false" />
+                  <input
+                    type="hidden"
+                    name="interestMode"
+                    value={
+                      opportunity.personalInterestMode ?? "individual_interest"
+                    }
+                  />
+                  <Button type="submit" variant="ghost" className="w-full">
+                    Retirar interesse
+                  </Button>
+                </form>
+              )}
 
-        {canCancel && (
-          <form action={cancelAthleteReservation} className="grid gap-2">
-            <input
-              type="hidden"
-              name="reservationId"
-              value={opportunity.personalReservationId ?? ""}
-            />
-            <Button type="submit" variant="secondary" className="w-full">
-              {opportunity.personalReservationStatus === "waitlisted"
-                ? "Sair da lista de espera"
-                : "Cancelar reserva"}
-            </Button>
-            {opportunity.personalReservationStatus !== "waitlisted" && (
-              <p className="text-xs leading-5 text-zinc-600">
-                O backend aplica a janela de cancelamento da sessão. Fora da
-                janela gratuita, o crédito pode ser consumido.
+            {canExpressInterest && !opportunity.personalInterestStatus && (
+              <form
+                action={setAthleteOpportunityInterest}
+                className="grid gap-2"
+              >
+                <input
+                  type="hidden"
+                  name="opportunityId"
+                  value={opportunity.id}
+                />
+                <input type="hidden" name="active" value="true" />
+                <label className="grid gap-1 text-xs font-bold tracking-wider text-zinc-500 uppercase">
+                  Como você quer participar?
+                  <select
+                    name="interestMode"
+                    defaultValue="individual_interest"
+                    className="rounded-ur bg-ur-panel min-h-11 border px-3 text-sm text-white"
+                  >
+                    <option value="individual_interest">Tenho interesse</option>
+                    <option value="looking_for_partner">Procuro dupla</option>
+                    <option value="have_formation">Já tenho formação</option>
+                    <option value="available_to_join">
+                      Posso completar uma formação
+                    </option>
+                  </select>
+                </label>
+                <Button type="submit" variant="secondary" className="w-full">
+                  Registrar interesse
+                </Button>
+              </form>
+            )}
+
+            {canReserve && (
+              <form action={reserveAthleteOpportunity}>
+                <input
+                  type="hidden"
+                  name="opportunityId"
+                  value={opportunity.id}
+                />
+                <Button
+                  type="submit"
+                  className="w-full"
+                  disabled={lacksCreditForDirectReservation}
+                >
+                  {willWaitlist ? "Entrar na lista de espera" : "Reservar vaga"}
+                </Button>
+              </form>
+            )}
+
+            {lacksCreditForDirectReservation && (
+              <p className="flex items-center gap-2 text-xs text-zinc-500">
+                <CircleDollarSign size={14} aria-hidden="true" />
+                Você precisa de pelo menos 1 crédito disponível para reservar
+                uma vaga. Entrar em lista de espera não segura crédito.
               </p>
             )}
-          </form>
+
+            {canCancel && (
+              <form action={cancelAthleteReservation} className="grid gap-2">
+                <input
+                  type="hidden"
+                  name="reservationId"
+                  value={opportunity.personalReservationId ?? ""}
+                />
+                <Button type="submit" variant="secondary" className="w-full">
+                  {opportunity.personalReservationStatus === "waitlisted"
+                    ? "Sair da lista de espera"
+                    : "Cancelar reserva"}
+                </Button>
+                {opportunity.personalReservationStatus !== "waitlisted" && (
+                  <p className="text-xs leading-5 text-zinc-600">
+                    O backend aplica a janela de cancelamento da sessão. Fora da
+                    janela gratuita, o crédito pode ser consumido.
+                  </p>
+                )}
+              </form>
+            )}
+          </>
         )}
       </div>
     </Card>

@@ -32,10 +32,12 @@ export type AdminModuleKey =
   | "command"
   | "agenda"
   | "athletes"
+  | "preview"
   | "teams"
   | "urPlay"
   | "competitions"
   | "finance"
+  | "market"
   | "ecosystem"
   | "commercial"
   | "intelligence";
@@ -82,6 +84,16 @@ export const adminModules: readonly AdminModuleDefinition[] = [
     icon: "athletes",
   },
   {
+    key: "preview",
+    label: "Prévia do Atleta",
+    href: "/admin/preview",
+    description:
+      "Validação read-only da experiência do App sem trocar a sessão administrativa.",
+    group: "Esportivo",
+    allowedRoles: ["admin"],
+    icon: "athletes",
+  },
+  {
     key: "teams",
     label: "Equipes",
     href: "/admin/equipes",
@@ -116,6 +128,15 @@ export const adminModules: readonly AdminModuleDefinition[] = [
     group: "Negócio",
     allowedRoles: ["admin"],
     icon: "finance",
+  },
+  {
+    key: "market",
+    label: "UR Market",
+    href: "/admin/market",
+    description: "Ofertas, resgates URC e entrega operacional de benefícios.",
+    group: "Negócio",
+    allowedRoles: ["admin"],
+    icon: "ecosystem",
   },
   {
     key: "commercial",

@@ -139,49 +139,64 @@ function pushError(errors: string[], source: string, message: string) {
   errors.push(`${source}: ${message}`);
 }
 
+function emptyData(errors: string[]): AthletePortalRepositoryData {
+  return {
+    athlete: null,
+    report: null,
+    rankings: null,
+    athletePackages: null,
+    creditBalances: null,
+    packageDefinitions: null,
+    memberships: null,
+    teams: null,
+    reservations: null,
+    interests: null,
+    opportunities: null,
+    billingItems: null,
+    errors,
+  };
+}
+
 export async function fetchAthletePortalRepositoryData({
   userId,
+  athleteId,
   now,
 }: {
-  userId: string;
+  userId?: string;
+  athleteId?: string;
   now: Date;
 }): Promise<AthletePortalRepositoryData> {
   const supabase = await createClient();
   const errors: string[] = [];
 
-  const athleteResult = await supabase
+  if (!userId && !athleteId) {
+    pushError(errors, "athletes", "athlete selector is required");
+    return emptyData(errors);
+  }
+
+  let athleteQuery = supabase
     .from("athletes")
     .select(
       "id,public_name,athlete_code,avatar_url,city,state,bio,instagram_handle,status,primary_pole_id,gender",
-    )
-    .eq("profile_id", userId)
-    .maybeSingle();
+    );
 
-  if (athleteResult.error)
+  athleteQuery = athleteId
+    ? athleteQuery.eq("id", athleteId)
+    : athleteQuery.eq("profile_id", userId as string);
+
+  const athleteResult = await athleteQuery.maybeSingle();
+
+  if (athleteResult.error) {
     pushError(errors, "athletes", athleteResult.error.message);
+  }
 
   const athlete = athleteResult.error
     ? null
     : ((athleteResult.data as RawAthleteIdentity | null) ?? null);
 
-  if (!athlete) {
-    return {
-      athlete: null,
-      report: null,
-      rankings: null,
-      athletePackages: null,
-      creditBalances: null,
-      packageDefinitions: null,
-      memberships: null,
-      teams: null,
-      reservations: null,
-      interests: null,
-      opportunities: null,
-      billingItems: null,
-      errors,
-    };
-  }
+  if (!athlete) return emptyData(errors);
 
+  const opportunityStart = new Date(now.getTime() - 24 * 60 * 60 * 1000);
   const opportunityEnd = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
   const [
     reportResult,
@@ -229,7 +244,14 @@ export async function fetchAthletePortalRepositoryData({
       .from("activity_reservations")
       .select("id,opportunity_id,status,eligibility,waitlist_position")
       .eq("athlete_id", athlete.id)
-      .in("status", ["reserved", "confirmed", "checked_in", "waitlisted"]),
+      .in("status", [
+        "reserved",
+        "confirmed",
+        "checked_in",
+        "waitlisted",
+        "consumed",
+        "no_show",
+      ]),
     supabase
       .from("session_interests")
       .select("id,opportunity_id,status,interest_mode")
@@ -240,7 +262,7 @@ export async function fetchAthletePortalRepositoryData({
       .select(
         "id,opportunity_type,computed_status,configured_status,title,starts_at,ends_at,pole_id,pole_name,venue_name,level,format_code,category_code,remaining_capacity",
       )
-      .gte("starts_at", now.toISOString())
+      .gte("starts_at", opportunityStart.toISOString())
       .lte("starts_at", opportunityEnd.toISOString())
       .order("starts_at", { ascending: true })
       .limit(30),

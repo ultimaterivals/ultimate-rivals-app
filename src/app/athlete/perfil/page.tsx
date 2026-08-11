@@ -12,9 +12,9 @@ import {
 import { updateMatchmakingIdentityAction } from "@/app/athlete/perfil/actions";
 import { AthleteSourceHealth } from "@/components/athlete/athlete-source-health";
 import { Badge, Card, PageHeader } from "@/components/ui";
-import { requireRole } from "@/lib/auth/session";
+import { requireAthleteViewer } from "@/lib/auth/athlete-viewer";
 import { getAthleteAvailabilitySnapshot } from "@/server/services/athlete-availability-service";
-import { getAthletePortalSnapshot } from "@/server/services/athlete-portal-service";
+import { getAthleteSnapshotForViewer } from "@/server/services/athlete-viewer-snapshot-service";
 
 type Params = Promise<{
   saved?: string | string[];
@@ -49,7 +49,7 @@ function ReadinessItem({
   action?: React.ReactNode;
 }) {
   return (
-    <div className="rounded-ur flex items-start gap-3 border p-3">
+    <div className="rounded-ur flex min-w-0 items-start gap-3 overflow-hidden border p-3">
       {ready ? (
         <CheckCircle2
           className="mt-0.5 shrink-0 text-emerald-400"
@@ -64,10 +64,12 @@ function ReadinessItem({
         />
       )}
       <div className="min-w-0 flex-1">
-        <div className="flex flex-wrap items-center justify-between gap-2">
-          <p className="text-sm font-bold text-white">{title}</p>
+        <div className="grid gap-1 sm:flex sm:flex-wrap sm:items-center sm:justify-between sm:gap-2">
+          <p className="min-w-0 text-sm font-bold break-words text-white">
+            {title}
+          </p>
           <span
-            className={`text-[10px] font-black uppercase ${ready ? "text-emerald-300" : "text-amber-300"}`}
+            className={`shrink-0 text-[10px] font-black uppercase ${ready ? "text-emerald-300" : "text-amber-300"}`}
           >
             {ready ? "pronto" : "pendente"}
           </span>
@@ -84,10 +86,13 @@ export default async function AthleteProfilePage({
 }: {
   searchParams: Params;
 }) {
-  const user = await requireRole(["athlete"]);
+  const viewer = await requireAthleteViewer();
   const [snapshot, availability, params] = await Promise.all([
-    getAthletePortalSnapshot({ userId: user.userId }),
-    getAthleteAvailabilitySnapshot(user.userId),
+    getAthleteSnapshotForViewer(viewer),
+    getAthleteAvailabilitySnapshot({
+      userId: viewer.isPreview ? null : viewer.userId,
+      athleteId: viewer.athleteId,
+    }),
     searchParams,
   ]);
   const athlete = snapshot.identity;
@@ -97,21 +102,21 @@ export default async function AthleteProfilePage({
   );
 
   return (
-    <div className="grid gap-8">
+    <div className="grid min-w-0 gap-8 overflow-x-hidden">
       <PageHeader
         eyebrow="Identidade esportiva"
         title="Meu Perfil"
         description="Dados esportivos e vínculos usados pelo Ultimate Rivals para organizar sua jornada e formar jogos compatíveis."
       />
 
-      {single(params.saved) && (
+      {!viewer.isPreview && single(params.saved) && (
         <Card className="border-emerald-500/30 bg-emerald-500/5">
           <p className="text-sm font-bold text-emerald-200">
             Perfil esportivo atualizado.
           </p>
         </Card>
       )}
-      {error && (
+      {!viewer.isPreview && error && (
         <Card className="border-red-500/30 bg-red-500/5">
           <p className="text-sm font-bold text-red-300">
             {errorMessages[error] ?? "Não foi possível concluir a alteração."}
@@ -145,7 +150,7 @@ export default async function AthleteProfilePage({
                   }
                 >
                   <div className="flex flex-wrap items-start justify-between gap-4">
-                    <div>
+                    <div className="min-w-0">
                       <p className="font-display text-xl font-black uppercase">
                         {matchmakingReady
                           ? "Pronto para matchmaking"
@@ -161,7 +166,7 @@ export default async function AthleteProfilePage({
                     <Badge>{matchmakingReady ? "pronto" : "pendências"}</Badge>
                   </div>
 
-                  <div className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+                  <div className="mt-5 grid min-w-0 gap-3 md:grid-cols-2 xl:grid-cols-4">
                     <ReadinessItem
                       ready={statusReady}
                       title="Cadastro institucional"
@@ -212,7 +217,7 @@ export default async function AthleteProfilePage({
                   </div>
                 </Card>
 
-                <div className="grid gap-4 lg:grid-cols-[1.2fr_.8fr]">
+                <div className="grid min-w-0 gap-4 lg:grid-cols-[1.2fr_.8fr]">
                   <Card>
                     <div className="flex items-start gap-4">
                       <div className="rounded-full border bg-white/5 p-4">
@@ -222,7 +227,7 @@ export default async function AthleteProfilePage({
                           aria-hidden="true"
                         />
                       </div>
-                      <div>
+                      <div className="min-w-0">
                         <p className="font-display text-2xl font-black uppercase">
                           {athlete.publicName}
                         </p>
@@ -276,7 +281,7 @@ export default async function AthleteProfilePage({
                               size={18}
                               aria-hidden="true"
                             />
-                            <div>
+                            <div className="min-w-0">
                               <p className="font-bold">{team.name}</p>
                               <p className="text-xs text-zinc-500">
                                 Equipe Oficial
@@ -305,36 +310,43 @@ export default async function AthleteProfilePage({
                     Misto. Outras opções são preservadas no cadastro e exigem
                     revisão operacional antes de uma competição por categoria.
                   </p>
-                  <form
-                    action={updateMatchmakingIdentityAction}
-                    className="mt-5 grid gap-3 md:grid-cols-[1fr_auto] md:items-end"
-                  >
-                    <label className="grid gap-1 text-xs font-bold text-zinc-500 uppercase">
-                      Como você deseja registrar essa informação?
-                      <select
-                        name="gender"
-                        defaultValue={athlete.gender}
-                        required
-                        className="rounded-ur border bg-black/30 px-3 py-3 text-sm text-white"
-                      >
-                        <option value="female">Feminino</option>
-                        <option value="male">Masculino</option>
-                        <option value="non_binary">Não binário</option>
-                        <option value="undisclosed">
-                          Prefiro não informar / ainda não confirmado
-                        </option>
-                      </select>
-                    </label>
-                    <button
-                      type="submit"
-                      className="bg-ur-gold rounded-ur px-5 py-3 text-sm font-black text-black uppercase"
+                  {!viewer.isPreview ? (
+                    <form
+                      action={updateMatchmakingIdentityAction}
+                      className="mt-5 grid min-w-0 gap-3 md:grid-cols-[1fr_auto] md:items-end"
                     >
-                      Salvar no perfil
-                    </button>
-                  </form>
+                      <label className="grid min-w-0 gap-1 text-xs font-bold text-zinc-500 uppercase">
+                        Como você deseja registrar essa informação?
+                        <select
+                          name="gender"
+                          defaultValue={athlete.gender}
+                          required
+                          className="rounded-ur w-full max-w-full min-w-0 border bg-black/30 px-3 py-3 text-sm text-white"
+                        >
+                          <option value="female">Feminino</option>
+                          <option value="male">Masculino</option>
+                          <option value="non_binary">Não binário</option>
+                          <option value="undisclosed">
+                            Prefiro não informar / ainda não confirmado
+                          </option>
+                        </select>
+                      </label>
+                      <button
+                        type="submit"
+                        className="bg-ur-gold rounded-ur px-5 py-3 text-sm font-black text-black uppercase"
+                      >
+                        Salvar no perfil
+                      </button>
+                    </form>
+                  ) : (
+                    <p className="mt-5 text-sm font-bold text-zinc-500">
+                      Prévia somente leitura · a categoria esportiva só pode ser
+                      alterada pelo próprio atleta.
+                    </p>
+                  )}
                 </Card>
 
-                <div className="grid gap-4 md:grid-cols-2">
+                <div className="grid min-w-0 gap-4 md:grid-cols-2">
                   <Card>
                     <p className="flex items-center gap-2 font-bold">
                       <CreditCard
@@ -351,7 +363,7 @@ export default async function AthleteProfilePage({
                             key={item.id}
                             className="flex items-center justify-between gap-3 border-b pb-3 last:border-b-0 last:pb-0"
                           >
-                            <div>
+                            <div className="min-w-0">
                               <p className="text-sm font-bold">{item.name}</p>
                               <p className="text-xs text-zinc-600">
                                 {item.code}
