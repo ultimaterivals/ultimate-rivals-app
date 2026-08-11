@@ -95,16 +95,40 @@ describe("App V1 ↔ Command integration contracts", () => {
     expect(athleteMarket).toContain("viewer.isPreview");
   });
 
-  it("keeps UR Market operational controls inside admin Command only", () => {
+  it("keeps UR Market fulfillment transactional, audited and admin-only", () => {
     const modules = source("src/lib/auth/admin-modules.ts");
     const adminMarket = source("src/app/admin/market/page.tsx");
+    const fulfillment = source(
+      "supabase/migrations/20260811062000_admin_fulfill_market_redemption.sql",
+    );
 
     expect(modules).toContain('key: "market"');
     expect(modules).toContain('href: "/admin/market"');
     expect(adminMarket).toContain('requireRole(["admin"])');
+    expect(adminMarket).toContain('.rpc("admin_fulfill_market_redemption"');
+    expect(adminMarket).not.toMatch(/\.from\("market_redemptions"\)\s*\.update/);
     expect(adminMarket).toContain("Marcar benefício como entregue");
     expect(adminMarket).not.toMatch(
       /refund|reembolso|cancelled_at|reversal_of/i,
+    );
+    expect(fulfillment).toContain("private.current_app_role() <> 'admin'");
+    expect(fulfillment).toContain("pg_advisory_xact_lock");
+    expect(fulfillment).toContain("for update");
+    expect(fulfillment).toContain("public.audit_logs");
+    expect(fulfillment).toContain("market_redemption.fulfilled");
+    expect(fulfillment).toContain("request_id");
+  });
+
+  it("exposes only publishable external media in athlete Highlights", () => {
+    const highlights = source("src/app/athlete/highlights/page.tsx");
+
+    expect(highlights).toContain("media_assets!inner");
+    expect(highlights).toContain('.in("status", ["publishable", "public"])');
+    expect(highlights).toContain(
+      '.in("media_assets.status", ["publishable", "public"])',
+    );
+    expect(highlights).toContain(
+      '.not("media_assets.external_url", "is", null)',
     );
   });
 
