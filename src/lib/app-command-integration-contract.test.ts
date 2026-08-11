@@ -116,7 +116,7 @@ describe("App V1 ↔ Command integration contracts", () => {
       "supabase/migrations/20260811031000_atomic_urc_market_redemption.sql";
     const migration = source(migrationPath);
 
-    expect(c35Fix).toContain("ur_coins");
+    expect(c35Fix).toContain("public.ur_coin_processing_runs");
     expect("20260811031000" > "20260811030500").toBe(true);
     expect(migration).toContain("security definer");
     expect(migration).toContain("set search_path = ''");
