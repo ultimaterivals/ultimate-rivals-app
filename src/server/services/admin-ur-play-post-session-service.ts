@@ -1,5 +1,6 @@
 import type {
   AdminPostSessionSnapshot,
+  PostSessionSession,
   PostSessionTask,
   PostSessionTaskKey,
   PostSessionTaskStatus,
@@ -92,7 +93,7 @@ export async function getAdminPostSessionSnapshot(): Promise<AdminPostSessionSna
   );
   const closures = new Map(raw.closures.map((row) => [row.session_id, row]));
 
-  const sessions = raw.sessions.map((session) => {
+  const sessions: PostSessionSession[] = raw.sessions.map((session) => {
     const registrations = raw.registrations.filter(
       (row) =>
         row.session_id === session.id &&
