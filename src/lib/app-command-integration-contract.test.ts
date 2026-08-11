@@ -108,16 +108,16 @@ describe("App V1 ↔ Command integration contracts", () => {
     );
   });
 
-  it("uses a forward-only, atomic and idempotent URC Market migration", () => {
-    const c32StartFix = source(
-      "supabase/migrations/20260811003500_fix_ur_play_start_format_status.sql",
+  it("uses a forward-only, atomic and idempotent URC Market migration after C35", () => {
+    const c35Fix = source(
+      "supabase/migrations/20260811030500_fix_ur_coin_run_completion_order.sql",
     );
     const migrationPath =
-      "supabase/migrations/20260811004000_atomic_urc_market_redemption.sql";
+      "supabase/migrations/20260811031000_atomic_urc_market_redemption.sql";
     const migration = source(migrationPath);
 
-    expect(c32StartFix).toContain("ur_play");
-    expect("20260811004000" > "20260811003500").toBe(true);
+    expect(c35Fix).toContain("ur_coins");
+    expect("20260811031000" > "20260811030500").toBe(true);
     expect(migration).toContain("security definer");
     expect(migration).toContain("set search_path = ''");
     expect(migration).toContain("pg_advisory_xact_lock");
@@ -134,5 +134,18 @@ describe("App V1 ↔ Command integration contracts", () => {
     expect(migration).toContain(
       "grant execute on function public.redeem_market_offer_urc(uuid, text) to authenticated",
     );
+  });
+
+  it("selects reservation credits from the append-only ledger without locking an aggregate view", () => {
+    const migration = source(
+      "supabase/migrations/20260811031500_fix_reservation_credit_lock.sql",
+    );
+
+    expect(migration).toContain("public.commercial_credit_ledger");
+    expect(migration).toContain("sum(l.available_delta)");
+    expect(migration).toContain("for update of ap");
+    expect(migration).not.toContain("join public.athlete_credit_balances");
+    expect(migration).toContain("NO_AVAILABLE_CREDITS");
+    expect(migration).toContain("'hold'");
   });
 });
