@@ -14,6 +14,8 @@ if (!databaseUrl) {
   );
 }
 
+test.describe.configure({ mode: "serial" });
+
 const athleteA = "b0000000-0000-4000-8000-000000000001";
 const reservationOpportunity = "61000000-0000-4000-8000-000000000002";
 const qaPackageId = "64000000-0000-4000-8000-000000000001";
@@ -172,9 +174,14 @@ test("athlete reservation holds credit, Command reflects it, and cancellation re
     `athlete-opportunity-${reservationOpportunity}`,
   );
   await opportunity.getByRole("button", { name: "Reservar vaga" }).click();
-  await expect(opportunity.getByText("Reserva ativa")).toBeVisible({
+  await expect(page).toHaveURL(/\/athlete\/agenda\?success=reserved/, {
     timeout: 20_000,
   });
+  await expect(
+    page
+      .getByTestId(`athlete-opportunity-${reservationOpportunity}`)
+      .getByText("Reserva ativa", { exact: true }),
+  ).toBeVisible({ timeout: 20_000 });
 
   await expect.poll(() => creditTotals().available).toBe(2);
   await expect.poll(() => creditTotals().reserved).toBe(1);
@@ -193,8 +200,13 @@ test("athlete reservation holds credit, Command reflects it, and cancellation re
   await reservedOpportunity
     .getByRole("button", { name: "Cancelar reserva" })
     .click();
+  await expect(page).toHaveURL(/\/athlete\/agenda\?success=cancelled/, {
+    timeout: 20_000,
+  });
   await expect(
-    reservedOpportunity.getByRole("button", { name: "Reservar vaga" }),
+    page
+      .getByTestId(`athlete-opportunity-${reservationOpportunity}`)
+      .getByRole("button", { name: "Reservar vaga" }),
   ).toBeVisible({ timeout: 20_000 });
 
   await expect.poll(() => creditTotals().available).toBe(3);
@@ -228,7 +240,12 @@ test("admin Preview renders athlete App read-only without replacing admin Auth",
   ).toBeVisible();
 
   await page.goto("/athlete/agenda");
-  await expect(page.getByText(/Prévia somente leitura/i)).toBeVisible();
+  await expect(
+    page.getByText(
+      "Prévia somente leitura: interesse, reserva e cancelamento estão desabilitados.",
+      { exact: true },
+    ),
+  ).toBeVisible();
   await expect(
     page.getByRole("button", { name: "Registrar interesse" }),
   ).toHaveCount(0);
