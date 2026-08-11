@@ -49,9 +49,23 @@ Ao abrir o Command, o gestor deve conseguir identificar rapidamente:
 7. Se existem sinais de demanda para abertura, últimas vagas ou segunda quadra.
 8. Para qual módulo especializado o gestor deve ir para executar a ação.
 
+## Mesa de ação · Sessão prioritária
+
+A C42 adiciona uma camada contextual para reduzir navegação sem substituir nenhuma mesa operacional.
+
+A sessão prioritária passa a oferecer atalhos diretos para:
+
+- Presença, já apontando para a sessão selecionada;
+- Gate de início com leitura GO/NO-GO do banco;
+- Operação de quadra;
+- Fechamento esportivo da sessão;
+- Pós-Sessão 360 quando não existe sessão operacional ativa.
+
+A mesa apenas escolhe um foco operacional usando os estados já existentes. Nenhum novo estado competitivo ou transição paralela é criado.
+
 ## Ciclo operacional UR Play
 
-A segunda camada executiva da C42 conecta, sem substituir, as mesas especializadas já existentes.
+A camada executiva da C42 conecta, sem substituir, as mesas especializadas já existentes.
 
 O Command passa a resumir:
 
@@ -84,13 +98,26 @@ A nova leitura mostra:
 
 A regra é explícita: valores projetados e verificados permanecem separados. O Command não estima custo ausente e não transforma projeção em realizado.
 
+## Rastreabilidade das leituras
+
+O Command passa a exibir o horário em que o snapshot executivo foi gerado, o estado da leitura e a quantidade de fontes que reportaram falha.
+
+A interface deixa explícito que esse horário representa o momento de consolidação do Command, e não a data de atualização de cada registro individual. Isso evita apresentar uma leitura recente como se todos os dados subjacentes tivessem sido atualizados naquele mesmo instante.
+
+A regra de confiança permanece:
+
+- fonte real acima de inferência;
+- dado ausente não vira zero estimado;
+- projeção continua identificada como projeção;
+- leitura parcial continua visível como leitura parcial.
+
 ## Princípio de dados
 
 A sala de controle não cria métricas paralelas.
 
 A visão "Hoje" usa `AdminCommandSnapshot`, já produzido pela camada de serviço conectada às fontes administrativas reais.
 
-O ciclo UR Play reutiliza diretamente os snapshots especializados existentes:
+O ciclo UR Play e a mesa de ação reutilizam diretamente os snapshots especializados existentes:
 
 - `AdminAttendanceSnapshot`;
 - `AdminUrPlayStartSnapshot`;
@@ -122,16 +149,19 @@ Estados parciais, vazios ou indisponíveis continuam explícitos. As fontes espe
 - [x] Incorporar risco estrutural de quadra/staff usando a fonte UR Play existente.
 - [x] Consolidar margem por sessão sem misturar projetado com verificado.
 - [x] Restringir economia das sessões ao perfil administrativo.
-- [ ] Validar lint, typecheck, testes e build no CI.
+- [x] Adicionar atalhos contextuais para a sessão prioritária sem substituir fluxos especializados.
+- [x] Adicionar rastreabilidade do momento da leitura sem confundir leitura com atualização individual dos registros.
+- [x] Validar a primeira consolidação da C42 em format, lint, typecheck, testes e build.
+- [ ] Revalidar o CI após os incrementos finais de mesa contextual e rastreabilidade.
 - [ ] Revisar render desktop/mobile com dados reais, parciais e base vazia.
-- [ ] Criar auditoria visual de fonte/recência para métricas críticas.
 - [ ] Executar homologação real do fluxo completo do UR Play.
 
-## Próximos incrementos
+## Próxima etapa
 
-Somente de forma aditiva:
+Sem ampliar escopo funcional:
 
-- adicionar atalhos contextuais mais específicos para preflight e sessão selecionada;
-- criar auditoria visual de fonte/recência para métricas críticas;
-- executar homologação real do fluxo completo do UR Play;
-- revisar a experiência desktop/mobile sem reduzir a profundidade dos módulos especializados.
+1. deixar o CI final totalmente verde;
+2. revisar desktop/mobile;
+3. homologar o fluxo completo com dados reais;
+4. corrigir somente bloqueadores encontrados na homologação;
+5. concluir a C42 e preparar merge.
