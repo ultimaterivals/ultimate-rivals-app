@@ -31,7 +31,7 @@ export const POST_SESSION_TASKS: Array<{
     key: "finance",
     label: "Financeiro",
     description:
-      "Conferir pagamentos, receitas, custos, estornos e divergências da operação.",
+      "Reconcilia automaticamente pagamentos, créditos, receitas, despesas e divergências; o responsável só confirma que o escopo financeiro da sessão está completo.",
     sla: "Até 24h",
   },
   {
