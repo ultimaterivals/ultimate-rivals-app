@@ -123,6 +123,24 @@ function prepareMarketFixture() {
 
 function prepareNoShowReservationFixture() {
   runDisposableSql(`
+    -- This suite runs after the authenticated check-in journey against the same
+    -- disposable database. Reset only the synthetic reservation artifacts so
+    -- the no-show path gets a fresh hold and a fresh attendance idempotency key.
+    set session_replication_role = replica;
+    delete from public.ur_play_checkins
+    where registration_id = '${reservationRegistration}'::uuid;
+    delete from public.commercial_credit_ledger
+    where reservation_id in (
+      select id
+      from public.activity_reservations
+      where opportunity_id = '${reservationOpportunity}'::uuid
+        and athlete_id = '${athleteA}'::uuid
+    );
+    delete from public.activity_reservations
+    where opportunity_id = '${reservationOpportunity}'::uuid
+      and athlete_id = '${athleteA}'::uuid;
+    set session_replication_role = origin;
+
     update public.demand_opportunities
     set
       status = 'forming',
@@ -142,7 +160,10 @@ function prepareNoShowReservationFixture() {
     where id = '${reservationSession}'::uuid;
 
     update public.ur_play_registrations
-    set attendance_status = 'expected', updated_at = now()
+    set
+      registration_status = 'confirmed',
+      attendance_status = 'expected',
+      updated_at = now()
     where id = '${reservationRegistration}'::uuid;
 
     insert into public.packages (
@@ -157,7 +178,36 @@ function prepareNoShowReservationFixture() {
       true,
       '[]'::jsonb
     )
-    on conflict (id) do update set active = true;
+    on conflict (id) do update set
+      included_units = excluded.included_units,
+      active = excluded.active;
+
+    insert into public.athlete_commercial_packages (
+      id,
+      athlete_id,
+      package_id,
+      season_id,
+      status,
+      units_total,
+      units_used,
+      starts_at,
+      created_by
+    ) values (
+      '${qaAthletePackageId}'::uuid,
+      '${athleteA}'::uuid,
+      '${qaPackageId}'::uuid,
+      '10000000-0000-4000-8000-000000000001'::uuid,
+      'active',
+      3,
+      0,
+      now() - interval '1 minute',
+      'a0000000-0000-4000-8000-000000000001'::uuid
+    )
+    on conflict (id) do update set
+      status = 'active',
+      units_total = 3,
+      units_used = 0,
+      starts_at = now() - interval '1 minute';
   `);
 }
 
