@@ -99,7 +99,8 @@ export async function getAdminReportSnapshot(): Promise<AdminReportSnapshot> {
     metrics: {
       reports: reports.length,
       drafts: reports.filter((report) => report.status === "draft").length,
-      finalized: reports.filter((report) => report.status === "finalized").length,
+      finalized: reports.filter((report) => report.status === "finalized")
+        .length,
       openActions: allActions.filter((action) => action.status === "open").length,
       overdueActions: allActions.filter(
         (action) =>
