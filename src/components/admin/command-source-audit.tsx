@@ -47,7 +47,11 @@ export function CommandSourceAudit({
             <p className="text-xs font-bold tracking-[0.14em] text-zinc-500 uppercase">
               Estado da leitura
             </p>
-            <DatabaseZap className="text-ur-gold" size={18} aria-hidden="true" />
+            <DatabaseZap
+              className="text-ur-gold"
+              size={18}
+              aria-hidden="true"
+            />
           </div>
           <div className="mt-3">
             <Badge>{statusLabel}</Badge>
@@ -64,11 +68,19 @@ export function CommandSourceAudit({
             <p className="text-xs font-bold tracking-[0.14em] text-zinc-500 uppercase">
               Regra de confiança
             </p>
-            <ShieldCheck className="text-ur-gold" size={18} aria-hidden="true" />
+            <ShieldCheck
+              className="text-ur-gold"
+              size={18}
+              aria-hidden="true"
+            />
           </div>
-          <p className="mt-3 font-bold text-white">Fonte real acima de inferência</p>
+          <p className="mt-3 font-bold text-white">
+            Fonte real acima de inferência
+          </p>
           <p className="mt-2 text-sm leading-6 text-zinc-500">
-            O Command não transforma dado ausente em número estimado. Valores indisponíveis continuam como ausência, leitura parcial ou projeção identificada.
+            O Command não transforma dado ausente em número estimado. Valores
+            indisponíveis continuam como ausência, leitura parcial ou projeção
+            identificada.
           </p>
         </Card>
       </div>

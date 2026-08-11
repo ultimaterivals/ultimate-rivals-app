@@ -47,7 +47,9 @@ export async function CommandSessionActionDesk() {
       ["checkin_open", "registration_closed", "registration_open"].includes(
         session.status,
       ),
-    ) ?? inProgress[0] ?? null;
+    ) ??
+    inProgress[0] ??
+    null;
 
   const startReadiness = startSnapshot.sessions.find(
     (item) => item.sessionId === operationalSession?.id,
@@ -61,7 +63,8 @@ export async function CommandSessionActionDesk() {
 
   const focusId = operationalSession?.id ?? postSessionFocus?.id ?? null;
   const focusName = operationalSession?.name ?? postSessionFocus?.name ?? null;
-  const focusStartsAt = operationalSession?.startsAt ?? postSessionFocus?.startsAt;
+  const focusStartsAt =
+    operationalSession?.startsAt ?? postSessionFocus?.startsAt;
 
   if (!focusId || !focusName) return null;
 
