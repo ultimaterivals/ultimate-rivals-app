@@ -10,7 +10,9 @@ import { fetchAdminFeedbackRepositoryData } from "@/server/repositories/admin-ur
 function aggregate(requests: FeedbackRequest[]) {
   const eligible = requests.length;
   const sent = requests.filter((item) => item.status === "sent").length;
-  const responded = requests.filter((item) => item.status === "responded").length;
+  const responded = requests.filter(
+    (item) => item.status === "responded",
+  ).length;
   const waived = requests.filter((item) => item.status === "waived").length;
   const pending = requests.filter((item) => item.status === "pending").length;
   const scored = requests.filter(
@@ -31,9 +33,7 @@ function aggregate(requests: FeedbackRequest[]) {
       : null;
   const standardNpsScore =
     scored.length > 0
-      ? Number(
-          (((promoters - detractors) / scored.length) * 100).toFixed(2),
-        )
+      ? Number((((promoters - detractors) / scored.length) * 100).toFixed(2))
       : null;
 
   return {
@@ -106,8 +106,7 @@ export async function getAdminFeedbackSnapshot(): Promise<AdminFeedbackSnapshot>
       metrics: aggregate(requests),
     }))
     .sort(
-      (a, b) =>
-        new Date(b.endsAt).getTime() - new Date(a.endsAt).getTime(),
+      (a, b) => new Date(b.endsAt).getTime() - new Date(a.endsAt).getTime(),
     );
 
   const all = sessions.flatMap((session) => session.requests);
