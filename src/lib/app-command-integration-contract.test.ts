@@ -134,16 +134,21 @@ describe("App V1 ↔ Command integration contracts", () => {
     );
   });
 
-  it("uses a forward-only, atomic and idempotent URC Market migration after C35", () => {
-    const c35Fix = source(
-      "supabase/migrations/20260811030500_fix_ur_coin_run_completion_order.sql",
+  it("keeps all App V1 migrations forward-only after C39", () => {
+    const c39 = source(
+      "supabase/migrations/20260811061000_private_ur_play_development_mutations.sql",
     );
     const migrationPath =
-      "supabase/migrations/20260811031000_atomic_urc_market_redemption.sql";
+      "supabase/migrations/20260811061500_atomic_urc_market_redemption.sql";
     const migration = source(migrationPath);
 
-    expect(c35Fix).toContain("public.ur_coin_processing_runs");
-    expect("20260811031000" > "20260811030500").toBe(true);
+    expect(c39).toContain("ur_play");
+    expect("20260811061500" > "20260811061000").toBe(true);
+    expect("20260811061600" > "20260811061000").toBe(true);
+    expect("20260811061700" > "20260811061000").toBe(true);
+    expect("20260811061800" > "20260811061000").toBe(true);
+    expect("20260811061900" > "20260811061000").toBe(true);
+    expect("20260811062000" > "20260811061000").toBe(true);
     expect(migration).toContain("security definer");
     expect(migration).toContain("set search_path = ''");
     expect(migration).toContain("pg_advisory_xact_lock");
@@ -164,7 +169,7 @@ describe("App V1 ↔ Command integration contracts", () => {
 
   it("selects reservation credits from the append-only ledger without locking an aggregate view", () => {
     const migration = source(
-      "supabase/migrations/20260811031500_fix_reservation_credit_lock.sql",
+      "supabase/migrations/20260811061600_fix_reservation_credit_lock.sql",
     );
 
     expect(migration).toContain("public.commercial_credit_ledger");
