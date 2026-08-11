@@ -51,6 +51,12 @@ export default function UrPlayLayout({ children }: { children: ReactNode }) {
           Pós-Sessão 360
         </Link>
         <Link
+          href="/admin/ur-play/desenvolvimento"
+          className="rounded-ur px-3 py-2 text-sm font-bold text-zinc-400 transition hover:bg-white/5 hover:text-white"
+        >
+          Desenvolvimento
+        </Link>
+        <Link
           href="/admin/ur-play/retencao"
           className="rounded-ur px-3 py-2 text-sm font-bold text-zinc-400 transition hover:bg-white/5 hover:text-white"
         >
