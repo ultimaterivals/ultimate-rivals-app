@@ -1,0 +1,26 @@
+name: Format C39
+on:
+  push:
+    branches:
+      - sprint-c39-development-leveling
+permissions:
+  contents: write
+jobs:
+  format:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: sprint-c39-development-leveling
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npx prettier --write src/app/admin/ur-play/layout.tsx src/app/admin/ur-play/desenvolvimento/actions.ts src/app/admin/ur-play/desenvolvimento/page.tsx src/features/admin-ur-play-development/types.ts src/server/repositories/admin-ur-play-development-repository.ts src/server/services/admin-ur-play-development-service.ts src/server/services/admin-ur-play-development-service.test.ts
+      - run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add src/app/admin/ur-play/layout.tsx src/app/admin/ur-play/desenvolvimento/actions.ts src/app/admin/ur-play/desenvolvimento/page.tsx src/features/admin-ur-play-development/types.ts src/server/repositories/admin-ur-play-development-repository.ts src/server/services/admin-ur-play-development-service.ts src/server/services/admin-ur-play-development-service.test.ts
+          git commit -m "chore: format C39 development desk" || exit 0
+          git push
