@@ -47,6 +47,7 @@ async function openMobileAndCapture(page: Page, path: string, name: string) {
   await capture(page, name);
 }
 
+// Final candidate evidence covers the complete athlete journey on desktop and mobile.
 test("desktop athlete App visual evidence", async ({ page }, testInfo) => {
   test.skip(testInfo.project.name !== "chromium", "desktop evidence only");
   await login(page);
