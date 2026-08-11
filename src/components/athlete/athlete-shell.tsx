@@ -171,7 +171,7 @@ export function AthleteShell({
   children: ReactNode;
 }) {
   return (
-    <div className="isolate min-h-dvh bg-[#080808] text-white lg:grid lg:grid-cols-[17rem_1fr]">
+    <div className="min-h-dvh bg-[#080808] text-white lg:grid lg:grid-cols-[17rem_1fr]">
       <aside className="bg-ur-graphite hidden min-h-dvh border-r lg:flex lg:flex-col">
         <div className="p-6">
           <BrandMark />
