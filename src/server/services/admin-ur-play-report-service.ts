@@ -35,7 +35,8 @@ export async function getAdminReportSnapshot(): Promise<AdminReportSnapshot> {
       ["checked_in", "present"].includes(row.attendance_status),
     );
     const taskRows = raw.tasks.filter(
-      (row) => row.session_id === report.session_id && row.task_key !== "report",
+      (row) =>
+        row.session_id === report.session_id && row.task_key !== "report",
     );
     const taskEvidence = Object.fromEntries(
       taskRows.map((row) => [
@@ -60,7 +61,8 @@ export async function getAdminReportSnapshot(): Promise<AdminReportSnapshot> {
         waiverReason: row.waiver_reason,
       }));
     const upstreamPending = taskRows.filter(
-      (row) => row.blocking && !["completed", "waived"].includes(row.status),
+      (row) =>
+        row.blocking && !["completed", "waived"].includes(row.status),
     ).length;
     const session = sessions.get(report.session_id);
 
