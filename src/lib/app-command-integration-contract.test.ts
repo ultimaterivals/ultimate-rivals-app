@@ -102,10 +102,14 @@ describe("App V1 ↔ Command integration contracts", () => {
   });
 
   it("uses a forward-only, atomic and idempotent URC Market migration", () => {
+    const c32StartFix = source(
+      "supabase/migrations/20260811003500_fix_ur_play_start_format_status.sql",
+    );
     const migrationPath =
       "supabase/migrations/20260811004000_atomic_urc_market_redemption.sql";
     const migration = source(migrationPath);
 
+    expect(c32StartFix).toContain("ur_play");
     expect("20260811004000" > "20260811003500").toBe(true);
     expect(migration).toContain("security definer");
     expect(migration).toContain("set search_path = ''");
