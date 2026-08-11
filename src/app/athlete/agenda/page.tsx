@@ -137,6 +137,7 @@ export default async function AthleteAgendaPage({
               key={opportunity.id}
               opportunity={opportunity}
               availableCredits={snapshot.creditBalance ?? 0}
+              readOnly={viewer.isPreview}
             />
           ))}
         </div>
