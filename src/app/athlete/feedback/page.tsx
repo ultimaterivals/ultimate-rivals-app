@@ -32,7 +32,9 @@ export default async function AthleteFeedbackPage({
   const saved = single(params.saved);
   const error = single(params.error);
   const open = snapshot.requests.filter((item) => item.status === "sent");
-  const answered = snapshot.requests.filter((item) => item.status === "responded");
+  const answered = snapshot.requests.filter(
+    (item) => item.status === "responded",
+  );
 
   return (
     <div className="grid gap-8">
@@ -74,7 +76,8 @@ export default async function AthleteFeedbackPage({
         <Card>
           <p className="font-bold">Nenhum feedback pendente.</p>
           <p className="mt-2 text-sm leading-6 text-zinc-500">
-            Quando você participar de uma sessão concluída, a solicitação aparece aqui automaticamente.
+            Quando você participar de uma sessão concluída, a solicitação
+            aparece aqui automaticamente.
           </p>
         </Card>
       ) : (
@@ -93,7 +96,10 @@ export default async function AthleteFeedbackPage({
                 <Badge>Feedback aberto</Badge>
               </div>
 
-              <form action={submitAthleteFeedbackAction} className="mt-6 grid gap-4">
+              <form
+                action={submitAthleteFeedbackAction}
+                className="mt-6 grid gap-4"
+              >
                 <input type="hidden" name="requestId" value={request.id} />
                 <fieldset>
                   <legend className="text-sm font-bold">
@@ -103,7 +109,7 @@ export default async function AthleteFeedbackPage({
                     {Array.from({ length: 11 }, (_, score) => (
                       <label
                         key={score}
-                        className="rounded-ur flex cursor-pointer items-center justify-center border p-3 text-sm font-black has-[:checked]:border-ur-gold has-[:checked]:bg-ur-gold/10 has-[:checked]:text-ur-gold"
+                        className="rounded-ur has-[:checked]:border-ur-gold has-[:checked]:bg-ur-gold/10 has-[:checked]:text-ur-gold flex cursor-pointer items-center justify-center border p-3 text-sm font-black"
                       >
                         <input
                           className="sr-only"
@@ -119,7 +125,8 @@ export default async function AthleteFeedbackPage({
                 </fieldset>
 
                 <label className="grid gap-2 text-sm font-bold">
-                  O que devemos manter ou melhorar? <span className="font-normal text-zinc-600">Opcional</span>
+                  O que devemos manter ou melhorar?{" "}
+                  <span className="font-normal text-zinc-600">Opcional</span>
                   <textarea
                     name="comment"
                     maxLength={2000}
@@ -130,7 +137,8 @@ export default async function AthleteFeedbackPage({
                 </label>
 
                 <Button type="submit">
-                  <MessageSquareText size={16} aria-hidden="true" /> Enviar feedback
+                  <MessageSquareText size={16} aria-hidden="true" /> Enviar
+                  feedback
                 </Button>
               </form>
             </Card>
@@ -141,7 +149,9 @@ export default async function AthleteFeedbackPage({
       {answered.length > 0 && (
         <section className="grid gap-3">
           <div>
-            <p className="font-display text-xl font-black uppercase">Respostas anteriores</p>
+            <p className="font-display text-xl font-black uppercase">
+              Respostas anteriores
+            </p>
             <p className="mt-1 text-sm text-zinc-500">
               Histórico das sessões em que você já avaliou a experiência.
             </p>
