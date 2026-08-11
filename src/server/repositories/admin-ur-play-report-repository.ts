@@ -84,34 +84,39 @@ export async function fetchAdminReportRepositoryData() {
     };
   }
 
-  const [actionsResult, sessionsResult, closuresResult, registrationsResult, tasksResult] =
-    await Promise.all([
-      supabase
-        .from("ur_play_report_actions")
-        .select(
-          "id,report_id,session_id,title,description,category,priority,owner_id,due_at,status,waiver_reason",
-        )
-        .in("report_id", reportIds)
-        .order("due_at", { ascending: true }),
-      supabase
-        .from("ur_play_sessions")
-        .select("id,name,ends_at")
-        .in("id", sessionIds),
-      supabase
-        .from("ur_play_post_session_closures")
-        .select("session_id,status")
-        .in("session_id", sessionIds),
-      supabase
-        .from("ur_play_registrations")
-        .select("session_id,registration_status,attendance_status")
-        .in("session_id", sessionIds)
-        .limit(10000),
-      supabase
-        .from("ur_play_post_session_tasks")
-        .select("session_id,task_key,status,blocking,evidence")
-        .in("session_id", sessionIds)
-        .limit(10000),
-    ]);
+  const [
+    actionsResult,
+    sessionsResult,
+    closuresResult,
+    registrationsResult,
+    tasksResult,
+  ] = await Promise.all([
+    supabase
+      .from("ur_play_report_actions")
+      .select(
+        "id,report_id,session_id,title,description,category,priority,owner_id,due_at,status,waiver_reason",
+      )
+      .in("report_id", reportIds)
+      .order("due_at", { ascending: true }),
+    supabase
+      .from("ur_play_sessions")
+      .select("id,name,ends_at")
+      .in("id", sessionIds),
+    supabase
+      .from("ur_play_post_session_closures")
+      .select("session_id,status")
+      .in("session_id", sessionIds),
+    supabase
+      .from("ur_play_registrations")
+      .select("session_id,registration_status,attendance_status")
+      .in("session_id", sessionIds)
+      .limit(10000),
+    supabase
+      .from("ur_play_post_session_tasks")
+      .select("session_id,task_key,status,blocking,evidence")
+      .in("session_id", sessionIds)
+      .limit(10000),
+  ]);
 
   if (actionsResult.error)
     errors.push(`ur_play_report_actions: ${actionsResult.error.message}`);
@@ -138,7 +143,9 @@ export async function fetchAdminReportRepositoryData() {
     registrations: registrationsResult.error
       ? []
       : ((registrationsResult.data as RawRegistration[] | null) ?? []),
-    tasks: tasksResult.error ? [] : ((tasksResult.data as RawTask[] | null) ?? []),
+    tasks: tasksResult.error
+      ? []
+      : ((tasksResult.data as RawTask[] | null) ?? []),
     errors,
   };
 }
