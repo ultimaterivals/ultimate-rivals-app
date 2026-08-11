@@ -37,7 +37,7 @@ const athleteNavigation: readonly PortalNavItem[] = [
     label: "Feedback",
     href: "/athlete/feedback",
     group: "Portal",
-    icon: "community",
+    icon: "intelligence",
   },
   {
     key: "athlete-profile",
