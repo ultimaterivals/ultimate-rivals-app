@@ -9,6 +9,7 @@ import {
   House,
   LogOut,
   MapPin,
+  MessageSquareText,
   Medal,
   ShoppingBag,
   Target,
@@ -49,6 +50,7 @@ const journey = [
   { href: "/athlete/development", label: "Missões e evolução", icon: Target },
   { href: "/athlete/arenas", label: "Arenas UR", icon: MapPin },
   { href: "/athlete/highlights", label: "Destaques", icon: Clapperboard },
+  { href: "/athlete/feedback", label: "Feedback UR", icon: MessageSquareText },
   { href: "/athlete/wallet", label: "Wallet URC", icon: Coins },
   { href: "/athlete/market", label: "UR Market", icon: ShoppingBag },
 ] as const;
@@ -90,7 +92,7 @@ function NavigationLink({
   );
 }
 
-function DesktopNavigation() {
+function DesktopNavigation({ preview = false }: { preview?: boolean }) {
   const pathname = usePathname();
   return (
     <nav aria-label="Navegação do atleta" className="hidden px-4 lg:block">
@@ -111,15 +113,17 @@ function DesktopNavigation() {
           Jornada e carreira
         </p>
         <div className="space-y-1">
-          {journey.map(({ href, label, icon: Icon }) => (
-            <NavigationLink
-              key={href}
-              href={href}
-              label={label}
-              Icon={Icon}
-              pathname={pathname}
-            />
-          ))}
+          {journey
+            .filter((item) => !preview || item.href !== "/athlete/feedback")
+            .map(({ href, label, icon: Icon }) => (
+              <NavigationLink
+                key={href}
+                href={href}
+                label={label}
+                Icon={Icon}
+                pathname={pathname}
+              />
+            ))}
         </div>
       </div>
     </nav>
@@ -179,7 +183,7 @@ export function AthleteShell({
           </span>
         </div>
         <div className="min-h-0 flex-1 overflow-y-auto pb-6">
-          <DesktopNavigation />
+          <DesktopNavigation preview={Boolean(preview)} />
         </div>
         <div className="border-t p-4">
           <p className="truncate text-sm font-bold text-zinc-300">

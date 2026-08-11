@@ -99,7 +99,7 @@ describe("App V1 ↔ Command integration contracts", () => {
     const modules = source("src/lib/auth/admin-modules.ts");
     const adminMarket = source("src/app/admin/market/page.tsx");
     const fulfillment = source(
-      "supabase/migrations/20260811062000_admin_fulfill_market_redemption.sql",
+      "supabase/migrations/20260811081500_admin_fulfill_market_redemption.sql",
     );
 
     expect(modules).toContain('key: "market"');
@@ -134,21 +134,21 @@ describe("App V1 ↔ Command integration contracts", () => {
     );
   });
 
-  it("keeps all App V1 migrations forward-only after C39", () => {
-    const c39 = source(
-      "supabase/migrations/20260811061000_private_ur_play_development_mutations.sql",
+  it("keeps all App V1 migrations forward-only after current main C41", () => {
+    const c41 = source(
+      "supabase/migrations/20260811080500_fix_feedback_private_execute.sql",
     );
     const migrationPath =
-      "supabase/migrations/20260811061500_atomic_urc_market_redemption.sql";
+      "supabase/migrations/20260811081000_atomic_urc_market_redemption.sql";
     const migration = source(migrationPath);
 
-    expect(c39).toContain("ur_play");
-    expect("20260811061500" > "20260811061000").toBe(true);
-    expect("20260811061600" > "20260811061000").toBe(true);
-    expect("20260811061700" > "20260811061000").toBe(true);
-    expect("20260811061800" > "20260811061000").toBe(true);
-    expect("20260811061900" > "20260811061000").toBe(true);
-    expect("20260811062000" > "20260811061000").toBe(true);
+    expect(c41).toContain("feedback");
+    expect("20260811081000" > "20260811080500").toBe(true);
+    expect("20260811081100" > "20260811080500").toBe(true);
+    expect("20260811081200" > "20260811080500").toBe(true);
+    expect("20260811081300" > "20260811080500").toBe(true);
+    expect("20260811081400" > "20260811080500").toBe(true);
+    expect("20260811081500" > "20260811080500").toBe(true);
     expect(migration).toContain("security definer");
     expect(migration).toContain("set search_path = ''");
     expect(migration).toContain("pg_advisory_xact_lock");
@@ -169,7 +169,7 @@ describe("App V1 ↔ Command integration contracts", () => {
 
   it("selects reservation credits from the append-only ledger without locking an aggregate view", () => {
     const migration = source(
-      "supabase/migrations/20260811061600_fix_reservation_credit_lock.sql",
+      "supabase/migrations/20260811081100_fix_reservation_credit_lock.sql",
     );
 
     expect(migration).toContain("public.commercial_credit_ledger");
