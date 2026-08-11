@@ -25,6 +25,7 @@ async function capture(page: Page, name: string) {
   });
 }
 
+// Regression gate: mobile athlete surfaces must never widen the viewport.
 async function expectNoHorizontalOverflow(page: Page) {
   const dimensions = await page.evaluate(() => ({
     scrollWidth: document.documentElement.scrollWidth,
