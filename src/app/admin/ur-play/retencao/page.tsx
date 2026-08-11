@@ -226,7 +226,7 @@ export default async function RetentionPage({ searchParams }: { searchParams: Pa
                   </div>
                 </div>
 
-                {followup.status === "pending" && identity.roles.includes("admin") && (
+                {followup.status === "pending" && identity.role === "admin" && (
                   <form action={waiveRetentionFollowupAction} className="mt-4 flex flex-wrap items-end gap-2 border-t pt-4">
                     <input type="hidden" name="followupId" value={followup.id} />
                     <label className="grid min-w-72 flex-1 gap-1 text-xs font-bold text-zinc-500 uppercase">
