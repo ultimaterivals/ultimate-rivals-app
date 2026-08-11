@@ -6,7 +6,9 @@ const password = process.env.UR_TEST_PASSWORD ?? "";
 const databaseUrl = process.env.DATABASE_URL ?? "";
 
 if (!password || !databaseUrl) {
-  throw new Error("Disposable QA credentials are required for competitive E2E.");
+  throw new Error(
+    "Disposable QA credentials are required for competitive E2E.",
+  );
 }
 
 const adminId = "a0000000-0000-4000-8000-000000000001";
@@ -29,9 +31,13 @@ const registrationIds = [
 ] as const;
 
 function runSql(sql: string) {
-  return execFileSync("psql", [databaseUrl, "-v", "ON_ERROR_STOP=1", "-Atc", sql], {
-    encoding: "utf8",
-  }).trim();
+  return execFileSync(
+    "psql",
+    [databaseUrl, "-v", "ON_ERROR_STOP=1", "-Atc", sql],
+    {
+      encoding: "utf8",
+    },
+  ).trim();
 }
 
 function asAdmin(sql: string) {
@@ -147,32 +153,80 @@ test("homologated UR Play result processes ranking and official UR Coins exactly
     );
   `);
 
-  asAdmin(`select public.transition_court_ops_match('${matchId}'::uuid, 'called', null, '76000000-0000-4000-8000-000000000002'::uuid);`);
-  asAdmin(`select public.transition_court_ops_match('${matchId}'::uuid, 'ready', null, '76000000-0000-4000-8000-000000000003'::uuid);`);
-  asAdmin(`select public.transition_court_ops_match('${matchId}'::uuid, 'in_progress', null, '76000000-0000-4000-8000-000000000004'::uuid);`);
+  asAdmin(
+    `select public.transition_court_ops_match('${matchId}'::uuid, 'called', null, '76000000-0000-4000-8000-000000000002'::uuid);`,
+  );
+  asAdmin(
+    `select public.transition_court_ops_match('${matchId}'::uuid, 'ready', null, '76000000-0000-4000-8000-000000000003'::uuid);`,
+  );
+  asAdmin(
+    `select public.transition_court_ops_match('${matchId}'::uuid, 'in_progress', null, '76000000-0000-4000-8000-000000000004'::uuid);`,
+  );
 
-  const sideA = runSql(`select id from public.match_sides where match_id='${matchId}'::uuid and side='A';`);
+  const sideA = runSql(
+    `select id from public.match_sides where match_id='${matchId}'::uuid and side='A';`,
+  );
   for (let rally = 1; rally <= 11; rally += 1) {
-    asAdmin(`select public.record_match_rally('${matchId}'::uuid, '${sideA}'::uuid, ${rally}, ${rally}, now(), ('77000000-0000-4000-8000-' || lpad(${rally}::text, 12, '0'))::uuid);`);
+    asAdmin(
+      `select public.record_match_rally('${matchId}'::uuid, '${sideA}'::uuid, ${rally}, ${rally}, now(), ('77000000-0000-4000-8000-' || lpad(${rally}::text, 12, '0'))::uuid);`,
+    );
   }
 
-  asAdmin(`select public.submit_match_for_review('${matchId}'::uuid, '76000000-0000-4000-8000-000000000005'::uuid);`);
-  asAdmin(`select public.homologate_match_result('${matchId}'::uuid, '76000000-0000-4000-8000-000000000006'::uuid);`);
+  asAdmin(
+    `select public.submit_match_for_review('${matchId}'::uuid, '76000000-0000-4000-8000-000000000005'::uuid);`,
+  );
+  asAdmin(
+    `select public.homologate_match_result('${matchId}'::uuid, '76000000-0000-4000-8000-000000000006'::uuid);`,
+  );
 
-  expect(runSql(`select status from public.ranking_processing_runs where source_id='${matchId}'::uuid order by created_at desc limit 1;`)).toBe("completed");
-  expect(Number(runSql(`select count(*) from public.ranking_transactions where source_id='${matchId}'::uuid and status='homologated';`))).toBeGreaterThan(0);
+  expect(
+    runSql(
+      `select status from public.ranking_processing_runs where source_id='${matchId}'::uuid order by created_at desc limit 1;`,
+    ),
+  ).toBe("completed");
+  expect(
+    Number(
+      runSql(
+        `select count(*) from public.ranking_transactions where source_id='${matchId}'::uuid and status='homologated';`,
+      ),
+    ),
+  ).toBeGreaterThan(0);
 
-  runSql(`update public.ur_play_sessions set status='completed', updated_at=now() where id='${sessionId}'::uuid;`);
-  const coinRun = asAdmin(`select id from public.admin_process_ur_play_session_coins('${sessionId}'::uuid, '76000000-0000-4000-8000-000000000007'::uuid);`);
-  expect(runSql(`select status from public.ur_coin_processing_runs where id='${coinRun}'::uuid;`)).toBe("completed");
-  expect(Number(runSql(`select count(*) from public.ur_coin_transactions where metadata->>'session_id'='${sessionId}';`))).toBeGreaterThan(0);
+  runSql(
+    `update public.ur_play_sessions set status='completed', updated_at=now() where id='${sessionId}'::uuid;`,
+  );
+  const coinRun = asAdmin(
+    `select id from public.admin_process_ur_play_session_coins('${sessionId}'::uuid, '76000000-0000-4000-8000-000000000007'::uuid);`,
+  );
+  expect(
+    runSql(
+      `select status from public.ur_coin_processing_runs where id='${coinRun}'::uuid;`,
+    ),
+  ).toBe("completed");
+  expect(
+    Number(
+      runSql(
+        `select count(*) from public.ur_coin_transactions where metadata->>'session_id'='${sessionId}';`,
+      ),
+    ),
+  ).toBeGreaterThan(0);
 
-  const replay = asAdmin(`select id from public.admin_process_ur_play_session_coins('${sessionId}'::uuid, '76000000-0000-4000-8000-000000000007'::uuid);`);
+  const replay = asAdmin(
+    `select id from public.admin_process_ur_play_session_coins('${sessionId}'::uuid, '76000000-0000-4000-8000-000000000007'::uuid);`,
+  );
   expect(replay).toBe(coinRun);
-  expect(Number(runSql(`select count(*) from public.ur_coin_processing_runs where session_id='${sessionId}'::uuid and status='completed';`))).toBe(1);
+  expect(
+    Number(
+      runSql(
+        `select count(*) from public.ur_coin_processing_runs where session_id='${sessionId}'::uuid and status='completed';`,
+      ),
+    ),
+  ).toBe(1);
 
   await loginAthlete(page);
   await page.goto("/athlete/wallet");
   await expect(page.getByRole("heading", { name: "Wallet URC" })).toBeVisible();
-  await expect(page.getByText(/Histórico recente/i)).toContainText(/UR Play|Competição/i);
+  await expect(page.getByText(/Histórico recente/i)).toContainText(
+    /UR Play|Competição/i,
+  );
 });
