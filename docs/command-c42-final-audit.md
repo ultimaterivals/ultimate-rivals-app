@@ -60,13 +60,29 @@ O Command passa a resumir:
 - operação ao vivo: sessões em andamento, partidas em jogo e revisões pendentes;
 - fechamento esportivo: sessões prontas/bloqueadas, jogos abertos e resultados pendentes;
 - Pós-Sessão 360: sessões em fechamento, prontas, fechadas e atrasadas;
-- integridade das leituras usadas para compor a visão executiva.
+- integridade das leituras usadas para compor a visão executiva;
+- riscos estruturais de sessões futuras sem quadra ativa ou staff registrado.
 
 As ações continuam nos fluxos especializados:
 
 `Presença → Gate de início → Operação de quadra → Fechamento esportivo → Pós-Sessão 360`
 
 A camada executiva não cria novo estado nem regra paralela.
+
+## Economia das sessões
+
+Para o perfil `admin`, o Command também passa a relacionar a fonte financeira existente às sessões UR Play.
+
+A nova leitura mostra:
+
+- receita verificada das sessões;
+- despesa verificada das sessões;
+- margem verificada total;
+- taxa de margem quando existe receita verificada suficiente;
+- quantidade de sessões com margem negativa;
+- margem individual por sessão.
+
+A regra é explícita: valores projetados e verificados permanecem separados. O Command não estima custo ausente e não transforma projeção em realizado.
 
 ## Princípio de dados
 
@@ -80,7 +96,13 @@ O ciclo UR Play reutiliza diretamente os snapshots especializados existentes:
 - `AdminUrPlayStartSnapshot`;
 - `AdminCourtOpsSnapshot`;
 - `AdminUrPlayCloseSnapshot`;
-- `AdminPostSessionSnapshot`.
+- `AdminPostSessionSnapshot`;
+- `AdminUrPlaySnapshot`.
+
+A economia das sessões reutiliza:
+
+- `AdminFinanceSnapshot`;
+- `AdminUrPlaySnapshot`.
 
 Estados parciais, vazios ou indisponíveis continuam explícitos. As fontes especializadas permanecem como fonte de verdade.
 
@@ -97,9 +119,11 @@ Estados parciais, vazios ou indisponíveis continuam explícitos. As fontes espe
 - [x] Incluir operação ao vivo e pendências de fechamento.
 - [x] Incluir Pós-Sessão 360 e atrasos.
 - [x] Restringir a nova leitura do ciclo a perfis que já possuem acesso ao módulo UR Play.
+- [x] Incorporar risco estrutural de quadra/staff usando a fonte UR Play existente.
+- [x] Consolidar margem por sessão sem misturar projetado com verificado.
+- [x] Restringir economia das sessões ao perfil administrativo.
 - [ ] Validar lint, typecheck, testes e build no CI.
 - [ ] Revisar render desktop/mobile com dados reais, parciais e base vazia.
-- [ ] Consolidar indicadores de margem por sessão.
 - [ ] Criar auditoria visual de fonte/recência para métricas críticas.
 - [ ] Executar homologação real do fluxo completo do UR Play.
 
@@ -107,8 +131,6 @@ Estados parciais, vazios ou indisponíveis continuam explícitos. As fontes espe
 
 Somente de forma aditiva:
 
-- incorporar operadores/quadras em risco com evidência operacional;
-- consolidar indicadores de margem por sessão;
 - adicionar atalhos contextuais mais específicos para preflight e sessão selecionada;
 - criar auditoria visual de fonte/recência para métricas críticas;
 - executar homologação real do fluxo completo do UR Play;
