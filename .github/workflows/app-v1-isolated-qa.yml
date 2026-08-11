@@ -4,6 +4,7 @@ on:
   workflow_dispatch:
   push:
     branches:
+      - main
       - integration/app-v1-command-data
     paths:
       - ".github/workflows/app-v1-isolated-qa.yml"
