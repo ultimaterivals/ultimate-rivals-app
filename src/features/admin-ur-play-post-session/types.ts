@@ -63,6 +63,7 @@ export type PostSessionSession = {
 };
 
 export type AdminPostSessionSnapshot = {
+  generatedAt: string;
   sessions: PostSessionSession[];
   metrics: {
     total: number;
