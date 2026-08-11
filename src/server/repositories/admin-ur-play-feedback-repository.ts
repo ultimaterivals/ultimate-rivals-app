@@ -75,7 +75,9 @@ export async function fetchAdminFeedbackRepositoryData() {
   if (sessionsResult.error)
     errors.push(`ur_play_sessions: ${sessionsResult.error.message}`);
   if (closuresResult.error)
-    errors.push(`ur_play_post_session_closures: ${closuresResult.error.message}`);
+    errors.push(
+      `ur_play_post_session_closures: ${closuresResult.error.message}`,
+    );
 
   return {
     requests,
