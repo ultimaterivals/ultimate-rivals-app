@@ -49,7 +49,13 @@ export async function fetchAdminAttendanceRepositoryData(now = new Date()) {
   const sessionsResult = await supabase
     .from("ur_play_sessions")
     .select("id,name,status,starts_at,ends_at,venue_id,capacity")
-    .in("status", ["registration_open", "in_progress", "completed"])
+    .in("status", [
+      "registration_open",
+      "registration_closed",
+      "checkin_open",
+      "in_progress",
+      "completed",
+    ])
     .gte("ends_at", rangeStart)
     .lte("starts_at", rangeEnd)
     .order("starts_at", { ascending: true })
