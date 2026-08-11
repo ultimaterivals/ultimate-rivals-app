@@ -107,7 +107,8 @@ export async function getAdminMediaSnapshot(): Promise<AdminMediaSnapshot> {
           blocking: blocking.length,
           published: deliverables.filter((item) => item.status === "published")
             .length,
-          waived: deliverables.filter((item) => item.status === "waived").length,
+          waived: deliverables.filter((item) => item.status === "waived")
+            .length,
           pending: unresolved.length,
           overdue: unresolved.filter(
             (item) => new Date(item.dueAt).getTime() < now,
@@ -117,8 +118,7 @@ export async function getAdminMediaSnapshot(): Promise<AdminMediaSnapshot> {
       };
     })
     .sort(
-      (a, b) =>
-        new Date(b.endsAt).getTime() - new Date(a.endsAt).getTime(),
+      (a, b) => new Date(b.endsAt).getTime() - new Date(a.endsAt).getTime(),
     );
 
   const all = sessions.flatMap((session) => session.deliverables);
@@ -133,9 +133,8 @@ export async function getAdminMediaSnapshot(): Promise<AdminMediaSnapshot> {
       total: all.length,
       published: all.filter((item) => item.status === "published").length,
       pending: unresolved.length,
-      overdue: unresolved.filter(
-        (item) => new Date(item.dueAt).getTime() < now,
-      ).length,
+      overdue: unresolved.filter((item) => new Date(item.dueAt).getTime() < now)
+        .length,
       readySessions: sessions.filter((session) => session.counts.ready).length,
     },
     sourceErrors: raw.errors,
