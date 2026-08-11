@@ -26,19 +26,16 @@ async function fulfillRedemption(formData: FormData) {
   if (!redemptionId) return;
 
   const client = await createClient();
-  const { error } = await client
-    .from("market_redemptions")
-    .update({
-      status: "redeemed",
-      redeemed_at: new Date().toISOString(),
-    })
-    .eq("id", redemptionId)
-    .in("status", ["reserved", "available"]);
+  const { error } = await client.rpc("admin_fulfill_market_redemption", {
+    target_redemption: redemptionId,
+    operation_id: crypto.randomUUID(),
+  });
 
   if (error) throw error;
 
   revalidatePath("/admin/market");
   revalidatePath("/athlete/market");
+  revalidatePath("/athlete/wallet");
 }
 
 export default async function AdminMarketPage() {
