@@ -52,6 +52,12 @@ test("desktop athlete App visual evidence", async ({ page }, testInfo) => {
   await page.goto("/athlete/market");
   await expect(page).toHaveURL(/\/athlete\/market/);
   await capture(page, "desktop-market");
+
+  await page.goto("/athlete/feedback");
+  await expect(
+    page.getByRole("heading", { name: "Feedback UR" }),
+  ).toBeVisible();
+  await capture(page, "desktop-feedback");
 });
 
 test("mobile athlete App visual evidence", async ({ page }, testInfo) => {
@@ -68,4 +74,11 @@ test("mobile athlete App visual evidence", async ({ page }, testInfo) => {
   await expect(page.getByRole("heading", { name: /perfil/i })).toBeVisible();
   await expectNoHorizontalOverflow(page);
   await capture(page, "mobile-profile");
+
+  await page.goto("/athlete/feedback");
+  await expect(
+    page.getByRole("heading", { name: "Feedback UR" }),
+  ).toBeVisible();
+  await expectNoHorizontalOverflow(page);
+  await capture(page, "mobile-feedback");
 });
