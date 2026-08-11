@@ -25,8 +25,7 @@ function row(
       status === "published" ? `https://example.com/${key}` : null,
     media_asset_id: null,
     notes: null,
-    published_at:
-      status === "published" ? "2026-08-11T20:00:00.000Z" : null,
+    published_at: status === "published" ? "2026-08-11T20:00:00.000Z" : null,
     waiver_reason: status === "waived" ? "Entrega não aplicável" : null,
   };
 }
