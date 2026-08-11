@@ -18,6 +18,8 @@ test.describe.configure({ mode: "serial" });
 
 const athleteA = "b0000000-0000-4000-8000-000000000001";
 const reservationOpportunity = "61000000-0000-4000-8000-000000000002";
+const reservationSession = "70000000-0000-4000-8000-000000000001";
+const reservationRegistration = "71000000-0000-4000-8000-000000000001";
 const qaPackageId = "64000000-0000-4000-8000-000000000001";
 const qaAthletePackageId = "65000000-0000-4000-8000-000000000001";
 
@@ -87,6 +89,40 @@ function prepareReservationFixture() {
   `);
 }
 
+function prepareAttendanceFixture() {
+  runDisposableSql(`
+    update public.ur_play_sessions
+    set
+      session_date = current_date,
+      starts_at = now() - interval '30 minutes',
+      ends_at = now() + interval '90 minutes',
+      registration_closes_at = now() - interval '45 minutes',
+      status = 'checkin_open',
+      updated_at = now()
+    where id = '${reservationSession}'::uuid;
+
+    update public.demand_opportunities
+    set
+      status = 'confirmed',
+      starts_at = now() - interval '30 minutes',
+      ends_at = now() + interval '90 minutes',
+      updated_at = now()
+    where id = '${reservationOpportunity}'::uuid;
+
+    update public.ur_play_registrations
+    set attendance_status = 'expected', updated_at = now()
+    where id = '${reservationRegistration}'::uuid;
+  `);
+}
+
+function reservationOpportunityWeek() {
+  return runDisposableSql(`
+    select to_char(starts_at at time zone 'America/Sao_Paulo', 'YYYY-MM-DD')
+    from public.demand_opportunities
+    where id = '${reservationOpportunity}'::uuid;
+  `);
+}
+
 function creditTotals() {
   const output = runDisposableSql(`
     select
@@ -106,14 +142,6 @@ function creditTotals() {
     consumed: Number(consumed),
     events: events ? events.split(",") : [],
   };
-}
-
-function reservationAgendaWeek() {
-  return runDisposableSql(`
-    select to_char(starts_at at time zone 'America/Sao_Paulo', 'YYYY-MM-DD')
-    from public.demand_opportunities
-    where id = '${reservationOpportunity}'::uuid;
-  `);
 }
 
 test("athlete opens preserved Player Hub and core destinations", async ({
@@ -153,9 +181,7 @@ test("athlete interest is reflected back into Command demand", async ({
     .click();
   await expect(
     opportunity.getByText("interessado", { exact: true }),
-  ).toBeVisible({
-    timeout: 20_000,
-  });
+  ).toBeVisible({ timeout: 20_000 });
 
   await login(page, "admin@test.ur.local", /\/admin/);
   await page.goto("/admin/agenda");
@@ -196,7 +222,7 @@ test("athlete reservation holds credit, Command reflects it, and cancellation re
   expect(creditTotals().events).toContain("hold");
 
   await login(page, "admin@test.ur.local", /\/admin/);
-  await page.goto(`/admin/agenda?week=${reservationAgendaWeek()}`);
+  await page.goto(`/admin/agenda?week=${reservationOpportunityWeek()}`);
   const commandDemand = page.getByTestId(`demand-${reservationOpportunity}`);
   await expect(commandDemand).toContainText("2 reservas");
 
@@ -222,10 +248,56 @@ test("athlete reservation holds credit, Command reflects it, and cancellation re
   expect(creditTotals().events).toContain("release");
 
   await login(page, "admin@test.ur.local", /\/admin/);
-  await page.goto(`/admin/agenda?week=${reservationAgendaWeek()}`);
+  await page.goto(`/admin/agenda?week=${reservationOpportunityWeek()}`);
   await expect(
     page.getByTestId(`demand-${reservationOpportunity}`),
   ).toContainText("1 reservas");
+});
+
+test("official check-in consumes the held credit and reflects completion back into the athlete App", async ({
+  page,
+}) => {
+  prepareReservationFixture();
+
+  await login(page, "athlete@test.ur.local", /\/athlete/);
+  await page.goto("/athlete/agenda");
+  await page
+    .getByTestId(`athlete-opportunity-${reservationOpportunity}`)
+    .getByRole("button", { name: "Reservar vaga" })
+    .click();
+  await expect(page).toHaveURL(/\/athlete\/agenda\?success=reserved/, {
+    timeout: 20_000,
+  });
+  await expect.poll(() => creditTotals().reserved).toBe(1);
+
+  prepareAttendanceFixture();
+
+  await login(page, "admin@test.ur.local", /\/admin/);
+  await page.goto(`/admin/ur-play/presenca?session=${reservationSession}`);
+  await expect(
+    page.getByRole("heading", { name: "Presença UR Play" }),
+  ).toBeVisible();
+  await page.getByRole("button", { name: "Check-in", exact: true }).click();
+  await expect(page).toHaveURL(/success=checked_in/, { timeout: 20_000 });
+  await expect(
+    page.getByText(
+      "Check-in registrado e crédito consumido de forma auditável.",
+      { exact: true },
+    ),
+  ).toBeVisible();
+
+  await expect.poll(() => creditTotals().available).toBe(2);
+  await expect.poll(() => creditTotals().reserved).toBe(0);
+  await expect.poll(() => creditTotals().consumed).toBe(1);
+  expect(creditTotals().events).toContain("consume");
+
+  await login(page, "athlete@test.ur.local", /\/athlete/);
+  await page.goto("/athlete/agenda");
+  await expect(
+    page
+      .getByTestId(`athlete-opportunity-${reservationOpportunity}`)
+      .getByText("Participação concluída", { exact: true }),
+  ).toBeVisible({ timeout: 20_000 });
 });
 
 test("admin Preview renders athlete App read-only without replacing admin Auth", async ({
