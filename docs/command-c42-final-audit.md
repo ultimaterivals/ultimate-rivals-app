@@ -152,7 +152,8 @@ Estados parciais, vazios ou indisponíveis continuam explícitos. As fontes espe
 - [x] Adicionar atalhos contextuais para a sessão prioritária sem substituir fluxos especializados.
 - [x] Adicionar rastreabilidade do momento da leitura sem confundir leitura com atualização individual dos registros.
 - [x] Validar a primeira consolidação da C42 em format, lint, typecheck, testes e build.
-- [ ] Revalidar o CI após os incrementos finais de mesa contextual e rastreabilidade.
+- [x] Corrigir a tipagem entre snapshots de Presença e Operação de Quadra na Mesa de Ação.
+- [ ] Revalidar o CI final após a correção de tipagem.
 - [ ] Revisar render desktop/mobile com dados reais, parciais e base vazia.
 - [ ] Executar homologação real do fluxo completo do UR Play.
 
