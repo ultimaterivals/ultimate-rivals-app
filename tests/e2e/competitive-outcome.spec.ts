@@ -78,7 +78,7 @@ function prepareFixture() {
       price_amount, status, ready_for_matchmaking, created_by, notes
     ) values (
       '${sessionId}'::uuid, '${seasonId}'::uuid, '${poleId}'::uuid, '${venueId}'::uuid,
-      '[QA] Competitive outcome', current_date, now() - interval '2 hours', now() - interval '30 minutes',
+      '[QA] Competitive outcome', current_date, now() - interval '2 hours', now(),
       now() - interval '1 day', now() - interval '3 hours', 4, 0, 0, 'in_progress', true,
       '${adminId}'::uuid, '[QA] synthetic competitive outcome fixture'
     ) on conflict (id) do update set
