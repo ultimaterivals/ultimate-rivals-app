@@ -17,6 +17,7 @@ if (!databaseUrl) {
 test.describe.configure({ mode: "serial" });
 
 const athleteA = "b0000000-0000-4000-8000-000000000001";
+const interestOpportunity = "61000000-0000-4000-8000-000000000001";
 const reservationOpportunity = "61000000-0000-4000-8000-000000000002";
 const reservationSession = "70000000-0000-4000-8000-000000000001";
 const reservationRegistration = "71000000-0000-4000-8000-000000000001";
@@ -123,6 +124,14 @@ function reservationOpportunityWeek() {
   `);
 }
 
+function interestOpportunityWeek() {
+  return runDisposableSql(`
+    select to_char(starts_at at time zone 'America/Sao_Paulo', 'YYYY-MM-DD')
+    from public.demand_opportunities
+    where id = '${interestOpportunity}'::uuid;
+  `);
+}
+
 function creditTotals() {
   const output = runDisposableSql(`
     select
@@ -174,7 +183,7 @@ test("athlete interest is reflected back into Command demand", async ({
   await page.goto("/athlete/agenda");
 
   const opportunity = page.getByTestId(
-    "athlete-opportunity-61000000-0000-4000-8000-000000000001",
+    `athlete-opportunity-${interestOpportunity}`,
   );
   await opportunity
     .getByRole("button", { name: "Registrar interesse" })
@@ -184,11 +193,9 @@ test("athlete interest is reflected back into Command demand", async ({
   ).toBeVisible({ timeout: 20_000 });
 
   await login(page, "admin@test.ur.local", /\/admin/);
-  await page.goto("/admin/agenda");
+  await page.goto(`/admin/agenda?week=${interestOpportunityWeek()}`);
 
-  const demand = page.getByTestId(
-    "demand-61000000-0000-4000-8000-000000000001",
-  );
+  const demand = page.getByTestId(`demand-${interestOpportunity}`);
   await expect(demand).toContainText("[QA] Interesse - Duplas");
   await expect(demand).toContainText("2");
   await expect(demand).toContainText("Interesse");
