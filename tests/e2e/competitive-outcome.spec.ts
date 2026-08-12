@@ -187,7 +187,7 @@ test("homologated UR Play result processes ranking and official UR Coins exactly
   expect(
     Number(
       runSql(
-        `select count(*) from public.ranking_transactions where source_id='${matchId}'::uuid and status='homologated';`,
+        `select count(*) from public.ranking_transactions where match_id='${matchId}'::uuid and status='homologated';`,
       ),
     ),
   ).toBeGreaterThan(0);
