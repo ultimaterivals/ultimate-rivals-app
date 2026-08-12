@@ -14,6 +14,7 @@ import {
   ShoppingBag,
   Target,
   Trophy,
+  Users,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -37,6 +38,13 @@ const primary = [
     exact: false,
   },
   { href: "/athlete/ranking", label: "Ranking", icon: Trophy, exact: false },
+  {
+    href: "/athlete/results",
+    label: "Resultados",
+    icon: Medal,
+    exact: false,
+  },
+  { href: "/athlete/team", label: "Equipe", icon: Users, exact: false },
   {
     href: "/athlete/perfil",
     label: "Perfil",

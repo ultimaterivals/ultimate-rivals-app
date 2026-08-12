@@ -206,6 +206,34 @@ export default async function AthleteDevelopmentPage() {
           fonte oficial; não são simulados nesta V1.
         </p>
       </Card>
+
+      <section className="grid gap-4 lg:grid-cols-3">
+        {[
+          [
+            "UR Series",
+            "A classificação será publicada quando os critérios oficiais da temporada estiverem homologados.",
+          ],
+          [
+            "UR Cup",
+            "A jornada da Copa depende de chaves, inscrições e resultados oficiais publicados.",
+          ],
+          [
+            "UR Legends",
+            "Reconhecimentos e requisitos entram apenas quando a temporada publicar fonte canônica verificável.",
+          ],
+        ].map(([title, description]) => (
+          <Card key={title}>
+            <p className="text-xs font-black tracking-[.18em] text-zinc-500 uppercase">
+              Progressão da temporada
+            </p>
+            <h2 className="mt-2 text-xl font-black">{title}</h2>
+            <Badge className="mt-3">
+              critérios em homologação/configuração
+            </Badge>
+            <p className="mt-3 text-sm text-zinc-400">{description}</p>
+          </Card>
+        ))}
+      </section>
     </div>
   );
 }
