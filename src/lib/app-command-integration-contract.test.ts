@@ -16,6 +16,7 @@ describe("App V1 ↔ Command integration contracts", () => {
     expect(athleteShell).toContain("App do Atleta");
     expect(athleteShell).toContain('aria-label="Navegação do atleta"');
     expect(athleteShell).toContain("Jornada e carreira");
+    expect(athleteShell).toContain('aria-label="Jornada e carreira do atleta"');
   });
 
   it("keeps Preview admin-only, read-only and without Auth impersonation", () => {

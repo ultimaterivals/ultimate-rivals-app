@@ -133,34 +133,62 @@ function DesktopNavigation({ preview = false }: { preview?: boolean }) {
 function MobileNavigation() {
   const pathname = usePathname();
   return (
-    <nav
-      aria-label="Navegação principal do atleta"
-      className="relative shrink-0 border-t border-zinc-800 bg-[#0b0b0b]/[.98] pb-[env(safe-area-inset-bottom)] backdrop-blur lg:hidden"
-    >
-      <div className="mx-auto grid max-w-lg grid-cols-5">
-        {primary.map(({ href, label, icon: Icon, exact }) => {
-          const isActive = active(pathname, href, exact);
-          return (
-            <Link
-              key={href}
-              href={href}
-              aria-current={isActive ? "page" : undefined}
-              className={cn(
-                "flex min-h-16 flex-col items-center justify-center gap-1 px-1 text-[.65rem] font-bold transition-colors",
-                isActive ? "text-ur-gold" : "text-zinc-500 hover:text-white",
-              )}
-            >
-              <Icon
-                size={21}
-                strokeWidth={isActive ? 2.5 : 2}
-                aria-hidden="true"
-              />
-              {label}
-            </Link>
-          );
-        })}
-      </div>
-    </nav>
+    <div className="relative shrink-0 border-t border-zinc-800 bg-[#0b0b0b]/[.98] pb-[env(safe-area-inset-bottom)] backdrop-blur lg:hidden">
+      <nav aria-label="Navegação principal do atleta">
+        <div className="mx-auto grid max-w-lg grid-cols-5">
+          {primary.map(({ href, label, icon: Icon, exact }) => {
+            const isActive = active(pathname, href, exact);
+            return (
+              <Link
+                key={href}
+                href={href}
+                aria-current={isActive ? "page" : undefined}
+                className={cn(
+                  "flex min-h-16 flex-col items-center justify-center gap-1 px-1 text-[.65rem] font-bold transition-colors",
+                  isActive ? "text-ur-gold" : "text-zinc-500 hover:text-white",
+                )}
+              >
+                <Icon
+                  size={21}
+                  strokeWidth={isActive ? 2.5 : 2}
+                  aria-hidden="true"
+                />
+                {label}
+              </Link>
+            );
+          })}
+        </div>
+      </nav>
+      <details className="border-t border-white/5">
+        <summary className="mx-auto flex min-h-10 max-w-lg cursor-pointer items-center justify-center text-xs font-black tracking-[.14em] text-zinc-400 uppercase">
+          Jornada e carreira
+        </summary>
+        <nav
+          aria-label="Jornada e carreira do atleta"
+          className="mx-auto grid max-w-lg grid-cols-2 gap-1 px-3 pb-3"
+        >
+          {journey.map(({ href, label, icon: Icon }) => {
+            const isActive = active(pathname, href);
+            return (
+              <Link
+                key={href}
+                href={href}
+                aria-current={isActive ? "page" : undefined}
+                className={cn(
+                  "rounded-ur flex min-h-10 items-center gap-2 px-3 text-xs font-bold",
+                  isActive
+                    ? "bg-ur-gold text-ur-black"
+                    : "bg-white/5 text-zinc-300 hover:text-white",
+                )}
+              >
+                <Icon size={15} aria-hidden="true" />
+                {label}
+              </Link>
+            );
+          })}
+        </nav>
+      </details>
+    </div>
   );
 }
 
