@@ -39,6 +39,7 @@ export async function getAthletePortalSnapshot({
       creditReserved: null,
       creditConsumed: null,
       summary: null,
+      development: null,
       rankings: null,
       primaryRanking: null,
       opportunities: null,
@@ -228,6 +229,23 @@ export async function getAthletePortalSnapshot({
           competitions: raw.report.competitions ?? 0,
           trainingAttendance: raw.report.training_attendance ?? 0,
           hunterCompleted: raw.report.hunter_completed ?? 0,
+        }
+      : null,
+    development: raw.development
+      ? {
+          planId: raw.development.plan_id,
+          levelSnapshot: raw.development.level_snapshot,
+          priorities: [
+            raw.development.priority_1,
+            raw.development.priority_2,
+            raw.development.priority_3,
+          ].filter((priority): priority is string => Boolean(priority)),
+          goal30Days: raw.development.goal_30_days,
+          hunterGoal: raw.development.hunter_goal,
+          reviewAt: raw.development.review_at,
+          hunterStatus: raw.development.hunter_status,
+          hunterMission: raw.development.hunter_mission,
+          hunterTheme: raw.development.hunter_theme,
         }
       : null,
     rankings,

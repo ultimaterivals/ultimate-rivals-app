@@ -35,6 +35,7 @@ export async function getAthleteSnapshotForViewer(
     creditReserved: null,
     creditConsumed: null,
     summary: null,
+    development: null,
     rankings: null,
     primaryRanking: null,
     opportunities: null,

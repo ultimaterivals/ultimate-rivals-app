@@ -19,6 +19,7 @@ export default async function AthleteDevelopmentPage() {
 
   const ranking = snapshot.primaryRanking;
   const summary = snapshot.summary;
+  const development = snapshot.development;
   const level = summary?.level ?? "Em nivelamento";
   const hasNextActivity = Boolean(snapshot.nextReservation);
 
@@ -51,14 +52,17 @@ export default async function AthleteDevelopmentPage() {
             Próxima missão
           </p>
           <h2 className="mt-2 text-2xl font-black">
-            {hasNextActivity
-              ? "Chegue preparado para sua próxima atividade"
-              : "Encontre sua próxima oportunidade"}
+            {development?.hunterMission ??
+              (hasNextActivity
+                ? "Chegue preparado para sua próxima atividade"
+                : "Encontre sua próxima oportunidade")}
           </h2>
           <p className="mt-2 text-sm text-zinc-400">
-            {hasNextActivity
-              ? "Sua reserva oficial já está registrada. O próximo passo é participar e gerar resultado homologado."
-              : "Acesse a Agenda UR e entre novamente no ciclo Jogar → Evoluir → Jogar novamente."}
+            {development?.goal30Days ??
+              development?.hunterGoal ??
+              (hasNextActivity
+                ? "Sua reserva oficial já está registrada. O próximo passo é participar e gerar resultado homologado."
+                : "Acesse a Agenda UR e entre novamente no ciclo Jogar → Evoluir → Jogar novamente.")}
           </p>
           <Link
             href="/athlete/agenda"
@@ -68,6 +72,40 @@ export default async function AthleteDevelopmentPage() {
           </Link>
         </Card>
       </section>
+
+      {development && (
+        <Card className="border-ur-gold/30">
+          <p className="text-xs font-black tracking-[.18em] text-zinc-500 uppercase">
+            Plano oficial de evolução
+          </p>
+          <h2 className="mt-2 text-2xl font-black">
+            {development.hunterMission ?? "Plano em acompanhamento"}
+          </h2>
+          <p className="mt-2 text-sm text-zinc-400">
+            {development.hunterStatus
+              ? `Status da missão: ${development.hunterStatus}.`
+              : "A operação ainda não publicou uma missão Hunter ativa para este plano."}
+          </p>
+          {development.priorities.length > 0 && (
+            <ul className="mt-4 grid gap-2 sm:grid-cols-3">
+              {development.priorities.map((priority) => (
+                <li
+                  key={priority}
+                  className="rounded-ur border border-white/10 p-3 text-sm font-bold"
+                >
+                  {priority}
+                </li>
+              ))}
+            </ul>
+          )}
+          {development.reviewAt && (
+            <p className="mt-4 text-sm text-zinc-500">
+              Revisão publicada para{" "}
+              {new Date(development.reviewAt).toLocaleDateString("pt-BR")}.
+            </p>
+          )}
+        </Card>
+      )}
 
       <section className="grid gap-5 lg:grid-cols-4">
         <Card>

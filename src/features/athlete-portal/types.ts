@@ -87,6 +87,18 @@ export type AthleteSeasonSummary = {
   hunterCompleted: number;
 };
 
+export type AthleteDevelopment = {
+  planId: string | null;
+  levelSnapshot: string | null;
+  priorities: string[];
+  goal30Days: string | null;
+  hunterGoal: string | null;
+  reviewAt: string | null;
+  hunterStatus: string | null;
+  hunterMission: string | null;
+  hunterTheme: string | null;
+};
+
 export type AthleteBillingSummary = {
   openItems: number;
   openAmount: number;
@@ -102,6 +114,7 @@ export type AthletePortalSnapshot = {
   creditReserved: number | null;
   creditConsumed: number | null;
   summary: AthleteSeasonSummary | null;
+  development: AthleteDevelopment | null;
   rankings: AthleteRanking[] | null;
   primaryRanking: AthleteRanking | null;
   opportunities: AthleteOpportunity[] | null;

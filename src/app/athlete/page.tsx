@@ -95,6 +95,7 @@ export default async function AthletePage() {
   const ranking = snapshot.primaryRanking;
   const summary = snapshot.summary;
   const nextReservation = snapshot.nextReservation;
+  const development = snapshot.development;
   const nextOpportunities = (snapshot.opportunities ?? [])
     .filter((item) => item.id !== nextReservation?.id)
     .slice(0, 3);
@@ -115,21 +116,31 @@ export default async function AthletePage() {
         href: "/athlete/agenda",
         cta: "Explorar agenda",
       };
-  const mission = nextReservation
+  const mission = development?.hunterMission
     ? {
-        title: "Transforme sua reserva em resultado",
+        title: development.hunterMission,
         description:
-          "Participe da próxima atividade oficial. Presença e resultado homologados alimentam sua evolução, ranking e economia do jogador.",
+          development.goal30Days ??
+          development.hunterGoal ??
+          "Sua missão foi publicada pela operação. Acompanhe o estado real da sua evolução.",
         href: "/athlete/development",
-        cta: "Ver sua evolução",
+        cta: "Abrir evolução",
       }
-    : {
-        title: "Volte para o ciclo de jogo",
-        description:
-          "Encontre uma oportunidade elegível, reserve sua participação e gere a próxima evidência oficial da sua jornada.",
-        href: "/athlete/agenda",
-        cta: "Encontrar oportunidade",
-      };
+    : nextReservation
+      ? {
+          title: "Transforme sua reserva em resultado",
+          description:
+            "Participe da próxima atividade oficial. Presença e resultado homologados alimentam sua evolução, ranking e economia do jogador.",
+          href: "/athlete/development",
+          cta: "Ver sua evolução",
+        }
+      : {
+          title: "Volte para o ciclo de jogo",
+          description:
+            "Encontre uma oportunidade elegível, reserve sua participação e gere a próxima evidência oficial da sua jornada.",
+          href: "/athlete/agenda",
+          cta: "Encontrar oportunidade",
+        };
 
   return (
     <div className="mx-auto grid max-w-7xl gap-6">
@@ -145,7 +156,7 @@ export default async function AthletePage() {
             <div className="mt-4 flex flex-wrap gap-2">
               <Badge>{snapshot.identity.athleteCode}</Badge>
               {summary?.level && <Badge>{summary.level}</Badge>}
-              {team && <Badge>{team.name}</Badge>}
+              {team && <Badge>Equipe: {team.name}</Badge>}
               <Badge>{snapshot.identity.status}</Badge>
             </div>
           </div>
@@ -229,7 +240,7 @@ export default async function AthletePage() {
           <div className="flex items-start justify-between gap-4">
             <div>
               <p className="text-xs font-black tracking-[.18em] text-zinc-500 uppercase">
-                Sua missão agora
+                Como chegar lá
               </p>
               <h2 className="mt-2 text-2xl font-black">{mission.title}</h2>
             </div>
@@ -238,6 +249,18 @@ export default async function AthletePage() {
           <p className="mt-3 text-sm leading-6 text-zinc-400">
             {mission.description}
           </p>
+          {development?.priorities.length ? (
+            <ul className="mt-4 grid gap-2 text-sm text-zinc-300">
+              {development.priorities.map((priority) => (
+                <li
+                  key={priority}
+                  className="rounded-ur border border-white/10 px-3 py-2"
+                >
+                  Prioridade oficial: {priority}
+                </li>
+              ))}
+            </ul>
+          ) : null}
           <Link
             href={mission.href}
             className="text-ur-gold mt-4 inline-flex items-center gap-1 font-black"

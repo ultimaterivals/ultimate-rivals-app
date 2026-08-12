@@ -26,6 +26,21 @@ export type RawAthleteReport = {
   hunter_completed: number | null;
 };
 
+export type RawAthleteDevelopment = {
+  athlete_id: string;
+  plan_id: string | null;
+  level_snapshot: string | null;
+  priority_1: string | null;
+  priority_2: string | null;
+  priority_3: string | null;
+  goal_30_days: string | null;
+  hunter_goal: string | null;
+  review_at: string | null;
+  hunter_status: string | null;
+  hunter_mission: string | null;
+  hunter_theme: string | null;
+};
+
 export type RawAthleteRanking = {
   id: string;
   season_id: string;
@@ -122,6 +137,7 @@ export type RawBillingItem = {
 export type AthletePortalRepositoryData = {
   athlete: RawAthleteIdentity | null;
   report: RawAthleteReport | null;
+  development: RawAthleteDevelopment | null;
   rankings: RawAthleteRanking[] | null;
   athletePackages: RawAthletePackage[] | null;
   creditBalances: RawCreditBalance[] | null;
@@ -143,6 +159,7 @@ function emptyData(errors: string[]): AthletePortalRepositoryData {
   return {
     athlete: null,
     report: null,
+    development: null,
     rankings: null,
     athletePackages: null,
     creditBalances: null,
@@ -200,6 +217,7 @@ export async function fetchAthletePortalRepositoryData({
   const opportunityEnd = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
   const [
     reportResult,
+    developmentResult,
     rankingResult,
     packageResult,
     creditResult,
@@ -213,6 +231,13 @@ export async function fetchAthletePortalRepositoryData({
       .from("athlete_report_summary")
       .select(
         "athlete_id,athlete_code,public_name,level,ur_coin_balance,games,competitions,training_attendance,hunter_completed",
+      )
+      .eq("athlete_id", athlete.id)
+      .maybeSingle(),
+    supabase
+      .from("athlete_development_summary")
+      .select(
+        "athlete_id,plan_id,level_snapshot,priority_1,priority_2,priority_3,goal_30_days,hunter_goal,review_at,hunter_status,hunter_mission,hunter_theme",
       )
       .eq("athlete_id", athlete.id)
       .maybeSingle(),
@@ -275,6 +300,7 @@ export async function fetchAthletePortalRepositoryData({
 
   const results = [
     ["athlete_report_summary", reportResult.error],
+    ["athlete_development_summary", developmentResult.error],
     ["individual_ranking", rankingResult.error],
     ["athlete_commercial_packages", packageResult.error],
     ["athlete_credit_balances", creditResult.error],
@@ -338,6 +364,9 @@ export async function fetchAthletePortalRepositoryData({
     report: reportResult.error
       ? null
       : ((reportResult.data as RawAthleteReport | null) ?? null),
+    development: developmentResult.error
+      ? null
+      : ((developmentResult.data as RawAthleteDevelopment | null) ?? null),
     rankings: rankingResult.error
       ? null
       : ((rankingResult.data as RawAthleteRanking[] | null) ?? []),

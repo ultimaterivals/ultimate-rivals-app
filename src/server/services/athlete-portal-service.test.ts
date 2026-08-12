@@ -15,6 +15,7 @@ describe("athlete portal service", () => {
     repositoryMock.mockResolvedValue({
       athlete: null,
       report: null,
+      development: null,
       rankings: null,
       athletePackages: null,
       creditBalances: null,
@@ -58,6 +59,20 @@ describe("athlete portal service", () => {
         competitions: 0,
         training_attendance: 1,
         hunter_completed: 0,
+      },
+      development: {
+        athlete_id: "athlete-1",
+        plan_id: "plan-1",
+        level_snapshot: "N2",
+        priority_1: "Recepção",
+        priority_2: null,
+        priority_3: null,
+        goal_30_days: "Participar de quatro sessões oficiais",
+        hunter_goal: "Concluir missão da semana",
+        review_at: "2026-09-01T12:00:00.000Z",
+        hunter_status: "in_progress",
+        hunter_mission: "Dominar a recepção",
+        hunter_theme: "fundamentos",
       },
       rankings: [],
       athletePackages: [
@@ -142,6 +157,8 @@ describe("athlete portal service", () => {
     expect(snapshot.creditConsumed).toBe(1);
     expect(snapshot.packages?.[0]?.unitsRemaining).toBe(2);
     expect(snapshot.summary?.urCoinBalance).toBe(120);
+    expect(snapshot.development?.priorities).toEqual(["Recepção"]);
+    expect(snapshot.development?.hunterMission).toBe("Dominar a recepção");
     expect(snapshot.identity?.gender).toBe("female");
     expect(snapshot.nextReservation?.personalReservationId).toBe(
       "reservation-1",
