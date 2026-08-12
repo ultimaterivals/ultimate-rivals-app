@@ -129,6 +129,15 @@ describe("App V1 ↔ Command integration contracts", () => {
     expect(playerHub).toContain("Último destaque");
   });
 
+  it("keeps the league ranking visible when an athlete has no personal entry", () => {
+    const ranking = source("src/app/athlete/ranking/page.tsx");
+
+    expect(ranking).toContain('.from("public_rankings")');
+    expect(ranking).toContain('.eq("ranking_type", "individual")');
+    expect(ranking).toContain("Ranking geral da liga");
+    expect(ranking).toContain("Seu histórico competitivo começará");
+  });
+
   it("keeps athlete Market writes behind the transactional RPC", () => {
     const athleteMarket = source("src/app/athlete/market/page.tsx");
 
