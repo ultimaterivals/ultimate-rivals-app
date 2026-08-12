@@ -1,5 +1,8 @@
 import { CheckCircle2, MessageSquareText } from "lucide-react";
-import { submitAthleteFeedbackAction } from "@/app/athlete/feedback/actions";
+import {
+  submitAthleteFeedbackAction,
+  submitAthleteSupportAction,
+} from "@/app/athlete/feedback/actions";
 import { Badge, Button, Card, PageHeader } from "@/components/ui";
 import { requireRole } from "@/lib/auth/session";
 import { getAthleteFeedbackSnapshot } from "@/server/services/athlete-feedback-service";
@@ -7,6 +10,8 @@ import { getAthleteFeedbackSnapshot } from "@/server/services/athlete-feedback-s
 type Params = Promise<{
   saved?: string | string[];
   error?: string | string[];
+  protocol?: string | string[];
+  supportError?: string | string[];
 }>;
 
 function single(value: string | string[] | undefined) {
@@ -31,6 +36,8 @@ export default async function AthleteFeedbackPage({
   ]);
   const saved = single(params.saved);
   const error = single(params.error);
+  const protocol = single(params.protocol);
+  const supportError = single(params.supportError);
   const open = snapshot.requests.filter((item) => item.status === "sent");
   const answered = snapshot.requests.filter(
     (item) => item.status === "responded",
@@ -40,9 +47,80 @@ export default async function AthleteFeedbackPage({
     <div className="grid gap-8">
       <PageHeader
         eyebrow="Sua experiência"
-        title="Feedback UR"
-        description="Sua resposta ajuda o Ultimate Rivals a corrigir a operação e melhorar as próximas sessões. A pergunta oficial usa a escala de 0 a 10."
+        title="Feedback e suporte"
+        description="Conte o que aconteceu. Sua mensagem chega à equipe UR e recebe um protocolo para acompanhamento."
       />
+
+      {protocol && (
+        <Card className="border-emerald-500/30 bg-emerald-500/5">
+          <p className="flex items-center gap-2 text-sm font-bold text-emerald-300">
+            <CheckCircle2 size={16} aria-hidden="true" /> Mensagem recebida.
+          </p>
+          <p className="mt-2 text-sm text-zinc-300">
+            Protocolo <strong>{protocol}</strong>. Guarde este número para
+            acompanhar seu caso.
+          </p>
+        </Card>
+      )}
+      {supportError && (
+        <Card className="border-red-500/30 bg-red-500/5">
+          <p className="text-sm font-bold text-red-300">
+            {supportError === "invalid"
+              ? "Escolha uma categoria e escreva pelo menos 10 caracteres."
+              : "Não foi possível enviar sua mensagem agora."}
+          </p>
+        </Card>
+      )}
+
+      <Card className="border-ur-gold/25">
+        <div>
+          <p className="font-display text-xl font-black uppercase">
+            Fale com a equipe UR
+          </p>
+          <p className="mt-1 text-sm text-zinc-500">
+            Use este espaço para dúvidas, sugestões ou situações que precisam de
+            atenção.
+          </p>
+        </div>
+        <form action={submitAthleteSupportAction} className="mt-5 grid gap-4">
+          <label className="grid gap-2 text-sm font-bold">
+            Assunto
+            <select
+              name="category"
+              required
+              defaultValue=""
+              className="rounded-ur min-h-11 border bg-black/20 px-3 text-sm font-normal"
+            >
+              <option value="" disabled>
+                Escolha um assunto
+              </option>
+              <option value="app">App</option>
+              <option value="game">Jogo</option>
+              <option value="refereeing">Arbitragem</option>
+              <option value="arena">Arena</option>
+              <option value="team">Equipe</option>
+              <option value="suggestion">Sugestão</option>
+              <option value="financial">Financeiro</option>
+              <option value="other">Outro</option>
+            </select>
+          </label>
+          <label className="grid gap-2 text-sm font-bold">
+            Sua mensagem
+            <textarea
+              name="message"
+              minLength={10}
+              maxLength={2000}
+              required
+              rows={5}
+              className="rounded-ur border bg-black/20 p-3 text-sm font-normal"
+              placeholder="Conte o que aconteceu e como podemos ajudar."
+            />
+          </label>
+          <Button type="submit">
+            <MessageSquareText size={16} aria-hidden="true" /> Enviar mensagem
+          </Button>
+        </form>
+      </Card>
 
       {saved && (
         <Card className="border-emerald-500/30 bg-emerald-500/5">
@@ -63,12 +141,11 @@ export default async function AthleteFeedbackPage({
 
       {snapshot.sourceErrors.length > 0 && (
         <Card>
-          <p className="font-bold">Leitura parcial</p>
-          <ul className="mt-2 grid gap-1 text-sm text-zinc-500">
-            {snapshot.sourceErrors.map((item) => (
-              <li key={item}>{item}</li>
-            ))}
-          </ul>
+          <p className="font-bold">Algumas respostas ainda não apareceram</p>
+          <p className="mt-2 text-sm text-zinc-500">
+            Atualize a página em alguns instantes. Sua mensagem de suporte
+            continua disponível acima.
+          </p>
         </Card>
       )}
 

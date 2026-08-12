@@ -38,6 +38,7 @@ export type AdminModuleKey =
   | "competitions"
   | "finance"
   | "market"
+  | "feedback"
   | "ecosystem"
   | "commercial"
   | "intelligence"
@@ -56,6 +57,16 @@ export type AdminModuleDefinition = {
 const allAdminRoles = adminPortalRoles;
 
 export const adminModules: readonly AdminModuleDefinition[] = [
+  {
+    key: "feedback",
+    label: "Feedback",
+    href: "/admin/feedback",
+    description:
+      "Mensagens recebidas dos atletas para acompanhamento da equipe.",
+    group: "Gestão",
+    allowedRoles: ["admin"],
+    icon: "intelligence",
+  },
   {
     key: "command",
     label: "Visão geral",

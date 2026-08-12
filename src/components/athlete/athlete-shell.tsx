@@ -23,7 +23,7 @@ import { stopAthletePreviewAction } from "@/features/admin-athlete-preview/actio
 import { BrandMark } from "@/components/layout/brand-mark";
 import { cn } from "@/lib/utils";
 
-const desktopPrimary = [
+const myGame = [
   { href: "/athlete", label: "Início", icon: House, exact: true },
   {
     href: "/athlete/agenda",
@@ -35,20 +35,6 @@ const desktopPrimary = [
     href: "/athlete/disponibilidade",
     label: "Disponibilidade",
     icon: Clock3,
-    exact: false,
-  },
-  { href: "/athlete/ranking", label: "Ranking", icon: Trophy, exact: false },
-  {
-    href: "/athlete/results",
-    label: "Resultados",
-    icon: Medal,
-    exact: false,
-  },
-  { href: "/athlete/team", label: "Equipe", icon: Users, exact: false },
-  {
-    href: "/athlete/perfil",
-    label: "Perfil",
-    icon: CircleUserRound,
     exact: false,
   },
 ] as const;
@@ -66,16 +52,25 @@ const mobilePrimary = [
   },
 ] as const;
 
-const journey = [
+const myJourney = [
+  { href: "/athlete/ranking", label: "Ranking", icon: Trophy },
   { href: "/athlete/season", label: "Temporada", icon: Medal },
   { href: "/athlete/results", label: "Resultados", icon: Trophy },
   { href: "/athlete/team", label: "Equipe", icon: Users },
   { href: "/athlete/development", label: "Missões e evolução", icon: Target },
+] as const;
+
+const ecosystem = [
   { href: "/athlete/arenas", label: "Arenas UR", icon: MapPin },
   { href: "/athlete/highlights", label: "Destaques", icon: Clapperboard },
-  { href: "/athlete/feedback", label: "Feedback UR", icon: MessageSquareText },
   { href: "/athlete/wallet", label: "Wallet URC", icon: Coins },
   { href: "/athlete/market", label: "UR Market", icon: ShoppingBag },
+  { href: "/athlete/perfil", label: "Perfil", icon: CircleUserRound },
+  {
+    href: "/athlete/feedback",
+    label: "Feedback e suporte",
+    icon: MessageSquareText,
+  },
 ] as const;
 
 function active(pathname: string, href: string, exact?: boolean) {
@@ -94,8 +89,9 @@ function NavigationLink({
   href: string;
   label: string;
   Icon:
-    | (typeof desktopPrimary)[number]["icon"]
-    | (typeof journey)[number]["icon"];
+    | (typeof myGame)[number]["icon"]
+    | (typeof myJourney)[number]["icon"]
+    | (typeof ecosystem)[number]["icon"];
   pathname: string;
   exact?: boolean;
 }) {
@@ -121,8 +117,8 @@ function DesktopNavigation({ preview = false }: { preview?: boolean }) {
   const pathname = usePathname();
   return (
     <nav aria-label="Navegação do atleta" className="hidden px-4 lg:block">
-      <div className="space-y-1">
-        {desktopPrimary.map(({ href, label, icon: Icon, exact }) => (
+      <NavigationSection label="Meu jogo">
+        {myGame.map(({ href, label, icon: Icon, exact }) => (
           <NavigationLink
             key={href}
             href={href}
@@ -132,30 +128,53 @@ function DesktopNavigation({ preview = false }: { preview?: boolean }) {
             exact={exact}
           />
         ))}
-      </div>
-      <div className="mt-6 border-t border-white/10 pt-5">
-        <p className="mb-2 px-3 text-[.65rem] font-black tracking-[.2em] text-zinc-600 uppercase">
-          Jornada e carreira
-        </p>
-        <div className="space-y-1">
-          {journey
-            .filter((item) => !preview || item.href !== "/athlete/feedback")
-            .map(({ href, label, icon: Icon }) => (
-              <NavigationLink
-                key={href}
-                href={href}
-                label={label}
-                Icon={Icon}
-                pathname={pathname}
-              />
-            ))}
-        </div>
-      </div>
+      </NavigationSection>
+      <NavigationSection label="Minha jornada">
+        {myJourney.map(({ href, label, icon: Icon }) => (
+          <NavigationLink
+            key={href}
+            href={href}
+            label={label}
+            Icon={Icon}
+            pathname={pathname}
+          />
+        ))}
+      </NavigationSection>
+      <NavigationSection label="Ecossistema">
+        {ecosystem
+          .filter((item) => !preview || item.href !== "/athlete/feedback")
+          .map(({ href, label, icon: Icon }) => (
+            <NavigationLink
+              key={href}
+              href={href}
+              label={label}
+              Icon={Icon}
+              pathname={pathname}
+            />
+          ))}
+      </NavigationSection>
     </nav>
   );
 }
 
-function MobileNavigation() {
+function NavigationSection({
+  label,
+  children,
+}: {
+  label: string;
+  children: ReactNode;
+}) {
+  return (
+    <section className="mt-6 border-t border-white/10 pt-5 first:mt-0 first:border-t-0 first:pt-0">
+      <p className="mb-2 px-3 text-[.65rem] font-black tracking-[.2em] text-zinc-600 uppercase">
+        {label}
+      </p>
+      <div className="space-y-1">{children}</div>
+    </section>
+  );
+}
+
+function MobileNavigation({ preview = false }: { preview?: boolean }) {
   const pathname = usePathname();
   return (
     <div className="relative shrink-0 border-t border-zinc-800 bg-[#0b0b0b]/[.98] pb-[env(safe-area-inset-bottom)] backdrop-blur lg:hidden">
@@ -186,31 +205,38 @@ function MobileNavigation() {
       </nav>
       <details className="border-t border-white/5">
         <summary className="mx-auto flex min-h-10 max-w-lg cursor-pointer items-center justify-center text-xs font-black tracking-[.14em] text-zinc-400 uppercase">
-          Jornada e carreira
+          Mais do seu jogo
         </summary>
         <nav
-          aria-label="Jornada e carreira do atleta"
+          aria-label="Mais opções do atleta"
           className="mx-auto grid max-w-lg grid-cols-2 gap-1 px-3 pb-3"
         >
-          {journey.map(({ href, label, icon: Icon }) => {
-            const isActive = active(pathname, href);
-            return (
-              <Link
-                key={href}
-                href={href}
-                aria-current={isActive ? "page" : undefined}
-                className={cn(
-                  "rounded-ur flex min-h-10 items-center gap-2 px-3 text-xs font-bold",
-                  isActive
-                    ? "bg-ur-gold text-ur-black"
-                    : "bg-white/5 text-zinc-300 hover:text-white",
-                )}
-              >
-                <Icon size={15} aria-hidden="true" />
-                {label}
-              </Link>
-            );
-          })}
+          {[...myGame.slice(2), ...myJourney, ...ecosystem]
+            .filter(
+              (item, index, items) =>
+                items.findIndex((candidate) => candidate.href === item.href) ===
+                index,
+            )
+            .filter((item) => !preview || item.href !== "/athlete/feedback")
+            .map(({ href, label, icon: Icon }) => {
+              const isActive = active(pathname, href);
+              return (
+                <Link
+                  key={href}
+                  href={href}
+                  aria-current={isActive ? "page" : undefined}
+                  className={cn(
+                    "rounded-ur flex min-h-10 items-center gap-2 px-3 text-xs font-bold",
+                    isActive
+                      ? "bg-ur-gold text-ur-black"
+                      : "bg-white/5 text-zinc-300 hover:text-white",
+                  )}
+                >
+                  <Icon size={15} aria-hidden="true" />
+                  {label}
+                </Link>
+              );
+            })}
         </nav>
       </details>
     </div>
@@ -291,7 +317,7 @@ export function AthleteShell({
           {children}
         </main>
       </div>
-      <MobileNavigation />
+      <MobileNavigation preview={Boolean(preview)} />
     </div>
   );
 }

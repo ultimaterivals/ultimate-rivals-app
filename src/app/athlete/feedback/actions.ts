@@ -6,6 +6,47 @@ import { z } from "zod";
 import { requireRole } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
 
+const feedbackCategory = z.enum([
+  "app",
+  "game",
+  "refereeing",
+  "arena",
+  "team",
+  "suggestion",
+  "financial",
+  "other",
+]);
+
+export async function submitAthleteSupportAction(formData: FormData) {
+  await requireRole(["athlete"]);
+  const parsed = z
+    .object({
+      category: feedbackCategory,
+      message: z.string().trim().min(10).max(2000),
+    })
+    .safeParse({
+      category: formData.get("category"),
+      message: String(formData.get("message") ?? ""),
+    });
+
+  if (!parsed.success) redirect("/athlete/feedback?supportError=invalid");
+
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc(
+    "submit_my_athlete_feedback_case",
+    {
+      target_category: parsed.data.category,
+      target_message: parsed.data.message,
+    },
+  );
+  const protocol = (data as { protocol?: string }[] | null)?.[0]?.protocol;
+
+  if (error || !protocol) redirect("/athlete/feedback?supportError=save");
+  revalidatePath("/athlete/feedback");
+  revalidatePath("/admin/feedback");
+  redirect(`/athlete/feedback?protocol=${encodeURIComponent(protocol)}`);
+}
+
 export async function submitAthleteFeedbackAction(formData: FormData) {
   await requireRole(["athlete"]);
   const parsed = z

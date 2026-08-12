@@ -261,8 +261,8 @@ export function AthleteOpportunityCard({
                 </Button>
                 {opportunity.personalReservationStatus !== "waitlisted" && (
                   <p className="text-xs leading-5 text-zinc-600">
-                    O backend aplica a janela de cancelamento da sessão. Fora da
-                    janela gratuita, o crédito pode ser consumido.
+                    O cancelamento segue a janela desta sessão. Depois do prazo
+                    gratuito, seu crédito pode ser usado.
                   </p>
                 )}
               </form>

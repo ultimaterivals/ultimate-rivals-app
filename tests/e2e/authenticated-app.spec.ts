@@ -307,6 +307,35 @@ test("official check-in consumes the held credit and reflects completion back in
   ).toBeVisible({ timeout: 20_000 });
 });
 
+test("athlete feedback is registered with a protocol and reaches Command", async ({
+  page,
+}) => {
+  await login(page, "athlete@test.ur.local", /\/athlete/);
+  await page.goto("/athlete/feedback");
+
+  await page.getByLabel("Assunto").selectOption("arena");
+  await page
+    .getByLabel("Sua mensagem")
+    .fill(
+      "[QA] Iluminação da arena precisa de atenção antes da próxima sessão.",
+    );
+  await page.getByRole("button", { name: "Enviar mensagem" }).click();
+  await expect(page).toHaveURL(/\/athlete\/feedback\?protocol=URF-/, {
+    timeout: 20_000,
+  });
+  const protocol = await page.getByText(/Protocolo URF-/).textContent();
+  expect(protocol).toMatch(/URF-/);
+
+  await login(page, "admin@test.ur.local", /\/admin/);
+  await page.goto("/admin/feedback");
+  await expect(
+    page.getByText(
+      "[QA] Iluminação da arena precisa de atenção antes da próxima sessão.",
+    ),
+  ).toBeVisible();
+  await expect(page.getByText("Arena", { exact: true })).toBeVisible();
+});
+
 test("admin Preview renders athlete App read-only without replacing admin Auth", async ({
   page,
 }) => {

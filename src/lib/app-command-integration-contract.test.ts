@@ -15,8 +15,11 @@ describe("App V1 ↔ Command integration contracts", () => {
     expect(athleteLayout).not.toContain("PortalShell");
     expect(athleteShell).toContain("App do Atleta");
     expect(athleteShell).toContain('aria-label="Navegação do atleta"');
-    expect(athleteShell).toContain("Jornada e carreira");
-    expect(athleteShell).toContain('aria-label="Jornada e carreira do atleta"');
+    expect(athleteShell).toContain("Meu jogo");
+    expect(athleteShell).toContain("Minha jornada");
+    expect(athleteShell).toContain("Ecossistema");
+    expect(athleteShell).toContain('aria-label="Mais opções do atleta"');
+    expect(athleteShell).toContain("Feedback e suporte");
   });
 
   it("keeps Preview admin-only, read-only and without Auth impersonation", () => {
@@ -41,6 +44,35 @@ describe("App V1 ↔ Command integration contracts", () => {
     expect(athleteAgenda).toContain("readOnly={viewer.isPreview}");
     expect(opportunityCard).toContain("readOnly = false");
     expect(opportunityCard).toContain("não são renderizadas");
+  });
+
+  it("keeps athlete feedback in AthleteShell and sends support cases through the canonical flow", () => {
+    const feedbackPage = source("src/app/athlete/feedback/page.tsx");
+    const feedbackActions = source("src/app/athlete/feedback/actions.ts");
+    const feedbackMigration = source(
+      "supabase/migrations/20260812160000_athlete_feedback_cases.sql",
+    );
+
+    expect(feedbackPage).toContain("Feedback e suporte");
+    expect(feedbackPage).toContain("Protocolo");
+    for (const category of [
+      "App",
+      "Jogo",
+      "Arbitragem",
+      "Arena",
+      "Equipe",
+      "Sugestão",
+      "Financeiro",
+      "Outro",
+    ]) {
+      expect(feedbackPage).toContain(category);
+    }
+    expect(feedbackActions).toContain('requireRole(["athlete"])');
+    expect(feedbackActions).toContain("submit_my_athlete_feedback_case");
+    expect(feedbackActions).not.toContain('redirect("/admin');
+    expect(feedbackMigration).toContain("enable row level security");
+    expect(feedbackMigration).toContain("athlete_feedback_cases_select");
+    expect(feedbackMigration).toContain("athlete_feedback_case.submitted");
   });
 
   it("allows an admin with a competitive identity to use the Athlete App", () => {

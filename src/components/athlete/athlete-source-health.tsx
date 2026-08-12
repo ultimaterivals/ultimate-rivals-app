@@ -1,4 +1,4 @@
-import { DatabaseZap } from "lucide-react";
+import { CircleAlert } from "lucide-react";
 import { Card } from "@/components/ui";
 
 export function AthleteSourceHealth({ errors }: { errors: readonly string[] }) {
@@ -6,7 +6,7 @@ export function AthleteSourceHealth({ errors }: { errors: readonly string[] }) {
   return (
     <Card>
       <div className="flex items-start gap-3">
-        <DatabaseZap
+        <CircleAlert
           className="text-ur-gold mt-0.5"
           size={18}
           aria-hidden="true"
@@ -15,11 +15,10 @@ export function AthleteSourceHealth({ errors }: { errors: readonly string[] }) {
           <p className="font-bold">
             Algumas informações ainda não puderam ser carregadas
           </p>
-          <ul className="mt-2 grid gap-1 text-sm text-zinc-500">
-            {errors.map((error) => (
-              <li key={error}>{error}</li>
-            ))}
-          </ul>
+          <p className="mt-2 text-sm text-zinc-500">
+            Atualize a página em alguns instantes. Se o problema continuar,
+            envie uma mensagem em Feedback e suporte.
+          </p>
         </div>
       </div>
     </Card>

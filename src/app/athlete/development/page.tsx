@@ -219,7 +219,7 @@ export default async function AthleteDevelopmentPage() {
           ],
           [
             "UR Legends",
-            "Reconhecimentos e requisitos entram apenas quando a temporada publicar fonte canônica verificável.",
+            "Reconhecimentos e requisitos aparecem quando a temporada estiver pronta para esta etapa.",
           ],
         ].map(([title, description]) => (
           <Card key={title}>

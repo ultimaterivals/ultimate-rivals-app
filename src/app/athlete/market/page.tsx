@@ -115,7 +115,7 @@ export default async function AthleteMarketPage({
             Resgate reservado com sucesso.
           </strong>
           <p className="mt-1 text-sm text-zinc-400">
-            O débito já foi registrado no ledger de UR Coins e a operação pode
+            Suas UR Coins já foram usadas neste resgate. A equipe UR vai
             concluir a entrega pelo Market.
           </p>
         </Card>
@@ -144,8 +144,7 @@ export default async function AthleteMarketPage({
               Sua participação ganha utilidade
             </h2>
             <p className="mt-3 max-w-2xl text-zinc-400">
-              O catálogo abaixo vem das ofertas ativas do backend oficial.
-              Nenhum produto fictício é criado para preencher a loja.
+              Aqui você encontra as ofertas disponíveis para sua jornada UR.
             </p>
           </div>
           <div className="rounded-ur border-ur-gold/30 border bg-black/30 p-5 lg:min-w-64">
@@ -175,14 +174,14 @@ export default async function AthleteMarketPage({
           <Coins className="text-ur-gold" />
           <strong className="mt-3 block text-lg">UR Coins</strong>
           <p className="mt-1 text-sm text-zinc-500">
-            O saldo vem do ledger oficial.
+            Seu saldo acompanha as UR Coins conquistadas e usadas na jornada.
           </p>
         </Card>
         <Card>
           <Sparkles className="text-ur-gold" />
-          <strong className="mt-3 block text-lg">Resgate atômico</strong>
+          <strong className="mt-3 block text-lg">Resgate seguro</strong>
           <p className="mt-1 text-sm text-zinc-500">
-            Saldo, estoque, limite e débito são validados na mesma transação.
+            Seu saldo, o estoque e os limites são conferidos antes do resgate.
           </p>
         </Card>
       </section>

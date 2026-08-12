@@ -57,11 +57,14 @@ test("athlete mobile navigation preserves the dedicated App experience", async (
 
   await page
     .locator("summary")
-    .getByText("Jornada e carreira", { exact: true })
+    .getByText("Mais do seu jogo", { exact: true })
     .click();
   const journey = page.getByRole("navigation", {
-    name: "Jornada e carreira do atleta",
+    name: "Mais opções do atleta",
   });
+  await expect(
+    journey.getByRole("link", { name: "Disponibilidade" }),
+  ).toBeVisible();
   await expect(journey.getByRole("link", { name: "Resultados" })).toBeVisible();
   await expect(journey.getByRole("link", { name: "Equipe" })).toBeVisible();
   await expect(
@@ -69,6 +72,9 @@ test("athlete mobile navigation preserves the dedicated App experience", async (
   ).toBeVisible();
   await expect(journey.getByRole("link", { name: "Wallet URC" })).toBeVisible();
   await expect(journey.getByRole("link", { name: "UR Market" })).toBeVisible();
+  await expect(
+    journey.getByRole("link", { name: "Feedback e suporte" }),
+  ).toBeVisible();
 });
 
 test("Athlete App and Command preserve critical mobile navigation at approved viewports", async ({

@@ -48,7 +48,7 @@ export default async function AthleteResultsPage() {
       <PageHeader
         eyebrow="Resultados"
         title="Seus jogos oficiais"
-        description="Placares e estatísticas registrados pela operação. Ranking é calculado somente pelo processamento oficial."
+        description="Placares e estatísticas dos seus jogos. Seu ranking é atualizado com os resultados confirmados."
       />
       {matches.length === 0 ? (
         <Card>
