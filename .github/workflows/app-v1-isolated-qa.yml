@@ -198,6 +198,9 @@ jobs:
       - name: Run authenticated Athlete App mobile E2E
         run: npx playwright test tests/e2e/authenticated-mobile.spec.ts --project=mobile
 
+      - name: Capture Athlete App mobile visual evidence
+        run: npx playwright test tests/e2e/visual-uat.spec.ts --project=mobile
+
       - name: Run authenticated Market economy E2E
         run: npx playwright test tests/e2e/market-economy.spec.ts --project=chromium
 
