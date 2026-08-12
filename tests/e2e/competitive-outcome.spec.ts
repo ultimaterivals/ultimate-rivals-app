@@ -223,10 +223,14 @@ test("homologated UR Play result processes ranking and official UR Coins exactly
     ),
   ).toBe(1);
 
+  const walletBalance = runSql(
+    `select coalesce(sum(case when direction='credit' then amount else -amount end), 0) from public.ur_coin_transactions where athlete_id='${athleteA}'::uuid;`,
+  );
+
   await loginAthlete(page);
   await page.goto("/athlete/wallet");
-  await expect(page.getByRole("heading", { name: "Wallet URC" })).toBeVisible();
-  await expect(page.getByText(/Histórico recente/i)).toContainText(
-    /UR Play|Competição/i,
-  );
+  await expect(
+    page.getByRole("heading", { name: "Sua economia no ecossistema" }),
+  ).toBeVisible();
+  await expect(page.getByText(walletBalance, { exact: true }).first()).toBeVisible();
 });
