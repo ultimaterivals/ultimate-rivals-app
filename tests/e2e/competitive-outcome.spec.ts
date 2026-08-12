@@ -181,7 +181,7 @@ test("homologated UR Play result processes ranking and official UR Coins exactly
 
   expect(
     runSql(
-      `select status from public.ranking_processing_runs where source_id='${matchId}'::uuid order by created_at desc limit 1;`,
+      `select status from public.ranking_processing_runs where source_id='${matchId}'::uuid order by completed_at desc nulls last limit 1;`,
     ),
   ).toBe("completed");
   expect(
