@@ -144,7 +144,9 @@ describe("App V1 ↔ Command integration contracts", () => {
       "revoke insert on table public.ur_coin_transactions from authenticated",
     );
     expect(marketRedemption).toContain("security definer");
-    expect(marketRedemption).toContain("Only athletes can redeem Market offers");
+    expect(marketRedemption).toContain(
+      "Only athletes can redeem Market offers",
+    );
     expect(sessionProcessor).toContain("SESSION_OPERATION_DENIED");
   });
 
