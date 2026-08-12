@@ -43,6 +43,21 @@ describe("App V1 ↔ Command integration contracts", () => {
     expect(opportunityCard).toContain("não são renderizadas");
   });
 
+  it("allows an admin with a competitive identity to use the Athlete App", () => {
+    const session = source("src/lib/auth/session.ts");
+    const viewer = source("src/lib/auth/athlete-viewer.ts");
+    const login = source("src/features/auth/actions.ts");
+
+    expect(session).toContain("resolveSessionRole");
+    expect(session).toContain('.from("profiles")');
+    expect(viewer).toContain("previewAthleteId");
+    expect(viewer).toContain('.eq("profile_id", identity.userId)');
+    expect(viewer).toContain('.eq("status", "active")');
+    expect(login).toContain('.eq("profile_id", data.user.id)');
+    expect(login).toContain('.eq("status", "active")');
+    expect(login).toContain('redirect("/athlete")');
+  });
+
   it("reflects official UR Play attendance outcomes back into the athlete App", () => {
     const attendanceActions = source(
       "src/app/admin/ur-play/presenca/actions.ts",

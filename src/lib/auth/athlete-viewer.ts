@@ -21,16 +21,42 @@ export async function requireAthleteViewer(): Promise<AthleteViewerContext> {
 
   const client = await createClient();
 
-  if (identity.role === "athlete") {
+  const previewAthleteId =
+    identity.role === "admin"
+      ? (await cookies()).get(ATHLETE_PREVIEW_COOKIE)?.value
+      : null;
+
+  if (previewAthleteId) {
     const { data: athlete, error } = await client
       .from("athletes")
       .select("id,profile_id,public_name,athlete_code")
-      .eq("profile_id", identity.userId)
+      .eq("id", previewAthleteId)
       .maybeSingle();
 
     if (error) throw error;
-    if (!athlete) redirect("/athlete/perfil");
+    if (!athlete) redirect("/admin/preview?invalid=1");
 
+    return {
+      athleteId: athlete.id,
+      userId: athlete.profile_id,
+      isPreview: true,
+      athlete: {
+        id: athlete.id,
+        publicName: athlete.public_name,
+        athleteCode: athlete.athlete_code,
+      },
+    };
+  }
+
+  const { data: athlete, error } = await client
+    .from("athletes")
+    .select("id,profile_id,public_name,athlete_code")
+    .eq("profile_id", identity.userId)
+    .eq("status", "active")
+    .maybeSingle();
+
+  if (error) throw error;
+  if (athlete) {
     return {
       athleteId: athlete.id,
       userId: identity.userId,
@@ -44,27 +70,5 @@ export async function requireAthleteViewer(): Promise<AthleteViewerContext> {
   }
 
   if (identity.role !== "admin") redirect("/admin");
-
-  const athleteId = (await cookies()).get(ATHLETE_PREVIEW_COOKIE)?.value;
-  if (!athleteId) redirect("/admin/preview");
-
-  const { data: athlete, error } = await client
-    .from("athletes")
-    .select("id,profile_id,public_name,athlete_code")
-    .eq("id", athleteId)
-    .maybeSingle();
-
-  if (error) throw error;
-  if (!athlete) redirect("/admin/preview?invalid=1");
-
-  return {
-    athleteId: athlete.id,
-    userId: athlete.profile_id,
-    isPreview: true,
-    athlete: {
-      id: athlete.id,
-      publicName: athlete.public_name,
-      athleteCode: athlete.athlete_code,
-    },
-  };
+  redirect("/admin/preview");
 }

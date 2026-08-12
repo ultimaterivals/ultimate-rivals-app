@@ -45,15 +45,30 @@ test("athlete mobile navigation preserves the dedicated App experience", async (
   await expect(navigation).toBeVisible();
 
   for (const destination of [
-    { label: "Agenda", path: /\/athlete\/agenda/ },
-    { label: "Disponibilidade", path: /\/athlete\/disponibilidade/ },
+    { label: "Jogar", path: /\/athlete\/agenda/ },
     { label: "Ranking", path: /\/athlete\/ranking/ },
+    { label: "Temporada", path: /\/athlete\/season/ },
     { label: "Perfil", path: /\/athlete\/perfil/ },
     { label: "Início", path: /\/athlete$/ },
   ]) {
     await navigation.getByRole("link", { name: destination.label }).click();
     await expect(page).toHaveURL(destination.path, { timeout: 20_000 });
   }
+
+  await page
+    .locator("summary")
+    .getByText("Jornada e carreira", { exact: true })
+    .click();
+  const journey = page.getByRole("navigation", {
+    name: "Jornada e carreira do atleta",
+  });
+  await expect(journey.getByRole("link", { name: "Resultados" })).toBeVisible();
+  await expect(journey.getByRole("link", { name: "Equipe" })).toBeVisible();
+  await expect(
+    journey.getByRole("link", { name: "Missões e evolução" }),
+  ).toBeVisible();
+  await expect(journey.getByRole("link", { name: "Wallet URC" })).toBeVisible();
+  await expect(journey.getByRole("link", { name: "UR Market" })).toBeVisible();
 });
 
 test("Athlete App and Command preserve critical mobile navigation at approved viewports", async ({
@@ -79,7 +94,7 @@ test("Athlete App and Command preserve critical mobile navigation at approved vi
     });
     await expect(athleteNavigation).toBeVisible();
     await expect(
-      athleteNavigation.getByRole("link", { name: "Agenda" }),
+      athleteNavigation.getByRole("link", { name: "Jogar" }),
     ).toHaveCSS("min-height", "64px");
 
     await login(page, "admin@test.ur.local", /\/admin/);

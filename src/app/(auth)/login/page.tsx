@@ -4,6 +4,7 @@ import { Card } from "@/components/ui";
 import { LoginForm } from "@/features/auth/login-form";
 
 export const metadata: Metadata = { title: "Entrar" };
+
 export default function LoginPage() {
   return (
     <main className="relative grid min-h-dvh place-items-center overflow-hidden px-4 py-10">
@@ -15,20 +16,16 @@ export default function LoginPage() {
         </div>
         <Card className="p-6 sm:p-8">
           <p className="text-ur-gold text-xs font-bold tracking-[.2em] uppercase">
-            Acesso oficial
+            Ultimate Rivals
           </p>
           <h1 className="font-display mt-3 text-3xl font-black uppercase">
-            Entre na arena
+            Bem-vindo de volta
           </h1>
           <p className="mt-2 mb-7 text-sm leading-6 text-zinc-400">
-            Use suas credenciais para acessar o portal correspondente ao seu
-            papel.
+            Entre para continuar sua temporada.
           </p>
           <LoginForm />
         </Card>
-        <p className="mt-5 text-center text-xs text-zinc-600">
-          Ambiente em fundação — acesso restrito
-        </p>
       </div>
     </main>
   );

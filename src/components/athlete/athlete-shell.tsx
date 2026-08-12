@@ -23,7 +23,7 @@ import { stopAthletePreviewAction } from "@/features/admin-athlete-preview/actio
 import { BrandMark } from "@/components/layout/brand-mark";
 import { cn } from "@/lib/utils";
 
-const primary = [
+const desktopPrimary = [
   { href: "/athlete", label: "Início", icon: House, exact: true },
   {
     href: "/athlete/agenda",
@@ -53,8 +53,23 @@ const primary = [
   },
 ] as const;
 
+const mobilePrimary = [
+  { href: "/athlete", label: "Início", icon: House, exact: true },
+  { href: "/athlete/agenda", label: "Jogar", icon: CalendarDays, exact: false },
+  { href: "/athlete/ranking", label: "Ranking", icon: Trophy, exact: false },
+  { href: "/athlete/season", label: "Temporada", icon: Medal, exact: false },
+  {
+    href: "/athlete/perfil",
+    label: "Perfil",
+    icon: CircleUserRound,
+    exact: false,
+  },
+] as const;
+
 const journey = [
   { href: "/athlete/season", label: "Temporada", icon: Medal },
+  { href: "/athlete/results", label: "Resultados", icon: Trophy },
+  { href: "/athlete/team", label: "Equipe", icon: Users },
   { href: "/athlete/development", label: "Missões e evolução", icon: Target },
   { href: "/athlete/arenas", label: "Arenas UR", icon: MapPin },
   { href: "/athlete/highlights", label: "Destaques", icon: Clapperboard },
@@ -78,7 +93,9 @@ function NavigationLink({
 }: {
   href: string;
   label: string;
-  Icon: (typeof primary)[number]["icon"] | (typeof journey)[number]["icon"];
+  Icon:
+    | (typeof desktopPrimary)[number]["icon"]
+    | (typeof journey)[number]["icon"];
   pathname: string;
   exact?: boolean;
 }) {
@@ -105,7 +122,7 @@ function DesktopNavigation({ preview = false }: { preview?: boolean }) {
   return (
     <nav aria-label="Navegação do atleta" className="hidden px-4 lg:block">
       <div className="space-y-1">
-        {primary.map(({ href, label, icon: Icon, exact }) => (
+        {desktopPrimary.map(({ href, label, icon: Icon, exact }) => (
           <NavigationLink
             key={href}
             href={href}
@@ -144,7 +161,7 @@ function MobileNavigation() {
     <div className="relative shrink-0 border-t border-zinc-800 bg-[#0b0b0b]/[.98] pb-[env(safe-area-inset-bottom)] backdrop-blur lg:hidden">
       <nav aria-label="Navegação principal do atleta">
         <div className="mx-auto grid max-w-lg grid-cols-5">
-          {primary.map(({ href, label, icon: Icon, exact }) => {
+          {mobilePrimary.map(({ href, label, icon: Icon, exact }) => {
             const isActive = active(pathname, href, exact);
             return (
               <Link
