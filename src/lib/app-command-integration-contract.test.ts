@@ -126,6 +126,28 @@ describe("App V1 ↔ Command integration contracts", () => {
     expect(athleteMarket).toContain("viewer.isPreview");
   });
 
+  it("blocks direct browser writes to the UR Coin ledger", () => {
+    const restriction = source(
+      "supabase/migrations/20260812145703_restrict_ur_coin_direct_client_writes.sql",
+    );
+    const marketRedemption = source(
+      "supabase/migrations/20260811081000_atomic_urc_market_redemption.sql",
+    );
+    const sessionProcessor = source(
+      "supabase/migrations/20260811030000_ur_play_coins_by_evidence.sql",
+    );
+
+    expect(restriction).toContain(
+      "drop policy if exists ur_coin_transactions_insert",
+    );
+    expect(restriction).toContain(
+      "revoke insert on table public.ur_coin_transactions from authenticated",
+    );
+    expect(marketRedemption).toContain("security definer");
+    expect(marketRedemption).toContain("Only athletes can redeem Market offers");
+    expect(sessionProcessor).toContain("SESSION_OPERATION_DENIED");
+  });
+
   it("keeps UR Market fulfillment transactional, audited and admin-only", () => {
     const modules = source("src/lib/auth/admin-modules.ts");
     const adminMarket = source("src/app/admin/market/page.tsx");
