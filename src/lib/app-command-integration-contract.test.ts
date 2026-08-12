@@ -152,6 +152,21 @@ describe("App V1 ↔ Command integration contracts", () => {
     expect(fulfillment).toContain("request_id");
   });
 
+  it("exposes canonical audit logs to authorized Command roles without write actions", () => {
+    const modules = source("src/lib/auth/admin-modules.ts");
+    const auditPage = source("src/app/admin/auditoria/page.tsx");
+    const auditRepository = source(
+      "src/server/repositories/admin-audit-repository.ts",
+    );
+
+    expect(modules).toContain('key: "audit"');
+    expect(modules).toContain('allowedRoles: ["admin", "operator"]');
+    expect(auditPage).toContain('requireAdminModule("audit")');
+    expect(auditPage).toContain("somente leitura");
+    expect(auditRepository).toContain('.from("audit_logs")');
+    expect(auditRepository).not.toMatch(/\.insert\(|\.update\(|\.delete\(/);
+  });
+
   it("exposes only publishable external media in athlete surfaces", () => {
     const highlights = source("src/app/athlete/highlights/page.tsx");
     const arenas = source("src/app/athlete/arenas/page.tsx");

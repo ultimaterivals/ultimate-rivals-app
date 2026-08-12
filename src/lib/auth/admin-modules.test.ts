@@ -4,9 +4,10 @@ import { canAccessAdminModule, getAdminModulesForRole } from "./admin-modules";
 describe("admin module access", () => {
   it("gives admin access to every current module including athlete preview and market", () => {
     const modules = getAdminModulesForRole("admin");
-    expect(modules).toHaveLength(12);
+    expect(modules).toHaveLength(13);
     expect(modules.some((module) => module.key === "preview")).toBe(true);
     expect(modules.some((module) => module.key === "market")).toBe(true);
+    expect(modules.some((module) => module.key === "audit")).toBe(true);
     expect(canAccessAdminModule("admin", "preview")).toBe(true);
     expect(canAccessAdminModule("admin", "market")).toBe(true);
   });

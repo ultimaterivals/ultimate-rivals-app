@@ -40,7 +40,8 @@ export type AdminModuleKey =
   | "market"
   | "ecosystem"
   | "commercial"
-  | "intelligence";
+  | "intelligence"
+  | "audit";
 
 export type AdminModuleDefinition = {
   key: AdminModuleKey;
@@ -163,6 +164,15 @@ export const adminModules: readonly AdminModuleDefinition[] = [
     description: "Funil, demanda, retenção, alertas e recomendações.",
     group: "Gestão",
     allowedRoles: ["admin", "pole_manager"],
+    icon: "intelligence",
+  },
+  {
+    key: "audit",
+    label: "Auditoria",
+    href: "/admin/auditoria",
+    description: "Linha do tempo imutável das alterações operacionais críticas.",
+    group: "Gestão",
+    allowedRoles: ["admin", "operator"],
     icon: "intelligence",
   },
 ] as const;
