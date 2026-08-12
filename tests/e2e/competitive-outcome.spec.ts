@@ -232,5 +232,7 @@ test("homologated UR Play result processes ranking and official UR Coins exactly
   await expect(
     page.getByRole("heading", { name: "Sua economia no ecossistema" }),
   ).toBeVisible();
-  await expect(page.getByText(walletBalance, { exact: true }).first()).toBeVisible();
+  await expect(
+    page.getByText(walletBalance, { exact: true }).first(),
+  ).toBeVisible();
 });
