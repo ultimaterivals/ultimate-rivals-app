@@ -170,7 +170,8 @@ export const adminModules: readonly AdminModuleDefinition[] = [
     key: "audit",
     label: "Auditoria",
     href: "/admin/auditoria",
-    description: "Linha do tempo imutável das alterações operacionais críticas.",
+    description:
+      "Linha do tempo imutável das alterações operacionais críticas.",
     group: "Gestão",
     allowedRoles: ["admin", "operator"],
     icon: "intelligence",

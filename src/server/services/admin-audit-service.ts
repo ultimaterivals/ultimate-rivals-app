@@ -5,7 +5,12 @@ export async function getAdminAuditSnapshot(): Promise<AdminAuditSnapshot> {
   const raw = await fetchAdminAuditLogs();
 
   return {
-    status: raw.errors.length > 0 ? "partial" : raw.entries.length ? "ready" : "empty",
+    status:
+      raw.errors.length > 0
+        ? "partial"
+        : raw.entries.length
+          ? "ready"
+          : "empty",
     entries: raw.entries.map((entry) => ({
       id: entry.id,
       actorUserId: entry.actor_user_id,

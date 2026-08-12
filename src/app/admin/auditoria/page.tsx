@@ -61,14 +61,22 @@ export default async function AdminAuditPage() {
             <tbody className="divide-y">
               {snapshot.entries.map((entry) => (
                 <tr key={entry.id} className="bg-ur-graphite/50 align-top">
-                  <td className="px-4 py-3 whitespace-nowrap">{formatDate(entry.createdAt)}</td>
+                  <td className="px-4 py-3 whitespace-nowrap">
+                    {formatDate(entry.createdAt)}
+                  </td>
                   <td className="px-4 py-3 font-bold">{entry.action}</td>
                   <td className="px-4 py-3">
                     <p>{entry.entityType}</p>
-                    <p className="mt-1 font-mono text-xs text-zinc-500">{shortId(entry.entityId)}</p>
+                    <p className="mt-1 font-mono text-xs text-zinc-500">
+                      {shortId(entry.entityId)}
+                    </p>
                   </td>
-                  <td className="px-4 py-3 font-mono text-xs text-zinc-500">{shortId(entry.actorUserId)}</td>
-                  <td className="px-4 py-3 font-mono text-xs text-zinc-500">{shortId(entry.requestId)}</td>
+                  <td className="px-4 py-3 font-mono text-xs text-zinc-500">
+                    {shortId(entry.actorUserId)}
+                  </td>
+                  <td className="px-4 py-3 font-mono text-xs text-zinc-500">
+                    {shortId(entry.requestId)}
+                  </td>
                 </tr>
               ))}
             </tbody>
