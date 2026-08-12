@@ -1,0 +1,12 @@
+[
+  {
+    "source_row": 1,
+    "legacy_id": "legacy-entity-001",
+    "canonical_keys": {
+      "name": "required",
+      "parent_legacy_id": "when-applicable"
+    },
+    "evidence": { "source_document_ref": "required" },
+    "payload": { "domain_specific_fields": "required" }
+  }
+]

@@ -150,6 +150,23 @@ describe("App V1 ↔ Command integration contracts", () => {
     expect(sessionProcessor).toContain("SESSION_OPERATION_DENIED");
   });
 
+  it("stages historical data without writing ranking projections or UR Coins", () => {
+    const migration = source(
+      "supabase/migrations/20260812155110_historical_data_import_staging.sql",
+    );
+    const guide = source("docs/historical-imports-v1.md");
+
+    expect(migration).toContain("historical_import_batches");
+    expect(migration).toContain("historical_import_rows");
+    expect(migration).toContain("admin_historical_import_dry_run");
+    expect(migration).toContain("admin_stage_historical_import_batch");
+    expect(migration).toContain("private.require_admin_actor()");
+    expect(migration).not.toContain("insert into public.ranking_entries");
+    expect(migration).not.toContain("insert into public.ur_coin_transactions");
+    expect(guide).toContain("admin_stage_athlete_import_batch");
+    expect(guide).toContain("ranking_transactions");
+  });
+
   it("keeps UR Market fulfillment transactional, audited and admin-only", () => {
     const modules = source("src/lib/auth/admin-modules.ts");
     const adminMarket = source("src/app/admin/market/page.tsx");

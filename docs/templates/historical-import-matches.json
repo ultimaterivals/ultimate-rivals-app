@@ -1,0 +1,16 @@
+[
+  {
+    "source_row": 1,
+    "legacy_id": "legacy-match-001",
+    "occurred_at": "2025-02-15T19:00:00-03:00",
+    "canonical_keys": {
+      "session_legacy_id": "legacy-session-001",
+      "home_legacy_id": "legacy-athlete-001",
+      "away_legacy_id": "legacy-athlete-002",
+      "category_code": "provided-by-matheus",
+      "format_code": "provided-by-matheus"
+    },
+    "evidence": { "source_document_ref": "required" },
+    "payload": { "match_code": "legacy-match-001" }
+  }
+]

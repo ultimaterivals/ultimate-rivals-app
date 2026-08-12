@@ -1,0 +1,13 @@
+[
+  {
+    "source_row": 1,
+    "legacy_id": "legacy-result-001",
+    "occurred_at": "2025-02-15T20:00:00-03:00",
+    "canonical_keys": { "match_legacy_id": "legacy-match-001" },
+    "evidence": {
+      "source_document_ref": "required",
+      "recorded_by": "required"
+    },
+    "payload": { "winner_side": "home", "score": "required" }
+  }
+]
