@@ -89,6 +89,9 @@ describe("App V1 ↔ Command integration contracts", () => {
   it("keeps the complete athlete progression loop tied to canonical economy", () => {
     const development = source("src/app/athlete/development/page.tsx");
     const playerHub = source("src/app/athlete/page.tsx");
+    const athleteRepository = source(
+      "src/server/repositories/athlete-portal-repository.ts",
+    );
 
     for (const stage of [
       "Jogar",
@@ -105,7 +108,8 @@ describe("App V1 ↔ Command integration contracts", () => {
     expect(development).toContain("/athlete/market");
     expect(development).toContain("/athlete/wallet");
     expect(development).toContain("não são simulados nesta V1");
-    expect(playerHub).toContain("Sua missão agora");
+    expect(playerHub).toContain("Como chegar lá");
+    expect(athleteRepository).toContain("athlete_development_summary");
     expect(playerHub).toContain("Último destaque");
   });
 
