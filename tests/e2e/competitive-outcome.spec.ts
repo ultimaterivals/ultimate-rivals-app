@@ -192,8 +192,8 @@ test("homologated UR Play result processes ranking and official UR Coins exactly
     ),
   ).toBeGreaterThan(0);
 
-  runSql(
-    `update public.ur_play_sessions set status='completed', updated_at=now() where id='${sessionId}'::uuid;`,
+  asAdmin(
+    `select public.transition_ur_play_session('${sessionId}'::uuid, 'completed');`,
   );
   const coinRun = asAdmin(
     `select id from public.admin_process_ur_play_session_coins('${sessionId}'::uuid, '76000000-0000-4000-8000-000000000007'::uuid);`,
