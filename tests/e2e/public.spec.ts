@@ -1,16 +1,16 @@
 import { expect, test } from "@playwright/test";
 
-test("public foundation loads", async ({ page }) => {
+test("public landing loads", async ({ page }) => {
   await page.goto("/");
   await expect(
-    page.getByRole("heading", { name: /a liga continua/i }),
+    page.getByRole("heading", { name: /ultimate rivals.*eleve o jogo/i }),
   ).toBeVisible();
 });
 
 test("login loads", async ({ page }) => {
   await page.goto("/login");
   await expect(
-    page.getByRole("heading", { name: /entre na arena/i }),
+    page.getByRole("heading", { name: /bem-vindo de volta/i }),
   ).toBeVisible();
 });
 
