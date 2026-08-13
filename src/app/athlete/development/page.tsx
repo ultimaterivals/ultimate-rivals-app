@@ -12,7 +12,7 @@ export default async function AthleteDevelopmentPage() {
     return (
       <EmptyState
         title="Perfil esportivo ainda não vinculado"
-        description="A evolução aparece depois do vínculo oficial da conta ao atleta."
+        description="Assim que seu perfil estiver pronto, sua evolução aparece aqui."
       />
     );
   }
@@ -28,7 +28,7 @@ export default async function AthleteDevelopmentPage() {
       <PageHeader
         eyebrow="Missões e evolução"
         title="Sua progressão"
-        description="Objetivos esportivos e próximos passos derivados do seu estado real no ecossistema. Esta tela não cria pontos, moedas ou conquistas paralelas."
+        description="Veja seu momento atual, o próximo passo e os marcos que ajudam você a avançar durante a temporada."
       />
 
       <section className="grid gap-5 lg:grid-cols-[1.15fr_.85fr]">
@@ -61,8 +61,8 @@ export default async function AthleteDevelopmentPage() {
             {development?.goal30Days ??
               development?.hunterGoal ??
               (hasNextActivity
-                ? "Sua reserva oficial já está registrada. O próximo passo é participar e gerar resultado homologado."
-                : "Acesse a Agenda UR e entre novamente no ciclo Jogar → Evoluir → Jogar novamente.")}
+                ? "Sua próxima atividade já está marcada. Participe, compita e gere mais um capítulo da sua temporada."
+                : "Acesse a Agenda UR, encontre onde jogar e continue sua jornada dentro da temporada.")}
           </p>
           <Link
             href="/athlete/agenda"
@@ -76,15 +76,15 @@ export default async function AthleteDevelopmentPage() {
       {development && (
         <Card className="border-ur-gold/30">
           <p className="text-xs font-black tracking-[.18em] text-zinc-500 uppercase">
-            Plano oficial de evolução
+            Seu plano de evolução
           </p>
           <h2 className="mt-2 text-2xl font-black">
-            {development.hunterMission ?? "Plano em acompanhamento"}
+            {development.hunterMission ?? "Jornada em acompanhamento"}
           </h2>
           <p className="mt-2 text-sm text-zinc-400">
             {development.hunterStatus
-              ? `Status da missão: ${development.hunterStatus}.`
-              : "A operação ainda não publicou uma missão Hunter ativa para este plano."}
+              ? `Status atual: ${development.hunterStatus}.`
+              : "Nenhuma missão Hunter está ativa para você neste momento. Continue jogando e acompanhando seus próximos marcos."}
           </p>
           {development.priorities.length > 0 && (
             <ul className="mt-4 grid gap-2 sm:grid-cols-3">
@@ -100,7 +100,7 @@ export default async function AthleteDevelopmentPage() {
           )}
           {development.reviewAt && (
             <p className="mt-4 text-sm text-zinc-500">
-              Revisão publicada para{" "}
+              Próxima revisão em{" "}
               {new Date(development.reviewAt).toLocaleDateString("pt-BR")}.
             </p>
           )}
@@ -118,8 +118,8 @@ export default async function AthleteDevelopmentPage() {
           </strong>
           <p className="text-sm text-zinc-500">
             {ranking
-              ? `${ranking.totalPoints} pontos oficiais`
-              : "Aguardando resultados homologados"}
+              ? `${ranking.totalPoints} pontos`
+              : "Sua posição aparece após os primeiros resultados"}
           </p>
         </Card>
         <Card>
@@ -130,9 +130,7 @@ export default async function AthleteDevelopmentPage() {
           <strong className="font-display mt-2 block text-4xl">
             {summary?.games ?? 0}
           </strong>
-          <p className="text-sm text-zinc-500">
-            jogos consolidados no histórico
-          </p>
+          <p className="text-sm text-zinc-500">jogos na sua jornada</p>
         </Card>
         <Card>
           <Coins className="text-ur-gold" />
@@ -157,15 +155,13 @@ export default async function AthleteDevelopmentPage() {
           <strong className="font-display mt-2 block text-4xl">
             {summary?.hunterCompleted ?? 0}
           </strong>
-          <p className="text-sm text-zinc-500">
-            registros concluídos publicados
-          </p>
+          <p className="text-sm text-zinc-500">marcos concluídos</p>
         </Card>
       </section>
 
       <Card>
         <p className="text-xs font-black tracking-[.18em] text-zinc-500 uppercase">
-          Loop de evolução
+          Sua jornada em movimento
         </p>
         <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           {[
@@ -202,8 +198,7 @@ export default async function AthleteDevelopmentPage() {
           </Link>
         </div>
         <p className="mt-4 text-sm text-zinc-500">
-          Missões avançadas, badges e árvores de XP só entram quando houver uma
-          fonte oficial; não são simulados nesta V1.
+          Novas missões e conquistas aparecem aqui quando fizerem parte da sua temporada.
         </p>
       </Card>
 
@@ -211,25 +206,23 @@ export default async function AthleteDevelopmentPage() {
         {[
           [
             "UR Series",
-            "A classificação será publicada quando os critérios oficiais da temporada estiverem homologados.",
+            "Quando esta etapa abrir, você verá aqui como participar e o que precisa cumprir para chegar lá.",
           ],
           [
             "UR Cup",
-            "A jornada da Copa depende de chaves, inscrições e resultados oficiais publicados.",
+            "A Cup faz parte da fase decisiva. Sua situação será atualizada quando os critérios da etapa forem publicados.",
           ],
           [
             "UR Legends",
-            "Reconhecimentos e requisitos aparecem quando a temporada estiver pronta para esta etapa.",
+            "Se você estiver elegível para a Legends, o App mostrará sua situação e os próximos passos desta etapa.",
           ],
         ].map(([title, description]) => (
           <Card key={title}>
             <p className="text-xs font-black tracking-[.18em] text-zinc-500 uppercase">
-              Progressão da temporada
+              Próximas etapas
             </p>
             <h2 className="mt-2 text-xl font-black">{title}</h2>
-            <Badge className="mt-3">
-              critérios em homologação/configuração
-            </Badge>
+            <Badge className="mt-3">Ainda não liberado</Badge>
             <p className="mt-3 text-sm text-zinc-400">{description}</p>
           </Card>
         ))}
