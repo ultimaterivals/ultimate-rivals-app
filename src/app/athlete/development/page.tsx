@@ -198,7 +198,8 @@ export default async function AthleteDevelopmentPage() {
           </Link>
         </div>
         <p className="mt-4 text-sm text-zinc-500">
-          Novas missões e conquistas aparecem aqui quando fizerem parte da sua temporada.
+          Novas missões e conquistas aparecem aqui quando fizerem parte da sua
+          temporada.
         </p>
       </Card>
 
