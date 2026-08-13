@@ -1,10 +1,11 @@
+import { redirect } from "next/navigation";
 import { CheckCircle2, MessageSquareText } from "lucide-react";
 import {
   submitAthleteFeedbackAction,
   submitAthleteSupportAction,
 } from "@/app/athlete/feedback/actions";
 import { Badge, Button, Card, PageHeader } from "@/components/ui";
-import { requireRole } from "@/lib/auth/session";
+import { requireAthleteViewer } from "@/lib/auth/athlete-viewer";
 import { getAthleteFeedbackSnapshot } from "@/server/services/athlete-feedback-service";
 
 type Params = Promise<{
@@ -29,9 +30,11 @@ export default async function AthleteFeedbackPage({
 }: {
   searchParams: Params;
 }) {
-  const identity = await requireRole(["athlete"]);
+  const viewer = await requireAthleteViewer();
+  if (viewer.isPreview || !viewer.userId) redirect("/admin/preview");
+
   const [snapshot, params] = await Promise.all([
-    getAthleteFeedbackSnapshot(identity.userId),
+    getAthleteFeedbackSnapshot(viewer.userId),
     searchParams,
   ]);
   const saved = single(params.saved);
