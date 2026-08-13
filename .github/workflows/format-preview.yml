@@ -1,0 +1,23 @@
+name: Format Preview
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  prettier-diff:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Format target files and print diff
+        run: |
+          npx prettier --write src/app/athlete/season/page.tsx src/components/athlete/season-context-banner.tsx
+          git diff -- src/app/athlete/season/page.tsx src/components/athlete/season-context-banner.tsx
