@@ -36,7 +36,11 @@ describe("admin teams service", () => {
       ],
       poles: [],
       athletes: [],
+      athleteIdentities: [],
       memberships: [],
+      activeSeason: null,
+      formations: [],
+      formationMembers: [],
       errors: [],
     });
     const snapshot = await getAdminTeamsSnapshot();
