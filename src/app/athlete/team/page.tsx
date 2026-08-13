@@ -15,14 +15,13 @@ export default async function AthleteTeamPage() {
     .eq("status", "active");
   const officialTeamsResult = await client
     .from("teams")
-    .select("id,name,short_name,logo_url,primary_pole_id,poles(name,city)")
+    .select("id,name,short_name,primary_pole_id,poles(name,city)")
     .eq("status", "active")
     .order("name", { ascending: true });
   const memberships = membershipResult.data ?? [];
-  const teamIds = memberships.map((row) => row.team_id);
   const officialTeams = officialTeamsResult.data ?? [];
-  const officialTeamIds = officialTeams.map((team) => team.id);
-  const [membersResult, rankingsResult, leagueRankingsResult] = await Promise.all([
+  const teamIds = memberships.map((row) => row.team_id);
+  const [membersResult, rankingsResult] = await Promise.all([
     teamIds.length
       ? client
           .from("team_memberships")
@@ -38,15 +37,6 @@ export default async function AthleteTeamPage() {
           )
           .eq("ranking_type", "team")
           .in("entity_id", teamIds)
-      : Promise.resolve({ data: [], error: null }),
-    officialTeamIds.length
-      ? client
-          .from("public_rankings")
-          .select(
-            "entity_id,current_position,total_points,games_played,wins,losses,win_rate",
-          )
-          .eq("ranking_type", "team")
-          .in("entity_id", officialTeamIds)
       : Promise.resolve({ data: [], error: null }),
   ]);
 
@@ -167,58 +157,32 @@ export default async function AthleteTeamPage() {
           );
         })
       )}
-
-      <div>
-        <p className="text-xs font-black tracking-[.16em] text-zinc-500 uppercase">
-          Equipes UR
-        </p>
-        <div className="mt-3 grid gap-3 sm:grid-cols-2">
-          {officialTeams.map((team) => {
-            const pole = team.poles as unknown as {
-              name: string;
-              city: string;
-            } | null;
-            const ranking = (leagueRankingsResult.data ?? []).find(
-              (row) => row.entity_id === team.id,
-            );
-            return (
-              <Card key={team.id}>
-                <div className="flex items-start justify-between gap-3">
-                  <div>
-                    <Shield
-                      className="text-ur-gold"
-                      size={28}
-                      aria-hidden="true"
-                    />
-                    <h2 className="mt-3 text-xl font-black">{team.name}</h2>
-                    <p className="mt-1 flex items-center gap-1 text-sm text-zinc-400">
-                      <MapPin size={14} aria-hidden="true" />
-                      {pole ? `${pole.name} · ${pole.city}` : "Polo em atualização"}
-                    </p>
-                  </div>
-                  {teamIds.includes(team.id) && <Badge>Sua equipe</Badge>}
-                </div>
-                {ranking ? (
-                  <p className="mt-4 text-sm text-zinc-400">
-                    #{ranking.current_position ?? "—"} · {ranking.total_points} pontos ·{" "}
-                    {ranking.wins}V · {ranking.losses}D
-                  </p>
-                ) : (
-                  <p className="mt-4 text-sm text-zinc-400">
-                    Ranking coletivo aguardando publicação oficial.
-                  </p>
-                )}
-              </Card>
-            );
-          })}
-        </div>
-      </div>
-
+      {officialTeams.length > 0 && (
+        <Card>
+          <h2 className="text-xl font-black">Equipes UR</h2>
+          <p className="mt-2 text-sm text-zinc-400">
+            Equipes oficiais cadastradas no ecossistema.
+          </p>
+          <div className="mt-3 flex flex-wrap gap-2">
+            {officialTeams.map((team) => {
+              const pole = team.poles as unknown as {
+                name: string;
+                city: string;
+              } | null;
+              return (
+                <Badge key={team.id}>
+                  {team.name}
+                  {pole ? ` · ${pole.city}` : ""}
+                </Badge>
+              );
+            })}
+          </div>
+        </Card>
+      )}
       {(membershipResult.error ||
         officialTeamsResult.error ||
         membersResult.error ||
-        rankingsResult.error ||
-        leagueRankingsResult.error) && (
+        rankingsResult.error) && (
         <p className="text-sm text-zinc-500">
           Uma informação da equipe está temporariamente indisponível.
         </p>
