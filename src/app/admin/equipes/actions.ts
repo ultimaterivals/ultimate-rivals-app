@@ -19,6 +19,10 @@ const createTeamSchema = z.object({
   primaryPoleId: z.string().uuid(),
 });
 
+const activateTeamSchema = z.object({
+  teamId: z.string().uuid(),
+});
+
 function resultUrl(result: string) {
   return `/admin/equipes?result=${encodeURIComponent(result)}`;
 }
@@ -42,6 +46,24 @@ export async function createTeamAction(formData: FormData) {
 
   revalidatePath("/admin/equipes");
   redirect(resultUrl("team-created"));
+}
+
+export async function activateTeamAction(formData: FormData) {
+  await requireRole(["admin"]);
+  const parsed = activateTeamSchema.safeParse({
+    teamId: formData.get("teamId"),
+  });
+  if (!parsed.success) redirect(resultUrl("invalid-team"));
+
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("admin_activate_team", {
+    p_team_id: parsed.data.teamId,
+  });
+  if (error) redirect(resultUrl(error.message));
+
+  revalidatePath("/admin/equipes");
+  revalidatePath("/athlete/team");
+  redirect(resultUrl("team-activated"));
 }
 
 export async function linkFormationToTeamAction(formData: FormData) {
