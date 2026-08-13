@@ -1,4 +1,4 @@
-import { CalendarDays, History, ShieldCheck, Trophy, Users } from "lucide-react";
+import { CalendarDays, ShieldCheck, Trophy, Users } from "lucide-react";
 import { Card, PageHeader } from "@/components/ui";
 import { requireAthleteViewer } from "@/lib/auth/athlete-viewer";
 import { createClient } from "@/lib/supabase/server";
@@ -44,38 +44,38 @@ type HistoricalResultRow = {
 export default async function AthleteResultsPage() {
   const viewer = await requireAthleteViewer();
   const client = await createClient();
-  const [matchesResult, statisticsResult, impactsResult, historicalResult] =
-    await Promise.all([
-      client
-        .from("match_participants")
-        .select(
-          "match_id,side_id,matches!inner(match_code,ended_at,ur_play_sessions(name),match_results(winner_side_id,score_a,score_b,result_status),match_participants(athlete_id,side_id,athletes(public_name)))",
-        )
-        .eq("athlete_id", viewer.athleteId)
-        .eq("status", "active")
-        .order("created_at", { ascending: false })
-        .limit(20),
-      client
-        .from("match_technical_summary")
-        .select("match_id,aces,attacks,blocks,defenses,assists")
-        .eq("athlete_id", viewer.athleteId),
-      client
-        .from("ranking_transactions")
-        .select("match_id,points_applied")
-        .eq("athlete_id", viewer.athleteId)
-        .eq("status", "homologated")
-        .not("match_id", "is", null),
-      client
-        .from("historical_match_results")
-        .select(
-          "id,legacy_game_id,occurred_at,time_label,side_a_label,side_b_label,score_a,score_b,winner_side,historical_match_participants(athlete_id,side,athletes(public_name))",
-        )
-        .order("legacy_game_id", { ascending: false })
-        .limit(100),
-    ]);
+  const [matchesResult, statisticsResult, impactsResult] = await Promise.all([
+    client
+      .from("match_participants")
+      .select(
+        "match_id,side_id,matches!inner(match_code,ended_at,ur_play_sessions(name),match_results(winner_side_id,score_a,score_b,result_status),match_participants(athlete_id,side_id,athletes(public_name)))",
+      )
+      .eq("athlete_id", viewer.athleteId)
+      .eq("status", "active")
+      .order("created_at", { ascending: false })
+      .limit(20),
+    client
+      .from("match_technical_summary")
+      .select("match_id,aces,attacks,blocks,defenses,assists")
+      .eq("athlete_id", viewer.athleteId),
+    client
+      .from("ranking_transactions")
+      .select("match_id,points_applied")
+      .eq("athlete_id", viewer.athleteId)
+      .eq("status", "homologated")
+      .not("match_id", "is", null),
+  ]);
+  const historicalResult = await client
+    .from("historical_match_results")
+    .select(
+      "id,legacy_game_id,occurred_at,time_label,side_a_label,side_b_label,score_a,score_b,winner_side,historical_match_participants(athlete_id,side,athletes(public_name))",
+    )
+    .order("legacy_game_id", { ascending: false })
+    .limit(100);
 
   const matches = (matchesResult.data ?? []) as unknown as ResultRow[];
-  const historicalMatches = (historicalResult.data ?? []) as unknown as HistoricalResultRow[];
+  const historicalMatches = (historicalResult.data ??
+    []) as unknown as HistoricalResultRow[];
   const stats = new Map(
     (statisticsResult.data ?? []).map((row) => [row.match_id, row]),
   );
@@ -87,7 +87,6 @@ export default async function AthleteResultsPage() {
         (impacts.get(impact.match_id) ?? 0) + impact.points_applied,
       );
   }
-  const hasResults = matches.length > 0 || historicalMatches.length > 0;
 
   return (
     <div className="mx-auto grid max-w-7xl gap-6">
@@ -96,7 +95,7 @@ export default async function AthleteResultsPage() {
         title="Seus jogos oficiais"
         description="Placares e estatísticas dos seus jogos. Seu ranking é atualizado com os resultados confirmados."
       />
-      {!hasResults ? (
+      {matches.length === 0 && historicalMatches.length === 0 ? (
         <Card>
           <Trophy className="text-ur-gold" aria-hidden="true" />
           <h2 className="mt-3 text-xl font-black">
@@ -110,15 +109,7 @@ export default async function AthleteResultsPage() {
       ) : (
         <>
           {matches.length > 0 && (
-            <section className="grid gap-4" aria-labelledby="current-results-title">
-              <div>
-                <p className="text-ur-gold text-xs font-black tracking-[.16em] uppercase">
-                  Temporada em andamento
-                </p>
-                <h2 id="current-results-title" className="mt-1 text-xl font-black">
-                  Resultados publicados
-                </h2>
-              </div>
+            <section className="grid gap-4">
               {matches.map((entry) => {
                 const match = entry.matches;
                 const result = match?.match_results;
@@ -147,9 +138,9 @@ export default async function AthleteResultsPage() {
                       <p className="text-xs font-black tracking-[.16em] text-zinc-500 uppercase">
                         {match?.ur_play_sessions?.name ?? "Evento UR"}
                       </p>
-                      <h3 className="mt-1 text-xl font-black">
+                      <h2 className="mt-1 text-xl font-black">
                         {match?.match_code ?? "Partida"}
-                      </h3>
+                      </h2>
                       <p className="mt-2 flex items-center gap-2 text-sm text-zinc-400">
                         <CalendarDays size={15} aria-hidden="true" />
                         {match?.ended_at
@@ -223,70 +214,68 @@ export default async function AthleteResultsPage() {
               })}
             </section>
           )}
-
           {historicalMatches.length > 0 && (
-            <section className="grid gap-4" aria-labelledby="historical-results-title">
+            <section className="grid gap-4">
               <div>
-                <p className="text-ur-gold text-xs font-black tracking-[.16em] uppercase">
+                <p className="text-xs font-black tracking-[.16em] text-zinc-500 uppercase">
                   Histórico validado
                 </p>
-                <h2 id="historical-results-title" className="mt-1 text-xl font-black">
+                <h2 className="mt-1 text-xl font-black">
                   Jogos que construíram seu ranking
                 </h2>
                 <p className="mt-1 text-sm text-zinc-400">
-                  Registros oficiais anteriores à operação pelo aplicativo. Datas não
+                  Registros oficiais anteriores ao aplicativo. Datas não
                   confirmadas permanecem sem publicação.
                 </p>
               </div>
               {historicalMatches.map((match) => {
                 const participants = match.historical_match_participants ?? [];
-                const ownParticipant = participants.find(
+                const own = participants.find(
                   (participant) => participant.athlete_id === viewer.athleteId,
                 );
-                const ownSide = ownParticipant?.side;
-                const won = ownSide === match.winner_side;
                 const partners = participants
                   .filter(
                     (participant) =>
-                      participant.side === ownSide &&
+                      participant.side === own?.side &&
                       participant.athlete_id !== viewer.athleteId,
                   )
                   .map((participant) => participant.athletes?.public_name)
                   .filter(Boolean);
                 const opponents = participants
-                  .filter((participant) => participant.side !== ownSide)
+                  .filter((participant) => participant.side !== own?.side)
                   .map((participant) => participant.athletes?.public_name)
                   .filter(Boolean);
+                const won = own?.side === match.winner_side;
+                const when = match.occurred_at
+                  ? new Date(match.occurred_at).toLocaleString("pt-BR")
+                  : match.time_label
+                    ? `Horário registrado: ${match.time_label} · Data não publicada`
+                    : "Data ainda não publicada";
                 return (
                   <Card
                     key={match.id}
                     className="grid gap-4 sm:grid-cols-[1fr_auto]"
                   >
                     <div>
-                      <p className="flex items-center gap-2 text-xs font-black tracking-[.16em] text-zinc-500 uppercase">
-                        <History size={14} aria-hidden="true" /> Registro histórico
+                      <p className="text-xs font-black tracking-[.16em] text-zinc-500 uppercase">
+                        Registro histórico · Jogo {match.legacy_game_id}
                       </p>
                       <h3 className="mt-1 text-xl font-black">
-                        Jogo {match.legacy_game_id}
+                        {match.side_a_label} × {match.side_b_label}
                       </h3>
                       <p className="mt-2 flex items-center gap-2 text-sm text-zinc-400">
                         <CalendarDays size={15} aria-hidden="true" />
-                        {match.occurred_at
-                          ? new Date(match.occurred_at).toLocaleString("pt-BR")
-                          : match.time_label
-                            ? `Horário registrado: ${match.time_label} · Data não publicada`
-                            : "Data ainda não publicada"}
+                        {when}
                       </p>
                       <p className="mt-2 flex items-start gap-2 text-sm text-zinc-400">
                         <Users size={15} aria-hidden="true" />
                         <span>
                           {partners.length > 0 && <>Com {partners.join(", ")}</>}
                           {partners.length > 0 && opponents.length > 0 && " · "}
-                          {opponents.length > 0 && <>Contra {opponents.join(", ")}</>}
+                          {opponents.length > 0 && (
+                            <>Contra {opponents.join(", ")}</>
+                          )}
                         </span>
-                      </p>
-                      <p className="mt-2 text-xs text-zinc-500">
-                        {match.side_a_label} × {match.side_b_label}
                       </p>
                     </div>
                     <div className="rounded-ur border border-white/10 p-4 text-right">
@@ -301,7 +290,7 @@ export default async function AthleteResultsPage() {
                           size={14}
                           className="text-emerald-400"
                           aria-hidden="true"
-                        />
+                        />{" "}
                         Base oficial
                       </p>
                     </div>
