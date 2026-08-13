@@ -55,7 +55,9 @@ export default async function AthleteAvailabilityPage({
         </p>
         <div className="mt-2 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <h2 className="text-xl font-black">Ajude o próximo jogo a encontrar você</h2>
+            <h2 className="text-xl font-black">
+              Ajude o próximo jogo a encontrar você
+            </h2>
             <p className="mt-1 max-w-2xl text-sm leading-6 text-zinc-400">
               Disponibilidade não reserva vaga. Ela mostra quando você tem mais
               chance de participar e ajuda o UR a identificar combinações de
@@ -152,7 +154,7 @@ export default async function AthleteAvailabilityPage({
         <div className="mt-4 grid gap-3 sm:grid-cols-3">
           {[
             ["1", "Você informa quando pode jogar"],
-            ["2", "O UR cruza disponibilidade e demanda"],
+            ["2", "O UR usa disponibilidade e demanda para planejar oportunidades"],
             ["3", "As oportunidades aparecem na Agenda"],
           ].map(([step, label]) => (
             <div key={step} className="rounded-ur border border-white/10 p-4">
