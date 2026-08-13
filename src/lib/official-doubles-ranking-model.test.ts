@@ -13,10 +13,14 @@ const migration = readFileSync(
 describe("official doubles ranking model", () => {
   it("keeps doubles independent from fake teams and sourced from the canonical ledger", () => {
     expect(migration).toContain("create table public.competition_formations");
-    expect(migration).toContain("create table public.competition_formation_members");
+    expect(migration).toContain(
+      "create table public.competition_formation_members",
+    );
     expect(migration).toContain("add column formation_id uuid");
     expect(migration).toContain("transaction_scope = 'side'");
-    expect(migration).toContain("new.rule_code not in ('WIN', 'LOSS', 'ACE', 'ATTACK')");
+    expect(migration).toContain(
+      "new.rule_code not in ('WIN', 'LOSS', 'ACE', 'ATTACK')",
+    );
     expect(migration).toContain("fmt.code = 'doubles'");
     expect(migration).toContain("p.total_points, 0, p.result_points");
     expect(migration).not.toContain("PARTICIPATION', 'WIN");
