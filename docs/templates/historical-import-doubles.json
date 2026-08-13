@@ -1,0 +1,27 @@
+[
+  {
+    "source_row": 1,
+    "legacy_id": "double-001",
+    "source_id": "double-001",
+    "canonical_keys": {
+      "athlete_one_id": "00000000-0000-0000-0000-000000000001",
+      "athlete_two_id": "00000000-0000-0000-0000-000000000002"
+    },
+    "evidence": {
+      "source_ref": "official-ranking.xlsx",
+      "sheet": "Ranking Duplas",
+      "row": 4
+    },
+    "payload": {
+      "display_name": "Atleta A e Atleta B",
+      "format_code": "doubles",
+      "category_code": "female",
+      "games": 0,
+      "wins": 0,
+      "losses": 0,
+      "aces": 0,
+      "attacks": 0,
+      "game_points": 0
+    }
+  }
+]
