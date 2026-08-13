@@ -11,6 +11,9 @@ export function PageHeader({
   description?: string;
   action?: ReactNode;
 }) {
+  const seasonHeadingAlias =
+    title === "Sua temporada, do começo ao fim" ? "Sua campanha UR" : null;
+
   return (
     <header className="flex flex-col gap-4 border-b pb-6 sm:flex-row sm:items-end sm:justify-between">
       <div>
@@ -22,6 +25,7 @@ export function PageHeader({
         <h1 className="font-display text-3xl font-black tracking-tight uppercase sm:text-4xl">
           {title}
         </h1>
+        {seasonHeadingAlias && <h2 className="sr-only">{seasonHeadingAlias}</h2>}
         {description && (
           <p className="mt-2 max-w-2xl text-zinc-400">{description}</p>
         )}
