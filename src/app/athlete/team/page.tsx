@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { MapPin, Shield, Trophy, Users } from "lucide-react";
 import { Badge, Card, PageHeader } from "@/components/ui";
 import { requireAthleteViewer } from "@/lib/auth/athlete-viewer";
@@ -7,52 +6,21 @@ import { createClient } from "@/lib/supabase/server";
 export default async function AthleteTeamPage() {
   const viewer = await requireAthleteViewer();
   const client = await createClient();
-  const [membershipResult, officialTeamsResult, seasonResult] = await Promise.all([
-    client
-      .from("team_memberships")
-      .select(
-        "team_id,teams!inner(id,name,short_name,logo_url,primary_pole_id,poles(name,city))",
-      )
-      .eq("athlete_id", viewer.athleteId)
-      .eq("status", "active"),
-    client
-      .from("teams")
-      .select("id,name,short_name,primary_pole_id,poles(name,city)")
-      .eq("status", "active")
-      .order("name", { ascending: true }),
-    client
-      .from("seasons")
-      .select("id,name")
-      .eq("status", "active")
-      .order("starts_at", { ascending: false })
-      .limit(1)
-      .maybeSingle(),
-  ]);
+  const membershipResult = await client
+    .from("team_memberships")
+    .select(
+      "team_id,teams!inner(id,name,short_name,logo_url,primary_pole_id,poles(name,city))",
+    )
+    .eq("athlete_id", viewer.athleteId)
+    .eq("status", "active");
+  const officialTeamsResult = await client
+    .from("teams")
+    .select("id,name,short_name,primary_pole_id,poles(name,city)")
+    .eq("status", "active")
+    .order("name", { ascending: true });
   const memberships = membershipResult.data ?? [];
   const officialTeams = officialTeamsResult.data ?? [];
   const teamIds = memberships.map((row) => row.team_id);
-  const currentSeason = seasonResult.data;
-  const formationsResult = currentSeason
-    ? await client
-        .from("competition_formation_members")
-        .select(
-          "formation_id,competition_formations!inner(id,display_name,team_id,status,season_id)",
-        )
-        .eq("athlete_id", viewer.athleteId)
-        .eq("competition_formations.season_id", currentSeason.id)
-        .eq("competition_formations.status", "active")
-    : { data: [], error: null };
-  const formations = (formationsResult.data ?? []).map(
-    (row) =>
-      row.competition_formations as unknown as {
-        id: string;
-        display_name: string;
-        team_id: string | null;
-      },
-  );
-  const independentFormations = formations.filter(
-    (formation) => !formation.team_id,
-  );
   const [membersResult, rankingsResult] = await Promise.all([
     teamIds.length
       ? client
@@ -189,44 +157,6 @@ export default async function AthleteTeamPage() {
           );
         })
       )}
-
-      {independentFormations.length > 0 && (
-        <Card className="border-ur-gold/25 bg-ur-gold/5">
-          <p className="text-ur-gold text-xs font-black tracking-[.16em] uppercase">
-            Próximo passo da sua temporada
-          </p>
-          <h2 className="mt-2 text-xl font-black">
-            Leve sua dupla para uma equipe
-          </h2>
-          <p className="mt-2 text-sm leading-6 text-zinc-400">
-            Você já possui{" "}
-            {independentFormations.length === 1 ? "uma dupla" : "duplas"} com
-            formação registrada nesta temporada. A dupla continua com seu próprio
-            histórico e ranking; ao entrar em uma equipe, os próximos jogos
-            homologados também podem contribuir para o Ranking de Equipes.
-          </p>
-          <div className="mt-4 flex flex-wrap gap-2">
-            {independentFormations.map((formation) => (
-              <Badge key={formation.id}>
-                {formation.display_name} · Independente
-              </Badge>
-            ))}
-          </div>
-          <div className="mt-5 flex flex-wrap items-center gap-3">
-            <Link
-              href="/athlete/feedback"
-              className="rounded-ur bg-ur-gold px-4 py-2.5 text-sm font-black text-black"
-            >
-              Solicitar vínculo com equipe
-            </Link>
-            <p className="text-xs text-zinc-500">
-              A equipe UR confirma a filiação antes de ela passar a valer nos
-              jogos.
-            </p>
-          </div>
-        </Card>
-      )}
-
       {officialTeams.length > 0 && (
         <Card>
           <h2 className="text-xl font-black">Equipes UR</h2>
@@ -251,8 +181,6 @@ export default async function AthleteTeamPage() {
       )}
       {(membershipResult.error ||
         officialTeamsResult.error ||
-        seasonResult.error ||
-        formationsResult.error ||
         membersResult.error ||
         rankingsResult.error) && (
         <p className="text-sm text-zinc-500">
