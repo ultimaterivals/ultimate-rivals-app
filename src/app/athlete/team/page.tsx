@@ -42,14 +42,17 @@ export default async function AthleteTeamPage() {
         .eq("competition_formations.season_id", currentSeason.id)
         .eq("competition_formations.status", "active")
     : { data: [], error: null };
-  const formations = (formationsResult.data ?? []).map((row) =>
-    row.competition_formations as unknown as {
-      id: string;
-      display_name: string;
-      team_id: string | null;
-    },
+  const formations = (formationsResult.data ?? []).map(
+    (row) =>
+      row.competition_formations as unknown as {
+        id: string;
+        display_name: string;
+        team_id: string | null;
+      },
   );
-  const independentFormations = formations.filter((formation) => !formation.team_id);
+  const independentFormations = formations.filter(
+    (formation) => !formation.team_id,
+  );
   const [membersResult, rankingsResult] = await Promise.all([
     teamIds.length
       ? client
@@ -192,16 +195,21 @@ export default async function AthleteTeamPage() {
           <p className="text-ur-gold text-xs font-black tracking-[.16em] uppercase">
             Próximo passo da sua temporada
           </p>
-          <h2 className="mt-2 text-xl font-black">Leve sua dupla para uma equipe</h2>
+          <h2 className="mt-2 text-xl font-black">
+            Leve sua dupla para uma equipe
+          </h2>
           <p className="mt-2 text-sm leading-6 text-zinc-400">
-            Você já possui {independentFormations.length === 1 ? "uma dupla" : "duplas"}
-            {" "}com formação registrada nesta temporada. A dupla continua com seu
-            próprio histórico e ranking; ao entrar em uma equipe, os próximos jogos
+            Você já possui{" "}
+            {independentFormations.length === 1 ? "uma dupla" : "duplas"} com
+            formação registrada nesta temporada. A dupla continua com seu próprio
+            histórico e ranking; ao entrar em uma equipe, os próximos jogos
             homologados também podem contribuir para o Ranking de Equipes.
           </p>
           <div className="mt-4 flex flex-wrap gap-2">
             {independentFormations.map((formation) => (
-              <Badge key={formation.id}>{formation.display_name} · Independente</Badge>
+              <Badge key={formation.id}>
+                {formation.display_name} · Independente
+              </Badge>
             ))}
           </div>
           <div className="mt-5 flex flex-wrap items-center gap-3">
@@ -212,7 +220,8 @@ export default async function AthleteTeamPage() {
               Solicitar vínculo com equipe
             </Link>
             <p className="text-xs text-zinc-500">
-              A equipe UR confirma a filiação antes de ela passar a valer nos jogos.
+              A equipe UR confirma a filiação antes de ela passar a valer nos
+              jogos.
             </p>
           </div>
         </Card>
