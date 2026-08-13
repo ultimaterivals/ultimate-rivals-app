@@ -171,7 +171,7 @@ test("athlete opens preserved Player Hub and core destinations", async ({
   ]) {
     await page.goto(destination.path);
     await expect(
-      page.getByRole("heading", { name: destination.heading }),
+      page.getByRole("heading", { name: destination.heading, exact: true }),
     ).toBeVisible({ timeout: 20_000 });
   }
 
