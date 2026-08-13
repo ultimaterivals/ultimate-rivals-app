@@ -1,5 +1,5 @@
-import { AthleteLiveResults } from "@/components/athlete/athlete-live-results";
+import { AthleteResultsContent } from "@/components/athlete/athlete-results-content";
 
 export default function AthleteResultsPage() {
-  return <AthleteLiveResults />;
+  return <AthleteResultsContent />;
 }
