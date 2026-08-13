@@ -2,12 +2,16 @@ import {
   CalendarClock,
   Layers3,
   Link2,
+  Plus,
   Shield,
   UserPlus,
   UsersRound,
   Warehouse,
 } from "lucide-react";
-import { linkFormationToTeamAction } from "@/app/admin/equipes/actions";
+import {
+  createTeamAction,
+  linkFormationToTeamAction,
+} from "@/app/admin/equipes/actions";
 import { TeamCard } from "@/components/admin/teams/team-card";
 import { Badge, Card, PageHeader } from "@/components/ui";
 import { requireAdminModule } from "@/lib/auth/admin-module-access";
@@ -49,7 +53,7 @@ export default async function TeamsPage() {
       <PageHeader
         eyebrow="Esportivo"
         title="Equipes Oficiais"
-        description="Gerencie equipes e homologue quais duplas passam a representá-las durante a temporada."
+        description="Cadastre equipes, acompanhe sua estrutura e homologue quais duplas passam a representá-las durante a temporada."
       />
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
         {metrics.map(([label, value, Icon]) => (
@@ -82,6 +86,83 @@ export default async function TeamsPage() {
           </div>
         </div>
       </Card>
+
+      <section className="grid gap-4">
+        <div>
+          <p className="text-xs font-black tracking-[0.16em] text-zinc-500 uppercase">
+            Cadastro controlado
+          </p>
+          <h2 className="font-display mt-1 text-2xl font-black uppercase">
+            Nova equipe
+          </h2>
+        </div>
+        <Card className="border-ur-gold/20">
+          {(raw.poles ?? []).length === 0 ? (
+            <div>
+              <p className="font-bold">Nenhum polo disponível.</p>
+              <p className="mt-2 text-sm text-zinc-500">
+                Uma equipe precisa nascer vinculada a um polo oficial.
+              </p>
+            </div>
+          ) : (
+            <form action={createTeamAction} className="grid gap-3 md:grid-cols-2">
+              <label className="grid gap-1.5 text-xs font-bold text-zinc-500 uppercase">
+                Nome da equipe
+                <input
+                  type="text"
+                  name="name"
+                  required
+                  minLength={2}
+                  maxLength={120}
+                  placeholder="Ex.: Rivals BH"
+                  className="rounded-ur border bg-black/20 px-3 py-2.5 text-sm text-zinc-200"
+                />
+              </label>
+              <label className="grid gap-1.5 text-xs font-bold text-zinc-500 uppercase">
+                Nome curto
+                <input
+                  type="text"
+                  name="shortName"
+                  maxLength={40}
+                  placeholder="Opcional"
+                  className="rounded-ur border bg-black/20 px-3 py-2.5 text-sm text-zinc-200"
+                />
+              </label>
+              <label className="grid gap-1.5 text-xs font-bold text-zinc-500 uppercase md:col-span-2">
+                Polo principal
+                <select
+                  name="primaryPoleId"
+                  required
+                  defaultValue=""
+                  className="rounded-ur border bg-black/20 px-3 py-2.5 text-sm text-zinc-200"
+                >
+                  <option value="" disabled>
+                    Selecione o polo
+                  </option>
+                  {(raw.poles ?? []).map((pole) => (
+                    <option key={pole.id} value={pole.id}>
+                      {pole.name}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <div className="md:col-span-2">
+                <p className="mb-3 text-xs leading-5 text-zinc-500">
+                  A equipe é criada como rascunho. Cadastro não filia atletas,
+                  não altera jogos anteriores e não gera pontos de ranking.
+                </p>
+                <button
+                  type="submit"
+                  className="bg-ur-gold text-ur-black rounded-ur inline-flex w-full items-center justify-center gap-2 px-4 py-2.5 text-sm font-black"
+                >
+                  <Plus size={16} aria-hidden="true" />
+                  Cadastrar equipe
+                </button>
+              </div>
+            </form>
+          )}
+        </Card>
+      </section>
 
       <section className="grid gap-4">
         <div className="flex flex-wrap items-end justify-between gap-3">
@@ -213,7 +294,8 @@ export default async function TeamsPage() {
         <Card>
           <p className="font-bold">Nenhuma Equipe Oficial cadastrada.</p>
           <p className="mt-2 text-sm text-zinc-500">
-            Equipes homologadas aparecerão aqui com a ocupação por categoria.
+            Equipes cadastradas aparecerão aqui com sua situação e ocupação por
+            categoria.
           </p>
         </Card>
       ) : (

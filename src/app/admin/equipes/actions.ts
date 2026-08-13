@@ -6,20 +6,47 @@ import { z } from "zod";
 import { requireRole } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
 
-const schema = z.object({
+const linkSchema = z.object({
   formationId: z.string().uuid(),
   teamId: z.string().uuid(),
   effectiveAt: z.string().min(1),
   reason: z.string().trim().min(4).max(500),
 });
 
+const createTeamSchema = z.object({
+  name: z.string().trim().min(2).max(120),
+  shortName: z.string().trim().max(40).optional(),
+  primaryPoleId: z.string().uuid(),
+});
+
 function resultUrl(result: string) {
   return `/admin/equipes?result=${encodeURIComponent(result)}`;
 }
 
+export async function createTeamAction(formData: FormData) {
+  await requireRole(["admin"]);
+  const parsed = createTeamSchema.safeParse({
+    name: formData.get("name"),
+    shortName: formData.get("shortName") || undefined,
+    primaryPoleId: formData.get("primaryPoleId"),
+  });
+  if (!parsed.success) redirect(resultUrl("invalid-team"));
+
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("admin_create_team", {
+    p_name: parsed.data.name,
+    p_primary_pole_id: parsed.data.primaryPoleId,
+    p_short_name: parsed.data.shortName ?? null,
+  });
+  if (error) redirect(resultUrl(error.message));
+
+  revalidatePath("/admin/equipes");
+  redirect(resultUrl("team-created"));
+}
+
 export async function linkFormationToTeamAction(formData: FormData) {
   await requireRole(["admin"]);
-  const parsed = schema.safeParse({
+  const parsed = linkSchema.safeParse({
     formationId: formData.get("formationId"),
     teamId: formData.get("teamId"),
     effectiveAt: formData.get("effectiveAt"),
