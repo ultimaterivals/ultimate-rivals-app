@@ -190,7 +190,12 @@ export default async function AthleteRankingPage({
           </div>
           {above && (
             <p className="max-w-xs text-sm text-zinc-300">
-              Próximo alvo: <strong className="text-ur-gold">#{above.current_position}</strong>. A posição considera vitórias, aproveitamento, pontos e critérios de desempate.
+              Próximo alvo:{" "}
+              <strong className="text-ur-gold">
+                #{above.current_position}
+              </strong>
+              . A posição considera vitórias, aproveitamento, pontos e critérios
+              de desempate.
             </p>
           )}
         </Card>
