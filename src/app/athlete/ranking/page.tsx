@@ -189,12 +189,8 @@ export default async function AthleteRankingPage({
             </p>
           </div>
           {above && (
-            <p className="text-sm text-zinc-300">
-              Faltam{" "}
-              <strong className="text-ur-gold">
-                {Math.max(0, above.total_points - mine.total_points + 1)} pts
-              </strong>{" "}
-              para #{above.current_position}.
+            <p className="max-w-xs text-sm text-zinc-300">
+              Próximo alvo: <strong className="text-ur-gold">#{above.current_position}</strong>. A posição considera vitórias, aproveitamento, pontos e critérios de desempate.
             </p>
           )}
         </Card>
