@@ -5,32 +5,18 @@ import { createClient } from "@/lib/supabase/server";
 type HistoricalResultRow = {
   id: string;
   legacy_game_id: number;
-  occurred_at: string | null;
-  time_label: string | null;
   side_a_label: string;
   side_b_label: string;
   score_a: number;
   score_b: number;
 };
 
-function formatHistoricalWhen(match: HistoricalResultRow) {
-  if (match.occurred_at) {
-    return new Date(match.occurred_at).toLocaleString("pt-BR");
-  }
-
-  if (match.time_label) {
-    return `Horário registrado: ${match.time_label} · Data não publicada`;
-  }
-
-  return "Data ainda não publicada";
-}
-
 export async function AthleteHistoricalResults() {
   const client = await createClient();
   const historicalResult = await client
     .from("historical_match_results")
     .select(
-      "id,legacy_game_id,occurred_at,time_label,side_a_label,side_b_label,score_a,score_b",
+      "id,legacy_game_id,side_a_label,side_b_label,score_a,score_b",
     )
     .order("legacy_game_id", { ascending: false })
     .limit(100);
@@ -49,8 +35,7 @@ export async function AthleteHistoricalResults() {
           Jogos que construíram seu ranking
         </h2>
         <p className="mt-1 text-sm text-zinc-400">
-          Registros oficiais anteriores ao aplicativo. Datas não confirmadas
-          permanecem sem publicação.
+          Registros oficiais anteriores ao aplicativo.
         </p>
       </div>
       {matches.map((match) => (
@@ -67,7 +52,7 @@ export async function AthleteHistoricalResults() {
             </h3>
             <p className="mt-2 flex items-center gap-2 text-sm text-zinc-400">
               <CalendarDays size={15} aria-hidden="true" />
-              {formatHistoricalWhen(match)}
+              Data ainda não publicada
             </p>
           </div>
           <div className="rounded-ur border border-white/10 p-4 text-right">
