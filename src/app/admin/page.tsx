@@ -3,6 +3,11 @@ import Link from "next/link";
 import { CommandLaunchDesk } from "@/components/admin/command-launch-desk";
 import { CommandPilotReadiness } from "@/components/admin/command-pilot-readiness";
 import { CommandSection } from "@/components/admin/command-section";
+import { CommandSessionActionDesk } from "@/components/admin/command-session-action-desk";
+import { CommandSessionMarginControl } from "@/components/admin/command-session-margin-control";
+import { CommandSourceAudit } from "@/components/admin/command-source-audit";
+import { CommandTodayControlRoom } from "@/components/admin/command-today-control-room";
+import { CommandUrPlayCycleControl } from "@/components/admin/command-ur-play-cycle-control";
 import {
   CommandActions,
   CommandAttention,
@@ -14,6 +19,7 @@ import {
 import { Badge, Card, PageHeader } from "@/components/ui";
 import {
   adminPortalRoles,
+  canAccessAdminModule,
   getAdminModulesForRole,
 } from "@/lib/auth/admin-modules";
 import { requireRole } from "@/lib/auth/session";
@@ -41,6 +47,8 @@ export default async function AdminPage() {
         ? "Base conectada · sem registros"
         : "Dados reais";
 
+  const canAccessUrPlay = canAccessAdminModule(user.role, "urPlay");
+
   return (
     <div className="grid gap-10">
       <PageHeader
@@ -63,6 +71,14 @@ export default async function AdminPage() {
           </span>
         )}
       </div>
+
+      <CommandTodayControlRoom snapshot={snapshot} />
+
+      {canAccessUrPlay && <CommandSessionActionDesk />}
+
+      {canAccessUrPlay && <CommandUrPlayCycleControl />}
+
+      {user.role === "admin" && <CommandSessionMarginControl />}
 
       {pilotReadiness && <CommandLaunchDesk snapshot={pilotReadiness} />}
 
@@ -90,6 +106,8 @@ export default async function AdminPage() {
       <CommandUpcoming snapshot={snapshot} />
       <CommandDemand snapshot={snapshot} />
       <CommandFunnelPanel snapshot={snapshot} />
+
+      <CommandSourceAudit snapshot={snapshot} />
 
       {snapshot.sourceErrors.length > 0 && (
         <CommandSection title="Saúde das fontes">
