@@ -1,7 +1,7 @@
 import { ArrowDown, ArrowUp, Minus, Trophy, UserRound } from "lucide-react";
 import Link from "next/link";
 import { AthleteSourceHealth } from "@/components/athlete/athlete-source-health";
-import { Badge, Card, PageHeader } from "@/components/ui";
+import { Card, PageHeader } from "@/components/ui";
 import { requireAthleteViewer } from "@/lib/auth/athlete-viewer";
 import { createClient } from "@/lib/supabase/server";
 import { getAthleteSnapshotForViewer } from "@/server/services/athlete-viewer-snapshot-service";
