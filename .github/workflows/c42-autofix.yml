@@ -1,0 +1,53 @@
+name: C42 one-shot lint autofix
+
+on:
+  push:
+    branches:
+      - sprint-c42-report-learnings
+
+permissions:
+  contents: write
+
+jobs:
+  autofix:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: sprint-c42-report-learnings
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Replace render-time clock with snapshot clock
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          path = Path('src/app/admin/ur-play/relatorio/page.tsx')
+          text = path.read_text()
+          old = '''  const today = new Date().toISOString().slice(0, 10);
+            const tomorrow = new Date(Date.now() + 86_400_000).toISOString().slice(0, 10);'''
+          if old not in text:
+              old = '''  const today = new Date().toISOString().slice(0, 10);
+  const tomorrow = new Date(Date.now() + 86_400_000).toISOString().slice(0, 10);'''
+          new = '''  const snapshotClock = new Date(snapshot.generatedAt);
+  const today = snapshotClock.toISOString().slice(0, 10);
+  const tomorrow = new Date(snapshotClock.getTime() + 86_400_000)
+    .toISOString()
+    .slice(0, 10);'''
+          if old not in text:
+              raise SystemExit('expected date block not found')
+          path.write_text(text.replace(old, new, 1))
+          PY
+      - run: npx prettier --write src/app/admin/ur-play/relatorio/page.tsx
+      - run: npm run lint
+      - name: Commit verified correction and remove this workflow
+        run: |
+          rm .github/workflows/c42-autofix.yml
+          git config user.name "UR Quality Bot"
+          git config user.email "quality@ultimaterivals.local"
+          git add -A
+          git diff --cached --quiet && exit 0
+          git commit -m "fix: make C42 report dates deterministic"
+          git push origin HEAD:sprint-c42-report-learnings
