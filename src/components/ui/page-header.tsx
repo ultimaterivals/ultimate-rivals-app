@@ -25,7 +25,11 @@ export function PageHeader({
         <h1 className="font-display text-3xl font-black tracking-tight uppercase sm:text-4xl">
           {title}
         </h1>
-        {seasonHeadingAlias && <h2 className="sr-only">{seasonHeadingAlias}</h2>}
+        {seasonHeadingAlias && (
+          <h2 className="mt-1 text-xs font-bold tracking-[.16em] text-zinc-500 uppercase">
+            {seasonHeadingAlias}
+          </h2>
+        )}
         {description && (
           <p className="mt-2 max-w-2xl text-zinc-400">{description}</p>
         )}
