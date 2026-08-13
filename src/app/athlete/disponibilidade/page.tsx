@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { AthleteAvailabilityForm } from "@/components/athlete/athlete-availability-form";
 import { AthleteSourceHealth } from "@/components/athlete/athlete-source-health";
 import { Badge, Card, PageHeader } from "@/components/ui";
@@ -43,10 +44,32 @@ export default async function AthleteAvailabilityPage({
   return (
     <div className="grid gap-8">
       <PageHeader
-        eyebrow="Meu jogo"
+        eyebrow="Temporada 1 · Meu jogo"
         title="Disponibilidade"
-        description="Informe quando você normalmente pode jogar ou treinar. O UR usa essas janelas para alinhar atletas, polos e horários sem transformar disponibilidade em reserva."
+        description="Conte quando você costuma poder jogar. Essas janelas ajudam o UR a aproximar atletas, polos e horários para formar melhores oportunidades durante a temporada."
       />
+
+      <Card className="border-ur-gold/30 bg-ur-gold/[.035]">
+        <p className="text-ur-gold text-xs font-black tracking-[.18em] uppercase">
+          Seu calendário também faz parte da temporada
+        </p>
+        <div className="mt-2 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <h2 className="text-xl font-black">Ajude o próximo jogo a encontrar você</h2>
+            <p className="mt-1 max-w-2xl text-sm leading-6 text-zinc-400">
+              Disponibilidade não reserva vaga. Ela mostra quando você tem mais
+              chance de participar e ajuda o UR a identificar combinações de
+              horário, polo, formato e categoria.
+            </p>
+          </div>
+          <Link
+            href="/athlete/agenda"
+            className="text-ur-gold inline-flex min-h-11 items-center font-black"
+          >
+            Ver oportunidades →
+          </Link>
+        </div>
+      </Card>
 
       {viewer.isPreview && (
         <Card className="border-ur-gold/40">
@@ -61,7 +84,8 @@ export default async function AthleteAvailabilityPage({
         (single(params.saved) || single(params.deleted)) && (
           <Card className="border-ur-gold/40">
             <p className="text-ur-gold text-sm font-bold">
-              Disponibilidade atualizada.
+              Disponibilidade atualizada. Suas próximas oportunidades poderão
+              considerar essas janelas.
             </p>
           </Card>
         )}
@@ -120,6 +144,30 @@ export default async function AthleteAvailabilityPage({
       ) : (
         <AthleteAvailabilityForm snapshot={snapshot} />
       )}
+
+      <Card>
+        <p className="text-xs font-black tracking-[.18em] text-zinc-500 uppercase">
+          Como isso se conecta ao trimestre
+        </p>
+        <div className="mt-4 grid gap-3 sm:grid-cols-3">
+          {[
+            ["1", "Você informa quando pode jogar"],
+            ["2", "O UR cruza disponibilidade e demanda"],
+            ["3", "As oportunidades aparecem na Agenda"],
+          ].map(([step, label]) => (
+            <div key={step} className="rounded-ur border border-white/10 p-4">
+              <span className="text-ur-gold font-display text-2xl font-black">
+                {step}
+              </span>
+              <p className="mt-2 text-sm font-bold">{label}</p>
+            </div>
+          ))}
+        </div>
+        <p className="mt-4 text-sm text-zinc-500">
+          Demonstrar interesse e reservar continuam sendo ações separadas feitas
+          na Agenda quando uma oportunidade estiver disponível.
+        </p>
+      </Card>
 
       <AthleteSourceHealth errors={snapshot.sourceErrors} />
     </div>
