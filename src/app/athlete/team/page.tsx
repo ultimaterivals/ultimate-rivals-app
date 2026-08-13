@@ -52,9 +52,9 @@ export default async function AthleteTeamPage() {
           <Users className="text-ur-gold" aria-hidden="true" />
           <h2 className="mt-3 text-xl font-black">Sem equipe vinculada</h2>
           <p className="mt-2 text-sm text-zinc-400">
-            Sua dupla pode competir de forma independente. Quando houver um vínculo
-            homologado com uma equipe, ele aparecerá aqui sem apagar o histórico da
-            formação.
+            Sua dupla pode competir de forma independente. Quando houver um
+            vínculo homologado com uma equipe, ele aparecerá aqui sem apagar o
+            histórico da formação.
           </p>
         </Card>
       ) : (
