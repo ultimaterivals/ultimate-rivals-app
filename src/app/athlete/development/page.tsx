@@ -4,6 +4,7 @@ import { Badge, Card, EmptyState, PageHeader } from "@/components/ui";
 import { requireAthleteViewer } from "@/lib/auth/athlete-viewer";
 import { getAthleteSnapshotForViewer } from "@/server/services/athlete-viewer-snapshot-service";
 
+// Contract guard: advanced missions, achievements and progression systems não são simulados nesta V1.
 export default async function AthleteDevelopmentPage() {
   const viewer = await requireAthleteViewer();
   const snapshot = await getAthleteSnapshotForViewer(viewer);
