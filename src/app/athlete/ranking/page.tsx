@@ -39,6 +39,7 @@ function rankAvatar(
       aria-label={`Perfil de ${name}`}
     >
       {avatar ? (
+        // eslint-disable-next-line @next/next/no-img-element -- published avatar URLs have no fixed image host.
         <img src={avatar} alt="" className="size-full object-cover" />
       ) : (
         <UserRound size={18} aria-hidden="true" />

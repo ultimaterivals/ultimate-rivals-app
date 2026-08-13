@@ -71,6 +71,7 @@ export default async function AthleteTeamPage() {
               <div className="flex flex-wrap items-start justify-between gap-3">
                 <div>
                   {team.logo_url ? (
+                    // eslint-disable-next-line @next/next/no-img-element -- published team logos may use different approved hosts.
                     <img
                       src={team.logo_url}
                       alt=""
