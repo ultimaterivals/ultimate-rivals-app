@@ -75,9 +75,9 @@ export default async function TeamsPage() {
           <div>
             <p className="font-bold">Vínculo com efeito temporal</p>
             <p className="mt-2 text-sm leading-6 text-zinc-400">
-              A dupla só representa a equipe a partir da data efetiva homologada.
-              Vincular hoje não transforma automaticamente jogos anteriores em
-              pontos da equipe.
+              A dupla só representa a equipe a partir da data efetiva
+              homologada. Vincular hoje não transforma automaticamente jogos
+              anteriores em pontos da equipe.
             </p>
           </div>
         </div>
@@ -100,21 +100,27 @@ export default async function TeamsPage() {
           <Card>
             <p className="font-bold">Nenhuma formação aguarda vínculo.</p>
             <p className="mt-2 text-sm text-zinc-500">
-              Novas duplas independentes aparecerão aqui quando estiverem aptas a
-              ser filiadas a uma equipe.
+              Novas duplas independentes aparecerão aqui quando estiverem aptas
+              a ser filiadas a uma equipe.
             </p>
           </Card>
         ) : activeTeams.length === 0 ? (
           <Card>
-            <p className="font-bold">Não há equipe ativa para receber duplas.</p>
+            <p className="font-bold">
+              Não há equipe ativa para receber duplas.
+            </p>
             <p className="mt-2 text-sm text-zinc-500">
-              Cadastre e homologue uma equipe antes de efetivar qualquer vínculo.
+              Cadastre e homologue uma equipe antes de efetivar qualquer
+              vínculo.
             </p>
           </Card>
         ) : (
           <div className="grid gap-3">
             {unlinkedFormations.map((formation) => (
-              <Card key={formation.id} className="grid gap-4 xl:grid-cols-[1fr_2fr]">
+              <Card
+                key={formation.id}
+                className="grid gap-4 xl:grid-cols-[1fr_2fr]"
+              >
                 <div>
                   <div className="flex flex-wrap items-center gap-2">
                     <p className="font-display text-xl font-black uppercase">
@@ -124,7 +130,8 @@ export default async function TeamsPage() {
                   </div>
                   <p className="mt-2 text-sm text-zinc-500">
                     {formation.category_id
-                      ? (categoryNames.get(formation.category_id) ?? "Categoria")
+                      ? (categoryNames.get(formation.category_id) ??
+                        "Categoria")
                       : "Categoria a confirmar"}
                     {formation.pole_id
                       ? ` · ${poleNames.get(formation.pole_id) ?? "Polo"}`
@@ -136,7 +143,11 @@ export default async function TeamsPage() {
                   action={linkFormationToTeamAction}
                   className="grid gap-3 md:grid-cols-2"
                 >
-                  <input type="hidden" name="formationId" value={formation.id} />
+                  <input
+                    type="hidden"
+                    name="formationId"
+                    value={formation.id}
+                  />
                   <label className="grid gap-1.5 text-xs font-bold text-zinc-500 uppercase">
                     Equipe
                     <select
@@ -216,9 +227,11 @@ export default async function TeamsPage() {
         <Card>
           <p className="font-bold">Leitura parcial</p>
           <ul className="mt-2 text-sm text-zinc-500">
-            {[...new Set([...snapshot.sourceErrors, ...raw.errors])].map((error) => (
-              <li key={error}>{error}</li>
-            ))}
+            {[...new Set([...snapshot.sourceErrors, ...raw.errors])].map(
+              (error) => (
+                <li key={error}>{error}</li>
+              ),
+            )}
           </ul>
         </Card>
       )}
