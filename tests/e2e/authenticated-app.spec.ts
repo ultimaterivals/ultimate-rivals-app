@@ -165,7 +165,7 @@ test("athlete opens preserved Player Hub and core destinations", async ({
 
   for (const destination of [
     { path: "/athlete/agenda", heading: "Agenda" },
-    { path: "/athlete/ranking", heading: "Meu ranking" },
+    { path: "/athlete/ranking", heading: "Ranking" },
     { path: "/athlete/season", heading: "Sua campanha UR" },
     { path: "/athlete/perfil", heading: "Meu Perfil" },
   ]) {
@@ -174,6 +174,21 @@ test("athlete opens preserved Player Hub and core destinations", async ({
       page.getByRole("heading", { name: destination.heading }),
     ).toBeVisible({ timeout: 20_000 });
   }
+
+  await page.goto("/athlete/ranking");
+  const rankingTabs = page.getByRole("navigation", {
+    name: "Tipos de ranking",
+  });
+  await expect(
+    rankingTabs.getByRole("link", { name: "Individual" }),
+  ).toBeVisible();
+  await expect(rankingTabs.getByRole("link", { name: "Duplas" })).toBeVisible();
+  await expect(
+    rankingTabs.getByRole("link", { name: "Equipes" }),
+  ).toBeVisible();
+  await expect(rankingTabs.getByRole("link", { name: "Polos" })).toBeVisible();
+  await rankingTabs.getByRole("link", { name: "Duplas" }).click();
+  await expect(page).toHaveURL(/\/athlete\/ranking\?tab=doubles/);
 });
 
 test("athlete interest is reflected back into Command demand", async ({

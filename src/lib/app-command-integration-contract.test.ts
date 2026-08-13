@@ -165,9 +165,31 @@ describe("App V1 ↔ Command integration contracts", () => {
     const ranking = source("src/app/athlete/ranking/page.tsx");
 
     expect(ranking).toContain('.from("public_rankings")');
-    expect(ranking).toContain('.eq("ranking_type", "individual")');
+    expect(ranking).toContain('.eq("ranking_type", tab)');
     expect(ranking).toContain("Ranking geral da liga");
-    expect(ranking).toContain("Seu histórico competitivo começará");
+    expect(ranking).toContain(
+      "Você ainda não tem posição nesta classificação.",
+    );
+    expect(ranking).toContain("Tipos de ranking");
+    expect(ranking).toContain('"doubles", "Duplas"');
+    expect(ranking).toContain('"team", "Equipes"');
+    expect(ranking).toContain('"pole", "Polos"');
+    expect(ranking).toContain("Top 3");
+    expect(ranking).toContain("Ranking geral da liga");
+    expect(ranking).not.toContain("ranking_entries");
+  });
+
+  it("keeps competitive result and team surfaces sourced from published data", () => {
+    const results = source("src/app/athlete/results/page.tsx");
+    const team = source("src/app/athlete/team/page.tsx");
+
+    expect(results).toContain('from("ranking_transactions")');
+    expect(results).toContain('eq("status", "homologated")');
+    expect(results).toContain("Impacto");
+    expect(results).toContain("match_participants");
+    expect(team).toContain('from("public_rankings")');
+    expect(team).toContain('eq("ranking_type", "team")');
+    expect(team).toContain("Seu time em campo");
   });
 
   it("keeps athlete Market writes behind the transactional RPC", () => {

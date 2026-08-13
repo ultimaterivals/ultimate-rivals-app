@@ -1,4 +1,4 @@
-import { Shield, Users } from "lucide-react";
+import { MapPin, Shield, Trophy, Users } from "lucide-react";
 import { Badge, Card, PageHeader } from "@/components/ui";
 import { requireAthleteViewer } from "@/lib/auth/athlete-viewer";
 import { createClient } from "@/lib/supabase/server";
@@ -9,26 +9,37 @@ export default async function AthleteTeamPage() {
   const membershipResult = await client
     .from("team_memberships")
     .select(
-      "team_id,teams!inner(id,name,short_name,primary_pole_id,poles(name,city))",
+      "team_id,teams!inner(id,name,short_name,logo_url,primary_pole_id,poles(name,city))",
     )
     .eq("athlete_id", viewer.athleteId)
     .eq("status", "active");
   const memberships = membershipResult.data ?? [];
   const teamIds = memberships.map((row) => row.team_id);
-  const membersResult = teamIds.length
-    ? await client
-        .from("team_memberships")
-        .select("team_id,membership_type,athletes!inner(public_name)")
-        .in("team_id", teamIds)
-        .eq("status", "active")
-    : { data: [], error: null };
+  const [membersResult, rankingsResult] = await Promise.all([
+    teamIds.length
+      ? client
+          .from("team_memberships")
+          .select("team_id,membership_type,athletes!inner(public_name)")
+          .in("team_id", teamIds)
+          .eq("status", "active")
+      : Promise.resolve({ data: [], error: null }),
+    teamIds.length
+      ? client
+          .from("public_rankings")
+          .select(
+            "entity_id,current_position,total_points,games_played,wins,losses,win_rate",
+          )
+          .eq("ranking_type", "team")
+          .in("entity_id", teamIds)
+      : Promise.resolve({ data: [], error: null }),
+  ]);
 
   return (
     <div className="mx-auto grid max-w-7xl gap-6">
       <PageHeader
         eyebrow="Equipe e dupla"
-        title="Seus vínculos esportivos"
-        description="Informações oficiais de equipe e integrantes disponíveis para você."
+        title="Seu time em campo"
+        description="Acompanhe seu elenco, polo e campanha oficial da temporada."
       />
       {memberships.length === 0 ? (
         <Card>
@@ -43,18 +54,38 @@ export default async function AthleteTeamPage() {
           const team = membership.teams as unknown as {
             name: string;
             short_name: string | null;
+            logo_url: string | null;
             poles: { name: string; city: string } | null;
           };
           const members = (membersResult.data ?? []).filter(
             (member) => member.team_id === membership.team_id,
           );
+          const ranking = (rankingsResult.data ?? []).find(
+            (row) => row.entity_id === membership.team_id,
+          );
           return (
-            <Card key={membership.team_id}>
+            <Card
+              key={membership.team_id}
+              className="ranking-hero border-ur-gold/20"
+            >
               <div className="flex flex-wrap items-start justify-between gap-3">
                 <div>
-                  <Shield className="text-ur-gold" aria-hidden="true" />
+                  {team.logo_url ? (
+                    <img
+                      src={team.logo_url}
+                      alt=""
+                      className="border-ur-gold/30 size-14 rounded-full border object-cover"
+                    />
+                  ) : (
+                    <Shield
+                      className="text-ur-gold"
+                      size={36}
+                      aria-hidden="true"
+                    />
+                  )}
                   <h2 className="mt-3 text-2xl font-black">{team.name}</h2>
-                  <p className="mt-1 text-sm text-zinc-400">
+                  <p className="mt-1 flex items-center gap-1 text-sm text-zinc-400">
+                    <MapPin size={14} aria-hidden="true" />
                     {team.poles
                       ? `${team.poles.name} · ${team.poles.city}`
                       : "Polo em atualização"}
@@ -62,9 +93,39 @@ export default async function AthleteTeamPage() {
                 </div>
                 <Badge>{team.short_name ?? "Equipe oficial"}</Badge>
               </div>
-              <div className="mt-5 border-t border-white/10 pt-4">
+              {ranking && (
+                <div className="mt-5 grid gap-3 border-y border-white/10 py-4 sm:grid-cols-4">
+                  <div>
+                    <p className="text-xs text-zinc-500 uppercase">Posição</p>
+                    <p className="font-display text-ur-gold text-2xl font-black">
+                      #{ranking.current_position ?? "—"}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-zinc-500 uppercase">Pontos</p>
+                    <p className="font-display text-2xl font-black">
+                      {ranking.total_points}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-zinc-500 uppercase">Campanha</p>
+                    <p className="font-bold">
+                      {ranking.wins}V · {ranking.losses}D
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-zinc-500 uppercase">
+                      Aproveitamento
+                    </p>
+                    <p className="font-bold">
+                      {Number(ranking.win_rate).toFixed(1)}%
+                    </p>
+                  </div>
+                </div>
+              )}
+              <div className="mt-5">
                 <p className="text-xs font-black tracking-[.16em] text-zinc-500 uppercase">
-                  Integrantes publicados
+                  Elenco
                 </p>
                 <div className="mt-3 flex flex-wrap gap-2">
                   {members.map((member, index) => (
@@ -78,17 +139,20 @@ export default async function AthleteTeamPage() {
                   ))}
                 </div>
               </div>
-              <p className="mt-5 text-sm text-zinc-500">
-                Contribuições e posições exibidas no ranking permanecem as
-                projeções oficiais já calculadas.
+              <p className="mt-5 flex items-center gap-2 text-sm text-zinc-400">
+                <Trophy className="text-ur-gold" size={16} aria-hidden="true" />{" "}
+                Resultados, contribuição e repasses aparecem aqui quando forem
+                publicados para a equipe.
               </p>
             </Card>
           );
         })
       )}
-      {(membershipResult.error || membersResult.error) && (
+      {(membershipResult.error ||
+        membersResult.error ||
+        rankingsResult.error) && (
         <p className="text-sm text-zinc-500">
-          Uma fonte de equipe está temporariamente indisponível.
+          Uma informação da equipe está temporariamente indisponível.
         </p>
       )}
     </div>
