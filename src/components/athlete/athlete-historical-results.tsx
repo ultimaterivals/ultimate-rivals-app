@@ -37,10 +37,7 @@ export async function AthleteHistoricalResults() {
         </p>
       </div>
       {matches.map((match) => (
-        <Card
-          key={match.id}
-          className="grid gap-4 sm:grid-cols-[1fr_auto]"
-        >
+        <Card key={match.id} className="grid gap-4 sm:grid-cols-[1fr_auto]">
           <div>
             <p className="text-xs font-black tracking-[.16em] text-zinc-500 uppercase">
               Registro histórico · Jogo {match.legacy_game_id}
