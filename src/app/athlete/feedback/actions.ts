@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
-import { requireRole } from "@/lib/auth/session";
+import { requireAthleteViewer } from "@/lib/auth/athlete-viewer";
 import { createClient } from "@/lib/supabase/server";
 
 const feedbackCategory = z.enum([
@@ -17,8 +17,14 @@ const feedbackCategory = z.enum([
   "other",
 ]);
 
+async function requireWritableAthleteViewer() {
+  const viewer = await requireAthleteViewer();
+  if (viewer.isPreview || !viewer.userId) redirect("/admin/preview");
+  return viewer;
+}
+
 export async function submitAthleteSupportAction(formData: FormData) {
-  await requireRole(["athlete"]);
+  await requireWritableAthleteViewer();
   const parsed = z
     .object({
       category: feedbackCategory,
@@ -48,7 +54,7 @@ export async function submitAthleteSupportAction(formData: FormData) {
 }
 
 export async function submitAthleteFeedbackAction(formData: FormData) {
-  await requireRole(["athlete"]);
+  await requireWritableAthleteViewer();
   const parsed = z
     .object({
       requestId: z.string().uuid(),
