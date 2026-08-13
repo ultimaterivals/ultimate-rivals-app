@@ -42,7 +42,9 @@ export async function AthleteHistoricalResults() {
 
   const matchIds = Array.from(
     new Set(
-      (participantLinksResult.data ?? []).map((row) => row.historical_match_id),
+      (participantLinksResult.data ?? []).map(
+        (row) => row.historical_match_id,
+      ),
     ),
   );
 
@@ -66,7 +68,8 @@ export async function AthleteHistoricalResults() {
   ]);
 
   const matches = historicalResult.data as HistoricalResultRow[] | null;
-  const participants = (participantsResult.data ?? []) as unknown as HistoricalParticipantRow[];
+  const participants = (participantsResult.data ??
+    []) as unknown as HistoricalParticipantRow[];
 
   if (!matches?.length) return null;
 
