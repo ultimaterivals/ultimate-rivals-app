@@ -5,7 +5,7 @@ export function SeasonContextBanner() {
   return (
     <section
       aria-label="Contexto da temporada atual"
-      className="border-ur-gold/20 bg-ur-gold/[.045] mb-5 flex flex-wrap items-center justify-between gap-3 rounded-ur border px-4 py-3"
+      className="border-ur-gold/20 bg-ur-gold/[.045] rounded-ur mb-5 flex flex-wrap items-center justify-between gap-3 border px-4 py-3"
     >
       <div className="flex min-w-0 items-center gap-3">
         <span className="bg-ur-gold/10 text-ur-gold flex size-9 shrink-0 items-center justify-center rounded-full">
