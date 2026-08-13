@@ -34,7 +34,34 @@ export type RawFormat = {
 };
 export type RawPole = { id: string; name: string };
 export type RawAthleteId = { id: string };
+export type RawAthleteIdentity = {
+  id: string;
+  public_name: string;
+  full_name: string;
+};
 export type RawMembershipAthlete = { athlete_id: string };
+export type RawSeason = {
+  id: string;
+  name: string;
+  starts_at: string;
+  ends_at: string;
+};
+export type RawFormation = {
+  id: string;
+  season_id: string;
+  format_id: string;
+  category_id: string | null;
+  level: string | null;
+  team_id: string | null;
+  pole_id: string | null;
+  display_name: string;
+  status: string;
+};
+export type RawFormationMember = {
+  formation_id: string;
+  athlete_id: string;
+  position_order: number;
+};
 
 export type AdminTeamsRepositoryData = {
   teams: RawTeam[] | null;
@@ -44,7 +71,11 @@ export type AdminTeamsRepositoryData = {
   formats: RawFormat[] | null;
   poles: RawPole[] | null;
   athletes: RawAthleteId[] | null;
+  athleteIdentities: RawAthleteIdentity[] | null;
   memberships: RawMembershipAthlete[] | null;
+  activeSeason: RawSeason | null;
+  formations: RawFormation[] | null;
+  formationMembers: RawFormationMember[] | null;
   errors: string[];
 };
 
@@ -63,7 +94,9 @@ export async function fetchAdminTeamsRepositoryData(): Promise<AdminTeamsReposit
     formatResult,
     poleResult,
     athleteResult,
+    athleteIdentityResult,
     membershipResult,
+    seasonResult,
   ] = await Promise.all([
     supabase
       .from("teams")
@@ -98,11 +131,47 @@ export async function fetchAdminTeamsRepositoryData(): Promise<AdminTeamsReposit
       .eq("status", "active")
       .limit(5000),
     supabase
+      .from("athletes")
+      .select("id,public_name,full_name")
+      .is("archived_at", null)
+      .limit(5000),
+    supabase
       .from("team_memberships")
       .select("athlete_id")
       .eq("status", "active")
       .limit(5000),
+    supabase
+      .from("seasons")
+      .select("id,name,starts_at,ends_at")
+      .eq("status", "active")
+      .order("starts_at", { ascending: false })
+      .limit(1)
+      .maybeSingle(),
   ]);
+
+  const activeSeason = seasonResult.error
+    ? null
+    : ((seasonResult.data as RawSeason | null) ?? null);
+  const [formationResult, formationMemberResult] = activeSeason
+    ? await Promise.all([
+        supabase
+          .from("competition_formations")
+          .select(
+            "id,season_id,format_id,category_id,level,team_id,pole_id,display_name,status",
+          )
+          .eq("season_id", activeSeason.id)
+          .eq("status", "active")
+          .order("display_name", { ascending: true })
+          .limit(5000),
+        supabase
+          .from("competition_formation_members")
+          .select("formation_id,athlete_id,position_order")
+          .limit(10000),
+      ])
+    : [
+        { data: [], error: null },
+        { data: [], error: null },
+      ];
 
   const results = [
     ["teams", teamsResult.error],
@@ -112,7 +181,11 @@ export async function fetchAdminTeamsRepositoryData(): Promise<AdminTeamsReposit
     ["competitive_formats", formatResult.error],
     ["poles", poleResult.error],
     ["athletes", athleteResult.error],
+    ["athlete identities", athleteIdentityResult.error],
     ["team_memberships", membershipResult.error],
+    ["active season", seasonResult.error],
+    ["competition_formations", formationResult.error],
+    ["competition_formation_members", formationMemberResult.error],
   ] as const;
   for (const [source, error] of results)
     if (error) addError(errors, source, error.message);
@@ -139,9 +212,19 @@ export async function fetchAdminTeamsRepositoryData(): Promise<AdminTeamsReposit
     athletes: athleteResult.error
       ? null
       : ((athleteResult.data as RawAthleteId[] | null) ?? []),
+    athleteIdentities: athleteIdentityResult.error
+      ? null
+      : ((athleteIdentityResult.data as RawAthleteIdentity[] | null) ?? []),
     memberships: membershipResult.error
       ? null
       : ((membershipResult.data as RawMembershipAthlete[] | null) ?? []),
+    activeSeason,
+    formations: formationResult.error
+      ? null
+      : ((formationResult.data as RawFormation[] | null) ?? []),
+    formationMembers: formationMemberResult.error
+      ? null
+      : ((formationMemberResult.data as RawFormationMember[] | null) ?? []),
     errors,
   };
 }
