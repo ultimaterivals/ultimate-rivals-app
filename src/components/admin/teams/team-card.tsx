@@ -1,6 +1,13 @@
-import { MapPin, Shield, Trophy, UsersRound } from "lucide-react";
-import type { AdminTeamRow } from "@/features/admin-teams/types";
+import {
+  CheckCircle2,
+  MapPin,
+  Shield,
+  Trophy,
+  UsersRound,
+} from "lucide-react";
+import { activateTeamAction } from "@/app/admin/equipes/actions";
 import { Badge, Card } from "@/components/ui";
+import type { AdminTeamRow } from "@/features/admin-teams/types";
 
 export function TeamCard({ team }: { team: AdminTeamRow }) {
   return (
@@ -17,6 +24,24 @@ export function TeamCard({ team }: { team: AdminTeamRow }) {
         </div>
         <Badge>{team.status}</Badge>
       </div>
+
+      {team.status === "draft" && (
+        <form action={activateTeamAction} className="grid gap-2">
+          <input type="hidden" name="teamId" value={team.id} />
+          <p className="text-xs leading-5 text-zinc-500">
+            Homologar torna a equipe apta a receber vínculos competitivos. Esta
+            ação não filia atletas nem altera jogos anteriores.
+          </p>
+          <button
+            type="submit"
+            className="bg-ur-gold text-ur-black rounded-ur inline-flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-black"
+          >
+            <CheckCircle2 size={16} aria-hidden="true" />
+            Homologar equipe
+          </button>
+        </form>
+      )}
+
       <div className="grid grid-cols-3 gap-2 text-center">
         <div className="rounded-ur border p-2">
           <UsersRound
