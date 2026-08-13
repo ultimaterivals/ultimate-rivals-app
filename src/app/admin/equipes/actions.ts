@@ -31,12 +31,15 @@ export async function linkFormationToTeamAction(formData: FormData) {
   if (Number.isNaN(effectiveAt.getTime())) redirect(resultUrl("invalid-date"));
 
   const supabase = await createClient();
-  const { error } = await supabase.rpc("admin_link_competition_formation_team", {
-    target_formation: parsed.data.formationId,
-    target_team: parsed.data.teamId,
-    effective_at: effectiveAt.toISOString(),
-    reason: parsed.data.reason,
-  });
+  const { error } = await supabase.rpc(
+    "admin_link_competition_formation_team",
+    {
+      target_formation: parsed.data.formationId,
+      target_team: parsed.data.teamId,
+      effective_at: effectiveAt.toISOString(),
+      reason: parsed.data.reason,
+    },
+  );
   if (error) redirect(resultUrl(error.message));
 
   revalidatePath("/admin/equipes");
