@@ -78,10 +78,12 @@ export default async function AthleteAgendaPage({
         </p>
         <div className="mt-2 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <h2 className="text-xl font-black">Cada jogo faz parte do trimestre</h2>
+            <h2 className="text-xl font-black">
+              Cada jogo faz parte do trimestre
+            </h2>
             <p className="mt-1 max-w-2xl text-sm leading-6 text-zinc-400">
-              Suas participações constroem histórico, ajudam a formar o ranking e
-              mantêm sua campanha em movimento até as próximas etapas.
+              Suas participações constroem histórico, ajudam a formar o ranking
+              e mantêm sua campanha em movimento até as próximas etapas.
             </p>
           </div>
           <Link
@@ -146,7 +148,7 @@ export default async function AthleteAgendaPage({
           </Card>
           <Card>
             <p className="text-xs font-bold tracking-wider text-zinc-500 uppercase">
-              Participações concluídas
+              Créditos utilizados
             </p>
             <p className="font-display mt-2 text-2xl font-black">
               {snapshot.creditConsumed ?? "—"}
