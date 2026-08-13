@@ -154,7 +154,10 @@ export default async function AthleteAvailabilityPage({
         <div className="mt-4 grid gap-3 sm:grid-cols-3">
           {[
             ["1", "Você informa quando pode jogar"],
-            ["2", "O UR usa disponibilidade e demanda para planejar oportunidades"],
+            [
+              "2",
+              "O UR usa disponibilidade e demanda para planejar oportunidades",
+            ],
             ["3", "As oportunidades aparecem na Agenda"],
           ].map(([step, label]) => (
             <div key={step} className="rounded-ur border border-white/10 p-4">
