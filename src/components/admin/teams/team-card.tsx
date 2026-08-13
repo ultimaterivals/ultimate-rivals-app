@@ -1,10 +1,4 @@
-import {
-  CheckCircle2,
-  MapPin,
-  Shield,
-  Trophy,
-  UsersRound,
-} from "lucide-react";
+import { CheckCircle2, MapPin, Shield, Trophy, UsersRound } from "lucide-react";
 import { activateTeamAction } from "@/app/admin/equipes/actions";
 import { Badge, Card } from "@/components/ui";
 import type { AdminTeamRow } from "@/features/admin-teams/types";
