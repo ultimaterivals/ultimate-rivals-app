@@ -158,7 +158,9 @@ export default async function AthleteSeasonPage() {
               Você está na fase de abertura + UR Play
             </h2>
             <p className="mt-2 max-w-3xl text-sm leading-6 text-zinc-400">
-              Este é o momento de jogar, gerar histórico, concluir seu nivelamento e acompanhar a formação do ranking. As próximas etapas aparecem aqui conforme forem liberadas.
+              Este é o momento de jogar, gerar histórico, concluir seu
+              nivelamento e acompanhar a formação do ranking. As próximas etapas
+              aparecem aqui conforme forem liberadas.
             </p>
           </div>
           <Badge>Temporada em andamento</Badge>
@@ -198,7 +200,9 @@ export default async function AthleteSeasonPage() {
             <p className="text-xs font-black tracking-[.18em] text-zinc-500 uppercase">
               Seu próximo passo
             </p>
-            <h2 className="mt-2 text-2xl font-black">{personalNextStep.title}</h2>
+            <h2 className="mt-2 text-2xl font-black">
+              {personalNextStep.title}
+            </h2>
             <p className="mt-2 max-w-2xl text-sm leading-6 text-zinc-400">
               {personalNextStep.description}
             </p>
@@ -225,7 +229,9 @@ export default async function AthleteSeasonPage() {
             Entenda onde estamos e o que vem depois
           </h2>
           <p className="mt-2 max-w-3xl text-sm leading-6 text-zinc-400">
-            As etapas fazem parte da mesma temporada. Nem todas precisam estar liberadas agora: o App vai mostrar quando cada uma estiver disponível e quais critérios passam a valer.
+            As etapas fazem parte da mesma temporada. Nem todas precisam estar
+            liberadas agora: o App vai mostrar quando cada uma estiver
+            disponível e quais critérios passam a valer.
           </p>
         </div>
 
@@ -287,7 +293,9 @@ export default async function AthleteSeasonPage() {
             Guia rápido da sua jornada
           </h2>
           <p className="mt-2 max-w-3xl text-sm leading-6 text-zinc-400">
-            O essencial para participar sem precisar decorar regulamentos. Quando uma regra específica afetar você, o App deve mostrar isso no momento certo.
+            O essencial para participar sem precisar decorar regulamentos.
+            Quando uma regra específica afetar você, o App deve mostrar isso no
+            momento certo.
           </p>
         </div>
 
@@ -307,7 +315,8 @@ export default async function AthleteSeasonPage() {
           <Medal className="text-ur-gold" aria-hidden="true" />
           <h2 className="mt-3 text-xl font-black">Jogue</h2>
           <p className="mt-2 text-sm text-zinc-400">
-            O UR Play é a porta de entrada recorrente. É onde sua temporada ganha resultados e continuidade.
+            O UR Play é a porta de entrada recorrente. É onde sua temporada
+            ganha resultados e continuidade.
           </p>
           <Link
             href="/athlete/agenda"
@@ -321,7 +330,8 @@ export default async function AthleteSeasonPage() {
           <Trophy className="text-ur-gold" aria-hidden="true" />
           <h2 className="mt-3 text-xl font-black">Acompanhe</h2>
           <p className="mt-2 text-sm text-zinc-400">
-            O ranking mostra como seus resultados se transformam em posição dentro da competição.
+            O ranking mostra como seus resultados se transformam em posição
+            dentro da competição.
           </p>
           <Link
             href="/athlete/ranking"
@@ -335,7 +345,8 @@ export default async function AthleteSeasonPage() {
           <Sparkles className="text-ur-gold" aria-hidden="true" />
           <h2 className="mt-3 text-xl font-black">Evolua</h2>
           <p className="mt-2 text-sm text-zinc-400">
-            Nivelamento, missões oficiais e marcos ajudam você a entender como sua jornada está avançando.
+            Nivelamento, missões oficiais e marcos ajudam você a entender como
+            sua jornada está avançando.
           </p>
           <Link
             href="/athlete/development"
@@ -359,7 +370,9 @@ export default async function AthleteSeasonPage() {
               Você faz parte de uma temporada, não de um jogo isolado.
             </h2>
             <p className="mt-2 max-w-3xl text-sm leading-6 text-zinc-400">
-              Jogue, acompanhe sua evolução e volte ao App para descobrir o próximo passo. O calendário, os critérios e as etapas serão comunicados aqui à medida que a temporada avança.
+              Jogue, acompanhe sua evolução e volte ao App para descobrir o
+              próximo passo. O calendário, os critérios e as etapas serão
+              comunicados aqui à medida que a temporada avança.
             </p>
           </div>
         </div>
