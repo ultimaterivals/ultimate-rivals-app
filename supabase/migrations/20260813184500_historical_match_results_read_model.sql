@@ -30,20 +30,31 @@ create index if not exists historical_match_results_season_idx
 create index if not exists historical_match_participants_athlete_idx
   on public.historical_match_participants(athlete_id, historical_match_id);
 
+create or replace function private.can_view_historical_match(p_historical_match_id uuid)
+returns boolean
+language sql
+stable
+security definer
+set search_path = ''
+as $$
+  select exists (
+    select 1
+    from public.historical_match_participants hmp
+    join public.athletes a on a.id = hmp.athlete_id
+    where hmp.historical_match_id = p_historical_match_id
+      and a.profile_id = (select auth.uid())
+  );
+$$;
+
 alter table public.historical_match_results enable row level security;
 alter table public.historical_match_participants enable row level security;
 
-create policy "athlete can read own historical match participants"
+create policy "athlete can read participants from own historical matches"
 on public.historical_match_participants
 for select
 to authenticated
 using (
-  exists (
-    select 1
-    from public.athletes a
-    where a.id = historical_match_participants.athlete_id
-      and a.profile_id = (select auth.uid())
-  )
+  (select private.can_view_historical_match(historical_match_id))
   or (select private.has_any_role(array['admin','operator','pole_manager']::public.app_role[]))
 );
 
@@ -52,15 +63,12 @@ on public.historical_match_results
 for select
 to authenticated
 using (
-  exists (
-    select 1
-    from public.historical_match_participants hmp
-    join public.athletes a on a.id = hmp.athlete_id
-    where hmp.historical_match_id = historical_match_results.id
-      and a.profile_id = (select auth.uid())
-  )
+  (select private.can_view_historical_match(id))
   or (select private.has_any_role(array['admin','operator','pole_manager']::public.app_role[]))
 );
+
+revoke all on function private.can_view_historical_match(uuid) from public;
+grant execute on function private.can_view_historical_match(uuid) to authenticated;
 
 revoke insert, update, delete on public.historical_match_results from anon, authenticated;
 revoke insert, update, delete on public.historical_match_participants from anon, authenticated;
