@@ -105,7 +105,10 @@ export default async function TeamsPage() {
               </p>
             </div>
           ) : (
-            <form action={createTeamAction} className="grid gap-3 md:grid-cols-2">
+            <form
+              action={createTeamAction}
+              className="grid gap-3 md:grid-cols-2"
+            >
               <label className="grid gap-1.5 text-xs font-bold text-zinc-500 uppercase">
                 Nome da equipe
                 <input
