@@ -1,12 +1,12 @@
 import { CalendarDays, ShieldCheck, Trophy } from "lucide-react";
 import { Card } from "@/components/ui";
+import { requireAthleteViewer } from "@/lib/auth/athlete-viewer";
 import { createClient } from "@/lib/supabase/server";
 
 type HistoricalResultRow = {
   id: string;
   legacy_game_id: number;
   occurred_at: string | null;
-  source_ref: string;
   side_a_label: string;
   side_b_label: string;
   score_a: number;
@@ -24,14 +24,31 @@ function historicalDateLabel(occurredAt: string | null) {
 }
 
 export async function AthleteHistoricalResults() {
+  const viewer = await requireAthleteViewer();
   const client = await createClient();
+  const participantLinksResult = await client
+    .from("historical_match_participants")
+    .select("historical_match_id")
+    .eq("athlete_id", viewer.athleteId)
+    .limit(100);
+
+  if (participantLinksResult.error) throw participantLinksResult.error;
+
+  const links = participantLinksResult.data ?? [];
+  const matchIds = links.map((row) => row.historical_match_id);
+
+  if (matchIds.length === 0) return null;
+
   const historicalResult = await client
     .from("historical_match_results")
     .select(
-      "id,legacy_game_id,occurred_at,source_ref,side_a_label,side_b_label,score_a,score_b,winner_side",
+      "id,legacy_game_id,occurred_at,side_a_label,side_b_label,score_a,score_b,winner_side",
     )
+    .in("id", matchIds)
     .order("legacy_game_id", { ascending: false })
     .limit(100);
+
+  if (historicalResult.error) throw historicalResult.error;
 
   const matches = historicalResult.data as HistoricalResultRow[] | null;
 
@@ -70,9 +87,6 @@ export async function AthleteHistoricalResults() {
               <p className="mt-2 flex items-center gap-2 text-sm text-zinc-300">
                 <Trophy size={15} className="text-ur-gold" aria-hidden="true" />
                 Vitória: <strong>{winnerLabel}</strong>
-              </p>
-              <p className="mt-2 text-xs text-zinc-600">
-                Fonte validada: {match.source_ref}
               </p>
             </div>
             <div className="rounded-ur border border-white/10 p-4 text-right">
