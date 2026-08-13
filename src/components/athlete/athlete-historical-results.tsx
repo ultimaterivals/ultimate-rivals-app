@@ -13,6 +13,18 @@ type HistoricalResultRow = {
   score_b: number;
 };
 
+function formatHistoricalWhen(match: HistoricalResultRow) {
+  if (match.occurred_at) {
+    return new Date(match.occurred_at).toLocaleString("pt-BR");
+  }
+
+  if (match.time_label) {
+    return `Horário registrado: ${match.time_label} · Data não publicada`;
+  }
+
+  return "Data ainda não publicada";
+}
+
 export async function AthleteHistoricalResults() {
   const client = await createClient();
   const historicalResult = await client
@@ -23,10 +35,9 @@ export async function AthleteHistoricalResults() {
     .order("legacy_game_id", { ascending: false })
     .limit(100);
 
-  const matches = (historicalResult.data ??
-    []) as unknown as HistoricalResultRow[];
+  const matches = historicalResult.data as HistoricalResultRow[] | null;
 
-  if (matches.length === 0) return null;
+  if (!matches?.length) return null;
 
   return (
     <section className="grid gap-4">
@@ -42,49 +53,41 @@ export async function AthleteHistoricalResults() {
           permanecem sem publicação.
         </p>
       </div>
-      {matches.map((match) => {
-        const when = match.occurred_at
-          ? new Date(match.occurred_at).toLocaleString("pt-BR")
-          : match.time_label
-            ? `Horário registrado: ${match.time_label} · Data não publicada`
-            : "Data ainda não publicada";
-
-        return (
-          <Card
-            key={match.id}
-            className="grid gap-4 sm:grid-cols-[1fr_auto]"
-          >
-            <div>
-              <p className="text-xs font-black tracking-[.16em] text-zinc-500 uppercase">
-                Registro histórico · Jogo {match.legacy_game_id}
-              </p>
-              <h3 className="mt-1 text-xl font-black">
-                {match.side_a_label} × {match.side_b_label}
-              </h3>
-              <p className="mt-2 flex items-center gap-2 text-sm text-zinc-400">
-                <CalendarDays size={15} aria-hidden="true" />
-                {when}
-              </p>
-            </div>
-            <div className="rounded-ur border border-white/10 p-4 text-right">
-              <p className="font-display text-3xl font-black">
-                {match.score_a} × {match.score_b}
-              </p>
-              <p className="text-ur-gold mt-1 text-sm font-black">
-                Resultado validado
-              </p>
-              <p className="mt-2 flex items-center justify-end gap-1 text-xs text-zinc-500">
-                <ShieldCheck
-                  size={14}
-                  className="text-emerald-400"
-                  aria-hidden="true"
-                />{" "}
-                Base oficial
-              </p>
-            </div>
-          </Card>
-        );
-      })}
+      {matches.map((match) => (
+        <Card
+          key={match.id}
+          className="grid gap-4 sm:grid-cols-[1fr_auto]"
+        >
+          <div>
+            <p className="text-xs font-black tracking-[.16em] text-zinc-500 uppercase">
+              Registro histórico · Jogo {match.legacy_game_id}
+            </p>
+            <h3 className="mt-1 text-xl font-black">
+              {match.side_a_label} × {match.side_b_label}
+            </h3>
+            <p className="mt-2 flex items-center gap-2 text-sm text-zinc-400">
+              <CalendarDays size={15} aria-hidden="true" />
+              {formatHistoricalWhen(match)}
+            </p>
+          </div>
+          <div className="rounded-ur border border-white/10 p-4 text-right">
+            <p className="font-display text-3xl font-black">
+              {match.score_a} × {match.score_b}
+            </p>
+            <p className="text-ur-gold mt-1 text-sm font-black">
+              Resultado validado
+            </p>
+            <p className="mt-2 flex items-center justify-end gap-1 text-xs text-zinc-500">
+              <ShieldCheck
+                size={14}
+                className="text-emerald-400"
+                aria-hidden="true"
+              />{" "}
+              Base oficial
+            </p>
+          </div>
+        </Card>
+      ))}
     </section>
   );
 }
