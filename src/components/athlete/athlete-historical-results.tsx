@@ -15,9 +15,7 @@ export async function AthleteHistoricalResults() {
   const client = await createClient();
   const historicalResult = await client
     .from("historical_match_results")
-    .select(
-      "id,legacy_game_id,side_a_label,side_b_label,score_a,score_b",
-    )
+    .select("id,legacy_game_id,side_a_label,side_b_label,score_a,score_b")
     .order("legacy_game_id", { ascending: false })
     .limit(100);
 
