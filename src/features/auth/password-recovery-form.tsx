@@ -19,11 +19,15 @@ export function PasswordRecoveryForm() {
     const supabase = createClient();
     const redirectTo = `${window.location.origin}/auth/confirm?next=/update-password`;
     const { error: recoveryError } =
-      await supabase.auth.resetPasswordForEmail(email.trim(), { redirectTo });
+      await supabase.auth.resetPasswordForEmail(email.trim(), {
+        redirectTo,
+      });
 
     setPending(false);
     if (recoveryError) {
-      setError("Não foi possível enviar o link agora. Tente novamente em instantes.");
+      setError(
+        "Não foi possível enviar o link agora. Tente novamente em instantes.",
+      );
       return;
     }
     setSent(true);
