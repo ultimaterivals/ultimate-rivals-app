@@ -69,7 +69,7 @@ export function AthleteLeaderboard({
             </h2>
           </div>
           <Image
-            src="/brand/ur-logo-official.png"
+            src="/brand/ur-monogram.svg"
             alt=""
             width={64}
             height={64}

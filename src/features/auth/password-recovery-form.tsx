@@ -3,7 +3,8 @@
 import { FormEvent, useState } from "react";
 import Link from "next/link";
 import { Button, Input } from "@/components/ui";
-import { createClient } from "@/lib/supabase/client";
+import { buildPasswordRecoveryRedirect } from "@/lib/auth/password-recovery";
+import { createPasswordRecoveryClient } from "@/lib/supabase/client";
 
 export function PasswordRecoveryForm() {
   const [email, setEmail] = useState("");
@@ -16,8 +17,8 @@ export function PasswordRecoveryForm() {
     setPending(true);
     setError(undefined);
 
-    const supabase = createClient();
-    const redirectTo = `${window.location.origin}/auth/confirm?next=/update-password`;
+    const supabase = createPasswordRecoveryClient();
+    const redirectTo = buildPasswordRecoveryRedirect(window.location.origin);
     const { error: recoveryError } = await supabase.auth.resetPasswordForEmail(
       email.trim(),
       {

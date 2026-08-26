@@ -139,7 +139,7 @@ export default async function AthleteArenasPage() {
                 ) : (
                   <div className="ur-arena-surface relative flex min-h-44 items-center justify-center overflow-hidden border-b border-white/10">
                     <Image
-                      src="/brand/ur-logo-official.png"
+                      src="/brand/ur-monogram.svg"
                       alt=""
                       width={128}
                       height={128}

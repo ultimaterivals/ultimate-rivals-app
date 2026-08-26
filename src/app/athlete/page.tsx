@@ -147,7 +147,7 @@ export default async function AthletePage() {
     <div className="mx-auto grid max-w-7xl gap-6">
       <section className="ranking-hero border-ur-gold/50 rounded-ur relative overflow-hidden border p-5 sm:p-8">
         <Image
-          src="/brand/ur-logo-official.png"
+          src="/brand/ur-monogram.svg"
           alt=""
           width={220}
           height={220}

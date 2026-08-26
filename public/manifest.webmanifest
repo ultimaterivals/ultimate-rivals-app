@@ -8,9 +8,9 @@
   "theme_color": "#f4c430",
   "icons": [
     {
-      "src": "/brand/ur-logo-official.png",
-      "sizes": "320x320",
-      "type": "image/png",
+      "src": "/brand/ur-monogram.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
       "purpose": "any"
     }
   ]
