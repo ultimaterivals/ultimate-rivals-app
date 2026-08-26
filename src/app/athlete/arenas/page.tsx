@@ -1,4 +1,5 @@
 import { ArrowRight, CalendarDays, MapPin, ShieldCheck } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 import { Badge, Card, PageHeader } from "@/components/ui";
 import { requireAthleteViewer } from "@/lib/auth/athlete-viewer";
@@ -119,7 +120,10 @@ export default async function AthleteArenasPage() {
               ? arenaMedia.get(opportunity.venueName)
               : null;
             return (
-              <Card key={opportunity.id} className="overflow-hidden">
+              <Card
+                key={opportunity.id}
+                className="ur-card-lift overflow-hidden p-0"
+              >
                 {media ? (
                   <div
                     role="img"
@@ -127,13 +131,20 @@ export default async function AthleteArenasPage() {
                       media.title ??
                       `Mídia publicada de ${opportunity.venueName ?? "Arena UR"}`
                     }
-                    className="rounded-ur min-h-40 border border-white/10 bg-cover bg-center"
+                    className="min-h-44 border-b border-white/10 bg-cover bg-center"
                     style={{
                       backgroundImage: `url(${JSON.stringify(media.url)})`,
                     }}
                   />
                 ) : (
-                  <div className="rounded-ur flex min-h-40 items-center justify-center border border-dashed border-white/10 bg-black/20">
+                  <div className="ur-arena-surface relative flex min-h-44 items-center justify-center overflow-hidden border-b border-white/10">
+                    <Image
+                      src="/brand/ur-logo-official.png"
+                      alt=""
+                      width={128}
+                      height={128}
+                      className="absolute size-28 object-contain opacity-[.08]"
+                    />
                     <MapPin
                       className="text-ur-gold"
                       size={32}
@@ -141,21 +152,49 @@ export default async function AthleteArenasPage() {
                     />
                   </div>
                 )}
-                <p className="text-ur-gold mt-4 text-xs font-black tracking-[.16em] uppercase">
-                  {opportunity.poleName ?? "Polo UR"}
-                </p>
-                <h2 className="mt-1 text-xl font-black">
-                  {opportunity.venueName ?? "Local a definir"}
-                </h2>
-                <p className="mt-2 text-sm text-zinc-400">
-                  {opportunity.title}
-                </p>
-                <div className="mt-4 flex flex-wrap gap-2">
-                  {opportunity.level && <Badge>{opportunity.level}</Badge>}
-                  {opportunity.formatCode && (
-                    <Badge>{opportunity.formatCode}</Badge>
-                  )}
-                  {media && <Badge>Mídia publicada</Badge>}
+                <div className="p-5">
+                  <p className="text-ur-gold text-xs font-black tracking-[.16em] uppercase">
+                    {opportunity.poleName ?? "Polo UR"}
+                  </p>
+                  <h2 className="mt-1 text-xl font-black">
+                    {opportunity.venueName ?? "Local a definir"}
+                  </h2>
+                  <p className="mt-2 text-sm text-zinc-400">
+                    {opportunity.title}
+                  </p>
+                  <div className="mt-4 flex flex-wrap gap-2">
+                    {opportunity.level && <Badge>{opportunity.level}</Badge>}
+                    {opportunity.formatCode && (
+                      <Badge>{opportunity.formatCode}</Badge>
+                    )}
+                    {media && <Badge>Mídia publicada</Badge>}
+                  </div>
+                  <details className="mt-5 border-t border-white/10 pt-4">
+                    <summary className="text-ur-gold cursor-pointer text-sm font-black marker:text-zinc-600">
+                      Explorar arena
+                    </summary>
+                    <div className="mt-3 grid gap-2 text-sm text-zinc-400">
+                      <p>
+                        Base oficial da atividade em{" "}
+                        {opportunity.poleName ?? "Polo UR"}.
+                      </p>
+                      <p>
+                        {[opportunity.level, opportunity.formatCode]
+                          .filter(Boolean)
+                          .join(" · ") || "Detalhes definidos pela operação"}
+                      </p>
+                      {media ? (
+                        <a
+                          href={media.url}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="text-ur-gold mt-1 font-black"
+                        >
+                          Abrir mídia publicada →
+                        </a>
+                      ) : null}
+                    </div>
+                  </details>
                 </div>
               </Card>
             );

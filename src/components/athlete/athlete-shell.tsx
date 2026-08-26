@@ -256,10 +256,7 @@ export function AthleteShell({
     <div className="grid h-dvh grid-rows-[minmax(0,1fr)_auto] overflow-hidden bg-[#080808] text-white lg:h-auto lg:min-h-dvh lg:grid-cols-[17rem_1fr] lg:grid-rows-none lg:overflow-visible">
       <aside className="bg-ur-graphite hidden min-h-dvh border-r lg:flex lg:flex-col">
         <div className="p-6">
-          <BrandMark />
-          <span className="mt-3 block text-xs font-bold tracking-wider text-zinc-500 uppercase">
-            App do Atleta
-          </span>
+          <BrandMark context="App do Atleta" />
         </div>
         <div className="min-h-0 flex-1 overflow-y-auto pb-6">
           <DesktopNavigation preview={Boolean(preview)} />
@@ -298,7 +295,7 @@ export function AthleteShell({
         )}
         <header className="sticky top-0 z-30 flex min-h-16 items-center justify-between border-b border-zinc-900 bg-[#080808]/95 px-4 backdrop-blur sm:px-8 lg:px-10">
           <div className="min-w-0 lg:hidden">
-            <BrandMark />
+            <BrandMark context="App do Atleta" />
           </div>
           <div className="min-w-0 lg:ml-auto lg:text-right">
             <p className="truncate text-sm font-black">{userLabel}</p>

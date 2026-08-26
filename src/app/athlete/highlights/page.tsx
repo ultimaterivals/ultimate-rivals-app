@@ -5,6 +5,8 @@ import {
   Sparkles,
   Trophy,
 } from "lucide-react";
+import Image from "next/image";
+import { MediaFocusRail } from "@/components/athlete/media-focus-rail";
 import { Badge, Card, EmptyState, PageHeader } from "@/components/ui";
 import { requireAthleteViewer } from "@/lib/auth/athlete-viewer";
 import { createClient } from "@/lib/supabase/server";
@@ -57,7 +59,14 @@ export default async function AthleteHighlightsPage() {
 
       {featured ? (
         <section className="rounded-ur border-ur-gold/40 grid overflow-hidden border bg-black/30 lg:grid-cols-[1.25fr_.75fr]">
-          <div className="flex min-h-72 items-center justify-center border-b border-white/10 bg-gradient-to-br from-zinc-950 via-black to-zinc-900 p-6 lg:border-r lg:border-b-0">
+          <div className="ur-arena-surface relative flex min-h-72 items-center justify-center overflow-hidden border-b border-white/10 p-6 lg:border-r lg:border-b-0">
+            <Image
+              src="/brand/ur-logo-official.png"
+              alt=""
+              width={180}
+              height={180}
+              className="absolute size-40 object-contain opacity-[.08]"
+            />
             <span className="border-ur-gold/30 bg-ur-gold/10 flex size-20 items-center justify-center rounded-full border">
               <Play className="text-ur-gold" size={34} />
             </span>
@@ -123,32 +132,23 @@ export default async function AthleteHighlightsPage() {
       </section>
 
       {rest.length ? (
-        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-          {rest.map((clip) => {
+        <MediaFocusRail
+          items={rest.flatMap((clip) => {
             const asset = Array.isArray(clip.media_assets)
               ? clip.media_assets[0]
               : clip.media_assets;
-            return (
-              <Card key={clip.id}>
-                <Play className="text-ur-gold" />
-                <h3 className="mt-4 text-xl font-black">{clip.title}</h3>
-                <p className="mt-2 text-sm text-zinc-400">
-                  {asset?.title ?? "Destaque Ultimate Rivals"}
-                </p>
-                {asset?.external_url ? (
-                  <a
-                    className="text-ur-gold mt-4 inline-flex items-center gap-2 font-black"
-                    href={asset.external_url}
-                    target="_blank"
-                    rel="noreferrer"
-                  >
-                    Assistir <ExternalLink size={14} />
-                  </a>
-                ) : null}
-              </Card>
-            );
+            return asset?.external_url
+              ? [
+                  {
+                    id: clip.id,
+                    title: clip.title,
+                    subtitle: asset.title ?? "Destaque Ultimate Rivals",
+                    href: asset.external_url,
+                  },
+                ]
+              : [];
           })}
-        </div>
+        />
       ) : !featured ? (
         <EmptyState
           title="Nenhum destaque publicado ainda"
