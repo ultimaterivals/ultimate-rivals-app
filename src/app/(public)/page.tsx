@@ -23,7 +23,7 @@ export default function HomePage() {
             Supere seus limites.
           </h1>
           <p className="mt-7 max-w-2xl text-lg leading-8 text-zinc-400">
-            Competição, evolução e carreira esportiva em uma única temporada.
+            Competição, evolução e trajetória esportiva em uma única temporada.
           </p>
           <Link
             href="/login"

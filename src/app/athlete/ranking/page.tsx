@@ -1,5 +1,6 @@
-import { ArrowDown, ArrowUp, Minus, Trophy, UserRound } from "lucide-react";
+import { Trophy } from "lucide-react";
 import Link from "next/link";
+import { AthleteLeaderboard } from "@/components/athlete/athlete-leaderboard";
 import { AthleteSourceHealth } from "@/components/athlete/athlete-source-health";
 import { Card, PageHeader } from "@/components/ui";
 import { requireAthleteViewer } from "@/lib/auth/athlete-viewer";
@@ -22,30 +23,6 @@ type Params = Promise<{
 
 function option(value: string | undefined, values: readonly (string | null)[]) {
   return value && values.includes(value) ? value : undefined;
-}
-
-function rankAvatar(
-  name: string,
-  avatar: string | null,
-  podium: number | null,
-) {
-  return (
-    <div
-      className={`font-display flex size-11 shrink-0 items-center justify-center overflow-hidden rounded-full border font-black ${
-        podium === 1
-          ? "border-ur-gold bg-ur-gold text-ur-black"
-          : "border-white/15 bg-white/5 text-zinc-300"
-      }`}
-      aria-label={`Perfil de ${name}`}
-    >
-      {avatar ? (
-        // eslint-disable-next-line @next/next/no-img-element -- published avatar URLs have no fixed image host.
-        <img src={avatar} alt="" className="size-full object-cover" />
-      ) : (
-        <UserRound size={18} aria-hidden="true" />
-      )}
-    </div>
-  );
 }
 
 export default async function AthleteRankingPage({
@@ -212,100 +189,28 @@ export default async function AthleteRankingPage({
       ) : null}
       {rows.length > 0 ? (
         <>
-          <section
-            aria-labelledby="top-3"
-            className="grid gap-3 sm:grid-cols-3"
-          >
-            <h2 id="top-3" className="sr-only">
-              Top 3
-            </h2>
-            {rows.slice(0, 3).map((row, index) => (
-              <Card
-                key={row.id}
-                className={`order-${index === 0 ? "first" : "none"} border-ur-gold/25 ${index === 0 ? "sm:border-ur-gold/60 sm:-translate-y-3" : ""}`}
-              >
-                <p className="font-display text-ur-gold text-4xl font-black">
-                  #{row.current_position}
-                </p>
-                <div className="mt-4 flex items-center gap-3">
-                  {rankAvatar(
-                    row.display_name,
-                    row.avatar_url,
-                    row.current_position,
-                  )}
-                  <div className="min-w-0">
-                    <p className="truncate font-bold">{row.display_name}</p>
-                    <p className="text-sm text-zinc-500">
-                      {row.total_points} pts
-                    </p>
-                  </div>
-                </div>
-              </Card>
-            ))}
-          </section>
-          <section
-            className="grid gap-3"
-            aria-labelledby="league-ranking-title"
-          >
-            <div>
-              <p className="text-ur-gold text-xs font-black tracking-[.18em] uppercase">
-                Classificação completa
-              </p>
-              <h2
-                id="league-ranking-title"
-                className="font-display mt-1 text-2xl font-black uppercase"
-              >
-                Ranking geral da liga
-              </h2>
-            </div>
-            {rows.map((row) => {
-              const change = row.position_change ?? 0;
-              const Icon =
-                change > 0 ? ArrowUp : change < 0 ? ArrowDown : Minus;
-              return (
-                <Card
-                  key={row.id}
-                  className={`flex items-center gap-3 py-3 ${row.entity_id === viewer.athleteId ? "border-ur-gold/60 bg-ur-gold/5" : ""}`}
-                >
-                  <p className="font-display text-ur-gold w-9 text-center text-xl font-black">
-                    #{row.current_position ?? "—"}
-                  </p>
-                  {rankAvatar(
-                    row.display_name,
-                    row.avatar_url,
-                    row.current_position,
-                  )}
-                  <div className="min-w-0 flex-1">
-                    <p className="truncate font-bold">
-                      {row.display_name}
-                      {row.entity_id === viewer.athleteId ? " · você" : ""}
-                    </p>
-                    <p className="mt-1 text-xs text-zinc-500">
-                      {[
-                        row.level,
-                        row.category_code,
-                        row.format_code,
-                        row.pole_name,
-                      ]
-                        .filter(Boolean)
-                        .join(" · ")}
-                    </p>
-                  </div>
-                  <div className="text-right">
-                    <p className="font-display text-ur-gold font-black">
-                      {row.total_points} pts
-                    </p>
-                    <p className="flex items-center justify-end gap-1 text-xs text-zinc-500">
-                      <Icon size={13} aria-hidden="true" />
-                      {change === 0
-                        ? "estável"
-                        : `${Math.abs(change)} posições`}
-                    </p>
-                  </div>
-                </Card>
-              );
-            })}
-          </section>
+          <AthleteLeaderboard
+            currentAthleteId={viewer.athleteId}
+            eyebrow="Top 3 · Classificação oficial"
+            title="Ranking geral da liga"
+            rows={rows.map((row) => ({
+              id: row.id,
+              entityId: row.entity_id,
+              displayName: row.display_name,
+              avatarUrl: row.avatar_url,
+              position: row.current_position,
+              positionChange: row.position_change,
+              points: row.total_points,
+              byline: [
+                row.level,
+                row.category_code,
+                row.format_code,
+                row.pole_name,
+              ]
+                .filter(Boolean)
+                .join(" · "),
+            }))}
+          />
           {leaderStats.some(([, row]) => row) && (
             <section
               className="grid gap-3 sm:grid-cols-2"

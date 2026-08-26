@@ -31,10 +31,7 @@ export function PortalShell({
     <div className="min-h-dvh lg:grid lg:grid-cols-[18rem_1fr]">
       <aside className="bg-ur-graphite hidden min-h-dvh border-r lg:flex lg:flex-col">
         <div className="p-6">
-          <BrandMark />
-          <span className="mt-3 block text-xs font-bold tracking-wider text-zinc-500 uppercase">
-            Portal {portal}
-          </span>
+          <BrandMark context={`Portal ${portal}`} />
         </div>
 
         <div className="min-h-0 flex-1 overflow-y-auto px-4 pb-6">
@@ -58,10 +55,7 @@ export function PortalShell({
       <div className="min-w-0">
         <header className="bg-ur-black/95 sticky top-0 z-40 flex min-h-18 items-center justify-between border-b px-5 backdrop-blur lg:hidden">
           <div>
-            <BrandMark />
-            <span className="mt-1 block text-[0.65rem] font-bold tracking-wider text-zinc-500 uppercase">
-              {portal}
-            </span>
+            <BrandMark context={portal} />
           </div>
           <MobilePortalNavigation items={items} userLabel={userLabel} />
         </header>

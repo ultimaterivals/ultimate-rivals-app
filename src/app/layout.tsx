@@ -7,6 +7,10 @@ export const metadata: Metadata = {
   title: { default: "Ultimate Rivals", template: "%s | Ultimate Rivals" },
   description: "Plataforma oficial Ultimate Rivals",
   manifest: "/manifest.webmanifest",
+  icons: {
+    icon: "/brand/ur-logo-official.png",
+    apple: "/brand/ur-logo-official.png",
+  },
 };
 export const viewport: Viewport = {
   themeColor: "#f4c430",

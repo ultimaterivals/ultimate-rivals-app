@@ -12,6 +12,7 @@ import {
   UsersRound,
 } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 import { AthleteOpportunityCard } from "@/components/athlete/athlete-opportunity-card";
 import { AthleteSourceHealth } from "@/components/athlete/athlete-source-health";
 import { Badge, Card, PageHeader } from "@/components/ui";
@@ -144,7 +145,14 @@ export default async function AthletePage() {
 
   return (
     <div className="mx-auto grid max-w-7xl gap-6">
-      <section className="ranking-hero border-ur-gold/50 rounded-ur overflow-hidden border p-5 sm:p-8">
+      <section className="ranking-hero border-ur-gold/50 rounded-ur relative overflow-hidden border p-5 sm:p-8">
+        <Image
+          src="/brand/ur-logo-official.png"
+          alt=""
+          width={220}
+          height={220}
+          className="pointer-events-none absolute -top-12 -right-10 size-52 object-contain opacity-[.045]"
+        />
         <div className="grid gap-6 lg:grid-cols-[1fr_auto] lg:items-end">
           <div className="min-w-0">
             <p className="text-ur-gold text-xs font-black tracking-[.24em] uppercase">
