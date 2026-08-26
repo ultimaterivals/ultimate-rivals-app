@@ -18,10 +18,12 @@ export function PasswordRecoveryForm() {
 
     const supabase = createClient();
     const redirectTo = `${window.location.origin}/auth/confirm?next=/update-password`;
-    const { error: recoveryError } =
-      await supabase.auth.resetPasswordForEmail(email.trim(), {
+    const { error: recoveryError } = await supabase.auth.resetPasswordForEmail(
+      email.trim(),
+      {
         redirectTo,
-      });
+      },
+    );
 
     setPending(false);
     if (recoveryError) {
