@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 320" role="img" aria-labelledby="title desc">
+  <title id="title">Ultimate Rivals</title>
+  <desc id="desc">Monograma UR em um escudo esportivo dourado</desc>
+  <defs>
+    <linearGradient id="gold" x1="48" y1="38" x2="272" y2="282" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFE49A"/>
+      <stop offset="0.46" stop-color="#D9A928"/>
+      <stop offset="1" stop-color="#9D6B0B"/>
+    </linearGradient>
+    <linearGradient id="field" x1="160" y1="34" x2="160" y2="286" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#242426"/>
+      <stop offset="1" stop-color="#080809"/>
+    </linearGradient>
+  </defs>
+  <path d="M160 18 286 62v90c0 72-45 124-126 154C79 276 34 224 34 152V62L160 18Z" fill="url(#field)" stroke="url(#gold)" stroke-width="12"/>
+  <path d="M64 88h35v93c0 25 12 40 36 40 23 0 35-15 35-40V88h35v95c0 46-26 72-70 72-45 0-71-26-71-72V88Z" fill="#F7F3E8"/>
+  <path d="M178 88h48c40 0 63 20 63 54 0 23-11 40-31 48l38 60h-42l-31-54h-10v54h-35V88Zm35 32v46h12c18 0 28-8 28-23 0-16-10-23-28-23h-12Z" fill="url(#gold)"/>
+  <path d="M74 274h172" stroke="url(#gold)" stroke-width="8" stroke-linecap="round"/>
+</svg>

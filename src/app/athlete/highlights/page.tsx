@@ -61,7 +61,7 @@ export default async function AthleteHighlightsPage() {
         <section className="rounded-ur border-ur-gold/40 grid overflow-hidden border bg-black/30 lg:grid-cols-[1.25fr_.75fr]">
           <div className="ur-arena-surface relative flex min-h-72 items-center justify-center overflow-hidden border-b border-white/10 p-6 lg:border-r lg:border-b-0">
             <Image
-              src="/brand/ur-logo-official.png"
+              src="/brand/ur-monogram.svg"
               alt=""
               width={180}
               height={180}

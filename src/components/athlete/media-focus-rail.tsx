@@ -47,7 +47,7 @@ export function MediaFocusRail({ items }: { items: MediaFocusItem[] }) {
             </span>
             <span className="absolute inset-0 grid place-items-center opacity-[.07]">
               <Image
-                src="/brand/ur-logo-official.png"
+                src="/brand/ur-monogram.svg"
                 alt=""
                 width={180}
                 height={180}
