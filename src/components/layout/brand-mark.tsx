@@ -14,15 +14,14 @@ export function BrandMark({
       aria-label="Ultimate Rivals"
     >
       <span
-        className="ur-brand-panel rounded-ur relative grid size-12 shrink-0 place-items-center overflow-hidden border border-white/15 bg-black p-1"
+        className="relative grid size-14 shrink-0 place-items-center overflow-hidden rounded-ur bg-black p-1"
         aria-hidden="true"
       >
-        <span className="bg-ur-gold absolute inset-x-0 bottom-0 h-1" />
         <Image
-          src="/brand/ur-monogram.svg"
+          src="/brand/ur-logo-official.png"
           alt=""
-          width={48}
-          height={48}
+          width={56}
+          height={56}
           className="h-full w-full object-contain"
           loading="eager"
           unoptimized
