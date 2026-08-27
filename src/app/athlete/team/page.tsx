@@ -3,6 +3,15 @@ import { Badge, Card, PageHeader } from "@/components/ui";
 import { requireAthleteViewer } from "@/lib/auth/athlete-viewer";
 import { createClient } from "@/lib/supabase/server";
 
+type TeamContribution = {
+  formation_id: string;
+  formation_name: string;
+  total_points: number;
+  games_played: number;
+  wins: number;
+  losses: number;
+};
+
 export default async function AthleteTeamPage() {
   const viewer = await requireAthleteViewer();
   const client = await createClient();
@@ -52,8 +61,11 @@ export default async function AthleteTeamPage() {
       return { teamId, ...result };
     }),
   );
-  const contributionByTeam = new Map(
-    contributionResults.map((result) => [result.teamId, result.data ?? []]),
+  const contributionByTeam = new Map<string, TeamContribution[]>(
+    contributionResults.map((result) => [
+      result.teamId,
+      (result.data ?? []) as TeamContribution[],
+    ]),
   );
 
   return (
