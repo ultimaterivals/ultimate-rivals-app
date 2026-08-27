@@ -14,52 +14,9 @@ import {
 import Link from "next/link";
 import { Badge, Card, PageHeader } from "@/components/ui";
 import { requireAthleteViewer } from "@/lib/auth/athlete-viewer";
+import type { SeasonStageState } from "@/server/services/athlete-season-context-service";
+import { getAthleteSeasonContextSnapshot } from "@/server/services/athlete-season-context-service";
 import { getAthleteSnapshotForViewer } from "@/server/services/athlete-viewer-snapshot-service";
-
-const seasonStages = [
-  {
-    name: "Abertura",
-    period: "Agosto",
-    state: "active",
-    description:
-      "Entrada de atletas, nivelamento, disponibilidade e formação da base competitiva.",
-  },
-  {
-    name: "UR Play + Ranking",
-    period: "Agosto–Outubro",
-    state: "active",
-    description:
-      "Os jogos da temporada constroem resultados, estatísticas e classificação.",
-  },
-  {
-    name: "UR Series",
-    period: "Próxima etapa",
-    state: "next",
-    description:
-      "Etapa competitiva para atletas e formações elegíveis conforme a temporada.",
-  },
-  {
-    name: "UR Cup",
-    period: "Fase decisiva",
-    state: "locked",
-    description:
-      "Competição superior da temporada. A abertura depende dos critérios publicados.",
-  },
-  {
-    name: "UR Legends",
-    period: "Fase decisiva",
-    state: "locked",
-    description:
-      "Palco de destaque dos atletas elegíveis ao fechamento competitivo do ciclo.",
-  },
-  {
-    name: "Virada de Ranking",
-    period: "Final do trimestre",
-    state: "locked",
-    description:
-      "Fechamento da temporada, reconhecimento dos resultados e início do próximo ciclo.",
-  },
-] as const;
 
 const guideCards = [
   {
@@ -89,18 +46,18 @@ const guideCards = [
   },
   {
     title: "O que acontece no fim",
-    body: "A Virada de Ranking encerra o trimestre, consolida a história da temporada e prepara o próximo ciclo competitivo.",
+    body: "A Virada encerra o trimestre, consolida a história da temporada e prepara o próximo ciclo competitivo.",
     icon: Sparkles,
   },
 ] as const;
 
-function StageIcon({ state }: { state: "active" | "next" | "locked" }) {
+function StageIcon({ state }: { state: SeasonStageState }) {
   if (state === "active") return <CircleDot size={18} aria-hidden="true" />;
   if (state === "next") return <Flag size={18} aria-hidden="true" />;
   return <LockKeyhole size={17} aria-hidden="true" />;
 }
 
-function stateLabel(state: "active" | "next" | "locked") {
+function stateLabel(state: SeasonStageState) {
   if (state === "active") return "Em andamento";
   if (state === "next") return "Próxima etapa";
   return "Ainda não liberado";
@@ -108,7 +65,10 @@ function stateLabel(state: "active" | "next" | "locked") {
 
 export default async function AthleteSeasonPage() {
   const viewer = await requireAthleteViewer();
-  const snapshot = await getAthleteSnapshotForViewer(viewer);
+  const [snapshot, season] = await Promise.all([
+    getAthleteSnapshotForViewer(viewer),
+    getAthleteSeasonContextSnapshot(),
+  ]);
   const ranking = snapshot.primaryRanking;
   const summary = snapshot.summary;
   const next = snapshot.nextReservation;
@@ -142,7 +102,7 @@ export default async function AthleteSeasonPage() {
   return (
     <div className="mx-auto grid max-w-7xl gap-6">
       <PageHeader
-        eyebrow="Temporada 1 · Agosto–Outubro 2026"
+        eyebrow={season.title}
         title="Sua temporada, do começo ao fim"
         description="Você não está entrando em jogos isolados. Cada participação faz parte de um trimestre com evolução, ranking, etapas competitivas e um fechamento oficial."
         action={ranking?.level ? <Badge>{ranking.level}</Badge> : undefined}
@@ -155,7 +115,7 @@ export default async function AthleteSeasonPage() {
               Sua campanha
             </p>
             <h2 className="font-display mt-2 text-3xl font-black uppercase sm:text-4xl">
-              Você está na fase de abertura + UR Play
+              Você está na fase de {season.phaseLabel}
             </h2>
             <p className="mt-2 max-w-3xl text-sm leading-6 text-zinc-400">
               Este é o momento de jogar, gerar histórico, concluir seu
@@ -236,9 +196,9 @@ export default async function AthleteSeasonPage() {
         </div>
 
         <div className="grid gap-3 lg:grid-cols-2">
-          {seasonStages.map((stage, index) => (
+          {season.stages.map((stage, index) => (
             <Card
-              key={stage.name}
+              key={stage.code}
               className={
                 stage.state === "active"
                   ? "border-ur-gold/50 bg-ur-gold/[.035]"
