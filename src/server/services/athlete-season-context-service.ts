@@ -4,7 +4,13 @@ import { createClient } from "@/lib/supabase/server";
 export type SeasonStageState = "active" | "next" | "locked";
 
 export type AthleteSeasonStage = {
-  code: "opening" | "ur_play_ranking" | "series" | "cup" | "legends" | "turnover";
+  code:
+    | "opening"
+    | "ur_play_ranking"
+    | "series"
+    | "cup"
+    | "legends"
+    | "turnover";
   name: string;
   period: string;
   state: SeasonStageState;
