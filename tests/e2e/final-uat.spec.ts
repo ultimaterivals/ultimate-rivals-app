@@ -38,9 +38,10 @@ async function login(
 
 async function expectHealthyPage(page: Page, path: string) {
   const response = await page.goto(path);
-  expect(response?.status(), `${path} should not return an HTTP error`).toBeLessThan(
-    400,
-  );
+  expect(
+    response?.status(),
+    `${path} should not return an HTTP error`,
+  ).toBeLessThan(400);
   await expect(page).toHaveURL(new RegExp(`${path.replaceAll("/", "\\/")}$`), {
     timeout: 20_000,
   });
@@ -76,7 +77,9 @@ test("real athlete completes the final desktop UAT route matrix", async ({
   await expect(
     page.getByRole("heading", { name: "Seus jogos oficiais" }),
   ).toBeVisible();
-  await expect(page.getByText("Histórico validado", { exact: true })).toBeVisible();
+  await expect(
+    page.getByText("Histórico validado", { exact: true }),
+  ).toBeVisible();
   await expect(
     page.getByRole("heading", { name: "Jogos do seu histórico UR" }),
   ).toBeVisible();
@@ -118,7 +121,9 @@ test("admin-athlete surfaces and read-only Preview pass desktop UAT", async ({
   ).toBeVisible();
   await page.getByRole("button", { name: "Abrir prévia" }).first().click();
   await expect(page).toHaveURL(/\/athlete$/, { timeout: 20_000 });
-  await expect(page.getByText("Prévia do Atleta · somente leitura")).toBeVisible();
+  await expect(
+    page.getByText("Prévia do Atleta · somente leitura"),
+  ).toBeVisible();
 
   for (const route of athleteRoutes.filter(
     (candidate) => candidate.path !== "/athlete/feedback",
@@ -143,7 +148,9 @@ test("admin Preview remains usable and read-only on mobile", async ({ page }) =>
   await expectNoHorizontalOverflow(page);
   await page.getByRole("button", { name: "Abrir prévia" }).first().click();
   await expect(page).toHaveURL(/\/athlete$/, { timeout: 20_000 });
-  await expect(page.getByText("Prévia do Atleta · somente leitura")).toBeVisible();
+  await expect(
+    page.getByText("Prévia do Atleta · somente leitura"),
+  ).toBeVisible();
 
   for (const path of [
     "/athlete",
