@@ -141,7 +141,9 @@ test("admin-athlete surfaces and read-only Preview pass desktop UAT", async ({
   await expect(page).toHaveURL(/\/admin\/preview$/, { timeout: 20_000 });
 });
 
-test("admin Preview remains usable and read-only on mobile", async ({ page }) => {
+test("admin Preview remains usable and read-only on mobile", async ({
+  page,
+}) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await login(page, "admin@test.ur.local", /\/admin/);
   await page.goto("/admin/preview");
