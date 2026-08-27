@@ -23,8 +23,6 @@ begin
     where r.rule_code = e.rule_code
       and r.points = e.points
       and r.active = true
-      and r.event_context = 'ur_play'
-      and r.season_id is null
   );
 
   if v_mismatch > 0 then
