@@ -52,11 +52,26 @@ const errorMessages: Record<string, string> = {
 };
 
 const agendaStates = [
-  ["Interesse", "Sinaliza intenção. Não confirma vaga e não reserva crédito."],
-  ["Reserva", "Confirma a vaga quando disponível e coloca 1 crédito em reserva."],
-  ["Lista de espera", "Aguarda liberação de vaga. Não reserva crédito enquanto você estiver na lista."],
-  ["Check-in", "Registra sua chegada à atividade. Não substitui o resultado final de participação."],
-  ["Participação", "É o estado concluído da atividade, separado das etapas anteriores."],
+  [
+    "Interesse",
+    "Sinaliza intenção. Não confirma vaga e não reserva crédito.",
+  ],
+  [
+    "Reserva",
+    "Confirma a vaga quando disponível e coloca 1 crédito em reserva.",
+  ],
+  [
+    "Lista de espera",
+    "Aguarda liberação de vaga. Não reserva crédito enquanto você estiver na lista.",
+  ],
+  [
+    "Check-in",
+    "Registra sua chegada à atividade. Não substitui o resultado final de participação.",
+  ],
+  [
+    "Participação",
+    "É o estado concluído da atividade, separado das etapas anteriores.",
+  ],
 ] as const;
 
 export default async function AthleteAgendaPage({
@@ -92,9 +107,9 @@ export default async function AthleteAgendaPage({
               Encontre onde jogar nesta fase
             </h2>
             <p className="mt-1 max-w-2xl text-sm leading-6 text-zinc-400">
-              A Agenda mostra oportunidades publicadas para a temporada. Interesse,
-              reserva, lista de espera, check-in e participação são estados
-              diferentes e não devem ser tratados como equivalentes.
+              A Agenda mostra oportunidades publicadas para a temporada.
+              Interesse, reserva, lista de espera, check-in e participação são
+              estados diferentes e não devem ser tratados como equivalentes.
             </p>
           </div>
           <Link
