@@ -60,8 +60,8 @@ export default async function AthleteAvailabilityPage({
             </h2>
             <p className="mt-1 max-w-2xl text-sm leading-6 text-zinc-400">
               Disponibilidade é apenas o registro das suas janelas possíveis.
-              Ela não é reserva, não consome crédito e não garante encaixe em uma
-              atividade. Para jogar, consulte as oportunidades publicadas na
+              Ela não é reserva, não consome crédito e não garante encaixe em
+              uma atividade. Para jogar, consulte as oportunidades publicadas na
               Agenda e faça as ações disponíveis por lá.
             </p>
           </div>
@@ -74,7 +74,7 @@ export default async function AthleteAvailabilityPage({
             </Link>
             <Link
               href="/athlete/season"
-              className="text-zinc-300 inline-flex min-h-11 items-center font-black"
+              className="inline-flex min-h-11 items-center font-black text-zinc-300"
             >
               Entender a temporada →
             </Link>
