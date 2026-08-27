@@ -37,15 +37,21 @@ describe("canonical team contribution contract", () => {
     expect(migration).toContain("v_event_at");
     expect(migration).toContain("from public.team_memberships tm");
     expect(migration).toContain("tm.starts_at <= v_event_at");
-    expect(migration).toContain("tm.ends_at is null or tm.ends_at > v_event_at");
+    expect(migration).toContain(
+      "tm.ends_at is null or tm.ends_at > v_event_at",
+    );
     expect(migration).toContain("competition_formation_members cfm");
     expect(migration).toContain("canonical_team_attribution");
-    expect(migration).not.toContain("select cf.team_id\n      into v_formation_team_id");
+    expect(migration).not.toContain(
+      "select cf.team_id\n      into v_formation_team_id",
+    );
 
     expect(teamRanking).toContain("rt.transaction_scope = 'side'");
     expect(teamRanking).toContain("rt.team_id is not null");
     expect(teamRanking).toContain("rt.formation_id is not null");
-    expect(teamRanking).toContain("rt.rule_code in ('WIN','LOSS','ACE','ATTACK')");
+    expect(teamRanking).toContain(
+      "rt.rule_code in ('WIN','LOSS','ACE','ATTACK')",
+    );
   });
 
   it("keeps team changes non-retroactive and requires explicit linkage evidence", () => {
@@ -53,11 +59,15 @@ describe("canonical team contribution contract", () => {
     expect(migration).toContain("effective_at");
     expect(migration).toContain("explicit formation transfer required");
     expect(migration).toContain("'team_attribution_event_at', v_event_at");
-    expect(migration).toContain("v_related_side_transaction, v_formation_team_id");
+    expect(migration).toContain(
+      "v_related_side_transaction, v_formation_team_id",
+    );
   });
 
   it("reads doubles and reserve limits from parameters rather than service constants", () => {
-    expect(migration).toContain("create table public.team_competition_parameters");
+    expect(migration).toContain(
+      "create table public.team_competition_parameters",
+    );
     expect(migration).toContain("max_formations_per_team_category");
     expect(migration).toContain("required_starters");
     expect(migration).toContain("max_reserves");
