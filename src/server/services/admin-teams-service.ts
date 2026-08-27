@@ -17,6 +17,9 @@ export async function getAdminTeamsSnapshot(): Promise<AdminTeamsSnapshot> {
       .filter((format) => format.code === "doubles")
       .map((format) => format.id),
   );
+  const doublesParameters = (raw.parameters ?? []).find(
+    (parameter) => parameter.format_code === "doubles",
+  );
   const categories = (raw.categories ?? [])
     .filter(
       (category) => category.status === "active" || category.status === "draft",
@@ -32,20 +35,24 @@ export async function getAdminTeamsSnapshot(): Promise<AdminTeamsSnapshot> {
     const teamRosters = (raw.rosters ?? []).filter(
       (roster) => roster.team_id === team.id,
     );
+    const teamFormations = (raw.formations ?? []).filter(
+      (formation) =>
+        formation.team_id === team.id &&
+        formation.status === "active" &&
+        doublesFormatIds.has(formation.format_id),
+    );
     const doubles: TeamDoubleCategory[] = categories.map((category) => {
-      const registered = teamRosters.filter(
-        (roster) =>
-          roster.category_id === category.id &&
-          doublesFormatIds.has(roster.format_id),
+      const registered = teamFormations.filter(
+        (formation) => formation.category_id === category.id,
       );
       return {
         categoryId: category.id,
         categoryCode: category.code,
         categoryName: category.name,
         registeredDoubles: registered.length,
-        activeDoubles: registered.filter((roster) => roster.status === "active")
-          .length,
-        limit: 5,
+        activeDoubles: registered.length,
+        limit: doublesParameters?.max_formations_per_team_category ?? null,
+        maxReserves: doublesParameters?.max_reserves ?? 0,
       };
     });
     return {
@@ -80,7 +87,10 @@ export async function getAdminTeamsSnapshot(): Promise<AdminTeamsSnapshot> {
     (total, team) =>
       total +
       team.doubles.reduce(
-        (sub, item) => sub + Math.max(item.limit - item.registeredDoubles, 0),
+        (sub, item) =>
+          item.limit === null
+            ? sub
+            : sub + Math.max(item.limit - item.registeredDoubles, 0),
         0,
       ),
     0,
