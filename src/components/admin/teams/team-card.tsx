@@ -82,7 +82,9 @@ export function TeamCard({ team }: { team: AdminTeamRow }) {
         ) : (
           <div className="mt-3 grid gap-2">
             {team.doubles.map((category) => {
-              const full = category.registeredDoubles >= category.limit;
+              const full =
+                category.limit !== null &&
+                category.registeredDoubles >= category.limit;
               return (
                 <div
                   key={category.categoryId}
@@ -97,7 +99,9 @@ export function TeamCard({ team }: { team: AdminTeamRow }) {
                   <p
                     className={`font-display text-xl font-black ${full ? "text-ur-gold" : ""}`}
                   >
-                    {category.registeredDoubles}/{category.limit}
+                    {category.limit === null
+                      ? `${category.registeredDoubles}/—`
+                      : `${category.registeredDoubles}/${category.limit}`}
                   </p>
                 </div>
               );
