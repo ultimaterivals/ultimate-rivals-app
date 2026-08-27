@@ -1,7 +1,10 @@
 import { ArrowRight, CalendarDays } from "lucide-react";
 import Link from "next/link";
+import { getAthleteSeasonContextSnapshot } from "@/server/services/athlete-season-context-service";
 
-export function SeasonContextBanner() {
+export async function SeasonContextBanner() {
+  const season = await getAthleteSeasonContextSnapshot();
+
   return (
     <section
       aria-label="Contexto da temporada atual"
@@ -13,10 +16,10 @@ export function SeasonContextBanner() {
         </span>
         <div className="min-w-0">
           <p className="text-[.65rem] font-black tracking-[.18em] text-zinc-500 uppercase">
-            Temporada 1 · Agosto–Outubro 2026
+            {season.title}
           </p>
           <p className="truncate text-sm font-black text-zinc-200">
-            Fase atual · Abertura + UR Play
+            Fase atual · {season.phaseLabel}
           </p>
         </div>
       </div>
