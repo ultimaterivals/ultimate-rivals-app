@@ -94,7 +94,7 @@ export default async function AthleteRankingPage({
         ? "Ranking de equipes"
         : tab === "pole"
           ? "Ranking de polos"
-          : "Ranking individual";
+          : "Ranking geral da liga";
   const leaderboardEyebrow =
     tab === "doubles"
       ? "Formações oficiais · Duplas"
