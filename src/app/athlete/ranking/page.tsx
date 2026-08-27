@@ -87,6 +87,18 @@ export default async function AthleteRankingPage({
           ],
         ] as const)
       : [];
+  const leaderboardTitle =
+    tab === "doubles"
+      ? "Ranking de duplas"
+      : tab === "team"
+        ? "Ranking de equipes"
+        : tab === "pole"
+          ? "Ranking de polos"
+          : "Ranking individual";
+  const leaderboardEyebrow =
+    tab === "doubles"
+      ? "Formações oficiais · Duplas"
+      : "Top 3 · Classificação oficial";
 
   return (
     <div className="mx-auto grid max-w-7xl gap-6">
@@ -191,8 +203,8 @@ export default async function AthleteRankingPage({
         <>
           <AthleteLeaderboard
             currentAthleteId={viewer.athleteId}
-            eyebrow="Top 3 · Classificação oficial"
-            title="Ranking geral da liga"
+            eyebrow={leaderboardEyebrow}
+            title={leaderboardTitle}
             rows={rows.map((row) => ({
               id: row.id,
               entityId: row.entity_id,
