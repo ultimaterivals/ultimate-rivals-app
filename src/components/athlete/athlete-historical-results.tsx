@@ -1,12 +1,13 @@
 import { CalendarDays, ShieldCheck, Trophy } from "lucide-react";
 import { Card } from "@/components/ui";
+import { requireAthleteViewer } from "@/lib/auth/athlete-viewer";
 import { createClient } from "@/lib/supabase/server";
 
 type HistoricalResultRow = {
   id: string;
   legacy_game_id: number;
   occurred_at: string | null;
-  source_ref: string;
+  provenance: string;
   side_a_label: string;
   side_b_label: string;
   score_a: number;
@@ -15,7 +16,7 @@ type HistoricalResultRow = {
 };
 
 function historicalDateLabel(occurredAt: string | null) {
-  if (!occurredAt) return "Data ainda não publicada";
+  if (!occurredAt) return "Data não registrada na fonte histórica";
 
   return new Intl.DateTimeFormat("pt-BR", {
     dateStyle: "medium",
@@ -24,14 +25,12 @@ function historicalDateLabel(occurredAt: string | null) {
 }
 
 export async function AthleteHistoricalResults() {
+  const viewer = await requireAthleteViewer();
   const client = await createClient();
-  const historicalResult = await client
-    .from("historical_match_results")
-    .select(
-      "id,legacy_game_id,occurred_at,source_ref,side_a_label,side_b_label,score_a,score_b,winner_side",
-    )
-    .order("legacy_game_id", { ascending: false })
-    .limit(100);
+  const historicalResult = await client.rpc(
+    "get_athlete_historical_match_results",
+    { p_athlete_id: viewer.athleteId },
+  );
 
   const matches = historicalResult.data as HistoricalResultRow[] | null;
 
@@ -43,11 +42,10 @@ export async function AthleteHistoricalResults() {
         <p className="text-xs font-black tracking-[.16em] text-zinc-500 uppercase">
           Histórico validado
         </p>
-        <h2 className="mt-1 text-xl font-black">
-          Jogos que construíram seu ranking
-        </h2>
+        <h2 className="mt-1 text-xl font-black">Jogos do seu histórico UR</h2>
         <p className="mt-1 text-sm text-zinc-400">
-          Registros oficiais anteriores ao aplicativo.
+          Registros oficiais anteriores ao aplicativo. Não alteram
+          automaticamente ranking ou UR Coins.
         </p>
       </div>
       {matches.map((match) => {
@@ -72,7 +70,7 @@ export async function AthleteHistoricalResults() {
                 Vitória: <strong>{winnerLabel}</strong>
               </p>
               <p className="mt-2 text-xs text-zinc-600">
-                Fonte validada: {match.source_ref}
+                Proveniência: {match.provenance}
               </p>
             </div>
             <div className="rounded-ur border border-white/10 p-4 text-right">
