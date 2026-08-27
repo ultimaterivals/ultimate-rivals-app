@@ -32,6 +32,12 @@ export type RawFormat = {
   name: string;
   status: string;
 };
+export type RawTeamCompetitionParameter = {
+  format_code: string;
+  max_formations_per_team_category: number | null;
+  required_starters: number;
+  max_reserves: number;
+};
 export type RawPole = { id: string; name: string };
 export type RawAthleteId = { id: string };
 export type RawAthleteIdentity = {
@@ -69,6 +75,7 @@ export type AdminTeamsRepositoryData = {
   rosters: RawRoster[] | null;
   categories: RawCategory[] | null;
   formats: RawFormat[] | null;
+  parameters: RawTeamCompetitionParameter[] | null;
   poles: RawPole[] | null;
   athletes: RawAthleteId[] | null;
   athleteIdentities: RawAthleteIdentity[] | null;
@@ -92,6 +99,7 @@ export async function fetchAdminTeamsRepositoryData(): Promise<AdminTeamsReposit
     rosterResult,
     categoryResult,
     formatResult,
+    parameterResult,
     poleResult,
     athleteResult,
     athleteIdentityResult,
@@ -123,6 +131,12 @@ export async function fetchAdminTeamsRepositoryData(): Promise<AdminTeamsReposit
       .select("id,code,name,status")
       .neq("status", "archived")
       .order("name", { ascending: true }),
+    supabase
+      .from("team_competition_parameters")
+      .select(
+        "format_code,max_formations_per_team_category,required_starters,max_reserves",
+      )
+      .order("format_code", { ascending: true }),
     supabase.from("poles").select("id,name"),
     supabase
       .from("athletes")
@@ -179,6 +193,7 @@ export async function fetchAdminTeamsRepositoryData(): Promise<AdminTeamsReposit
     ["team_rosters", rosterResult.error],
     ["competitive_categories", categoryResult.error],
     ["competitive_formats", formatResult.error],
+    ["team_competition_parameters", parameterResult.error],
     ["poles", poleResult.error],
     ["athletes", athleteResult.error],
     ["athlete identities", athleteIdentityResult.error],
@@ -206,6 +221,9 @@ export async function fetchAdminTeamsRepositoryData(): Promise<AdminTeamsReposit
     formats: formatResult.error
       ? null
       : ((formatResult.data as RawFormat[] | null) ?? []),
+    parameters: parameterResult.error
+      ? null
+      : ((parameterResult.data as RawTeamCompetitionParameter[] | null) ?? []),
     poles: poleResult.error
       ? null
       : ((poleResult.data as RawPole[] | null) ?? []),
