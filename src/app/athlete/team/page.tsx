@@ -52,6 +52,9 @@ export default async function AthleteTeamPage() {
       return { teamId, ...result };
     }),
   );
+  const contributionByTeam = new Map(
+    contributionResults.map((result) => [result.teamId, result.data ?? []]),
+  );
 
   return (
     <div className="mx-auto grid max-w-7xl gap-6">
@@ -85,9 +88,7 @@ export default async function AthleteTeamPage() {
             (row) => row.entity_id === membership.team_id,
           );
           const contributions =
-            contributionResults.find(
-              (result) => result.teamId === membership.team_id,
-            )?.data ?? [];
+            contributionByTeam.get(membership.team_id) ?? [];
           return (
             <Card
               key={membership.team_id}
@@ -181,8 +182,7 @@ export default async function AthleteTeamPage() {
                             {contribution.formation_name}
                           </p>
                           <p className="mt-1 text-xs text-zinc-500">
-                            {contribution.games_played} jogos ·{" "}
-                            {contribution.wins}V · {contribution.losses}D
+                            {`${contribution.games_played} jogos · ${contribution.wins}V · ${contribution.losses}D`}
                           </p>
                         </div>
                         <p className="text-ur-gold font-black">
