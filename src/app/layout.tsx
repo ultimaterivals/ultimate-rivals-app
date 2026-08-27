@@ -8,8 +8,8 @@ export const metadata: Metadata = {
   description: "Plataforma oficial Ultimate Rivals",
   manifest: "/manifest.webmanifest",
   icons: {
-    icon: "/brand/ur-monogram.svg",
-    apple: "/brand/ur-monogram.svg",
+    icon: "/brand/ur-logo-official.png",
+    apple: "/brand/ur-logo-official.png",
   },
 };
 export const viewport: Viewport = {
