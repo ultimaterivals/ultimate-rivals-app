@@ -10,6 +10,7 @@ on:
       - ".github/workflows/app-v1-isolated-qa.yml"
       - "src/**"
       - "tests/**"
+      - "scripts/qa-final-uat-seed.sql"
       - "supabase/migrations/**"
       - "package.json"
       - "package-lock.json"
@@ -69,6 +70,7 @@ jobs:
             supabase/migrations/20260810161452_fix_activity_reservation_waitlist_ambiguity.sql \
             supabase/config.toml \
             scripts/qa-local-test-seed.sql \
+            scripts/qa-final-uat-seed.sql \
             scripts/production-reference-data.sql
           do
             test -f "$path"
@@ -138,6 +140,7 @@ jobs:
         run: |
           psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f scripts/production-reference-data.sql
           psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -v test_password="$UR_TEST_PASSWORD" -f scripts/qa-local-test-seed.sql
+          psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f scripts/qa-final-uat-seed.sql
 
       - name: Align synthetic Auth metadata with current role routing
         run: |
@@ -197,6 +200,9 @@ jobs:
 
       - name: Run authenticated Athlete App mobile E2E
         run: npx playwright test tests/e2e/authenticated-mobile.spec.ts --project=mobile
+
+      - name: Run final athlete, admin-athlete and Preview UAT
+        run: npx playwright test tests/e2e/final-uat.spec.ts --project=chromium
 
       - name: Capture Athlete App mobile visual evidence
         run: npx playwright test tests/e2e/visual-uat.spec.ts --project=mobile
