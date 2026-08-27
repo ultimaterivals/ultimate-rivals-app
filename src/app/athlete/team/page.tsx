@@ -6,13 +6,16 @@ import { createClient } from "@/lib/supabase/server";
 export default async function AthleteTeamPage() {
   const viewer = await requireAthleteViewer();
   const client = await createClient();
+  const now = new Date().toISOString();
   const membershipResult = await client
     .from("team_memberships")
     .select(
       "team_id,teams!inner(id,name,short_name,logo_url,primary_pole_id,poles(name,city))",
     )
     .eq("athlete_id", viewer.athleteId)
-    .eq("status", "active");
+    .eq("status", "active")
+    .lte("starts_at", now)
+    .or(`ends_at.is.null,ends_at.gt.${now}`);
   const officialTeamsResult = await client
     .from("teams")
     .select("id,name,short_name,primary_pole_id,poles(name,city)")
@@ -28,6 +31,8 @@ export default async function AthleteTeamPage() {
           .select("team_id,membership_type,athletes!inner(public_name)")
           .in("team_id", teamIds)
           .eq("status", "active")
+          .lte("starts_at", now)
+          .or(`ends_at.is.null,ends_at.gt.${now}`)
       : Promise.resolve({ data: [], error: null }),
     teamIds.length
       ? client
@@ -39,13 +44,21 @@ export default async function AthleteTeamPage() {
           .in("entity_id", teamIds)
       : Promise.resolve({ data: [], error: null }),
   ]);
+  const contributionResults = await Promise.all(
+    teamIds.map(async (teamId) => {
+      const result = await client.rpc("get_athlete_team_contributions", {
+        p_team_id: teamId,
+      });
+      return { teamId, ...result };
+    }),
+  );
 
   return (
     <div className="mx-auto grid max-w-7xl gap-6">
       <PageHeader
         eyebrow="Equipe e dupla"
         title="Seu time em campo"
-        description="Acompanhe seu elenco, polo e campanha oficial da temporada."
+        description="Acompanhe seu elenco, posição, campanha e a contribuição competitiva das formações da equipe."
       />
       {memberships.length === 0 ? (
         <Card>
@@ -71,6 +84,10 @@ export default async function AthleteTeamPage() {
           const ranking = (rankingsResult.data ?? []).find(
             (row) => row.entity_id === membership.team_id,
           );
+          const contributions =
+            contributionResults.find(
+              (result) => result.teamId === membership.team_id,
+            )?.data ?? [];
           return (
             <Card
               key={membership.team_id}
@@ -134,7 +151,7 @@ export default async function AthleteTeamPage() {
               )}
               <div className="mt-5">
                 <p className="text-xs font-black tracking-[.16em] text-zinc-500 uppercase">
-                  Elenco
+                  Integrantes
                 </p>
                 <div className="mt-3 flex flex-wrap gap-2">
                   {members.map((member, index) => (
@@ -148,10 +165,38 @@ export default async function AthleteTeamPage() {
                   ))}
                 </div>
               </div>
+              {contributions.length > 0 && (
+                <div className="mt-5 border-t border-white/10 pt-5">
+                  <p className="text-xs font-black tracking-[.16em] text-zinc-500 uppercase">
+                    Contribuição das formações
+                  </p>
+                  <div className="mt-3 grid gap-2">
+                    {contributions.map((contribution) => (
+                      <div
+                        key={contribution.formation_id}
+                        className="rounded-ur grid gap-2 border border-white/10 bg-black/20 p-3 sm:grid-cols-[1fr_auto] sm:items-center"
+                      >
+                        <div>
+                          <p className="font-bold">
+                            {contribution.formation_name}
+                          </p>
+                          <p className="mt-1 text-xs text-zinc-500">
+                            {contribution.games_played} jogos · {contribution.wins}V ·{" "}
+                            {contribution.losses}D
+                          </p>
+                        </div>
+                        <p className="text-ur-gold font-black">
+                          {contribution.total_points} pts
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
               <p className="mt-5 flex items-center gap-2 text-sm text-zinc-400">
                 <Trophy className="text-ur-gold" size={16} aria-hidden="true" />{" "}
-                Resultados, contribuição e repasses aparecem aqui quando forem
-                publicados para a equipe.
+                O ranking da equipe usa apenas contribuições canônicas atribuídas
+                à equipe no momento efetivo de cada jogo.
               </p>
             </Card>
           );
@@ -182,7 +227,8 @@ export default async function AthleteTeamPage() {
       {(membershipResult.error ||
         officialTeamsResult.error ||
         membersResult.error ||
-        rankingsResult.error) && (
+        rankingsResult.error ||
+        contributionResults.some((result) => result.error)) && (
         <p className="text-sm text-zinc-500">
           Uma informação da equipe está temporariamente indisponível.
         </p>
