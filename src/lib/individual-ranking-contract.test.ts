@@ -15,59 +15,59 @@ const hardening = source(
 
 const FINAL_SOURCE = "UR_Rankings_Oficiais_Apos_UR_Play_28-08_FINAL.xlsx";
 
-type FinalRankingRow = {
-  position: number;
-  athlete: string;
-  games: number;
-  wins: number;
-  losses: number;
-  aces: number;
-  attacks: number;
-  totalPoints: number;
-};
+type FinalRankingRow = [
+  position: number,
+  athlete: string,
+  games: number,
+  wins: number,
+  losses: number,
+  aces: number,
+  attacks: number,
+  totalPoints: number,
+];
 
 const finalRanking: FinalRankingRow[] = [
-  { position: 1, athlete: "Driely", games: 22, wins: 19, losses: 3, aces: 24, attacks: 49, totalPoints: 330 },
-  { position: 2, athlete: "Juliana", games: 22, wins: 19, losses: 3, aces: 23, attacks: 34, totalPoints: 296 },
-  { position: 3, athlete: "Kim", games: 22, wins: 11, losses: 11, aces: 22, attacks: 28, totalPoints: 248 },
-  { position: 4, athlete: "Poly", games: 22, wins: 11, losses: 11, aces: 16, attacks: 30, totalPoints: 228 },
-  { position: 5, athlete: "Thalita", games: 13, wins: 7, losses: 6, aces: 7, attacks: 15, totalPoints: 120 },
-  { position: 6, athlete: "Thay", games: 10, wins: 6, losses: 4, aces: 14, attacks: 15, totalPoints: 138 },
-  { position: 7, athlete: "Silvana", games: 10, wins: 6, losses: 4, aces: 6, attacks: 16, totalPoints: 108 },
-  { position: 8, athlete: "Lilian", games: 13, wins: 6, losses: 7, aces: 12, attacks: 26, totalPoints: 166 },
-  { position: 9, athlete: "Priscila", games: 13, wins: 6, losses: 7, aces: 9, attacks: 19, totalPoints: 140 },
-  { position: 10, athlete: "Lara", games: 13, wins: 6, losses: 7, aces: 10, attacks: 13, totalPoints: 132 },
-  { position: 11, athlete: "Val", games: 16, wins: 6, losses: 10, aces: 16, attacks: 25, totalPoints: 186 },
-  { position: 12, athlete: "Eliene", games: 18, wins: 6, losses: 12, aces: 8, attacks: 29, totalPoints: 166 },
-  { position: 13, athlete: "Jaque", games: 8, wins: 5, losses: 3, aces: 8, attacks: 19, totalPoints: 114 },
-  { position: 14, athlete: "Thaís", games: 13, wins: 5, losses: 8, aces: 11, attacks: 21, totalPoints: 140 },
-  { position: 15, athlete: "Carolina", games: 13, wins: 5, losses: 8, aces: 5, attacks: 22, totalPoints: 118 },
-  { position: 16, athlete: "Naty", games: 6, wins: 4, losses: 2, aces: 2, attacks: 4, totalPoints: 52 },
-  { position: 17, athlete: "Kesia", games: 9, wins: 4, losses: 5, aces: 7, attacks: 22, totalPoints: 114 },
-  { position: 18, athlete: "Fany", games: 9, wins: 4, losses: 5, aces: 5, attacks: 16, totalPoints: 94 },
-  { position: 19, athlete: "Nina", games: 9, wins: 4, losses: 5, aces: 5, attacks: 13, totalPoints: 88 },
-  { position: 20, athlete: "Manu", games: 4, wins: 2, losses: 2, aces: 4, attacks: 5, totalPoints: 50 },
-  { position: 21, athlete: "Luana", games: 4, wins: 2, losses: 2, aces: 2, attacks: 4, totalPoints: 40 },
-  { position: 22, athlete: "Stephani", games: 6, wins: 2, losses: 4, aces: 8, attacks: 5, totalPoints: 70 },
-  { position: 23, athlete: "Day", games: 6, wins: 2, losses: 4, aces: 3, attacks: 6, totalPoints: 52 },
-  { position: 24, athlete: "Carol", games: 4, wins: 1, losses: 3, aces: 2, attacks: 4, totalPoints: 36 },
-  { position: 25, athlete: "Esther", games: 5, wins: 1, losses: 4, aces: 2, attacks: 8, totalPoints: 46 },
-  { position: 26, athlete: "Michele", games: 5, wins: 0, losses: 5, aces: 5, attacks: 2, totalPoints: 42 },
-  { position: 27, athlete: "Viviane", games: 5, wins: 0, losses: 5, aces: 0, attacks: 3, totalPoints: 24 },
+  [1, "Driely", 22, 19, 3, 24, 49, 330],
+  [2, "Juliana", 22, 19, 3, 23, 34, 296],
+  [3, "Kim", 22, 11, 11, 22, 28, 248],
+  [4, "Poly", 22, 11, 11, 16, 30, 228],
+  [5, "Thalita", 13, 7, 6, 7, 15, 120],
+  [6, "Thay", 10, 6, 4, 14, 15, 138],
+  [7, "Silvana", 10, 6, 4, 6, 16, 108],
+  [8, "Lilian", 13, 6, 7, 12, 26, 166],
+  [9, "Priscila", 13, 6, 7, 9, 19, 140],
+  [10, "Lara", 13, 6, 7, 10, 13, 132],
+  [11, "Val", 16, 6, 10, 16, 25, 186],
+  [12, "Eliene", 18, 6, 12, 8, 29, 166],
+  [13, "Jaque", 8, 5, 3, 8, 19, 114],
+  [14, "Thaís", 13, 5, 8, 11, 21, 140],
+  [15, "Carolina", 13, 5, 8, 5, 22, 118],
+  [16, "Naty", 6, 4, 2, 2, 4, 52],
+  [17, "Kesia", 9, 4, 5, 7, 22, 114],
+  [18, "Fany", 9, 4, 5, 5, 16, 94],
+  [19, "Nina", 9, 4, 5, 5, 13, 88],
+  [20, "Manu", 4, 2, 2, 4, 5, 50],
+  [21, "Luana", 4, 2, 2, 2, 4, 40],
+  [22, "Stephani", 6, 2, 4, 8, 5, 70],
+  [23, "Day", 6, 2, 4, 3, 6, 52],
+  [24, "Carol", 4, 1, 3, 2, 4, 36],
+  [25, "Esther", 5, 1, 4, 2, 8, 46],
+  [26, "Michele", 5, 0, 5, 5, 2, 42],
+  [27, "Viviane", 5, 0, 5, 0, 3, 24],
 ];
 
 function winRate(row: FinalRankingRow) {
-  return row.games > 0 ? row.wins / row.games : 0;
+  return row[2] > 0 ? row[3] / row[2] : 0;
 }
 
 function compareOfficial(a: FinalRankingRow, b: FinalRankingRow) {
   return (
-    b.wins - a.wins ||
+    b[3] - a[3] ||
     winRate(b) - winRate(a) ||
-    b.totalPoints - a.totalPoints ||
-    b.aces - a.aces ||
-    b.attacks - a.attacks ||
-    a.athlete.localeCompare(b.athlete, "pt-BR")
+    b[7] - a[7] ||
+    b[5] - a[5] ||
+    b[6] - a[6] ||
+    a[1].localeCompare(b[1], "pt-BR")
   );
 }
 
@@ -94,7 +94,7 @@ describe("official individual ranking contract", () => {
     expect(hardening).toContain("re.entity_id asc");
   });
 
-  it("suppresses athlete movement notifications only during a historical bootstrap refresh", () => {
+  it("suppresses athlete movement notifications during historical bootstrap", () => {
     expect(hardening).toContain("app.suppress_ranking_notifications");
     expect(hardening).toContain("current_setting");
     expect(hardening).toContain("new.metadata ->> 'origin'");
@@ -104,16 +104,17 @@ describe("official individual ranking contract", () => {
 
   it(`reconciles all 27 athletes with ${FINAL_SOURCE}`, () => {
     expect(finalRanking).toHaveLength(27);
-    expect(finalRanking.reduce((sum, row) => sum + row.aces, 0)).toBe(236);
-    expect(finalRanking.reduce((sum, row) => sum + row.attacks, 0)).toBe(453);
+    expect(finalRanking.reduce((sum, row) => sum + row[5], 0)).toBe(236);
+    expect(finalRanking.reduce((sum, row) => sum + row[6], 0)).toBe(453);
 
     let participationEvents = 0;
     for (const row of finalRanking) {
-      expect(row.games).toBe(row.wins + row.losses);
+      const [, , games, wins, losses, aces, attacks, totalPoints] = row;
+      expect(games).toBe(wins + losses);
 
       const nonParticipationPoints =
-        row.wins * 6 + row.losses * 2 + row.aces * 4 + row.attacks * 2;
-      const participationPoints = row.totalPoints - nonParticipationPoints;
+        wins * 6 + losses * 2 + aces * 4 + attacks * 2;
+      const participationPoints = totalPoints - nonParticipationPoints;
 
       expect(participationPoints).toBeGreaterThan(0);
       expect(participationPoints % 8).toBe(0);
@@ -123,10 +124,10 @@ describe("official individual ranking contract", () => {
     expect(participationEvents).toBe(36);
 
     const sorted = [...finalRanking].sort(compareOfficial);
-    expect(sorted.map((row) => row.athlete)).toEqual(
-      finalRanking.map((row) => row.athlete),
+    expect(sorted.map((row) => row[1])).toEqual(
+      finalRanking.map((row) => row[1]),
     );
-    expect(sorted.map((row) => row.position)).toEqual(
+    expect(sorted.map((row) => row[0])).toEqual(
       Array.from({ length: 27 }, (_, index) => index + 1),
     );
   });
