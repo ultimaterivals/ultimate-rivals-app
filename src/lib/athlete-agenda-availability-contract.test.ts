@@ -2,7 +2,8 @@ import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { describe, expect, it } from "vitest";
 
-const read = (path: string) => readFileSync(resolve(process.cwd(), path), "utf8");
+const read = (path: string) =>
+  readFileSync(resolve(process.cwd(), path), "utf8");
 
 const agenda = read("src/app/athlete/agenda/page.tsx");
 const availability = read("src/app/athlete/disponibilidade/page.tsx");
