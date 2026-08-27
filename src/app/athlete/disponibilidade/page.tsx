@@ -74,7 +74,7 @@ export default async function AthleteAvailabilityPage({
             </Link>
             <Link
               href="/athlete/season"
-              className="inline-flex min-h-11 items-center font-black text-zinc-300"
+              className="text-zinc-300 inline-flex min-h-11 items-center font-black"
             >
               Entender a temporada →
             </Link>
@@ -164,8 +164,14 @@ export default async function AthleteAvailabilityPage({
         <div className="mt-4 grid gap-3 sm:grid-cols-3">
           {[
             ["1", "Você registra quando normalmente pode jogar"],
-            ["2", "O UR usa essas janelas como dado de planejamento operacional"],
-            ["3", "Quando uma oportunidade for publicada, ela aparece na Agenda"],
+            [
+              "2",
+              "O UR usa essas janelas como dado de planejamento operacional",
+            ],
+            [
+              "3",
+              "Quando uma oportunidade for publicada, ela aparece na Agenda",
+            ],
           ].map(([step, label]) => (
             <div key={step} className="rounded-ur border border-white/10 p-4">
               <span className="text-ur-gold font-display text-2xl font-black">
