@@ -46,30 +46,39 @@ export default async function AthleteAvailabilityPage({
       <PageHeader
         eyebrow="Temporada 1 · Meu jogo"
         title="Disponibilidade"
-        description="Conte quando você costuma poder jogar. Essas janelas ajudam o UR a aproximar atletas, polos e horários para formar melhores oportunidades durante a temporada."
+        description="Diga quando você normalmente pode jogar. Este cadastro ajuda o planejamento da operação, mas não cria reserva, não coloca você em lista de espera e não confirma participação."
       />
 
       <Card className="border-ur-gold/30 bg-ur-gold/[.035]">
         <p className="text-ur-gold text-xs font-black tracking-[.18em] uppercase">
-          Seu calendário também faz parte da temporada
+          Sua disponibilidade, do seu ponto de vista
         </p>
         <div className="mt-2 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <h2 className="text-xl font-black">
-              Ajude o próximo jogo a encontrar você
+              Informe quando você pode jogar
             </h2>
             <p className="mt-1 max-w-2xl text-sm leading-6 text-zinc-400">
-              Disponibilidade não reserva vaga. Ela mostra quando você tem mais
-              chance de participar e ajuda o UR a identificar combinações de
-              horário, polo, formato e categoria.
+              Disponibilidade é apenas o registro das suas janelas possíveis.
+              Ela não é reserva, não consome crédito e não garante encaixe em uma
+              atividade. Para jogar, consulte as oportunidades publicadas na
+              Agenda e faça as ações disponíveis por lá.
             </p>
           </div>
-          <Link
-            href="/athlete/agenda"
-            className="text-ur-gold inline-flex min-h-11 items-center font-black"
-          >
-            Ver oportunidades →
-          </Link>
+          <div className="flex flex-wrap gap-4">
+            <Link
+              href="/athlete/agenda"
+              className="text-ur-gold inline-flex min-h-11 items-center font-black"
+            >
+              Ver Agenda →
+            </Link>
+            <Link
+              href="/athlete/season"
+              className="inline-flex min-h-11 items-center font-black text-zinc-300"
+            >
+              Entender a temporada →
+            </Link>
+          </div>
         </div>
       </Card>
 
@@ -86,8 +95,9 @@ export default async function AthleteAvailabilityPage({
         (single(params.saved) || single(params.deleted)) && (
           <Card className="border-ur-gold/40">
             <p className="text-ur-gold text-sm font-bold">
-              Disponibilidade atualizada. Suas próximas oportunidades poderão
-              considerar essas janelas.
+              Disponibilidade atualizada. Isso não criou reserva, não consumiu
+              crédito e não confirmou participação. Consulte a Agenda para ver
+              oportunidades publicadas.
             </p>
           </Card>
         )}
@@ -149,16 +159,13 @@ export default async function AthleteAvailabilityPage({
 
       <Card>
         <p className="text-xs font-black tracking-[.18em] text-zinc-500 uppercase">
-          Como isso se conecta ao trimestre
+          Como isso se conecta à sua temporada
         </p>
         <div className="mt-4 grid gap-3 sm:grid-cols-3">
           {[
-            ["1", "Você informa quando pode jogar"],
-            [
-              "2",
-              "O UR usa disponibilidade e demanda para planejar oportunidades",
-            ],
-            ["3", "As oportunidades aparecem na Agenda"],
+            ["1", "Você registra quando normalmente pode jogar"],
+            ["2", "O UR usa essas janelas como dado de planejamento operacional"],
+            ["3", "Quando uma oportunidade for publicada, ela aparece na Agenda"],
           ].map(([step, label]) => (
             <div key={step} className="rounded-ur border border-white/10 p-4">
               <span className="text-ur-gold font-display text-2xl font-black">
@@ -169,8 +176,9 @@ export default async function AthleteAvailabilityPage({
           ))}
         </div>
         <p className="mt-4 text-sm text-zinc-500">
-          Demonstrar interesse e reservar continuam sendo ações separadas feitas
-          na Agenda quando uma oportunidade estiver disponível.
+          Não existe recomendação automática implícita neste cadastro.
+          Demonstrar interesse, entrar em lista de espera e reservar continuam
+          sendo ações separadas feitas na Agenda quando a oportunidade permitir.
         </p>
       </Card>
 
