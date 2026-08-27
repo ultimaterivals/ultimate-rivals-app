@@ -63,14 +63,18 @@ describe("historical match results contract", () => {
     expect(hardeningMigration).not.toMatch(
       /returns table \([^)]*source_metadata/is,
     );
-    expect(hardeningMigration).not.toMatch(/returns table \([^)]*created_at/is);
+    expect(hardeningMigration).not.toMatch(
+      /returns table \([^)]*created_at/is,
+    );
 
     expect(historicalResults).toContain("requireAthleteViewer");
     expect(historicalResults).toContain("viewer.athleteId");
     expect(historicalResults).toContain(
       '"get_athlete_historical_match_results"',
     );
-    expect(historicalResults).not.toContain('.from("historical_match_results")');
+    expect(historicalResults).not.toContain(
+      '.from("historical_match_results")',
+    );
     expect(historicalResults).not.toContain("source_metadata");
     expect(historicalResults).not.toContain("source_ref");
   });
@@ -87,6 +91,8 @@ describe("historical match results contract", () => {
       /insert into public\.ur_coin_transactions\b/i,
     );
     expect(historicalResults).toContain("automaticamente ranking ou UR Coins");
-    expect(historicalResults).not.toContain("Jogos que construíram seu ranking");
+    expect(historicalResults).not.toContain(
+      "Jogos que construíram seu ranking",
+    );
   });
 });
