@@ -73,8 +73,12 @@ function compareOfficial(a: FinalRankingRow, b: FinalRankingRow) {
 
 describe("official individual ranking contract", () => {
   it("keeps historical scoring in the canonical transaction ledger", () => {
-    expect(historicalHelper).toContain("insert into public.ranking_transactions");
-    expect(historicalHelper).not.toContain("insert into public.ranking_entries");
+    expect(historicalHelper).toContain(
+      "insert into public.ranking_transactions",
+    );
+    expect(historicalHelper).not.toContain(
+      "insert into public.ranking_entries",
+    );
     expect(historicalHelper).toContain("on conflict do nothing");
     expect(historicalHelper).toContain("'historical_import'");
 
@@ -94,13 +98,16 @@ describe("official individual ranking contract", () => {
     expect(hardening).toContain("re.entity_id asc");
   });
 
-  it("suppresses athlete movement notifications during historical bootstrap", () => {
-    expect(hardening).toContain("app.suppress_ranking_notifications");
-    expect(hardening).toContain("current_setting");
-    expect(hardening).toContain("new.metadata ->> 'origin'");
-    expect(hardening).toContain("'historical_import'");
-    expect(hardening).toContain("private.refresh_all_rankings(target_season)");
-  });
+  it(
+    "suppresses athlete movement notifications during historical bootstrap",
+    () => {
+      expect(hardening).toContain("app.suppress_ranking_notifications");
+      expect(hardening).toContain("current_setting");
+      expect(hardening).toContain("new.metadata ->> 'origin'");
+      expect(hardening).toContain("'historical_import'");
+      expect(hardening).toContain("private.refresh_all_rankings(target_season)");
+    },
+  );
 
   it(`reconciles all 27 athletes with ${FINAL_SOURCE}`, () => {
     expect(finalRanking).toHaveLength(27);
