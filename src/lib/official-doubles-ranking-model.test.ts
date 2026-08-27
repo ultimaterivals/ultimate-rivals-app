@@ -42,7 +42,9 @@ const finalRows = [
 
 describe("official doubles ranking model", () => {
   it("keeps doubles as canonical formations independent from teams", () => {
-    expect(baseMigration).toContain("create table public.competition_formations");
+    expect(baseMigration).toContain(
+      "create table public.competition_formations",
+    );
     expect(baseMigration).toContain(
       "create table public.competition_formation_members",
     );
@@ -75,19 +77,24 @@ describe("official doubles ranking model", () => {
     expect(baseMigration).toContain("p.total_points, 0, p.result_points");
   });
 
-  it("collapses result events to one WIN or LOSS per match side and keeps technical retries idempotent", () => {
-    expect(hardeningMigration).toContain("new.rule_code in ('WIN', 'LOSS')");
-    expect(hardeningMigration).toContain("tx.match_id = new.match_id");
-    expect(hardeningMigration).toContain("tx.match_side_id = new.match_side_id");
-    expect(hardeningMigration).toContain(
-      "tx.transaction_type = new.transaction_type",
-    );
-    expect(hardeningMigration).toContain("tx.source_id = new.source_id");
-    expect(hardeningMigration).toContain(
-      "if v_existing_side_transaction is not null then",
-    );
-    expect(hardeningMigration).toContain("on conflict do nothing");
-  });
+  it(
+    "collapses result events to one WIN or LOSS per match side and keeps technical retries idempotent",
+    () => {
+      expect(hardeningMigration).toContain("new.rule_code in ('WIN', 'LOSS')");
+      expect(hardeningMigration).toContain("tx.match_id = new.match_id");
+      expect(hardeningMigration).toContain(
+        "tx.match_side_id = new.match_side_id",
+      );
+      expect(hardeningMigration).toContain(
+        "tx.transaction_type = new.transaction_type",
+      );
+      expect(hardeningMigration).toContain("tx.source_id = new.source_id");
+      expect(hardeningMigration).toContain(
+        "if v_existing_side_transaction is not null then",
+      );
+      expect(hardeningMigration).toContain("on conflict do nothing");
+    },
+  );
 
   it("reproduces every doubles row from the FINAL source", () => {
     expect(finalRows).toHaveLength(16);
@@ -102,24 +109,27 @@ describe("official doubles ranking model", () => {
     );
   });
 
-  it("orders doubles by wins, win rate, points, aces, attacks and deterministic ties", () => {
-    const order = [
-      "ar.wins desc",
-      "ar.wins::numeric / (ar.wins + ar.losses)",
-      "ar.total_points desc",
-      "ar.aces desc",
-      "ar.attacks desc",
-      "ar.reached_score_at",
-      "ar.entity_id",
-    ];
+  it(
+    "orders doubles by wins, win rate, points, aces, attacks and deterministic ties",
+    () => {
+      const order = [
+        "ar.wins desc",
+        "ar.wins::numeric / (ar.wins + ar.losses)",
+        "ar.total_points desc",
+        "ar.aces desc",
+        "ar.attacks desc",
+        "ar.reached_score_at",
+        "ar.entity_id",
+      ];
 
-    let cursor = -1;
-    for (const token of order) {
-      const next = baseMigration.indexOf(token, cursor + 1);
-      expect(next).toBeGreaterThan(cursor);
-      cursor = next;
-    }
-  });
+      let cursor = -1;
+      for (const token of order) {
+        const next = baseMigration.indexOf(token, cursor + 1);
+        expect(next).toBeGreaterThan(cursor);
+        cursor = next;
+      }
+    },
+  );
 
   it("exposes doubles in the Athlete App without calling them teams", () => {
     expect(athleteRankingPage).toContain('["doubles", "Duplas"]');
