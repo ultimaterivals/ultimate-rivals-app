@@ -37,9 +37,7 @@ describe("athlete season context contract", () => {
       "Legends",
       "Virada",
     ];
-    roadmap.forEach((stage) =>
-      expect(indexOfStage(stage)).toBeGreaterThan(-1),
-    );
+    roadmap.forEach((stage) => expect(indexOfStage(stage)).toBeGreaterThan(-1));
     for (let index = 1; index < roadmap.length; index += 1) {
       expect(indexOfStage(roadmap[index])).toBeGreaterThan(
         indexOfStage(roadmap[index - 1]),
