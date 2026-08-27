@@ -4,6 +4,19 @@ import { Badge, Card, EmptyState, PageHeader } from "@/components/ui";
 import { requireAthleteViewer } from "@/lib/auth/athlete-viewer";
 import { getAthleteSnapshotForViewer } from "@/server/services/athlete-viewer-snapshot-service";
 
+const hunterPillars = [
+  "Disciplina",
+  "Leitura de jogo",
+  "Tomada de decisão",
+  "Consistência",
+  "Competitividade",
+  "Evolução contínua",
+  "Liderança",
+  "Trabalho em equipe",
+  "Comportamento",
+  "Preparação mental",
+];
+
 // Contract guard: advanced missions, achievements and progression systems não são simulados nesta V1.
 export default async function AthleteDevelopmentPage() {
   const viewer = await requireAthleteViewer();
@@ -31,6 +44,31 @@ export default async function AthleteDevelopmentPage() {
         title="Sua progressão"
         description="Veja seu momento atual, o próximo passo e os marcos que ajudam você a avançar durante a temporada."
       />
+
+      <Card className="border-ur-gold/30 overflow-hidden">
+        <p className="text-ur-gold text-xs font-black tracking-[.2em] uppercase">
+          Mentalidade Hunter
+        </p>
+        <h2 className="font-display mt-2 text-3xl font-black uppercase sm:text-4xl">
+          Hunter não é olheiro. É mentalidade de desenvolvimento.
+        </h2>
+        <p className="mt-3 max-w-4xl text-sm leading-6 text-zinc-400">
+          A metodologia acompanha como você compete, aprende e evolui. O App só
+          transforma avaliações homologadas em prioridades, missões ou marcos;
+          não cria diagnóstico, recomendação automática ou pontuação sem dado
+          real.
+        </p>
+        <div className="mt-5 grid gap-2 sm:grid-cols-2 lg:grid-cols-5">
+          {hunterPillars.map((pillar) => (
+            <div
+              key={pillar}
+              className="rounded-ur border border-white/10 bg-white/[.02] p-3 text-sm font-black"
+            >
+              {pillar}
+            </div>
+          ))}
+        </div>
+      </Card>
 
       <section className="grid gap-5 lg:grid-cols-[1.15fr_.85fr]">
         <Card className="ranking-hero border-ur-gold/40 overflow-hidden">
