@@ -52,10 +52,7 @@ const errorMessages: Record<string, string> = {
 };
 
 const agendaStates = [
-  [
-    "Interesse",
-    "Sinaliza intenção. Não confirma vaga e não reserva crédito.",
-  ],
+  ["Interesse", "Sinaliza intenção. Não confirma vaga e não reserva crédito."],
   [
     "Reserva",
     "Confirma a vaga quando disponível e coloca 1 crédito em reserva.",
