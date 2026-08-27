@@ -4,7 +4,8 @@ export type TeamDoubleCategory = {
   categoryName: string;
   registeredDoubles: number;
   activeDoubles: number;
-  limit: 5;
+  limit: number | null;
+  maxReserves: number;
 };
 
 export type AdminTeamRow = {
