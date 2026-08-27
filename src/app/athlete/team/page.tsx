@@ -193,8 +193,8 @@ export default async function AthleteTeamPage() {
               )}
               <p className="mt-5 flex items-center gap-2 text-sm text-zinc-400">
                 <Trophy className="text-ur-gold" size={16} aria-hidden="true" />{" "}
-                O ranking da equipe usa apenas contribuições canônicas atribuídas
-                à equipe no momento efetivo de cada jogo.
+                O ranking da equipe usa apenas contribuições canônicas
+                atribuídas à equipe no momento efetivo de cada jogo.
               </p>
             </Card>
           );
