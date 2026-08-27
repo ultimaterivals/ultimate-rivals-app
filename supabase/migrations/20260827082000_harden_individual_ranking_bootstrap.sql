@@ -1,35 +1,9 @@
 -- Keep the official individual ranking derived from the canonical ranking ledger.
 -- Historical bootstraps may refresh projections, but must not generate athlete-facing
 -- ranking-movement notifications while the bootstrap projection is being rebuilt.
-
-do $$
-declare
-  v_mismatch integer;
-begin
-  with expected(rule_code, points) as (
-    values
-      ('PARTICIPATION'::text, 8),
-      ('WIN'::text, 6),
-      ('LOSS'::text, 2),
-      ('ACE'::text, 4),
-      ('ATTACK'::text, 2)
-  )
-  select count(*)::integer
-  into v_mismatch
-  from expected e
-  where not exists (
-    select 1
-    from public.ranking_rules r
-    where r.rule_code = e.rule_code
-      and r.points = e.points
-      and r.active = true
-  );
-
-  if v_mismatch > 0 then
-    raise exception 'INDIVIDUAL_RANKING_RULE_SET_MISMATCH';
-  end if;
-end
-$$;
+--
+-- Canonical rule values are operational reference data and are validated after seeding.
+-- This migration must remain replayable on an empty schema before reference data exists.
 
 -- Replay contract copied from the competitive source of truth:
 -- UR_Rankings_Oficiais_Apos_UR_Play_28-08_FINAL.xlsx / Ranking Individual.
