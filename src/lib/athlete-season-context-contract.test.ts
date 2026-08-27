@@ -24,9 +24,7 @@ const indexOfStage = (name: string) => service.indexOf(`name: "${name}"`);
 
 describe("athlete season context contract", () => {
   it("preserves the Season 1 public context and roadmap in one backend service", () => {
-    expect(service).toContain(
-      'title: "Temporada 1 · Agosto–Outubro 2026"',
-    );
+    expect(service).toContain('title: "Temporada 1 · Agosto–Outubro 2026"');
     expect(service).toContain('phaseLabel: "Abertura + UR Play"');
 
     const roadmap = [
