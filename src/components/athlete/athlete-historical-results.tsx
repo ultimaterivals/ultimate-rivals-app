@@ -7,7 +7,6 @@ type HistoricalResultRow = {
   id: string;
   legacy_game_id: number;
   occurred_at: string | null;
-  provenance: string;
   side_a_label: string;
   side_b_label: string;
   score_a: number;
@@ -68,9 +67,6 @@ export async function AthleteHistoricalResults() {
               <p className="mt-2 flex items-center gap-2 text-sm text-zinc-300">
                 <Trophy size={15} className="text-ur-gold" aria-hidden="true" />
                 Vitória: <strong>{winnerLabel}</strong>
-              </p>
-              <p className="mt-2 text-xs text-zinc-600">
-                Proveniência: {match.provenance}
               </p>
             </div>
             <div className="rounded-ur border border-white/10 p-4 text-right">
