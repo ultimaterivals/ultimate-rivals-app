@@ -24,7 +24,9 @@ const indexOfStage = (name: string) => service.indexOf(`name: "${name}"`);
 
 describe("athlete season context contract", () => {
   it("preserves the Season 1 public context and roadmap in one backend service", () => {
-    expect(service).toContain('title: "Temporada 1 · Agosto–Outubro 2026"');
+    expect(service).toContain(
+      'title: "Temporada 1 · Agosto–Outubro 2026"',
+    );
     expect(service).toContain('phaseLabel: "Abertura + UR Play"');
 
     const roadmap = [
@@ -35,7 +37,9 @@ describe("athlete season context contract", () => {
       "Legends",
       "Virada",
     ];
-    roadmap.forEach((stage) => expect(indexOfStage(stage)).toBeGreaterThan(-1));
+    roadmap.forEach((stage) =>
+      expect(indexOfStage(stage)).toBeGreaterThan(-1),
+    );
     for (let index = 1; index < roadmap.length; index += 1) {
       expect(indexOfStage(roadmap[index])).toBeGreaterThan(
         indexOfStage(roadmap[index - 1]),
@@ -48,7 +52,9 @@ describe("athlete season context contract", () => {
     expect(service).toContain('["registration", "active", "closing"]');
     expect(service).toContain('source: "fallback"');
     expect(service).toContain('source: "canonical"');
-    expect(service).toContain("if (result.error || !result.data) return fallback");
+    expect(service).toContain(
+      "if (result.error || !result.data) return fallback",
+    );
     expect(service).toContain("seasonId: result.data.id");
   });
 
