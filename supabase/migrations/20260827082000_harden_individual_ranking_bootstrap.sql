@@ -33,6 +33,116 @@ begin
 end
 $$;
 
+-- Replay contract copied from the competitive source of truth:
+-- UR_Rankings_Oficiais_Apos_UR_Play_28-08_FINAL.xlsx / Ranking Individual.
+-- It proves the approved scoring rules reproduce all 27 official rows and their order.
+do $$
+declare
+  v_bad_rows integer;
+  v_participation_events integer;
+begin
+  with final_source(position, athlete, games, wins, losses, aces, attacks, total_points) as (
+    values
+      (1, 'Driely', 22, 19, 3, 24, 49, 330),
+      (2, 'Juliana', 22, 19, 3, 23, 34, 296),
+      (3, 'Kim', 22, 11, 11, 22, 28, 248),
+      (4, 'Poly', 22, 11, 11, 16, 30, 228),
+      (5, 'Thalita', 13, 7, 6, 7, 15, 120),
+      (6, 'Thay', 10, 6, 4, 14, 15, 138),
+      (7, 'Silvana', 10, 6, 4, 6, 16, 108),
+      (8, 'Lilian', 13, 6, 7, 12, 26, 166),
+      (9, 'Priscila', 13, 6, 7, 9, 19, 140),
+      (10, 'Lara', 13, 6, 7, 10, 13, 132),
+      (11, 'Val', 16, 6, 10, 16, 25, 186),
+      (12, 'Eliene', 18, 6, 12, 8, 29, 166),
+      (13, 'Jaque', 8, 5, 3, 8, 19, 114),
+      (14, 'Thaís', 13, 5, 8, 11, 21, 140),
+      (15, 'Carolina', 13, 5, 8, 5, 22, 118),
+      (16, 'Naty', 6, 4, 2, 2, 4, 52),
+      (17, 'Kesia', 9, 4, 5, 7, 22, 114),
+      (18, 'Fany', 9, 4, 5, 5, 16, 94),
+      (19, 'Nina', 9, 4, 5, 5, 13, 88),
+      (20, 'Manu', 4, 2, 2, 4, 5, 50),
+      (21, 'Luana', 4, 2, 2, 2, 4, 40),
+      (22, 'Stephani', 6, 2, 4, 8, 5, 70),
+      (23, 'Day', 6, 2, 4, 3, 6, 52),
+      (24, 'Carol', 4, 1, 3, 2, 4, 36),
+      (25, 'Esther', 5, 1, 4, 2, 8, 46),
+      (26, 'Michele', 5, 0, 5, 5, 2, 42),
+      (27, 'Viviane', 5, 0, 5, 0, 3, 24)
+  ), calculated as (
+    select
+      fs.*,
+      fs.total_points
+        - fs.wins * 6
+        - fs.losses * 2
+        - fs.aces * 4
+        - fs.attacks * 2 as participation_points,
+      row_number() over (
+        order by
+          fs.wins desc,
+          case when fs.games > 0 then fs.wins::numeric / fs.games else 0 end desc,
+          fs.total_points desc,
+          fs.aces desc,
+          fs.attacks desc,
+          fs.athlete asc
+      )::integer as calculated_position
+    from final_source fs
+  )
+  select count(*)::integer
+  into v_bad_rows
+  from calculated c
+  where c.games <> c.wins + c.losses
+    or c.participation_points <= 0
+    or mod(c.participation_points, 8) <> 0
+    or c.position <> c.calculated_position;
+
+  if v_bad_rows > 0 then
+    raise exception 'FINAL_INDIVIDUAL_RANKING_RECONCILIATION_FAILED';
+  end if;
+
+  with final_source(position, athlete, games, wins, losses, aces, attacks, total_points) as (
+    values
+      (1, 'Driely', 22, 19, 3, 24, 49, 330),
+      (2, 'Juliana', 22, 19, 3, 23, 34, 296),
+      (3, 'Kim', 22, 11, 11, 22, 28, 248),
+      (4, 'Poly', 22, 11, 11, 16, 30, 228),
+      (5, 'Thalita', 13, 7, 6, 7, 15, 120),
+      (6, 'Thay', 10, 6, 4, 14, 15, 138),
+      (7, 'Silvana', 10, 6, 4, 6, 16, 108),
+      (8, 'Lilian', 13, 6, 7, 12, 26, 166),
+      (9, 'Priscila', 13, 6, 7, 9, 19, 140),
+      (10, 'Lara', 13, 6, 7, 10, 13, 132),
+      (11, 'Val', 16, 6, 10, 16, 25, 186),
+      (12, 'Eliene', 18, 6, 12, 8, 29, 166),
+      (13, 'Jaque', 8, 5, 3, 8, 19, 114),
+      (14, 'Thaís', 13, 5, 8, 11, 21, 140),
+      (15, 'Carolina', 13, 5, 8, 5, 22, 118),
+      (16, 'Naty', 6, 4, 2, 2, 4, 52),
+      (17, 'Kesia', 9, 4, 5, 7, 22, 114),
+      (18, 'Fany', 9, 4, 5, 5, 16, 94),
+      (19, 'Nina', 9, 4, 5, 5, 13, 88),
+      (20, 'Manu', 4, 2, 2, 4, 5, 50),
+      (21, 'Luana', 4, 2, 2, 2, 4, 40),
+      (22, 'Stephani', 6, 2, 4, 8, 5, 70),
+      (23, 'Day', 6, 2, 4, 3, 6, 52),
+      (24, 'Carol', 4, 1, 3, 2, 4, 36),
+      (25, 'Esther', 5, 1, 4, 2, 8, 46),
+      (26, 'Michele', 5, 0, 5, 5, 2, 42),
+      (27, 'Viviane', 5, 0, 5, 0, 3, 24)
+  )
+  select sum(
+    (total_points - wins * 6 - losses * 2 - aces * 4 - attacks * 2) / 8
+  )::integer
+  into v_participation_events
+  from final_source;
+
+  if v_participation_events <> 36 then
+    raise exception 'FINAL_PARTICIPATION_EVENT_COUNT_MISMATCH';
+  end if;
+end
+$$;
+
 create or replace function private.apply_official_individual_ranking_order(
   target_season_id uuid,
   target_cycle_id uuid default null
