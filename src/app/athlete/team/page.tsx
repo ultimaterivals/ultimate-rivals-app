@@ -181,8 +181,8 @@ export default async function AthleteTeamPage() {
                             {contribution.formation_name}
                           </p>
                           <p className="mt-1 text-xs text-zinc-500">
-                            {contribution.games_played} jogos · {contribution.wins}V ·{" "}
-                            {contribution.losses}D
+                            {contribution.games_played} jogos ·{" "}
+                            {contribution.wins}V · {contribution.losses}D
                           </p>
                         </div>
                         <p className="text-ur-gold font-black">
