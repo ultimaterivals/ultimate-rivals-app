@@ -175,17 +175,15 @@ export default async function AthleteTeamPage() {
                     {contributions.map((contribution) => (
                       <div
                         key={contribution.formation_id}
-                        className="rounded-ur grid gap-2 border border-white/10 bg-black/20 p-3 sm:grid-cols-[1fr_auto] sm:items-center"
+                        className="border-b border-white/10 py-3"
                       >
-                        <div>
-                          <p className="font-bold">
-                            {contribution.formation_name}
-                          </p>
-                          <p className="mt-1 text-xs text-zinc-500">
-                            {`${contribution.games_played} jogos · ${contribution.wins}V · ${contribution.losses}D`}
-                          </p>
-                        </div>
-                        <p className="text-ur-gold font-black">
+                        <p className="font-bold">
+                          {contribution.formation_name}
+                        </p>
+                        <p className="mt-1 text-xs text-zinc-500">
+                          {`${contribution.games_played} jogos · ${contribution.wins}V · ${contribution.losses}D`}
+                        </p>
+                        <p className="font-display text-ur-gold mt-2 font-black">
                           {contribution.total_points} pts
                         </p>
                       </div>
