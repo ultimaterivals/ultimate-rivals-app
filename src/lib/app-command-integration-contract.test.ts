@@ -182,13 +182,21 @@ describe("App V1 ↔ Command integration contracts", () => {
   });
 
   it("keeps competitive result and team surfaces sourced from published data", () => {
-    const results = source("src/app/athlete/results/page.tsx");
+    const resultsPage = source("src/app/athlete/results/page.tsx");
+    const resultsContent = source(
+      "src/components/athlete/athlete-results-content.tsx",
+    );
+    const liveResults = source(
+      "src/components/athlete/athlete-live-results.tsx",
+    );
     const team = source("src/app/athlete/team/page.tsx");
 
-    expect(results).toContain('from("ranking_transactions")');
-    expect(results).toContain('eq("status", "homologated")');
-    expect(results).toContain("Impacto");
-    expect(results).toContain("match_participants");
+    expect(resultsPage).toContain("AthleteResultsContent");
+    expect(resultsContent).toContain("AthleteLiveResults");
+    expect(liveResults).toContain('from("ranking_transactions")');
+    expect(liveResults).toContain('eq("status", "homologated")');
+    expect(liveResults).toContain("Impacto");
+    expect(liveResults).toContain('from("match_participants")');
     expect(team).toContain('from("public_rankings")');
     expect(team).toContain('eq("ranking_type", "team")');
     expect(team).toContain("Seu time em campo");
