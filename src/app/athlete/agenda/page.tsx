@@ -3,6 +3,7 @@ import { AthleteOpportunityCard } from "@/components/athlete/athlete-opportunity
 import { AthleteSourceHealth } from "@/components/athlete/athlete-source-health";
 import { Card, PageHeader } from "@/components/ui";
 import { requireAthleteViewer } from "@/lib/auth/athlete-viewer";
+import { getAthleteSeasonContextSnapshot } from "@/server/services/athlete-season-context-service";
 import { getAthleteSnapshotForViewer } from "@/server/services/athlete-viewer-snapshot-service";
 
 type Params = Promise<{
@@ -50,14 +51,23 @@ const errorMessages: Record<string, string> = {
     "Não foi possível concluir a operação. Nenhum saldo deve ser alterado.",
 };
 
+const agendaStates = [
+  ["Interesse", "Sinaliza intenção. Não confirma vaga e não reserva crédito."],
+  ["Reserva", "Confirma a vaga quando disponível e coloca 1 crédito em reserva."],
+  ["Lista de espera", "Aguarda liberação de vaga. Não reserva crédito enquanto você estiver na lista."],
+  ["Check-in", "Registra sua chegada à atividade. Não substitui o resultado final de participação."],
+  ["Participação", "É o estado concluído da atividade, separado das etapas anteriores."],
+] as const;
+
 export default async function AthleteAgendaPage({
   searchParams,
 }: {
   searchParams: Params;
 }) {
   const viewer = await requireAthleteViewer();
-  const [snapshot, params] = await Promise.all([
+  const [snapshot, season, params] = await Promise.all([
     getAthleteSnapshotForViewer(viewer),
+    getAthleteSeasonContextSnapshot(),
     searchParams,
   ]);
   const success = single(params.success);
@@ -69,21 +79,22 @@ export default async function AthleteAgendaPage({
       <PageHeader
         eyebrow="Temporada 1 · Meu jogo"
         title="Agenda"
-        description="Aqui você encontra onde sua temporada acontece. Veja os próximos UR Plays e eventos, demonstre interesse e confirme sua participação quando as vagas estiverem abertas."
+        description="Encontre onde jogar nesta fase. Veja os próximos UR Plays e eventos, manifeste interesse quando fizer sentido e reserve somente quando a vaga estiver aberta para confirmação."
       />
 
       <Card className="border-ur-gold/30 bg-ur-gold/[.035]">
         <p className="text-ur-gold text-xs font-black tracking-[.18em] uppercase">
-          Fase atual · Abertura + UR Play
+          Fase atual · {season.phaseLabel}
         </p>
         <div className="mt-2 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <h2 className="text-xl font-black">
-              Cada jogo faz parte do trimestre
+              Encontre onde jogar nesta fase
             </h2>
             <p className="mt-1 max-w-2xl text-sm leading-6 text-zinc-400">
-              Suas participações constroem histórico, ajudam a formar o ranking
-              e mantêm sua campanha em movimento até as próximas etapas.
+              A Agenda mostra oportunidades publicadas para a temporada. Interesse,
+              reserva, lista de espera, check-in e participação são estados
+              diferentes e não devem ser tratados como equivalentes.
             </p>
           </div>
           <Link
@@ -92,6 +103,22 @@ export default async function AthleteAgendaPage({
           >
             Entender a temporada →
           </Link>
+        </div>
+      </Card>
+
+      <Card>
+        <p className="text-xs font-black tracking-[.18em] text-zinc-500 uppercase">
+          Do interesse à participação
+        </p>
+        <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-5">
+          {agendaStates.map(([label, description]) => (
+            <div key={label} className="rounded-ur border border-white/10 p-4">
+              <p className="font-black">{label}</p>
+              <p className="mt-2 text-xs leading-5 text-zinc-500">
+                {description}
+              </p>
+            </div>
+          ))}
         </div>
       </Card>
 
@@ -189,8 +216,9 @@ export default async function AthleteAgendaPage({
           <p className="font-bold">Nenhuma oportunidade futura disponível.</p>
           <p className="mt-2 text-sm text-zinc-500">
             Novos UR Plays, treinos e eventos aparecerão aqui quando forem
-            publicados. Enquanto isso, mantenha sua disponibilidade atualizada
-            para facilitar os próximos encaixes.
+            publicados. Você pode manter sua disponibilidade atualizada para o
+            planejamento operacional, mas isso não cria vaga nem recomendação
+            automática.
           </p>
           <Link
             href="/athlete/disponibilidade"
