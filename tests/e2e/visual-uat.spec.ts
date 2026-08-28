@@ -23,6 +23,18 @@ async function waitForPlayerHub(page: Page) {
   ).toBeVisible({ timeout: 30_000 });
 }
 
+async function waitForJogar(page: Page) {
+  await expect(
+    page.getByRole("heading", { name: "Entre em quadra", exact: true }),
+  ).toBeVisible({ timeout: 30_000 });
+  await expect(
+    page.getByRole("heading", { name: "Oportunidades para jogar", exact: true }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("heading", { name: "Quando você pode jogar?", exact: true }),
+  ).toBeVisible();
+}
+
 async function waitForHunter(page: Page) {
   await expect(
     page.getByRole("heading", {
@@ -105,6 +117,12 @@ test("desktop athlete App visual evidence", async ({ page }, testInfo) => {
 
   await openAndCapture(
     page,
+    "/athlete/agenda",
+    "desktop-1440x900-jogar",
+    waitForJogar,
+  );
+  await openAndCapture(
+    page,
     "/athlete/hunter",
     "desktop-1440x900-hunter",
     waitForHunter,
@@ -144,6 +162,12 @@ test("mobile 390 athlete shell visual evidence", async ({ page }, testInfo) => {
 
   await openMobileAndCapture(
     page,
+    "/athlete/agenda",
+    "mobile-390x844-jogar",
+    waitForJogar,
+  );
+  await openMobileAndCapture(
+    page,
     "/athlete/hunter",
     "mobile-390x844-hunter",
     waitForHunter,
@@ -165,6 +189,13 @@ test("mobile compact 360 athlete shell visual evidence", async ({
   await waitForPlayerHub(page);
   await expectNoHorizontalOverflow(page);
   await capture(page, "mobile-360x800-player-hub");
+
+  await openMobileAndCapture(
+    page,
+    "/athlete/agenda",
+    "mobile-360x800-jogar",
+    waitForJogar,
+  );
 });
 
 test("admin Preview remains read-only on desktop", async ({
@@ -174,6 +205,16 @@ test("admin Preview remains read-only on desktop", async ({
   await page.setViewportSize({ width: 1440, height: 900 });
   await openAthletePreview(page);
   await capture(page, "preview-desktop-1440x900-player-hub");
+
+  await openAndCapture(
+    page,
+    "/athlete/agenda",
+    "preview-desktop-1440x900-jogar",
+    waitForJogar,
+  );
+  await expect(
+    page.getByText(/Prévia somente leitura\. Interesse, reserva, cancelamento/),
+  ).toBeVisible();
 });
 
 test("admin Preview remains read-only on mobile", async ({
@@ -184,4 +225,14 @@ test("admin Preview remains read-only on mobile", async ({
   await openAthletePreview(page);
   await expectNoHorizontalOverflow(page);
   await capture(page, "preview-mobile-390x844-player-hub");
+
+  await openMobileAndCapture(
+    page,
+    "/athlete/agenda",
+    "preview-mobile-390x844-jogar",
+    waitForJogar,
+  );
+  await expect(
+    page.getByText(/Prévia somente leitura\. Interesse, reserva, cancelamento/),
+  ).toBeVisible();
 });
