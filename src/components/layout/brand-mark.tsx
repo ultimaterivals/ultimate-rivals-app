@@ -9,7 +9,10 @@ export function BrandMark({
   context?: string;
 }) {
   return (
-    <div className="flex min-w-0 items-center gap-3" aria-label="Ultimate Rivals">
+    <div
+      className="flex min-w-0 items-center gap-3"
+      aria-label="Ultimate Rivals"
+    >
       <span
         className="relative grid size-11 shrink-0 place-items-center overflow-hidden rounded-2xl bg-black/60 p-1.5 ring-1 ring-white/10"
         aria-hidden="true"
@@ -28,13 +31,13 @@ export function BrandMark({
         <span className="min-w-0">
           <span
             className={cn(
-              "font-display block truncate text-base font-black leading-none tracking-[.08em] uppercase sm:text-lg",
+              "font-display block truncate text-base leading-none font-black tracking-[.08em] uppercase sm:text-lg",
             )}
           >
             Ultimate Rivals
           </span>
           {context ? (
-            <span className="mt-1 block truncate text-[.58rem] font-black tracking-[.2em] text-ur-gold uppercase">
+            <span className="text-ur-gold mt-1 block truncate text-[.58rem] font-black tracking-[.2em] uppercase">
               {context}
             </span>
           ) : null}
