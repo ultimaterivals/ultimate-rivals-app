@@ -79,7 +79,10 @@ export function AthleteOpportunityCard({
   const willWaitlist = opportunity.remainingCapacity <= 0;
   const creditsUnknown = availableCredits === null;
   const lacksCreditForDirectReservation =
-    canReserve && !willWaitlist && availableCredits !== null && availableCredits <= 0;
+    canReserve &&
+    !willWaitlist &&
+    availableCredits !== null &&
+    availableCredits <= 0;
   const blockDirectReservationForUnknownCredit =
     canReserve && !willWaitlist && creditsUnknown;
 
@@ -126,7 +129,7 @@ export function AthleteOpportunityCard({
         </p>
 
         {opportunity.personalReservationStatus === "waitlisted" && (
-          <p className="flex items-center gap-2 font-bold text-ur-gold">
+          <p className="text-ur-gold flex items-center gap-2 font-bold">
             <UsersRound size={15} aria-hidden="true" />
             Lista de espera
             {opportunity.waitlistPosition
@@ -136,17 +139,17 @@ export function AthleteOpportunityCard({
         )}
         {(opportunity.personalReservationStatus === "reserved" ||
           opportunity.personalReservationStatus === "confirmed") && (
-          <p className="flex items-center gap-2 font-bold text-ur-gold">
+          <p className="text-ur-gold flex items-center gap-2 font-bold">
             <TicketCheck size={15} aria-hidden="true" /> Reserva confirmada
           </p>
         )}
         {opportunity.personalReservationStatus === "checked_in" && (
-          <p className="flex items-center gap-2 font-bold text-ur-gold">
+          <p className="text-ur-gold flex items-center gap-2 font-bold">
             <TicketCheck size={15} aria-hidden="true" /> Check-in realizado
           </p>
         )}
         {opportunity.personalReservationStatus === "consumed" && (
-          <p className="flex items-center gap-2 font-bold text-ur-gold">
+          <p className="text-ur-gold flex items-center gap-2 font-bold">
             <TicketCheck size={15} aria-hidden="true" /> Participação concluída
           </p>
         )}
@@ -174,12 +177,18 @@ export function AthleteOpportunityCard({
             {canExpressInterest &&
               opportunity.personalInterestStatus === "active" && (
                 <form action={setAthleteOpportunityInterest}>
-                  <input type="hidden" name="opportunityId" value={opportunity.id} />
+                  <input
+                    type="hidden"
+                    name="opportunityId"
+                    value={opportunity.id}
+                  />
                   <input type="hidden" name="active" value="false" />
                   <input
                     type="hidden"
                     name="interestMode"
-                    value={opportunity.personalInterestMode ?? "individual_interest"}
+                    value={
+                      opportunity.personalInterestMode ?? "individual_interest"
+                    }
                   />
                   <Button type="submit" variant="ghost" className="w-full">
                     Retirar interesse
@@ -188,20 +197,29 @@ export function AthleteOpportunityCard({
               )}
 
             {canExpressInterest && !opportunity.personalInterestStatus && (
-              <form action={setAthleteOpportunityInterest} className="grid gap-2">
-                <input type="hidden" name="opportunityId" value={opportunity.id} />
+              <form
+                action={setAthleteOpportunityInterest}
+                className="grid gap-2"
+              >
+                <input
+                  type="hidden"
+                  name="opportunityId"
+                  value={opportunity.id}
+                />
                 <input type="hidden" name="active" value="true" />
                 <label className="grid gap-1 text-xs font-bold tracking-wider text-zinc-500 uppercase">
                   Como você quer participar?
                   <select
                     name="interestMode"
                     defaultValue="individual_interest"
-                    className="min-h-11 rounded-ur border bg-ur-panel px-3 text-sm text-white"
+                    className="rounded-ur bg-ur-panel min-h-11 border px-3 text-sm text-white"
                   >
                     <option value="individual_interest">Tenho interesse</option>
                     <option value="looking_for_partner">Procuro dupla</option>
                     <option value="have_formation">Já tenho formação</option>
-                    <option value="available_to_join">Posso completar uma formação</option>
+                    <option value="available_to_join">
+                      Posso completar uma formação
+                    </option>
                   </select>
                 </label>
                 <Button type="submit" variant="secondary" className="w-full">
@@ -212,7 +230,11 @@ export function AthleteOpportunityCard({
 
             {canReserve && (
               <form action={reserveAthleteOpportunity}>
-                <input type="hidden" name="opportunityId" value={opportunity.id} />
+                <input
+                  type="hidden"
+                  name="opportunityId"
+                  value={opportunity.id}
+                />
                 <Button
                   type="submit"
                   className="w-full"
@@ -236,9 +258,9 @@ export function AthleteOpportunityCard({
 
             {blockDirectReservationForUnknownCredit && (
               <p className="flex items-center gap-2 text-xs text-zinc-500">
-                <CircleDollarSign size={14} aria-hidden="true" />
-                O saldo de créditos está indisponível. A reserva direta fica
-                bloqueada até a fonte responder, sem assumir saldo zero.
+                <CircleDollarSign size={14} aria-hidden="true" />O saldo de
+                créditos está indisponível. A reserva direta fica bloqueada até
+                a fonte responder, sem assumir saldo zero.
               </p>
             )}
 
