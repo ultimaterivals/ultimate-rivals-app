@@ -10,6 +10,8 @@ Este diretório reúne decisões arquiteturais e de produto que devem ser preser
 
 ## Athlete App
 
+O Documento Mestre V3 congela formalmente ADR-ATH-001 a ADR-ATH-012. O bootstrap P00 também exige ADR-ATH-013 a ADR-ATH-015; elas materializam decisões já expressas nas seções de oportunidades/economia, profissionalização de equipes e adaptação desktop do mesmo Documento Mestre. Este diretório é a convenção ADR existente do projeto e equivale à estrutura `docs/ADR/` prevista no prompt.
+
 - [ADR-ATH-001 — Mobile-first e cinco destinos principais](ADR-ATH-001-mobile-first-cinco-destinos.md)
 - [ADR-ATH-002 — AthleteShell preservado](ADR-ATH-002-athlete-shell-preservado.md)
 - [ADR-ATH-003 — Command Center e Athlete App separados](ADR-ATH-003-command-athlete-app-separados.md)

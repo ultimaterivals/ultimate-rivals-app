@@ -9,7 +9,7 @@ Vínculos de equipe afetam identidade, competição, ranking, oportunidades e re
 
 ## Decisão
 
-Exigir convite e aceite para a entrada do atleta em equipe. Transferências e vínculos de equipe nunca podem ser inferidos implicitamente.
+Exigir convite e aceite para a entrada do atleta em equipe. Transferências e vínculos de equipe nunca podem ser inferidos implicitamente. A criação de uma candidatura pode partir da equipe, mas sua oficialização depende do Ultimate Rivals.
 
 ## Consequências
 

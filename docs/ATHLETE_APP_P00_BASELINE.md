@@ -8,9 +8,16 @@
 
 ## Escopo e fonte de verdade
 
-Os artefatos com os nomes `UR_ATHLETE_APP_DOCUMENTO_MESTRE_V3_2026-08-28` e `UR_ATHLETE_APP_PROMPTS_CODEX_CONCLUSAO_V1_2026-08-28` não foram encontrados no repositório, nas branches auditadas nem entre os arquivos locais fornecidos. Após esse bloqueio ser reportado, o usuário reiterou integralmente o prompt de abertura, os 36 princípios aprovados, as jornadas, a navegação, o escopo do P00, a sequência P00–P18 e os gates de release.
+Os dois artefatos obrigatórios foram disponibilizados nesta conversa e lidos integralmente antes desta reconciliação:
 
-Para concluir o bootstrap sem reconstruir arquitetura nem inventar regras, esse texto reiterado foi adotado como autoridade documental fornecida pelo usuário em 2026-08-28. Onde ele define somente um gate — por exemplo, backup, rollback e smoke — a documentação registra a exigência e reserva o procedimento detalhado para o runbook aprovado das fases correspondentes.
+| Autoridade          | Arquivo recebido                                              | SHA-256                                                            | Leitura estrutural                                           | Renderização de conferência |
+| ------------------- | ------------------------------------------------------------- | ------------------------------------------------------------------ | ------------------------------------------------------------ | --------------------------- |
+| Documento Mestre V3 | `1-UR_ATHLETE_APP_DOCUMENTO_MESTRE_V3_2026-08-28.docx`        | `39983AAF61F0D87FE1D916289CCD7B61305766FCB5C25C3A77113364F3D3B0E1` | 761 blocos; 727 parágrafos; 34 tabelas; 188 linhas de tabela | 27 páginas                  |
+| Plano de Prompts V1 | `2-UR_ATHLETE_APP_PROMPTS_CODEX_CONCLUSAO_V1_2026-08-28.docx` | `E71F3B7D51DCD24A8082042D116232AFC5B8009E63257E3A775C5C0E0BC464B5` | 144 blocos; 119 parágrafos; 25 tabelas; 52 linhas de tabela  | 40 páginas                  |
+
+`docs/ATHLETE_APP_MASTER.md` é a transcrição integral versionada do Documento Mestre e passa a ser a fonte de verdade da arquitetura do Athlete App no repositório. `docs/ATHLETE_APP_CODEX_PROMPTS.md` é a transcrição integral versionada do plano oficial P00–P18. O prompt de abertura fornecido pelo usuário complementa o registro formal com ADR-ATH-013 a ADR-ATH-015 e com os gates explícitos exigidos para o Release Checklist; esses itens também são coerentes com as seções temáticas do Documento Mestre.
+
+A validação automática de cobertura encontrou `1110/1110` segmentos do Documento Mestre e `1713/1713` segmentos do Plano de Prompts nas transcrições Markdown. A conferência visual por renderização do Word cobriu capa, páginas intermediárias com tabelas/callouts e página final de ambos os documentos.
 
 Este baseline é uma fotografia auditável. Ele não corrige as divergências encontradas e não substitui evidência atualizada nas fases futuras.
 
@@ -29,7 +36,7 @@ Este baseline é uma fotografia auditável. Ele não corrige as divergências en
 | Preview do PR `#73`          | Deployment `dpl_9apRFP4zHzesy1R8TEBjj2YA3KvK`; falhou no build TypeScript em `athlete-shell.tsx` (`exact`/`special` em união de tipos) |
 | Production conhecida         | Deployment `dpl_8ByKS2WHdWSt78QPwpjqumacPwpb`, `READY`, criado em `2026-08-27T16:21:40.204Z` e ligado à `main`/SHA base                |
 | Production tocada pelo P00   | **NÃO**; apenas inspeções read-only foram realizadas                                                                                   |
-| PR do próprio P00            | Deve ser registrado no handoff após commit e abertura; este arquivo não antecipa o número                                              |
+| PR do próprio P00            | `#74`, aberto na branch documental; o SHA final e o run de Quality desta reconciliação são registrados no handoff                      |
 
 O sucesso histórico de workflows ou de Production não aprova automaticamente o SHA candidato do P00. O workflow `Quality` precisa ser observado novamente após a abertura do PR documental.
 
@@ -48,6 +55,8 @@ O sucesso histórico de workflows ou de Production não aprova automaticamente o
 | `#3`  | Branch antiga e conflitante, com intenção de marca oficial e mecanismo de credencial de desenvolvimento. | Preservar somente a intenção da marca oficial; não reintroduzir seletor de credenciais ou fluxo inseguro.                           |
 
 Nenhuma dessas mudanças foi mergeada, descartada ou alterada pelo P00. Refatorações futuras devem comparar o código vigente com os comportamentos preserváveis antes de remover qualquer implementação válida.
+
+Os 13 commits, gates, evidências por arquivo, itens preserváveis e correções mapeadas a P01/P07/P08/P14/P16 estão em [`ATHLETE_APP_P00_PR73_ANALYSIS.md`](ATHLETE_APP_P00_PR73_ANALYSIS.md). O PR `#73` não deve ser mergeado enquanto Quality/Preview estiverem vermelhos e as inferências de Hunter/dados ausentes não forem corrigidas nos prompts responsáveis.
 
 ## Migrations — inventário read-only
 
@@ -73,40 +82,44 @@ Nenhuma dessas mudanças foi mergeada, descartada ou alterada pelo P00. Refatora
 - `fix_competition_formation_ranking_member_multiplication`
 - `admin_create_team_function`
 
-Além das diferenças nominais, 52 migrations com nomes correspondentes possuem timestamps de versão diferentes entre o repositório e Production. Nomes semelhantes não foram tratados como prova de equivalência. A reconciliação deve ocorrer em `P14 — Reconciliação de dados reais` e ser confirmada em `P17 — Auditoria Production + Deploy`, sem editar migrations existentes, aplicar migration ou alterar dados nesta etapa.
+Além das diferenças nominais, 52 migrations com nomes correspondentes possuem timestamps de versão diferentes. A perícia de conteúdo encontrou 40 SQLs normalizados idênticos e 12 textualmente diferentes nesse grupo. Não há uma “91ª migration” única: o `+1` é o saldo de seis nomes só Production contra cinco só repo, com renomes e empacotamentos diferentes.
+
+Três riscos materiais ficaram comprovados: migrations de incidentes aplicadas em Production nunca foram versionadas no Git; a hardening local contra direct-write de UR Coins não está efetiva em Production; e o helper histórico local omite o revoke de `PUBLIC` observado em Production. Eles são P0 de release. A análise completa, os 52 pares de versão e a aritmética exata estão em [`ATHLETE_APP_P00_MIGRATION_DRIFT.md`](ATHLETE_APP_P00_MIGRATION_DRIFT.md). A reconciliação pertence ao `P14`; `P15` permanece bloqueado até resolver os P0; `P17` confirma Production. Nada foi corrigido ou aplicado neste P00.
 
 ## Matriz de conformidade
 
 As classificações descrevem o código observado na base. `Prompt responsável` indica a fase correta para preservar, completar ou corrigir o item; nada abaixo foi corrigido no P00.
 
-| Área                         | Estado atual                                                                                                                | Documento Mestre                                                                                                    | Classificação                  | Prompt responsável        |
-| ---------------------------- | --------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------- | ------------------------------ | ------------------------- |
-| Shell                        | `AthleteShell` dedicado existe; mobile ainda aponta o quinto destino para Temporada e o desktop usa sidebar extensa.        | Preservar `AthleteShell`; mobile com Início, Jogar, Ranking, Hunter e Perfil; desktop como adaptação.               | `DIVERGENTE P1`                | `P01`                     |
-| Home                         | Player Hub usa serviços reais, mas permanece orientado a cards e exibe zeros/estado estável quando a origem é ausente.      | Comunicar carreira e rumo ao estrelato sem preenchimento visual ou progressão fictícia.                             | `DIVERGENTE P0`                | `P02` / `P14`             |
-| Jogar                        | Agenda e disponibilidade existem com semânticas distintas, porém a jornada está fragmentada.                                | Jornada única para descobrir, reservar, entrar em waitlist, fazer check-in e participar, sem conflar estados.       | `DIVERGENTE P1`                | `P03`                     |
-| Ranking Individual           | Usa leitura oficial de ranking e mantém ordenação/escopo próprios.                                                          | Ranking real e auditável, separado do ledger de UR Coins.                                                           | `CONFORME`                     | `P04` (preservar)         |
-| Duplas                       | Ranking/formação parcial existe; a identificação de formação do atleta compara entidades incompatíveis e faltam fluxos.     | Duplas são formações competitivas nativas, temporais e vinculadas à temporada/ciclo.                                | `DIVERGENTE P1`                | `P04` / `P10`             |
-| Quartetos                    | Backend reconhece `fours` parcialmente; não há tab de ranking e a formação corrente cobre apenas duplas.                    | Quartetos são formações competitivas nativas, temporais e vinculadas à temporada/ciclo.                             | `DIVERGENTE P1`                | `P10`                     |
-| Resultados                   | Resultados atuais/históricos e homologação alimentam o impacto de ranking por transações oficiais.                          | Resultado homologado integra a carreira e só gera efeitos pelos contratos oficiais.                                 | `CONFORME`                     | `P05` (preservar)         |
-| Histórico                    | RPC escopada preserva datas nulas e não cria automaticamente ranking ou UR Coins.                                           | Histórico homologado faz parte da carreira; datas desconhecidas não são inventadas.                                 | `CONFORME`                     | `P05` (preservar)         |
-| Temporada                    | Serviço inclui título, etapas e fase estáticos que podem ser apresentados como reais quando a fonte falta.                  | Temporada, ciclo, elegibilidade e classificação devem vir de dados reais.                                           | `DIVERGENTE P0`                | `P06` / `P14`             |
-| Evolução                     | Mistura Hunter com evolução comum e usa badges/estágios hardcoded e fallbacks numéricos.                                    | Evolução esportiva comum é separada do Hunter e não pode criar progressão fictícia.                                 | `DIVERGENTE P0`                | `P07` / `P14`             |
-| Hunter                       | Não há rota dedicada na `main`; conteúdo está embutido em Evolução e o domínio não implementa opt-in completo.              | Área opt-in e Escola de Desenvolvimento UR, paralela e separada da evolução comum.                                  | `DIVERGENTE P0`                | `P08`                     |
-| Equipe                       | Leitura temporal, ranking e contribuição existem; caminhos de gestão ainda permitem vínculo direto sem convite + aceite.    | Equipes são eixo central; nenhum vínculo ou transferência pode ser inferido; convite + aceite são obrigatórios.     | `DIVERGENTE P0`                | `P09` / `P10`             |
-| Recrutamento                 | Não há superfície/domínio completo de convite e aceite, enquanto inserção direta de membership continua possível.           | Entrada em equipe exige recrutamento explícito por convite + aceite e capacidade real quando aplicável.             | `DIVERGENTE P0`                | `P10`                     |
-| Profissionalização da equipe | Trilha de profissionalização não está implementada como experiência do atleta/equipe.                                       | Trilha permanente com crescimento, ranking, mídia, benefícios, oportunidades e repasses.                            | `PLANEJADO PARA PROMPT FUTURO` | `P09`                     |
-| Oportunidades                | Agenda expõe estados reais de jogo/treino/evento; escopo é parcial e capacidade nula pode aparecer como zero.               | Oportunidades reais e vigentes devem ser visíveis, sem fabricar disponibilidade ou escassez.                        | `DIVERGENTE P0`                | `P11` / `P14`             |
-| Premiações                   | Entidades/serviços existem no backend, mas não há superfície completa no Athlete App.                                       | Premiações reais e vigentes devem ganhar visibilidade.                                                              | `PLANEJADO PARA PROMPT FUTURO` | `P11`                     |
-| Repasses                     | Entidades/serviços existem no backend, mas não há superfície completa no Athlete App.                                       | Repasses reais e vigentes devem ganhar visibilidade e permanecer auditáveis.                                        | `PLANEJADO PARA PROMPT FUTURO` | `P11`                     |
-| Wallet                       | Ledgers permanecem separados, mas saldo ausente vira zero e falta timeline completa do ledger.                              | Wallet deriva de UR Coins reais, separada de Ranking Points e sem fallback enganoso.                                | `DIVERGENTE P0`                | `P13` / `P14`             |
-| Market                       | Ofertas vigentes e resgate atômico/idempotente existem; saldo ausente vira zero e influencia a apresentação.                | Market mostra ofertas reais e benefícios vigentes; resgates são auditáveis e Preview não escreve.                   | `DIVERGENTE P0`                | `P13` / `P14`             |
-| Perfil                       | Identidade, equipe e readiness usam dados explícitos; disponibilidade não é tratada como reserva e Preview bloqueia edição. | Perfil esportivo real, sem inferir vínculo/elegibilidade e sem permitir escrita no Preview.                         | `CONFORME`                     | `P12` (preservar)         |
-| Mídia                        | Superfície lê apenas mídia publicável/pública e não expõe registros privados.                                               | Reconhecimento e mídia reais, vigentes e compatíveis com privacidade.                                               | `CONFORME`                     | `P12` (preservar)         |
-| Notificações                 | Há base backend, mas não existe inbox completo no Athlete App.                                                              | Notificações relevantes à jornada devem ser integradas à experiência esportiva.                                     | `PLANEJADO PARA PROMPT FUTURO` | `P12`                     |
-| Onboarding                   | Claim token e primeiro acesso são seguros; onboarding esportivo completo ainda não existe.                                  | Entrada no produto deve orientar a jornada esportiva sem credenciais inseguras ou dados inventados.                 | `PLANEJADO PARA PROMPT FUTURO` | `P12`                     |
-| Preview                      | Cookie administrativo é tratado no servidor, não troca identidade, bloqueia mutações e possui testes read-only.             | Preview administrativo somente leitura, sem impersonation e sem bypass de RLS.                                      | `CONFORME`                     | `P01` / `P16` (preservar) |
-| Mobile                       | Bottom navigation e safe area existem; o quinto destino atual não é Hunter.                                                 | Mobile é referência e possui exatamente Início, Jogar, Ranking, Hunter e Perfil como base.                          | `DIVERGENTE P1`                | `P01`                     |
-| Desktop                      | Layout responsivo existe, mas a sidebar extensa ainda cria leitura de portal administrativo.                                | Desktop é adaptação funcional da experiência mobile e pode agrupar Carreira/Ecossistema sem comandar a arquitetura. | `DIVERGENTE P1`                | `P01`                     |
+A matriz ampliada, com evidências de código, segurança/RLS, migrations, estados funcionais, PWA/offline, acessibilidade, performance, analytics, conteúdo, dados de lançamento, QA e release, está em [`ATHLETE_APP_P00_COMPLIANCE_MATRIX.md`](ATHLETE_APP_P00_COMPLIANCE_MATRIX.md). A tabela abaixo mantém as 26 áreas mínimas exigidas pelo P00.
+
+| Área                         | Estado atual                                                                                                               | Documento Mestre                                                                                                    | Classificação                  | Prompt responsável        |
+| ---------------------------- | -------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------- | ------------------------------ | ------------------------- |
+| Shell                        | `AthleteShell` dedicado existe; mobile ainda aponta o quinto destino para Temporada e o desktop usa sidebar extensa.       | Preservar `AthleteShell`; mobile com Início, Jogar, Ranking, Hunter e Perfil; desktop como adaptação.               | `DIVERGENTE P1`                | `P01`                     |
+| Home                         | Player Hub usa serviços reais, mas permanece orientado a cards e exibe zeros/estado estável quando a origem é ausente.     | Comunicar carreira e rumo ao estrelato sem preenchimento visual ou progressão fictícia.                             | `DIVERGENTE P1`                | `P02` / `P14`             |
+| Jogar                        | Agenda e disponibilidade existem com semânticas distintas, porém a integração da jornada ainda não foi executada.          | Jornada única para descobrir, reservar, entrar em waitlist, fazer check-in e participar, sem conflar estados.       | `PLANEJADO PARA PROMPT FUTURO` | `P03`                     |
+| Ranking Individual           | Usa ranking canônico, filtros, pódio e classificação; faltam rival abaixo e explicabilidade completa.                      | Ranking real, auditável, compreensível e separado do ledger de UR Coins.                                            | `PLANEJADO PARA PROMPT FUTURO` | `P04`                     |
+| Duplas                       | Ranking/formação parcial existe; a identificação de formação do atleta compara entidades incompatíveis e faltam fluxos.    | Duplas são formações competitivas nativas, temporais e vinculadas à temporada/ciclo.                                | `DIVERGENTE P1`                | `P04` / `P10`             |
+| Quartetos                    | Backend reconhece `fours` parcialmente; não há tab de ranking e a formação corrente cobre apenas duplas.                   | Quartetos são formações competitivas nativas, temporais e vinculadas à temporada/ciclo.                             | `PLANEJADO PARA PROMPT FUTURO` | `P04` / `P10`             |
+| Resultados                   | Resultados atuais/históricos e homologação alimentam o impacto de ranking por transações oficiais.                         | Resultado homologado integra a carreira e só gera efeitos pelos contratos oficiais.                                 | `CONFORME`                     | `P05` (preservar)         |
+| Histórico                    | RPC escopada preserva datas nulas e não cria automaticamente ranking ou UR Coins.                                          | Histórico homologado faz parte da carreira; datas desconhecidas não são inventadas.                                 | `CONFORME`                     | `P05` (preservar)         |
+| Temporada                    | Serviço inclui título, etapas e fase estáticos que podem ser apresentados como reais quando a fonte falta.                 | Temporada, ciclo, elegibilidade e classificação devem vir de dados reais.                                           | `DIVERGENTE P1`                | `P06` / `P14`             |
+| Evolução                     | Mistura Hunter com evolução comum e usa badges/estágios hardcoded e fallbacks numéricos.                                   | Evolução esportiva comum é separada do Hunter e não pode criar progressão fictícia.                                 | `DIVERGENTE P1`                | `P07` / `P14`             |
+| Hunter                       | Não há rota dedicada na `main`; conteúdo está embutido em Evolução e o domínio não implementa opt-in completo.             | Área opt-in e Escola de Desenvolvimento UR, paralela e separada da evolução comum.                                  | `DIVERGENTE P1`                | `P08`                     |
+| Equipe                       | Leitura temporal, ranking e contribuição existem; caminhos de gestão ainda permitem vínculo direto sem convite + aceite.   | Equipes são eixo central; nenhum vínculo ou transferência pode ser inferido; convite + aceite são obrigatórios.     | `DIVERGENTE P0`                | `P09` / `P10`             |
+| Recrutamento                 | Não há superfície/domínio completo de convite e aceite, enquanto inserção direta de membership continua possível.          | Entrada em equipe exige recrutamento explícito por convite + aceite e capacidade real quando aplicável.             | `DIVERGENTE P0`                | `P10`                     |
+| Profissionalização da equipe | Trilha de profissionalização não está implementada como experiência do atleta/equipe.                                      | Trilha permanente com crescimento, ranking, mídia, benefícios, oportunidades e repasses.                            | `PLANEJADO PARA PROMPT FUTURO` | `P09`                     |
+| Oportunidades                | Agenda expõe estados reais; capacidade nula pode aparecer como zero/lotação e a central multategoria ainda não existe.     | Oportunidades reais e vigentes devem ser visíveis, sem fabricar disponibilidade ou escassez.                        | `DIVERGENTE P1`                | `P03` / `P11` / `P14`     |
+| Premiações                   | Entidades/serviços existem no backend, mas não há superfície completa no Athlete App.                                      | Premiações reais e vigentes devem ganhar visibilidade.                                                              | `PLANEJADO PARA PROMPT FUTURO` | `P11`                     |
+| Repasses                     | Entidades/serviços existem no backend, mas não há superfície completa no Athlete App.                                      | Repasses reais e vigentes devem ganhar visibilidade e permanecer auditáveis.                                        | `PLANEJADO PARA PROMPT FUTURO` | `P11`                     |
+| Wallet                       | Ledgers permanecem separados, mas saldo ausente vira zero e falta timeline completa do ledger.                             | Wallet deriva de UR Coins reais, separada de Ranking Points e sem fallback enganoso.                                | `DIVERGENTE P0`                | `P13` / `P14`             |
+| Market                       | Ofertas vigentes e resgate atômico/idempotente existem; saldo ausente vira zero e influencia a apresentação.               | Market mostra ofertas reais e benefícios vigentes; resgates são auditáveis e Preview não escreve.                   | `DIVERGENTE P0`                | `P13` / `P14`             |
+| Perfil                       | Identidade/readiness são reais; fonte de equipes indisponível pode virar “Atleta livre” e vínculos viram “Equipe Oficial”. | Perfil esportivo real, sem inferir vínculo/elegibilidade e sem permitir escrita no Preview.                         | `DIVERGENTE P1`                | `P12` / `P14`             |
+| Mídia                        | Superfície lê apenas mídia publicável/pública e não expõe registros privados.                                              | Reconhecimento e mídia reais, vigentes e compatíveis com privacidade.                                               | `CONFORME`                     | `P12` (preservar)         |
+| Notificações                 | Há base backend, mas não existe inbox completo no Athlete App.                                                             | Notificações relevantes à jornada devem ser integradas à experiência esportiva.                                     | `PLANEJADO PARA PROMPT FUTURO` | `P12`                     |
+| Onboarding                   | Claim token e primeiro acesso são seguros; onboarding esportivo completo ainda não existe.                                 | Entrada no produto deve orientar a jornada esportiva sem credenciais inseguras ou dados inventados.                 | `PLANEJADO PARA PROMPT FUTURO` | `P12`                     |
+| Preview                      | Cookie administrativo é tratado no servidor, não troca identidade, bloqueia mutações e possui testes read-only.            | Preview administrativo somente leitura, sem impersonation e sem bypass de RLS.                                      | `CONFORME`                     | `P01` / `P16` (preservar) |
+| Mobile                       | Bottom navigation e safe area existem; o quinto destino atual não é Hunter.                                                | Mobile é referência e possui exatamente Início, Jogar, Ranking, Hunter e Perfil como base.                          | `DIVERGENTE P1`                | `P01`                     |
+| Desktop                      | Layout responsivo existe, mas a sidebar extensa ainda cria leitura de portal administrativo.                               | Desktop é adaptação funcional da experiência mobile e pode agrupar Carreira/Ecossistema sem comandar a arquitetura. | `DIVERGENTE P1`                | `P01`                     |
 
 ## O que já está bom e precisa ser preservado
 
@@ -131,29 +144,34 @@ As classificações descrevem o código observado na base. `Prompt responsável`
 
 ### P0 — não corrigidos nesta etapa
 
-- Home converte ausência de movimento/dados em “posição estável” ou zero visível.
-- Temporada apresenta fallback estático de título, fases e etapas como contexto real.
-- Evolução mistura Hunter, badges/estágios hardcoded e métricas ausentes convertidas em zero.
-- Hunter não é uma área dedicada/opt-in completa na `main`.
-- Gestão/recrutamento de equipe ainda permite vínculo direto, contrariando convite + aceite.
-- Oportunidades têm cobertura parcial e capacidade ausente pode aparecer como zero.
-- Wallet e Market convertem saldo ausente em zero, influenciando leitura e elegibilidade visual.
+- Gestão/recrutamento de equipe cria membership direto ao ligar formação a equipe, sem convite + aceite.
+- Wallet apresenta saldo zero quando a fonte financeira está indisponível.
+- Market reaproveita esse falso zero para habilitar/bloquear resgate.
+- Migrations: schema de incidentes existe em Production, mas não é reproduzível pelo repo.
+- Migrations: hardening de direct-write de UR Coins existe apenas local e o efeito não está em Production.
+- Migrations: helper histórico local omite o revoke observado em Production e pode ficar executável por `PUBLIC` em replay limpo.
 
 ### P1 — não corrigidos nesta etapa
 
 - Shell mobile usa Temporada em vez de Hunter como quinto destino.
 - Desktop ainda se aproxima de um portal administrativo com sidebar extensa.
+- Logo oficial existe, mas a `main` usa o monograma nas superfícies principais.
 - Home permanece excessivamente orientada a cards.
-- Jornada de Jogar está fragmentada apesar de preservar estados distintos.
+- Home converte ausência de movimento/dados em “posição estável” ou zero visível.
 - Duplas têm identificação incompleta/incorreta da formação do atleta.
-- Quartetos não possuem experiência nativa completa no ranking e nas formações correntes.
+- Temporada apresenta fallback estático como campanha ativa.
+- Evolução mistura Hunter, badges/estágios hardcoded e métricas ausentes convertidas em zero.
+- Hunter não é uma área dedicada/opt-in na `main`.
+- Capacidade desconhecida pode virar zero/lotação em oportunidades.
+- Perfil pode inferir “Atleta livre” e “Equipe Oficial” quando a fonte não sustenta a afirmação.
+- Copy legado reintroduz “missões” e Hunter genérico sem contrato.
+- Histórico de migrations possui 52 nomes com timestamps divergentes e hardening admin sem proveniência individualizada.
 
 ### P2 — não corrigidos nesta etapa
 
-- Copy legado “Portal do Atleta” ainda aparece no fluxo de claim/primeiro acesso.
-- Testes mobile codificam a navegação anterior e precisarão acompanhar a arquitetura aprovada quando P01 for executado.
+Nenhum P2 isolado foi comprovado estaticamente na `main`. No PR `#73`, a densidade de painéis/cards em Evolução e Hunter foi registrada como P2. Polimento e performance medida permanecem nos prompts futuros e não autorizam redesign no P00.
 
-Itens classificados como `PLANEJADO PARA PROMPT FUTURO` não são tratados como falha isolada do P00: profissionalização da equipe, premiações, repasses, notificações e onboarding esportivo pertencem explicitamente aos prompts indicados, mas continuam obrigatórios para conclusão.
+Itens classificados como `PLANEJADO PARA PROMPT FUTURO` não são tratados como falha isolada do P00: integração de Jogar, explicabilidade completa do Ranking, quartetos, profissionalização/página pública da equipe, premiações, repasses, notificações, onboarding, PWA/offline, analytics, performance medida e piloto/release pertencem aos prompts indicados, mas continuam obrigatórios para conclusão.
 
 ## Guardrails para os próximos prompts
 

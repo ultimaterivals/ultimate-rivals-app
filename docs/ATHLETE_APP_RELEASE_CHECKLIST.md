@@ -40,16 +40,22 @@ O checklist preserva os contratos aprovados: Production só pode ser alterada na
 | Preview          | Preview administrativo comprovadamente somente leitura, sem impersonation e sem bypass de RLS.                           | `PENDENTE` | —         | A definir | —    | —   |
 | Auth             | Login, sessão, autorização e fluxos de primeiro acesso validados para os perfis previstos.                               | `PENDENTE` | —         | A definir | —    | —   |
 | RLS              | Políticas e acessos validados sem bypass; operações privilegiadas permanecem auditáveis e estritamente autorizadas.      | `PENDENTE` | —         | A definir | —    | —   |
+| Data             | Atletas, perfis, histórico, equipes, formações e fontes de lançamento foram reconciliados sem preenchimento fictício.    | `PENDENTE` | —         | A definir | —    | —   |
 | Migrations       | Inventário reconciliado e qualquer mudança necessária versionada, forward-only, revisada e testada.                      | `PENDENTE` | —         | A definir | —    | —   |
+| Agenda           | Sessões reais estão publicadas e interesse, reserva, waitlist, check-in, participação e disponibilidade são distintos.   | `PENDENTE` | —         | A definir | —    | —   |
+| Court Ops        | Ao menos uma sessão nativa foi concluída ponta a ponta, da publicação à homologação e ao pós-sessão.                     | `PENDENTE` | —         | A definir | —    | —   |
 | Ranking          | Ranking individual e de formações usa fonte oficial, regras vigentes e ledger de Ranking Points, sem dados fabricados.   | `PENDENTE` | —         | A definir | —    | —   |
 | Historical       | Histórico homologado aparece na carreira; datas desconhecidas permanecem desconhecidas e impactos seguem contratos.      | `PENDENTE` | —         | A definir | —    | —   |
 | Teams            | Equipes, vínculos temporais, capacidade real e contribuição são validados sem associação implícita.                      | `PENDENTE` | —         | A definir | —    | —   |
 | Doubles          | Duplas são tratadas como formações nativas e temporais, vinculadas à temporada/ciclo correto.                            | `PENDENTE` | —         | A definir | —    | —   |
 | Quartets         | Quartetos são tratados como formações nativas e temporais, vinculadas à temporada/ciclo correto.                         | `PENDENTE` | —         | A definir | —    | —   |
 | Hunter           | Hunter é opt-in, funciona como Escola de Desenvolvimento UR e permanece separado da Evolução esportiva comum.            | `PENDENTE` | —         | A definir | —    | —   |
+| UR Coins         | Primeira concessão real segue regra homologada e ledger próprio, sem lançamento arbitrário nem confusão com ranking.     | `PENDENTE` | —         | A definir | —    | —   |
 | Wallet           | Saldo e extrato são derivados do ledger real de UR Coins, separados de Ranking Points e sem fallback enganoso.           | `PENDENTE` | —         | A definir | —    | —   |
 | Market           | Ofertas vigentes e resgates reais são validados, com operação atômica, auditável e bloqueada no Preview.                 | `PENDENTE` | —         | A definir | —    | —   |
+| Opportunities    | Oportunidades, premiações, repasses e benefícios exibidos são reais, vigentes e compatíveis com a elegibilidade.         | `PENDENTE` | —         | A definir | —    | —   |
 | Feedback         | Coleta, dispatch, resposta e privacidade de feedback seguem os contratos vigentes e possuem evidência operacional.       | `PENDENTE` | —         | A definir | —    | —   |
+| Notifications    | Inbox, preferências, estados lido/não lido e deep links críticos foram validados sem mensagens ou urgência inventadas.   | `PENDENTE` | —         | A definir | —    | —   |
 | Season           | Temporada, ciclo, fase, elegibilidade e classificação vêm de dados reais e vigentes, sem fallback apresentado como fato. | `PENDENTE` | —         | A definir | —    | —   |
 | Quality          | Workflow `Quality` está verde no SHA candidato e seus checks obrigatórios são identificáveis.                            | `PENDENTE` | —         | A definir | —    | —   |
 | Isolated QA      | Suite `Isolated QA` está verde no SHA candidato quando o escopo funcional/contratual exigir sua execução.                | `PENDENTE` | —         | A definir | —    | —   |
@@ -58,7 +64,7 @@ O checklist preserva os contratos aprovados: Production só pode ser alterada na
 | Rollback         | Estratégia e critérios de rollback do aplicativo e de recuperação forward-only do banco estão aprovados e acessíveis.    | `PENDENTE` | —         | A definir | —    | —   |
 | Smoke            | Smoke test pós-deploy cobre rotas e fluxos críticos no ambiente autorizado e produz evidência vinculada ao SHA.          | `PENDENTE` | —         | A definir | —    | —   |
 | P0               | Não há divergência P0 aberta para o release candidato.                                                                   | `PENDENTE` | —         | A definir | —    | —   |
-| P1               | Toda divergência P1 foi resolvida ou possui decisão explícita e aceita para o release.                                   | `PENDENTE` | —         | A definir | —    | —   |
+| P1               | Não há divergência P1 aberta para o release candidato.                                                                   | `PENDENTE` | —         | A definir | —    | —   |
 | SHA              | O SHA candidato é imutável, está identificado e coincide com o artefato aprovado e o deployment auditado.                | `PENDENTE` | —         | A definir | —    | —   |
 
 ## Launch gate
@@ -68,12 +74,22 @@ O lançamento só pode receber decisão favorável quando:
 - todos os gates aplicáveis estiverem `APROVADO` para o mesmo SHA candidato;
 - qualquer `NÃO APLICÁVEL` estiver justificado e aceito formalmente;
 - não houver P0 aberto;
-- os P1 tiverem resolução ou decisão de aceite registrada;
+- não houver P1 aberto;
 - `Quality`, `Production Audit`, `Backup`, `Rollback`, `Smoke` e `SHA` estiverem aprovados;
 - evidências de UAT mobile e desktop estiverem vinculadas ao candidato;
 - o artefato aprovado e o deployment auditado corresponderem ao SHA registrado.
 
 `P18 — Launch Gate V1` consolida a decisão final. A aprovação deste documento, isoladamente, não executa nem autoriza deploy.
+
+## Matriz mínima de UAT
+
+O candidato deve ser percorrido por atleta real, admin-atleta e Preview; mobile é prioritário e desktop é secundário. A cobertura mínima inclui Início, Jogar/Agenda, Disponibilidade, Arenas, Resultados, Histórico, Ranking, Temporada, Evolução, Hunter, Equipe, Ecossistema de Equipes, Recrutamento, Quartetos, Oportunidades, Wallet, Market, Destaques, Perfil, Feedback, Notificações e Preview.
+
+| Severidade | Definição                                                                          | Efeito no release  |
+| ---------- | ---------------------------------------------------------------------------------- | ------------------ |
+| `P0`       | Bloqueia acesso, segurança, dinheiro, resultado, ranking, operação ou integridade. | Bloqueia           |
+| `P1`       | Quebra jornada essencial ou causa interpretação operacional relevante.             | Bloqueia           |
+| `P2`       | Melhoria visual, de performance ou conforto sem impedir uso seguro.                | Backlog priorizado |
 
 ## Rollback e recuperação
 
