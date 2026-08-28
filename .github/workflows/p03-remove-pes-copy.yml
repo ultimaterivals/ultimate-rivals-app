@@ -1,0 +1,36 @@
+name: P03 Remove PES Copy Once
+
+on:
+  push:
+    branches:
+      - feat/athlete-app-p03-jogar
+
+permissions:
+  contents: write
+
+jobs:
+  remove-copy:
+    if: github.event.head_commit.message != 'chore: remove PES reference copy'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feat/athlete-app-p03-jogar
+      - name: Remove PES reference copy
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          path = Path('src/components/athlete/athlete-shell.tsx')
+          text = path.read_text()
+          old = '''            <p className="text-[.56rem] font-bold tracking-[.18em] text-zinc-600 uppercase">\n              Rumo ao estrelato\n            </p>\n'''
+          if old not in text:
+              raise SystemExit('Target copy not found')
+          path.write_text(text.replace(old, '', 1))
+          PY
+      - name: Commit change
+        run: |
+          git config user.name "ultimaterivals"
+          git config user.email "ultimaterivalsbr@gmail.com"
+          git add src/components/athlete/athlete-shell.tsx
+          git commit -m "chore: remove PES reference copy"
+          git push origin HEAD:feat/athlete-app-p03-jogar
