@@ -53,7 +53,7 @@ export function AthleteLeaderboard({
   return (
     <section
       aria-labelledby="leaderboard-title"
-      className="ur-brand-panel rounded-ur overflow-hidden border border-white/10 bg-[#0d0d0d]"
+      className="ur-brand-panel overflow-hidden rounded-[2rem] border border-white/10 bg-[#0d0d0d]"
     >
       <div className="ranking-hero border-b border-white/10 px-5 py-6 sm:px-7">
         <div className="flex items-start justify-between gap-5">
@@ -69,11 +69,11 @@ export function AthleteLeaderboard({
             </h2>
           </div>
           <Image
-            src="/brand/ur-monogram.svg"
+            src="/brand/ur-logo-official.png"
             alt=""
             width={64}
             height={64}
-            className="size-12 rounded-lg bg-white p-1 opacity-90 sm:size-14"
+            className="size-12 rounded-xl bg-[#f1eee4] p-1 opacity-95 sm:size-14"
           />
         </div>
 
@@ -83,7 +83,7 @@ export function AthleteLeaderboard({
               <div
                 key={row.id}
                 className={cn(
-                  "rounded-ur border bg-black/35 p-3 text-center sm:p-4",
+                  "rounded-2xl border bg-black/35 p-3 text-center sm:p-4",
                   visualIndex === 1
                     ? "border-ur-gold/60 pb-6 sm:pb-8"
                     : "border-white/10",
@@ -108,6 +108,7 @@ export function AthleteLeaderboard({
 
       <div className="divide-y divide-white/5">
         {rows.map((row) => {
+          const hasMovement = typeof row.positionChange === "number";
           const change = row.positionChange ?? 0;
           const MovementIcon =
             change > 0 ? ArrowUp : change < 0 ? ArrowDown : Minus;
@@ -138,10 +139,12 @@ export function AthleteLeaderboard({
                 <p className="font-display text-ur-gold font-black">
                   {row.points} pts
                 </p>
-                <p className="mt-0.5 flex items-center justify-end gap-1 text-[.68rem] font-bold text-zinc-500">
-                  <MovementIcon size={12} aria-hidden="true" />
-                  {change === 0 ? "estável" : Math.abs(change)}
-                </p>
+                {hasMovement ? (
+                  <p className="mt-0.5 flex items-center justify-end gap-1 text-[.68rem] font-bold text-zinc-500">
+                    <MovementIcon size={12} aria-hidden="true" />
+                    {change === 0 ? "estável" : Math.abs(change)}
+                  </p>
+                ) : null}
               </div>
             </div>
           );
