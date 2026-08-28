@@ -105,12 +105,12 @@ export default async function AthleteRankingPage({
       : [];
   const leaderboardTitle =
     tab === "doubles"
-      ? "Corrida das duplas"
+      ? "Ranking de duplas"
       : tab === "team"
         ? "Corrida das equipes"
         : tab === "pole"
           ? "Disputa entre polos"
-          : "Corrida individual";
+          : "Ranking geral da liga";
   const leaderboardEyebrow =
     tab === "doubles"
       ? "Formações oficiais · Duplas"
@@ -294,10 +294,10 @@ export default async function AthleteRankingPage({
       ) : tab === "individual" ? (
         <Card>
           <p className="text-xs font-black tracking-[.18em] text-zinc-500 uppercase">
-            Sua corrida
+            Ranking geral da liga
           </p>
           <h2 className="mt-2 text-xl font-black">
-            Sem posição publicada neste recorte.
+            Você ainda não tem posição nesta classificação.
           </h2>
           <p className="mt-2 text-sm text-zinc-400">
             A classificação geral continua visível abaixo. O app não cria uma
@@ -308,6 +308,9 @@ export default async function AthleteRankingPage({
 
       {!allResult.error && rows.length > 0 ? (
         <>
+          <p className="text-xs font-black tracking-[.18em] text-zinc-600 uppercase">
+            Top 3 e classificação completa
+          </p>
           <AthleteLeaderboard
             currentAthleteId={viewer.athleteId}
             eyebrow={leaderboardEyebrow}
