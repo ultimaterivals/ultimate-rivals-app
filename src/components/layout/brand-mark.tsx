@@ -23,7 +23,6 @@ export function BrandMark({
           width={96}
           height={96}
           className="h-full w-full object-contain"
-          loading="eager"
           priority
         />
       </span>
