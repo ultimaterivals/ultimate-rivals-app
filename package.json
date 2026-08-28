@@ -15,7 +15,7 @@
     "test:watch": "vitest",
     "test:e2e": "playwright test",
     "format": "prettier --write \"src/**/*.{ts,tsx,css}\" \"tests/**/*.ts\" \"docs/**/*.md\" README.md package.json \"*.config.*\"",
-    "format:check": "prettier --write src/app/athlete/development/page.tsx src/app/athlete/hunter/page.tsx src/components/athlete/athlete-shell.tsx && printf '\\n---DEVELOPMENT---\\n' && cat src/app/athlete/development/page.tsx && printf '\\n---HUNTER---\\n' && cat src/app/athlete/hunter/page.tsx && printf '\\n---SHELL---\\n' && cat src/components/athlete/athlete-shell.tsx && exit 1"
+    "format:check": "prettier --check \"src/**/*.{ts,tsx,css}\" \"tests/**/*.ts\" \"docs/**/*.md\" README.md package.json \"*.config.*\""
   },
   "dependencies": {
     "@hookform/resolvers": "5.2.2",
