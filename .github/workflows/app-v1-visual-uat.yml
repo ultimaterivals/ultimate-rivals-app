@@ -10,6 +10,7 @@ on:
       - ".github/workflows/app-v1-visual-uat.yml"
       - "src/**"
       - "tests/e2e/visual-uat.spec.ts"
+      - "scripts/p05-visual-uat-seed.sql"
       - "supabase/migrations/**"
       - "package.json"
       - "package-lock.json"
@@ -69,6 +70,7 @@ jobs:
             supabase/migrations/20260810161452_fix_activity_reservation_waitlist_ambiguity.sql \
             supabase/config.toml \
             scripts/qa-local-test-seed.sql \
+            scripts/p05-visual-uat-seed.sql \
             scripts/production-reference-data.sql
           do
             test -f "$path"
@@ -135,6 +137,7 @@ jobs:
         run: |
           psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f scripts/production-reference-data.sql
           psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -v test_password="$UR_TEST_PASSWORD" -f scripts/qa-local-test-seed.sql
+          psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f scripts/p05-visual-uat-seed.sql
 
       - name: Align synthetic Auth metadata with current role routing
         run: |
