@@ -1,4 +1,4 @@
-import { Trophy } from "lucide-react";
+import { ArrowUpRight, Target, Trophy } from "lucide-react";
 import Link from "next/link";
 import { AthleteLeaderboard } from "@/components/athlete/athlete-leaderboard";
 import { AthleteSourceHealth } from "@/components/athlete/athlete-source-health";
@@ -23,6 +23,11 @@ type Params = Promise<{
 
 function option(value: string | undefined, values: readonly (string | null)[]) {
   return value && values.includes(value) ? value : undefined;
+}
+
+function pointsDifference(a: number | null | undefined, b: number | null | undefined) {
+  if (typeof a !== "number" || typeof b !== "number") return null;
+  return Math.max(0, a - b);
 }
 
 export default async function AthleteRankingPage({
@@ -68,6 +73,9 @@ export default async function AthleteRankingPage({
   const above = mine?.current_position
     ? rows.find((row) => row.current_position === mine.current_position - 1)
     : null;
+  const leader = rows.find((row) => row.current_position === 1) ?? rows[0] ?? null;
+  const gapToAbove = above ? pointsDifference(above.total_points, mine?.total_points) : null;
+  const gapToLeader = leader ? pointsDifference(leader.total_points, mine?.total_points) : null;
   const leaderStats =
     tab === "individual"
       ? ([
@@ -89,45 +97,47 @@ export default async function AthleteRankingPage({
       : [];
   const leaderboardTitle =
     tab === "doubles"
-      ? "Ranking de duplas"
+      ? "Corrida das duplas"
       : tab === "team"
-        ? "Ranking de equipes"
+        ? "Corrida das equipes"
         : tab === "pole"
-          ? "Ranking de polos"
-          : "Ranking geral da liga";
+          ? "Disputa entre polos"
+          : "Corrida individual";
   const leaderboardEyebrow =
     tab === "doubles"
       ? "Formações oficiais · Duplas"
-      : "Top 3 · Classificação oficial";
+      : "Classificação oficial da temporada";
 
   return (
     <div className="mx-auto grid max-w-7xl gap-6">
       <PageHeader
-        eyebrow="Temporada em campo"
+        eyebrow="Sua corrida na temporada"
         title="Ranking"
-        description="Acompanhe a classificação publicada da liga e a sua evolução em quadra."
+        description="Veja sua posição, quem está à sua frente e como a disputa oficial está se movendo."
       />
+
       <nav
         aria-label="Tipos de ranking"
-        className="rounded-ur bg-ur-graphite grid grid-cols-2 gap-2 border border-white/10 p-2 sm:flex"
+        className="grid grid-cols-2 gap-2 rounded-3xl border border-white/10 bg-[#0b0b0b] p-2 sm:flex"
       >
         {tabs.map(([value, label]) => (
           <Link
             key={value}
             href={`/athlete/ranking?tab=${value}`}
-            className={`rounded-ur min-h-11 px-4 py-3 text-center text-sm font-black ${tab === value ? "bg-ur-gold text-ur-black" : "text-zinc-400 hover:bg-white/5 hover:text-white"}`}
+            className={`min-h-11 rounded-2xl px-4 py-3 text-center text-sm font-black transition-colors ${tab === value ? "bg-ur-gold text-ur-black" : "text-zinc-400 hover:bg-white/5 hover:text-white"}`}
           >
             {label}
           </Link>
         ))}
       </nav>
+
       <section aria-label="Filtros do ranking" className="flex flex-wrap gap-2">
         {[...new Set(all.map((row) => row.level).filter(Boolean))].map(
           (value) => (
             <Link
               key={value}
               href={`/athlete/ranking?tab=${tab}&level=${level === value ? "" : value}`}
-              className={`rounded-full border px-3 py-2 text-xs font-bold ${level === value ? "border-ur-gold text-ur-gold" : "border-white/10 text-zinc-400"}`}
+              className={`rounded-full border px-3 py-2 text-xs font-bold ${level === value ? "border-ur-gold bg-ur-gold/10 text-ur-gold" : "border-white/10 text-zinc-400"}`}
             >
               {value}
             </Link>
@@ -138,7 +148,7 @@ export default async function AthleteRankingPage({
             <Link
               key={value}
               href={`/athlete/ranking?tab=${tab}&category=${category === value ? "" : value}`}
-              className={`rounded-full border px-3 py-2 text-xs font-bold ${category === value ? "border-ur-gold text-ur-gold" : "border-white/10 text-zinc-400"}`}
+              className={`rounded-full border px-3 py-2 text-xs font-bold ${category === value ? "border-ur-gold bg-ur-gold/10 text-ur-gold" : "border-white/10 text-zinc-400"}`}
             >
               {value}
             </Link>
@@ -154,52 +164,118 @@ export default async function AthleteRankingPage({
           <Link
             key={id}
             href={`/athlete/ranking?tab=${tab}&pole=${pole === id ? "" : id}`}
-            className={`rounded-full border px-3 py-2 text-xs font-bold ${pole === id ? "border-ur-gold text-ur-gold" : "border-white/10 text-zinc-400"}`}
+            className={`rounded-full border px-3 py-2 text-xs font-bold ${pole === id ? "border-ur-gold bg-ur-gold/10 text-ur-gold" : "border-white/10 text-zinc-400"}`}
           >
             {name}
           </Link>
         ))}
       </section>
-      {mine ? (
-        <Card className="ranking-hero border-ur-gold/35 grid gap-4 p-5 sm:grid-cols-[auto_1fr_auto] sm:items-center">
-          <p className="font-display text-ur-gold text-5xl font-black">
-            #{mine.current_position ?? "—"}
+
+      {allResult.error ? (
+        <Card className="border-amber-400/20 bg-amber-400/[.04]">
+          <p className="text-xs font-black tracking-[.18em] text-amber-300 uppercase">
+            Fonte temporariamente indisponível
           </p>
-          <div>
-            <p className="text-xs font-black tracking-[.18em] text-zinc-400 uppercase">
-              Sua posição
-            </p>
-            <p className="font-display mt-1 text-2xl font-black">
-              {mine.total_points} pts
-            </p>
-            <p className="mt-1 text-sm text-zinc-400">
-              {mine.games_played} jogos · {mine.wins} vitórias · {mine.losses}{" "}
-              derrotas · {Number(mine.win_rate).toFixed(1)}%
-            </p>
-          </div>
-          {above && (
-            <p className="max-w-xs text-sm text-zinc-300">
-              Próximo alvo:{" "}
-              <strong className="text-ur-gold">
-                #{above.current_position}
-              </strong>
-              . A posição considera vitórias, aproveitamento, pontos e critérios
-              de desempate.
-            </p>
-          )}
+          <h2 className="mt-2 text-xl font-black">Não foi possível carregar a classificação.</h2>
+          <p className="mt-2 text-sm text-zinc-400">
+            Nenhuma posição ou ausência de ranking será inferida enquanto a fonte oficial não responder.
+          </p>
         </Card>
+      ) : mine ? (
+        <section
+          aria-labelledby="my-ranking-title"
+          className="ranking-hero overflow-hidden rounded-[2rem] border border-ur-gold/30 bg-[#0d0d0d]"
+        >
+          <div className="grid gap-6 px-5 py-6 sm:px-7 lg:grid-cols-[minmax(0,1.15fr)_minmax(18rem,.85fr)] lg:items-end lg:px-8 lg:py-8">
+            <div>
+              <p className="text-xs font-black tracking-[.2em] text-ur-gold uppercase">
+                Sua posição agora
+              </p>
+              <div className="mt-3 flex items-end gap-4">
+                <p className="font-display text-7xl leading-none font-black text-white sm:text-8xl">
+                  #{mine.current_position ?? "—"}
+                </p>
+                <div className="pb-1">
+                  <p id="my-ranking-title" className="font-display text-2xl font-black text-ur-gold">
+                    {mine.total_points} pts
+                  </p>
+                  <p className="mt-1 text-xs font-bold text-zinc-500 uppercase">
+                    classificação publicada
+                  </p>
+                </div>
+              </div>
+              <p className="mt-5 max-w-2xl text-sm leading-6 text-zinc-300">
+                {mine.games_played} jogos · {mine.wins} vitórias · {mine.losses} derrotas ·{" "}
+                {Number(mine.win_rate).toFixed(1)}% de aproveitamento
+              </p>
+            </div>
+
+            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-1">
+              {above ? (
+                <div className="rounded-2xl border border-white/10 bg-black/30 p-4">
+                  <div className="flex items-start justify-between gap-4">
+                    <div>
+                      <p className="text-[.62rem] font-black tracking-[.18em] text-zinc-500 uppercase">
+                        À sua frente
+                      </p>
+                      <p className="mt-1 font-black">
+                        #{above.current_position} · {above.display_name}
+                      </p>
+                    </div>
+                    <Target size={18} className="text-ur-gold" aria-hidden="true" />
+                  </div>
+                  {gapToAbove !== null ? (
+                    <p className="mt-3 text-sm text-zinc-300">
+                      Diferença de pontos: <strong className="text-ur-gold">{gapToAbove}</strong>
+                    </p>
+                  ) : null}
+                </div>
+              ) : (
+                <div className="rounded-2xl border border-ur-gold/20 bg-ur-gold/[.05] p-4">
+                  <p className="text-[.62rem] font-black tracking-[.18em] text-ur-gold uppercase">
+                    Posição de referência
+                  </p>
+                  <p className="mt-2 font-black">Você está no topo desta classificação publicada.</p>
+                </div>
+              )}
+
+              {leader && mine.current_position !== 1 ? (
+                <div className="rounded-2xl border border-white/10 bg-black/30 p-4">
+                  <div className="flex items-start justify-between gap-4">
+                    <div>
+                      <p className="text-[.62rem] font-black tracking-[.18em] text-zinc-500 uppercase">
+                        Líder da disputa
+                      </p>
+                      <p className="mt-1 font-black">#1 · {leader.display_name}</p>
+                    </div>
+                    <ArrowUpRight size={18} className="text-zinc-500" aria-hidden="true" />
+                  </div>
+                  {gapToLeader !== null ? (
+                    <p className="mt-3 text-sm text-zinc-300">
+                      Diferença de pontos: <strong>{gapToLeader}</strong>
+                    </p>
+                  ) : null}
+                </div>
+              ) : null}
+            </div>
+          </div>
+          <div className="border-t border-white/10 px-5 py-3 text-xs text-zinc-500 sm:px-7 lg:px-8">
+            Pontos ajudam a mostrar a distância competitiva, mas empates e posições continuam sujeitos aos critérios oficiais de desempate.
+          </div>
+        </section>
       ) : tab === "individual" ? (
         <Card>
-          <p className="font-bold">
-            Você ainda não tem posição nesta classificação.
+          <p className="text-xs font-black tracking-[.18em] text-zinc-500 uppercase">
+            Sua corrida
           </p>
+          <h2 className="mt-2 text-xl font-black">Sem posição publicada neste recorte.</h2>
           <p className="mt-2 text-sm text-zinc-400">
-            A tabela geral continua disponível enquanto sua jornada competitiva
-            começa.
+            A classificação geral continua visível abaixo. O app não cria uma posição até ela existir na fonte oficial.
           </p>
         </Card>
       ) : null}
-      {rows.length > 0 ? (
+
+      {!allResult.error && rows.length > 0 ? (
         <>
           <AthleteLeaderboard
             currentAthleteId={viewer.athleteId}
@@ -224,19 +300,16 @@ export default async function AthleteRankingPage({
             }))}
           />
           {leaderStats.some(([, row]) => row) && (
-            <section
-              className="grid gap-3 sm:grid-cols-2"
-              aria-label="Destaques oficiais"
-            >
+            <section className="grid gap-3 sm:grid-cols-2" aria-label="Destaques oficiais">
               {leaderStats.map(
                 ([label, row, field]) =>
                   row && (
-                    <Card key={label}>
+                    <Card key={label} className="bg-[#0c0c0c]">
                       <p className="text-xs font-black tracking-[.16em] text-zinc-500 uppercase">
                         Destaque oficial
                       </p>
                       <p className="mt-2 font-bold">{label}</p>
-                      <p className="text-ur-gold mt-1 text-xl font-black">
+                      <p className="mt-1 text-xl font-black text-ur-gold">
                         {row.display_name} · {row[field]}
                       </p>
                     </Card>
@@ -245,17 +318,16 @@ export default async function AthleteRankingPage({
             </section>
           )}
         </>
-      ) : (
+      ) : !allResult.error ? (
         <Card>
           <Trophy className="text-ur-gold" aria-hidden="true" />
-          <h2 className="mt-3 text-xl font-black">
-            Classificação ainda não publicada
-          </h2>
+          <h2 className="mt-3 text-xl font-black">Classificação ainda não publicada</h2>
           <p className="mt-2 text-sm text-zinc-400">
-            Quando a liga publicar esta tabela, ela aparecerá aqui.
+            Quando existir uma tabela oficial para este recorte, ela aparecerá aqui.
           </p>
         </Card>
-      )}
+      ) : null}
+
       <AthleteSourceHealth
         errors={[
           ...snapshot.sourceErrors,
