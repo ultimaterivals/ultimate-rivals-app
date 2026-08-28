@@ -14,7 +14,7 @@ export function BrandMark({
       aria-label="Ultimate Rivals"
     >
       <span
-        className="relative grid size-11 shrink-0 place-items-center overflow-hidden rounded-2xl bg-[#f1eee4] p-1 shadow-[0_8px_28px_rgba(0,0,0,.18)] ring-1 ring-ur-gold/20"
+        className="relative grid size-11 shrink-0 place-items-center overflow-hidden rounded-2xl bg-white p-1.5 ring-1 ring-white/10"
         aria-hidden="true"
       >
         <Image
@@ -36,7 +36,7 @@ export function BrandMark({
             Ultimate Rivals
           </span>
           {context ? (
-            <span className="mt-1 block truncate text-[.58rem] font-black tracking-[.18em] text-ur-gold uppercase">
+            <span className="text-ur-gold mt-1 block truncate text-[.58rem] font-black tracking-[.18em] uppercase">
               {context}
             </span>
           ) : null}
