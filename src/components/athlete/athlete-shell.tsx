@@ -4,13 +4,13 @@ import {
   CalendarDays,
   CircleUserRound,
   Clapperboard,
-  Clock3,
   Coins,
+  GraduationCap,
   House,
   LogOut,
   MapPin,
-  MessageSquareText,
   Medal,
+  MessageSquareText,
   ShoppingBag,
   Target,
   Trophy,
@@ -23,60 +23,36 @@ import { stopAthletePreviewAction } from "@/features/admin-athlete-preview/actio
 import { BrandMark } from "@/components/layout/brand-mark";
 import { cn } from "@/lib/utils";
 
-const myGame = [
-  { href: "/athlete", label: "Início", icon: House, exact: true },
-  {
-    href: "/athlete/agenda",
-    label: "Agenda",
-    icon: CalendarDays,
-    exact: false,
-  },
-  {
-    href: "/athlete/disponibilidade",
-    label: "Disponibilidade",
-    icon: Clock3,
-    exact: false,
-  },
-] as const;
-
 const mobilePrimary = [
   { href: "/athlete", label: "Início", icon: House, exact: true },
   { href: "/athlete/agenda", label: "Jogar", icon: CalendarDays, exact: false },
   { href: "/athlete/ranking", label: "Ranking", icon: Trophy, exact: false },
-  { href: "/athlete/season", label: "Temporada", icon: Medal, exact: false },
-  {
-    href: "/athlete/perfil",
-    label: "Perfil",
-    icon: CircleUserRound,
-    exact: false,
-  },
+  { href: "/athlete/hunter", label: "Hunter", icon: GraduationCap, exact: false, special: true },
+  { href: "/athlete/perfil", label: "Perfil", icon: CircleUserRound, exact: false },
 ] as const;
 
-const myJourney = [
+const desktopPrimary = [
+  { href: "/athlete", label: "Início", icon: House, exact: true },
+  { href: "/athlete/agenda", label: "Jogar", icon: CalendarDays },
   { href: "/athlete/ranking", label: "Ranking", icon: Trophy },
   { href: "/athlete/season", label: "Temporada", icon: Medal },
-  { href: "/athlete/results", label: "Resultados", icon: Trophy },
+  { href: "/athlete/development", label: "Evolução", icon: Target },
+  { href: "/athlete/hunter", label: "Hunter", icon: GraduationCap, special: true },
   { href: "/athlete/team", label: "Equipe", icon: Users },
-  { href: "/athlete/development", label: "Missões e evolução", icon: Target },
 ] as const;
 
-const ecosystem = [
+const desktopSecondary = [
+  { href: "/athlete/results", label: "Resultados", icon: Trophy },
   { href: "/athlete/arenas", label: "Arenas UR", icon: MapPin },
   { href: "/athlete/highlights", label: "Destaques", icon: Clapperboard },
   { href: "/athlete/wallet", label: "Wallet URC", icon: Coins },
   { href: "/athlete/market", label: "UR Market", icon: ShoppingBag },
   { href: "/athlete/perfil", label: "Perfil", icon: CircleUserRound },
-  {
-    href: "/athlete/feedback",
-    label: "Feedback e suporte",
-    icon: MessageSquareText,
-  },
+  { href: "/athlete/feedback", label: "Feedback e suporte", icon: MessageSquareText },
 ] as const;
 
 function active(pathname: string, href: string, exact?: boolean) {
-  return exact
-    ? pathname === href
-    : pathname === href || pathname.startsWith(`${href}/`);
+  return exact ? pathname === href : pathname === href || pathname.startsWith(`${href}/`);
 }
 
 function NavigationLink({
@@ -85,40 +61,49 @@ function NavigationLink({
   Icon,
   pathname,
   exact,
+  special,
 }: {
   href: string;
   label: string;
-  Icon:
-    | (typeof myGame)[number]["icon"]
-    | (typeof myJourney)[number]["icon"]
-    | (typeof ecosystem)[number]["icon"];
+  Icon: (typeof desktopPrimary)[number]["icon"] | (typeof desktopSecondary)[number]["icon"];
   pathname: string;
   exact?: boolean;
+  special?: boolean;
 }) {
   const isActive = active(pathname, href, exact);
+
   return (
     <Link
       href={href}
       aria-current={isActive ? "page" : undefined}
       className={cn(
         "rounded-ur flex min-h-11 items-center gap-3 px-3 font-bold transition-colors",
+        special && "border border-ur-gold/25 bg-ur-gold/[.04]",
         isActive
           ? "bg-ur-gold text-ur-black"
-          : "text-zinc-300 hover:bg-white/5 hover:text-white",
+          : special
+            ? "text-ur-gold hover:bg-ur-gold/10"
+            : "text-zinc-300 hover:bg-white/5 hover:text-white",
       )}
     >
       <Icon size={18} aria-hidden="true" />
       {label}
+      {special && !isActive ? (
+        <span className="ml-auto text-[.55rem] font-black tracking-[.16em] uppercase text-ur-gold/70">
+          Academia
+        </span>
+      ) : null}
     </Link>
   );
 }
 
 function DesktopNavigation({ preview = false }: { preview?: boolean }) {
   const pathname = usePathname();
+
   return (
     <nav aria-label="Navegação do atleta" className="hidden px-4 lg:block">
-      <NavigationSection label="Meu jogo">
-        {myGame.map(({ href, label, icon: Icon, exact }) => (
+      <NavigationSection label="Carreira">
+        {desktopPrimary.map(({ href, label, icon: Icon, exact, ...item }) => (
           <NavigationLink
             key={href}
             href={href}
@@ -126,22 +111,12 @@ function DesktopNavigation({ preview = false }: { preview?: boolean }) {
             Icon={Icon}
             pathname={pathname}
             exact={exact}
-          />
-        ))}
-      </NavigationSection>
-      <NavigationSection label="Minha jornada">
-        {myJourney.map(({ href, label, icon: Icon }) => (
-          <NavigationLink
-            key={href}
-            href={href}
-            label={label}
-            Icon={Icon}
-            pathname={pathname}
+            special={"special" in item ? item.special : false}
           />
         ))}
       </NavigationSection>
       <NavigationSection label="Ecossistema">
-        {ecosystem
+        {desktopSecondary
           .filter((item) => !preview || item.href !== "/athlete/feedback")
           .map(({ href, label, icon: Icon }) => (
             <NavigationLink
@@ -157,13 +132,7 @@ function DesktopNavigation({ preview = false }: { preview?: boolean }) {
   );
 }
 
-function NavigationSection({
-  label,
-  children,
-}: {
-  label: string;
-  children: ReactNode;
-}) {
+function NavigationSection({ label, children }: { label: string; children: ReactNode }) {
   return (
     <section className="mt-6 border-t border-white/10 pt-5 first:mt-0 first:border-t-0 first:pt-0">
       <p className="mb-2 px-3 text-[.65rem] font-black tracking-[.2em] text-zinc-600 uppercase">
@@ -174,72 +143,50 @@ function NavigationSection({
   );
 }
 
-function MobileNavigation({ preview = false }: { preview?: boolean }) {
+function MobileNavigation() {
   const pathname = usePathname();
+
   return (
-    <div className="relative shrink-0 border-t border-zinc-800 bg-[#0b0b0b]/[.98] pb-[env(safe-area-inset-bottom)] backdrop-blur lg:hidden">
-      <nav aria-label="Navegação principal do atleta">
-        <div className="mx-auto grid max-w-lg grid-cols-5">
-          {mobilePrimary.map(({ href, label, icon: Icon, exact }) => {
-            const isActive = active(pathname, href, exact);
-            return (
-              <Link
-                key={href}
-                href={href}
-                aria-current={isActive ? "page" : undefined}
-                className={cn(
-                  "flex min-h-16 flex-col items-center justify-center gap-1 px-1 text-[.65rem] font-bold transition-colors",
-                  isActive ? "text-ur-gold" : "text-zinc-500 hover:text-white",
-                )}
-              >
-                <Icon
-                  size={21}
-                  strokeWidth={isActive ? 2.5 : 2}
-                  aria-hidden="true"
-                />
-                {label}
-              </Link>
-            );
-          })}
-        </div>
-      </nav>
-      <details className="border-t border-white/5">
-        <summary className="mx-auto flex min-h-10 max-w-lg cursor-pointer items-center justify-center text-xs font-black tracking-[.14em] text-zinc-400 uppercase">
-          Mais do seu jogo
-        </summary>
-        <nav
-          aria-label="Mais opções do atleta"
-          className="mx-auto grid max-w-lg grid-cols-2 gap-1 px-3 pb-3"
-        >
-          {[...myGame.slice(2), ...myJourney, ...ecosystem]
-            .filter(
-              (item, index, items) =>
-                items.findIndex((candidate) => candidate.href === item.href) ===
-                index,
-            )
-            .filter((item) => !preview || item.href !== "/athlete/feedback")
-            .map(({ href, label, icon: Icon }) => {
-              const isActive = active(pathname, href);
-              return (
-                <Link
-                  key={href}
-                  href={href}
-                  aria-current={isActive ? "page" : undefined}
+    <nav
+      aria-label="Navegação principal do atleta"
+      className="relative z-50 shrink-0 border-t border-white/10 bg-[#090909]/95 pb-[env(safe-area-inset-bottom)] shadow-[0_-18px_45px_rgba(0,0,0,.35)] backdrop-blur-xl lg:hidden"
+    >
+      <div className="mx-auto grid max-w-lg grid-cols-5 px-1">
+        {mobilePrimary.map(({ href, label, icon: Icon, exact, special }) => {
+          const isActive = active(pathname, href, exact);
+
+          return (
+            <Link
+              key={href}
+              href={href}
+              aria-current={isActive ? "page" : undefined}
+              className={cn(
+                "relative flex min-h-[4.6rem] flex-col items-center justify-center gap-1 px-1 text-[.62rem] font-black transition-colors",
+                isActive ? "text-ur-gold" : "text-zinc-500 active:text-white",
+                special && "text-ur-gold",
+              )}
+            >
+              {special ? (
+                <span
                   className={cn(
-                    "rounded-ur flex min-h-10 items-center gap-2 px-3 text-xs font-bold",
-                    isActive
-                      ? "bg-ur-gold text-ur-black"
-                      : "bg-white/5 text-zinc-300 hover:text-white",
+                    "grid size-10 place-items-center rounded-full border border-ur-gold/35 bg-gradient-to-b from-ur-gold/15 to-black shadow-[0_0_26px_rgba(212,168,59,.12)]",
+                    isActive && "border-ur-gold bg-ur-gold text-ur-black shadow-[0_0_30px_rgba(212,168,59,.24)]",
                   )}
                 >
-                  <Icon size={15} aria-hidden="true" />
-                  {label}
-                </Link>
-              );
-            })}
-        </nav>
-      </details>
-    </div>
+                  <Icon size={21} strokeWidth={2.4} aria-hidden="true" />
+                </span>
+              ) : (
+                <Icon size={21} strokeWidth={isActive ? 2.5 : 2} aria-hidden="true" />
+              )}
+              {label}
+              {isActive && !special ? (
+                <span className="absolute bottom-1.5 h-0.5 w-5 rounded-full bg-ur-gold" aria-hidden="true" />
+              ) : null}
+            </Link>
+          );
+        })}
+      </div>
+    </nav>
   );
 }
 
@@ -253,18 +200,16 @@ export function AthleteShell({
   children: ReactNode;
 }) {
   return (
-    <div className="grid h-dvh grid-rows-[minmax(0,1fr)_auto] overflow-hidden bg-[#080808] text-white lg:h-auto lg:min-h-dvh lg:grid-cols-[17rem_1fr] lg:grid-rows-none lg:overflow-visible">
-      <aside className="bg-ur-graphite hidden min-h-dvh border-r lg:flex lg:flex-col">
+    <div className="grid h-dvh grid-rows-[minmax(0,1fr)_auto] overflow-hidden bg-[#070707] text-white lg:h-auto lg:min-h-dvh lg:grid-cols-[16rem_1fr] lg:grid-rows-none lg:overflow-visible">
+      <aside className="hidden min-h-dvh border-r border-white/10 bg-[#101010] lg:flex lg:flex-col">
         <div className="p-6">
           <BrandMark context="App do Atleta" />
         </div>
         <div className="min-h-0 flex-1 overflow-y-auto pb-6">
           <DesktopNavigation preview={Boolean(preview)} />
         </div>
-        <div className="border-t p-4">
-          <p className="truncate text-sm font-bold text-zinc-300">
-            {userLabel}
-          </p>
+        <div className="border-t border-white/10 p-4">
+          <p className="truncate text-sm font-bold text-zinc-300">{userLabel}</p>
           {!preview && (
             <form action="/auth/signout" method="post">
               <button className="rounded-ur mt-3 flex min-h-11 w-full items-center gap-2 px-3 text-sm text-zinc-400 transition-colors hover:bg-white/5 hover:text-white">
@@ -275,6 +220,7 @@ export function AthleteShell({
           )}
         </div>
       </aside>
+
       <div className="min-h-0 min-w-0 overflow-y-auto lg:overflow-visible">
         {preview && (
           <div className="border-ur-gold/40 bg-ur-gold/10 sticky top-0 z-50 flex flex-wrap items-center justify-between gap-3 border-b px-4 py-3 backdrop-blur sm:px-8 lg:px-10">
@@ -293,20 +239,22 @@ export function AthleteShell({
             </form>
           </div>
         )}
-        <header className="sticky top-0 z-30 flex min-h-16 items-center justify-between border-b border-zinc-900 bg-[#080808]/95 px-4 backdrop-blur sm:px-8 lg:px-10">
+
+        <header className="sticky top-0 z-30 flex min-h-14 items-center justify-between border-b border-white/[.06] bg-[#070707]/88 px-4 backdrop-blur-xl sm:px-6 lg:min-h-16 lg:px-10">
           <div className="min-w-0 lg:hidden">
-            <BrandMark context="App do Atleta" />
+            <BrandMark compact />
           </div>
-          <div className="min-w-0 lg:ml-auto lg:text-right">
+          <div className="min-w-0 text-right lg:ml-auto">
             <p className="truncate text-sm font-black">{userLabel}</p>
-            <p className="text-[.65rem] font-bold tracking-[.16em] text-zinc-500 uppercase">
-              Ultimate Rivals
+            <p className="text-[.58rem] font-bold tracking-[.18em] text-zinc-600 uppercase">
+              Sua carreira UR
             </p>
           </div>
         </header>
+
         <main
           className={cn(
-            "min-w-0 p-4 sm:p-8 lg:p-10",
+            "min-w-0 px-4 py-5 sm:px-6 sm:py-7 lg:p-10",
             preview &&
               "[&_button]:pointer-events-none [&_button]:opacity-60 [&_form]:pointer-events-none [&_form]:opacity-75 [&_input]:pointer-events-none [&_select]:pointer-events-none [&_textarea]:pointer-events-none",
           )}
@@ -314,7 +262,8 @@ export function AthleteShell({
           {children}
         </main>
       </div>
-      <MobileNavigation preview={Boolean(preview)} />
+
+      <MobileNavigation />
     </div>
   );
 }
