@@ -4,18 +4,15 @@ import {
   Clapperboard,
   Coins,
   CreditCard,
-  ExternalLink,
-  MapPin,
+  Shield,
   Sparkles,
-  Target,
   Trophy,
-  UsersRound,
 } from "lucide-react";
-import Link from "next/link";
 import Image from "next/image";
+import Link from "next/link";
 import { AthleteOpportunityCard } from "@/components/athlete/athlete-opportunity-card";
 import { AthleteSourceHealth } from "@/components/athlete/athlete-source-health";
-import { Badge, Card, PageHeader } from "@/components/ui";
+import { Badge } from "@/components/ui";
 import { requireAthleteViewer } from "@/lib/auth/athlete-viewer";
 import { createClient } from "@/lib/supabase/server";
 import { getAthleteSnapshotForViewer } from "@/server/services/athlete-viewer-snapshot-service";
@@ -24,12 +21,6 @@ const money = new Intl.NumberFormat("pt-BR", {
   style: "currency",
   currency: "BRL",
 });
-
-function movementLabel(movement: string | null | undefined) {
-  if (movement === "up") return "Subindo";
-  if (movement === "down") return "Em disputa";
-  return "Posição estável";
-}
 
 function safeExternalUrl(value: string | null | undefined) {
   if (!value) return null;
@@ -43,27 +34,35 @@ function safeExternalUrl(value: string | null | undefined) {
   }
 }
 
+function initials(name: string) {
+  return name
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part[0]?.toUpperCase())
+    .join("");
+}
+
+function movementLabel(movement: string | null | undefined) {
+  if (movement === "up") return "Subindo";
+  if (movement === "down") return "Em disputa";
+  if (movement === "stable") return "Estável";
+  return "—";
+}
+
+// prettier-ignore
 export default async function AthletePage() {
   const viewer = await requireAthleteViewer();
   const snapshot = await getAthleteSnapshotForViewer(viewer);
 
   if (!snapshot.identity) {
     return (
-      <div className="grid gap-8">
-        <PageHeader
-          eyebrow="Meu jogo"
-          title="Perfil esportivo ainda não vinculado"
-          description="Sua conta está autenticada, mas ainda não encontramos um registro de atleta ligado a ela."
-        />
-        <Card>
-          <p className="font-bold">
-            O vínculo precisa ser concluído pela operação UR.
-          </p>
-          <p className="mt-2 text-sm leading-6 text-zinc-400">
-            Nenhum dado esportivo é inventado enquanto o perfil oficial não
-            estiver associado à sua conta.
-          </p>
-        </Card>
+      <div className="mx-auto grid max-w-3xl gap-6 py-8">
+        <section className="rounded-ur border border-ur-gold/20 bg-white/[.025] p-6 sm:p-8">
+          <p className="text-xs font-black tracking-[.2em] text-ur-gold uppercase">Sua carreira UR</p>
+          <h1 className="font-display mt-3 text-4xl font-black tracking-tight uppercase">Perfil esportivo ainda não vinculado</h1>
+          <p className="mt-4 max-w-2xl leading-7 text-zinc-400">Sua conta está autenticada, mas ainda não encontramos um registro de atleta ligado a ela. Nenhum dado esportivo será inventado enquanto o vínculo oficial não for concluído.</p>
+        </section>
         <AthleteSourceHealth errors={snapshot.sourceErrors} />
       </div>
     );
@@ -72,444 +71,84 @@ export default async function AthletePage() {
   const client = await createClient();
   const highlightResult = await client
     .from("highlight_clips")
-    .select(
-      "id,title,status,updated_at,media_assets!inner(title,external_url,status)",
-    )
+    .select("id,title,status,updated_at,media_assets!inner(title,external_url,status)")
     .eq("athlete_id", snapshot.identity.id)
     .in("status", ["publishable", "public"])
     .in("media_assets.status", ["publishable", "public"])
     .not("media_assets.external_url", "is", null)
     .order("updated_at", { ascending: false })
     .limit(1);
-  const latestHighlight = highlightResult.error
-    ? null
-    : (highlightResult.data?.[0] ?? null);
+  const latestHighlight = highlightResult.error ? null : (highlightResult.data?.[0] ?? null);
   const latestHighlightAsset = latestHighlight
     ? Array.isArray(latestHighlight.media_assets)
       ? latestHighlight.media_assets[0]
       : latestHighlight.media_assets
     : null;
-  const latestHighlightUrl = safeExternalUrl(
-    latestHighlightAsset?.external_url,
-  );
+  const latestHighlightUrl = safeExternalUrl(latestHighlightAsset?.external_url);
 
   const ranking = snapshot.primaryRanking;
   const summary = snapshot.summary;
   const nextReservation = snapshot.nextReservation;
-  const development = snapshot.development;
-  const nextOpportunities = (snapshot.opportunities ?? [])
-    .filter((item) => item.id !== nextReservation?.id)
-    .slice(0, 3);
   const team = snapshot.teams?.[0] ?? null;
+  const opportunities = (snapshot.opportunities ?? []).filter((item) => item.id !== nextReservation?.id).slice(0, 3);
+  const creditsKnown = snapshot.creditBalance !== null;
+  const economyReliable = snapshot.state === "ready" && summary !== null;
+  const location = [snapshot.identity.city, snapshot.identity.state].filter(Boolean).join("/");
+
   const nextAction = nextReservation
-    ? {
-        eyebrow: "Próxima atividade",
-        title: nextReservation.title,
-        description: `${nextReservation.poleName ?? "Polo UR"}${nextReservation.venueName ? ` · ${nextReservation.venueName}` : ""}`,
-        href: "/athlete/agenda",
-        cta: "Abrir atividade",
-      }
-    : {
-        eyebrow: "Objetivo atual",
-        title: "Entre no próximo jogo",
-        description:
-          "Confira as oportunidades abertas e escolha onde sua próxima evolução começa.",
-        href: "/athlete/agenda",
-        cta: "Explorar agenda",
-      };
-  const mission = development?.hunterMission
-    ? {
-        title: development.hunterMission,
-        description:
-          development.goal30Days ??
-          development.hunterGoal ??
-          "Sua missão foi publicada pela operação. Acompanhe o estado real da sua evolução.",
-        href: "/athlete/development",
-        cta: "Abrir evolução",
-      }
-    : nextReservation
-      ? {
-          title: "Transforme sua reserva em resultado",
-          description:
-            "Participe da próxima atividade oficial. Presença e resultado homologados alimentam sua evolução, ranking e economia do jogador.",
-          href: "/athlete/development",
-          cta: "Ver sua evolução",
-        }
-      : {
-          title: "Volte para o ciclo de jogo",
-          description:
-            "Encontre uma oportunidade elegível, reserve sua participação e gere a próxima evidência oficial da sua jornada.",
-          href: "/athlete/agenda",
-          cta: "Encontrar oportunidade",
-        };
+    ? { title: nextReservation.title, description: [nextReservation.poleName, nextReservation.venueName].filter(Boolean).join(" · "), href: "/athlete/agenda", cta: "Abrir atividade" }
+    : opportunities.length > 0
+      ? { title: "Escolha onde jogar agora", description: `${opportunities.length} oportunidade${opportunities.length > 1 ? "s" : ""} disponível${opportunities.length > 1 ? "eis" : ""} na sua agenda UR.`, href: "/athlete/agenda", cta: "Explorar oportunidades" }
+      : { title: "Prepare sua próxima entrada em quadra", description: "A agenda ainda não apresenta uma oportunidade disponível para você. Mantenha sua disponibilidade atualizada.", href: "/athlete/disponibilidade", cta: "Atualizar disponibilidade" };
 
   return (
-    <div className="mx-auto grid max-w-7xl gap-6">
-      <section className="ranking-hero border-ur-gold/50 rounded-ur relative overflow-hidden border p-5 sm:p-8">
-        <Image
-          src="/brand/ur-monogram.svg"
-          alt=""
-          width={220}
-          height={220}
-          className="pointer-events-none absolute -top-12 -right-10 size-52 object-contain opacity-[.045]"
-        />
-        <div className="grid gap-6 lg:grid-cols-[1fr_auto] lg:items-end">
+    <div className="mx-auto grid max-w-7xl gap-8 pb-6 sm:gap-10">
+      <section className="relative -mx-4 overflow-hidden border-y border-white/5 bg-[radial-gradient(circle_at_85%_20%,rgba(234,179,8,.12),transparent_32%),linear-gradient(180deg,rgba(255,255,255,.035),rgba(255,255,255,0))] px-4 py-7 sm:mx-0 sm:rounded-[2rem] sm:border sm:px-8 sm:py-9 lg:px-10">
+        <div className="relative grid gap-8 lg:grid-cols-[1fr_auto] lg:items-end">
           <div className="min-w-0">
-            <p className="text-ur-gold text-xs font-black tracking-[.24em] uppercase">
-              Ultimate Rivals · Player Hub
-            </p>
-            <h1 className="font-display mt-2 text-4xl font-black tracking-tight uppercase sm:text-6xl">
-              {snapshot.identity.publicName}
-            </h1>
-            <div className="mt-4 flex flex-wrap gap-2">
-              <Badge>{snapshot.identity.athleteCode}</Badge>
-              {summary?.level && <Badge>{summary.level}</Badge>}
-              {team && <Badge>Equipe: {team.name}</Badge>}
-              <Badge>{snapshot.identity.status}</Badge>
+            <p className="text-[.65rem] font-black tracking-[.24em] text-ur-gold uppercase">Rumo ao estrelato</p>
+            <div className="mt-4 flex items-center gap-4">
+              <div className="grid size-16 shrink-0 place-items-center overflow-hidden rounded-2xl border border-ur-gold/25 bg-black/50 sm:size-20">
+                {snapshot.identity.avatarUrl ? <Image src={snapshot.identity.avatarUrl} alt={`Foto de ${snapshot.identity.publicName}`} width={160} height={160} className="h-full w-full object-cover" /> : <span className="font-display text-2xl font-black text-ur-gold sm:text-3xl">{initials(snapshot.identity.publicName)}</span>}
+              </div>
+              <div className="min-w-0">
+                <h1 className="font-display truncate text-4xl font-black tracking-tight uppercase sm:text-6xl">{snapshot.identity.publicName}</h1>
+                <p className="mt-1 truncate text-sm font-bold text-zinc-500">{[snapshot.identity.athleteCode, summary?.level, location].filter(Boolean).join(" · ")}</p>
+              </div>
             </div>
+            <div className="mt-5 flex flex-wrap gap-2">{team ? <Badge>Equipe · {team.name}</Badge> : null}{ranking?.categoryCode ? <Badge>{ranking.categoryCode}</Badge> : null}{ranking?.formatCode ? <Badge>{ranking.formatCode}</Badge> : null}</div>
           </div>
-
-          <div className="grid min-w-64 grid-cols-2 gap-3">
-            <div className="rounded-ur border border-white/10 bg-black/30 p-4">
-              <p className="text-xs font-bold tracking-wider text-zinc-500 uppercase">
-                Ranking
-              </p>
-              <p className="font-display mt-2 text-4xl font-black">
-                {ranking?.currentPosition ? `#${ranking.currentPosition}` : "—"}
-              </p>
-              <p className="text-ur-gold mt-1 text-xs font-bold">
-                {ranking ? `${ranking.totalPoints} pts` : "Sem ranking"}
-              </p>
-            </div>
-            <div className="rounded-ur border border-white/10 bg-black/30 p-4">
-              <p className="text-xs font-bold tracking-wider text-zinc-500 uppercase">
-                UR Coins
-              </p>
-              <p className="font-display text-ur-gold mt-2 text-4xl font-black">
-                {summary?.urCoinBalance.toLocaleString("pt-BR") ?? "—"}
-              </p>
-              <p className="mt-1 text-xs font-bold text-zinc-500">
-                saldo atual
-              </p>
-            </div>
+          <div className="grid grid-cols-3 gap-4 border-t border-white/10 pt-5 lg:min-w-[28rem] lg:border-t-0 lg:border-l lg:pt-0 lg:pl-7">
+            <div><p className="text-[.62rem] font-black tracking-[.16em] text-zinc-600 uppercase">Ranking</p><p className="font-display mt-1 text-3xl font-black text-ur-gold">{ranking?.currentPosition ? `#${ranking.currentPosition}` : "—"}</p></div>
+            <div><p className="text-[.62rem] font-black tracking-[.16em] text-zinc-600 uppercase">Pontos</p><p className="font-display mt-1 text-3xl font-black">{ranking ? ranking.totalPoints.toLocaleString("pt-BR") : "—"}</p></div>
+            <div><p className="text-[.62rem] font-black tracking-[.16em] text-zinc-600 uppercase">Jogos</p><p className="font-display mt-1 text-3xl font-black">{summary ? summary.games.toLocaleString("pt-BR") : "—"}</p></div>
           </div>
         </div>
       </section>
 
-      <section className="grid gap-5 lg:grid-cols-[1.25fr_.75fr]">
-        <Card className="border-ur-gold/40">
-          <p className="text-ur-gold text-xs font-black tracking-[.22em] uppercase">
-            {nextAction.eyebrow}
-          </p>
-          <h2 className="mt-2 text-3xl font-black">{nextAction.title}</h2>
-          <p className="mt-2 max-w-2xl text-zinc-400">
-            {nextAction.description}
-          </p>
-          <Link
-            href={nextAction.href}
-            className="bg-ur-gold text-ur-black rounded-ur mt-5 inline-flex min-h-12 items-center gap-2 px-5 font-black"
-          >
-            {nextAction.cta} <ArrowRight size={17} aria-hidden="true" />
-          </Link>
-        </Card>
-
-        <Card>
-          <div className="flex items-start justify-between gap-4">
-            <div>
-              <p className="text-xs font-black tracking-[.18em] text-zinc-500 uppercase">
-                Economia do jogador
-              </p>
-              <strong className="font-display text-ur-gold mt-2 block text-5xl">
-                {summary?.urCoinBalance.toLocaleString("pt-BR") ?? "—"}
-              </strong>
-              <p className="font-bold text-zinc-400">UR Coins disponíveis</p>
-            </div>
-            <Coins className="text-ur-gold" size={36} aria-hidden="true" />
-          </div>
-          <div className="mt-5 grid grid-cols-2 gap-3 border-t border-white/10 pt-4">
-            <div>
-              <p className="text-xs text-zinc-600 uppercase">Créditos livres</p>
-              <p className="mt-1 text-xl font-black">
-                {snapshot.creditBalance ?? "—"}
-              </p>
-            </div>
-            <div>
-              <p className="text-xs text-zinc-600 uppercase">Reservados</p>
-              <p className="mt-1 text-xl font-black">
-                {snapshot.creditReserved ?? "—"}
-              </p>
-            </div>
-          </div>
-        </Card>
+      <section className="grid gap-5 lg:grid-cols-[1.35fr_.65fr]">
+        <div className="rounded-[1.75rem] border border-ur-gold/25 bg-ur-gold/[.055] p-6 sm:p-8"><p className="text-[.65rem] font-black tracking-[.2em] text-ur-gold uppercase">Seu próximo movimento</p><h2 className="font-display mt-2 text-3xl font-black tracking-tight uppercase sm:text-4xl">{nextAction.title}</h2><p className="mt-3 max-w-2xl text-sm leading-6 text-zinc-400 sm:text-base">{nextAction.description}</p><Link href={nextAction.href} className="mt-6 inline-flex min-h-12 items-center gap-2 rounded-full bg-ur-gold px-5 text-sm font-black text-black">{nextAction.cta} <ArrowRight size={17} aria-hidden="true" /></Link></div>
+        <div className="rounded-[1.75rem] border border-white/8 bg-white/[.025] p-6"><p className="text-[.64rem] font-black tracking-[.18em] text-zinc-600 uppercase">Seu momento</p><div className="mt-5 grid grid-cols-2 gap-5"><div><p className="text-xs text-zinc-600 uppercase">Vitórias</p><p className="font-display mt-1 text-3xl font-black">{ranking ? ranking.wins : "—"}</p></div><div><p className="text-xs text-zinc-600 uppercase">Derrotas</p><p className="font-display mt-1 text-3xl font-black">{ranking ? ranking.losses : "—"}</p></div><div><p className="text-xs text-zinc-600 uppercase">Aproveitamento</p><p className="font-display mt-1 text-3xl font-black text-ur-gold">{ranking ? `${ranking.winRate.toFixed(1)}%` : "—"}</p></div><div><p className="text-xs text-zinc-600 uppercase">Movimento</p><p className="font-display mt-1 text-3xl font-black">{movementLabel(ranking?.movement)}</p></div></div></div>
       </section>
 
-      <section className="grid gap-5 lg:grid-cols-2">
-        <Card className="border-ur-gold/30">
-          <div className="flex items-start justify-between gap-4">
-            <div>
-              <p className="text-xs font-black tracking-[.18em] text-zinc-500 uppercase">
-                Como chegar lá
-              </p>
-              <h2 className="mt-2 text-2xl font-black">{mission.title}</h2>
-            </div>
-            <Target className="text-ur-gold" size={26} aria-hidden="true" />
-          </div>
-          <p className="mt-3 text-sm leading-6 text-zinc-400">
-            {mission.description}
-          </p>
-          {development?.priorities.length ? (
-            <ul className="mt-4 grid gap-2 text-sm text-zinc-300">
-              {development.priorities.map((priority) => (
-                <li
-                  key={priority}
-                  className="rounded-ur border border-white/10 px-3 py-2"
-                >
-                  Prioridade oficial: {priority}
-                </li>
-              ))}
-            </ul>
-          ) : null}
-          <Link
-            href={mission.href}
-            className="text-ur-gold mt-4 inline-flex items-center gap-1 font-black"
-          >
-            {mission.cta} <ArrowRight size={15} aria-hidden="true" />
-          </Link>
-        </Card>
+      <section className="grid gap-4"><div className="flex items-end justify-between gap-4"><div><p className="text-[.64rem] font-black tracking-[.2em] text-ur-gold uppercase">Competição</p><h2 className="font-display mt-1 text-2xl font-black uppercase sm:text-3xl">Seu ranking está vivo</h2></div><Link href="/athlete/ranking" className="text-xs font-black text-ur-gold">Abrir ranking →</Link></div><div className="grid gap-5 rounded-[1.75rem] border border-white/8 bg-white/[.018] p-5 sm:grid-cols-[auto_1fr] sm:items-end sm:p-7"><div><p className="text-xs font-black tracking-[.16em] text-zinc-600 uppercase">Posição atual</p><strong className="font-display mt-1 block text-7xl font-black sm:text-8xl">{ranking?.currentPosition ? `#${ranking.currentPosition}` : "—"}</strong><p className="mt-1 font-black text-ur-gold">{ranking ? `${ranking.totalPoints.toLocaleString("pt-BR")} PTS` : "Ranking ainda não disponível"}</p></div><div className="grid grid-cols-3 gap-4 border-t border-white/8 pt-5 sm:border-t-0 sm:pt-0 sm:text-right"><div><p className="text-xs text-zinc-600 uppercase">Jogos</p><p className="mt-1 text-2xl font-black">{ranking ? ranking.gamesPlayed : "—"}</p></div><div><p className="text-xs text-zinc-600 uppercase">Vitórias</p><p className="mt-1 text-2xl font-black">{ranking ? ranking.wins : "—"}</p></div><div><p className="text-xs text-zinc-600 uppercase">Derrotas</p><p className="mt-1 text-2xl font-black">{ranking ? ranking.losses : "—"}</p></div></div></div></section>
 
-        <Card>
-          <div className="flex items-start justify-between gap-4">
-            <div>
-              <p className="text-xs font-black tracking-[.18em] text-zinc-500 uppercase">
-                Último destaque
-              </p>
-              <h2 className="mt-2 text-2xl font-black">
-                {latestHighlight?.title ?? "Sua história está sendo construída"}
-              </h2>
-            </div>
-            <Clapperboard
-              className="text-ur-gold"
-              size={26}
-              aria-hidden="true"
-            />
-          </div>
-          <p className="mt-3 text-sm leading-6 text-zinc-400">
-            {latestHighlightAsset?.title ??
-              "Quando a operação publicar uma jogada elegível, ela aparece aqui sem expor mídia privada."}
-          </p>
-          <div className="mt-4 flex flex-wrap gap-3">
-            <Link
-              href="/athlete/highlights"
-              className="text-ur-gold inline-flex items-center gap-1 font-black"
-            >
-              Abrir destaques <ArrowRight size={15} aria-hidden="true" />
-            </Link>
-            {latestHighlightUrl && (
-              <a
-                href={latestHighlightUrl}
-                target="_blank"
-                rel="noreferrer"
-                className="inline-flex items-center gap-1 font-black text-zinc-300"
-              >
-                Assistir <ExternalLink size={14} aria-hidden="true" />
-              </a>
-            )}
-          </div>
-        </Card>
+      <section className="grid gap-4 lg:grid-cols-2">
+        <Link href="/athlete/development" className="rounded-[1.75rem] border border-white/8 bg-white/[.02] p-6"><p className="text-[.64rem] font-black tracking-[.2em] text-ur-gold uppercase">Como chegar lá</p><h2 className="font-display mt-2 text-2xl font-black uppercase">Construa sua próxima evolução</h2><p className="mt-2 text-sm leading-6 text-zinc-500">Acompanhe somente objetivos e prioridades publicados para sua trajetória, sem progresso inventado.</p></Link>
+        <Link href="/athlete/highlights" className="rounded-[1.75rem] border border-white/8 bg-white/[.02] p-6"><p className="text-[.64rem] font-black tracking-[.2em] text-ur-gold uppercase">Último destaque</p><h2 className="font-display mt-2 text-2xl font-black uppercase">{latestHighlight?.title ?? "Sua história em evidência"}</h2><p className="mt-2 text-sm leading-6 text-zinc-500">{latestHighlightAsset?.title ?? "Mídia publicada e momentos oficiais aparecem aqui quando disponíveis."}</p>{latestHighlightUrl ? <span className="mt-4 block text-xs font-black text-ur-gold">Mídia externa publicada disponível</span> : null}</Link>
       </section>
 
-      <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <Card>
-          <div className="flex items-center justify-between gap-3">
-            <p className="text-xs font-bold tracking-wider text-zinc-500 uppercase">
-              Jogos
-            </p>
-            <UsersRound className="text-ur-gold" size={17} aria-hidden="true" />
-          </div>
-          <p className="font-display mt-3 text-3xl font-black">
-            {summary?.games ?? "—"}
-          </p>
-          <p className="mt-2 text-sm text-zinc-500">histórico consolidado</p>
-        </Card>
-        <Card>
-          <div className="flex items-center justify-between gap-3">
-            <p className="text-xs font-bold tracking-wider text-zinc-500 uppercase">
-              Aproveitamento
-            </p>
-            <Trophy className="text-ur-gold" size={17} aria-hidden="true" />
-          </div>
-          <p className="font-display mt-3 text-3xl font-black">
-            {ranking ? `${ranking.winRate.toFixed(1)}%` : "—"}
-          </p>
-          <p className="mt-2 text-sm text-zinc-500">
-            {movementLabel(ranking?.movement)}
-          </p>
-        </Card>
-        <Card>
-          <div className="flex items-center justify-between gap-3">
-            <p className="text-xs font-bold tracking-wider text-zinc-500 uppercase">
-              Competições
-            </p>
-            <Target className="text-ur-gold" size={17} aria-hidden="true" />
-          </div>
-          <p className="font-display mt-3 text-3xl font-black">
-            {summary?.competitions ?? "—"}
-          </p>
-          <p className="mt-2 text-sm text-zinc-500">temporada oficial</p>
-        </Card>
-        <Card>
-          <div className="flex items-center justify-between gap-3">
-            <p className="text-xs font-bold tracking-wider text-zinc-500 uppercase">
-              Hunter
-            </p>
-            <Sparkles className="text-ur-gold" size={17} aria-hidden="true" />
-          </div>
-          <p className="font-display mt-3 text-3xl font-black">
-            {summary?.hunterCompleted ?? "—"}
-          </p>
-          <p className="mt-2 text-sm text-zinc-500">marcos concluídos</p>
-        </Card>
-      </section>
+      {team ? <section className="grid gap-4"><div className="flex items-end justify-between gap-4"><div><p className="text-[.64rem] font-black tracking-[.2em] text-ur-gold uppercase">Equipe</p><h2 className="font-display mt-1 text-2xl font-black uppercase sm:text-3xl">Você compete por algo maior</h2></div><Link href="/athlete/team" className="text-xs font-black text-ur-gold">Minha equipe →</Link></div><Link href="/athlete/team" className="grid gap-4 rounded-[1.75rem] border border-white/8 bg-white/[.02] p-5 sm:grid-cols-[auto_1fr_auto] sm:items-center sm:p-6"><div className="grid size-14 place-items-center rounded-2xl border border-white/10 bg-black/40"><Shield className="text-ur-gold" size={26} aria-hidden="true" /></div><div><p className="font-display text-2xl font-black uppercase">{team.name}</p><p className="mt-1 text-sm text-zinc-500">Sua equipe faz parte da sua trajetória competitiva UR.</p></div><ArrowRight className="text-ur-gold" size={21} aria-hidden="true" /></Link></section> : null}
 
-      <section className="grid gap-5 lg:grid-cols-[1.15fr_.85fr]">
-        <Card>
-          <div className="flex items-start justify-between gap-4">
-            <div>
-              <p className="text-xs font-black tracking-[.18em] text-zinc-500 uppercase">
-                Onde estou
-              </p>
-              <h2 className="font-display text-2xl font-black uppercase">
-                Ranking como competição viva
-              </h2>
-            </div>
-            <Trophy className="text-ur-gold" aria-hidden="true" />
-          </div>
+      {nextReservation ? <section className="grid gap-4"><div className="flex items-end justify-between gap-4"><h2 className="font-display text-2xl font-black uppercase">Próximo compromisso</h2><Link href="/athlete/agenda" className="text-xs font-black text-ur-gold">Ver agenda →</Link></div>{creditsKnown ? <AthleteOpportunityCard opportunity={nextReservation} availableCredits={snapshot.creditBalance ?? 0} readOnly={viewer.isPreview} /> : <div className="rounded-[1.5rem] border border-white/8 bg-white/[.02] p-5"><p className="font-black">{nextReservation.title}</p><p className="mt-3 text-xs leading-5 text-zinc-600">Os créditos estão temporariamente indisponíveis. A atividade é exibida sem assumir saldo financeiro.</p></div>}</section> : null}
 
-          <div className="mt-5 grid gap-4 sm:grid-cols-[auto_1fr] sm:items-end">
-            <div>
-              <strong className="font-display text-7xl">
-                {ranking?.currentPosition ? `#${ranking.currentPosition}` : "—"}
-              </strong>
-              <p className="text-ur-gold text-xl font-black">
-                {ranking
-                  ? `${ranking.totalPoints} PTS`
-                  : "Aguardando resultados"}
-              </p>
-            </div>
-            <div className="sm:text-right">
-              <p className="text-sm text-zinc-500">
-                {ranking?.gamesPlayed ?? 0} jogos · {ranking?.wins ?? 0}{" "}
-                vitórias · {ranking?.losses ?? 0} derrotas
-              </p>
-              <Link
-                href="/athlete/ranking"
-                className="text-ur-gold mt-3 inline-flex items-center gap-1 font-black"
-              >
-                Abrir ranking <ArrowRight size={15} aria-hidden="true" />
-              </Link>
-            </div>
-          </div>
-        </Card>
+      {opportunities.length > 0 ? <section className="grid gap-4"><div className="flex items-end justify-between gap-4"><h2 className="font-display text-2xl font-black uppercase">Oportunidades abertas</h2><Link href="/athlete/agenda" className="text-xs font-black text-ur-gold">Ver todas →</Link></div><div className="grid gap-4 lg:grid-cols-3">{opportunities.map((opportunity) => creditsKnown ? <AthleteOpportunityCard key={opportunity.id} opportunity={opportunity} availableCredits={snapshot.creditBalance ?? 0} readOnly={viewer.isPreview} /> : <Link key={opportunity.id} href="/athlete/agenda" className="rounded-[1.5rem] border border-white/8 bg-white/[.02] p-5"><p className="font-black">{opportunity.title}</p><p className="mt-3 text-xs text-zinc-600">Abra a agenda para consultar o estado completo.</p></Link>)}</div></section> : null}
 
-        <Card>
-          <p className="text-xs font-black tracking-[.18em] text-zinc-500 uppercase">
-            Próxima arena
-          </p>
-          <div className="rounded-ur mt-3 flex min-h-28 items-center justify-center border border-dashed border-white/10 bg-black/20">
-            <MapPin className="text-ur-gold" size={30} aria-hidden="true" />
-          </div>
-          {nextReservation ? (
-            <div className="mt-4">
-              <h2 className="text-xl font-black">{nextReservation.title}</h2>
-              <p className="mt-2 text-sm text-zinc-400">
-                {nextReservation.venueName ??
-                  nextReservation.poleName ??
-                  "Arena UR"}
-              </p>
-              <Badge>
-                {nextReservation.personalReservationStatus ?? "confirmado"}
-              </Badge>
-            </div>
-          ) : (
-            <p className="mt-4 text-sm text-zinc-500">
-              Reserve sua próxima atividade para definir a próxima arena.
-            </p>
-          )}
-          <Link
-            href="/athlete/agenda"
-            className="text-ur-gold mt-5 inline-flex font-black"
-          >
-            Ver agenda UR →
-          </Link>
-        </Card>
-      </section>
+      <section className="grid gap-5 lg:grid-cols-3"><Link href="/athlete/season" className="min-h-48 rounded-[1.75rem] border border-white/8 bg-white/[.02] p-6"><CalendarDays className="text-ur-gold" size={24} aria-hidden="true" /><p className="mt-6 text-[.62rem] font-black tracking-[.18em] text-ur-gold uppercase">Temporada</p><h2 className="font-display mt-2 text-2xl font-black uppercase">Entenda sua campanha</h2><p className="mt-2 text-sm leading-6 text-zinc-500">Veja fases, critérios e o caminho competitivo da temporada.</p></Link><Link href="/athlete/hunter" className="min-h-48 rounded-[1.75rem] border border-ur-gold/20 bg-ur-gold/[.035] p-6"><Sparkles className="text-ur-gold" size={24} aria-hidden="true" /><p className="mt-6 text-[.62rem] font-black tracking-[.18em] text-ur-gold uppercase">Hunter</p><h2 className="font-display mt-2 text-2xl font-black uppercase">Desenvolvimento para quem quer ir além</h2><p className="mt-2 text-sm leading-6 text-zinc-500">Conheça a metodologia de desenvolvimento do Ultimate Rivals.</p></Link><Link href="/athlete/highlights" className="min-h-48 rounded-[1.75rem] border border-white/8 bg-white/[.02] p-6"><Clapperboard className="text-ur-gold" size={24} aria-hidden="true" /><p className="mt-6 text-[.62rem] font-black tracking-[.18em] text-ur-gold uppercase">Destaques</p><h2 className="font-display mt-2 text-2xl font-black uppercase">Sua história em evidência</h2><p className="mt-2 text-sm leading-6 text-zinc-500">Mídia publicada e momentos oficiais aparecem aqui quando disponíveis.</p></Link></section>
 
-      {nextReservation && (
-        <section className="grid gap-4">
-          <div className="flex items-center justify-between gap-4">
-            <div>
-              <p className="text-xs font-black tracking-[.18em] text-zinc-500 uppercase">
-                Sua agenda
-              </p>
-              <h2 className="font-display text-2xl font-black uppercase">
-                Próximo compromisso
-              </h2>
-            </div>
-            <CalendarDays className="text-ur-gold" aria-hidden="true" />
-          </div>
-          <AthleteOpportunityCard
-            opportunity={nextReservation}
-            availableCredits={snapshot.creditBalance ?? 0}
-          />
-        </section>
-      )}
+      <section className="grid gap-4"><div className="flex items-end justify-between gap-4"><div><p className="text-[.64rem] font-black tracking-[.2em] text-ur-gold uppercase">Recompensas</p><h2 className="font-display mt-1 text-2xl font-black uppercase sm:text-3xl">Economia vem depois do jogo</h2></div><Link href="/athlete/wallet" className="text-xs font-black text-ur-gold">Abrir Wallet →</Link></div><div className="grid gap-4 sm:grid-cols-3"><div className="rounded-[1.5rem] border border-white/8 bg-white/[.018] p-5"><Coins className="text-ur-gold" size={20} aria-hidden="true" /><p className="mt-4 text-xs font-black text-zinc-600 uppercase">UR Coins</p><p className="font-display mt-1 text-3xl font-black">{economyReliable ? summary.urCoinBalance.toLocaleString("pt-BR") : "Indisponível"}</p>{!economyReliable ? <p className="mt-2 text-xs text-zinc-600">A fonte econômica não será tratada como saldo zero.</p> : null}</div><div className="rounded-[1.5rem] border border-white/8 bg-white/[.018] p-5"><CreditCard className="text-ur-gold" size={20} aria-hidden="true" /><p className="mt-4 text-xs font-black text-zinc-600 uppercase">Créditos livres</p><p className="font-display mt-1 text-3xl font-black">{snapshot.creditBalance === null ? "Indisponível" : snapshot.creditBalance.toLocaleString("pt-BR")}</p></div><Link href="/athlete/market" className="rounded-[1.5rem] border border-white/8 bg-white/[.018] p-5"><Trophy className="text-ur-gold" size={20} aria-hidden="true" /><p className="mt-4 text-xs font-black text-zinc-600 uppercase">UR Market</p><p className="font-display mt-1 text-3xl font-black">Resgatar</p><p className="mt-2 text-xs text-zinc-600">Produtos, benefícios e experiências disponíveis no ecossistema.</p></Link></div></section>
 
-      {nextOpportunities.length > 0 && (
-        <section className="grid gap-4">
-          <div className="flex items-center justify-between gap-4">
-            <div>
-              <p className="text-xs font-black tracking-[.18em] text-zinc-500 uppercase">
-                Próximas disputas
-              </p>
-              <h2 className="font-display text-2xl font-black uppercase">
-                Oportunidades para você
-              </h2>
-            </div>
-            <Link href="/athlete/agenda" className="text-ur-gold font-black">
-              Ver todas
-            </Link>
-          </div>
-          <div className="grid gap-4 lg:grid-cols-3">
-            {nextOpportunities.map((opportunity) => (
-              <AthleteOpportunityCard
-                key={opportunity.id}
-                opportunity={opportunity}
-                availableCredits={snapshot.creditBalance ?? 0}
-              />
-            ))}
-          </div>
-        </section>
-      )}
-
-      {snapshot.billing && snapshot.billing.openItems > 0 && (
-        <Card className="border-ur-gold/50">
-          <div className="flex items-start gap-3">
-            <CreditCard
-              className="text-ur-gold mt-0.5"
-              size={18}
-              aria-hidden="true"
-            />
-            <div>
-              <p className="font-bold">Financeiro pendente</p>
-              <p className="mt-1 text-sm text-zinc-400">
-                {snapshot.billing.openItems} item(ns) em aberto ·{" "}
-                {money.format(snapshot.billing.openAmount)}.
-              </p>
-            </div>
-          </div>
-        </Card>
-      )}
-
+      {snapshot.billing && snapshot.billing.openItems > 0 ? <section className="rounded-[1.5rem] border border-ur-gold/20 bg-ur-gold/[.04] p-5"><p className="font-bold">Financeiro pendente</p><p className="mt-1 text-sm text-zinc-400">{snapshot.billing.openItems} item(ns) em aberto · {money.format(snapshot.billing.openAmount)}.</p></section> : null}
       <AthleteSourceHealth errors={snapshot.sourceErrors} />
     </div>
   );

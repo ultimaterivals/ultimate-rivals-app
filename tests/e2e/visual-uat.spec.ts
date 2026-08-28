@@ -18,9 +18,9 @@ async function login(page: Page, email = "athlete@test.ur.local") {
 }
 
 async function waitForPlayerHub(page: Page) {
-  await expect(page.getByText("Objetivo atual", { exact: true })).toBeVisible({
-    timeout: 30_000,
-  });
+  await expect(
+    page.getByRole("main").getByText("Rumo ao estrelato", { exact: true }),
+  ).toBeVisible({ timeout: 30_000 });
 }
 
 async function waitForHunter(page: Page) {
