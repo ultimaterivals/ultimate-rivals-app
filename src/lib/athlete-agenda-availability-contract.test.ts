@@ -7,9 +7,7 @@ const read = (path: string) =>
 
 const agenda = read("src/app/athlete/agenda/page.tsx");
 const availability = read("src/app/athlete/disponibilidade/page.tsx");
-const availabilityActions = read(
-  "src/app/athlete/disponibilidade/actions.ts",
-);
+const availabilityActions = read("src/app/athlete/disponibilidade/actions.ts");
 const opportunityCard = read(
   "src/components/athlete/athlete-opportunity-card.tsx",
 );
@@ -43,9 +41,7 @@ describe("athlete Jogar and availability communication contract", () => {
     expect(opportunityCard).toContain(
       "Entrar em lista de espera não segura crédito.",
     );
-    expect(opportunityCard).toContain(
-      "A reserva direta fica bloqueada até",
-    );
+    expect(opportunityCard).toContain("A reserva direta fica bloqueada até");
     expect(opportunityCard).toContain("availableCredits: number | null");
   });
 
@@ -57,7 +53,9 @@ describe("athlete Jogar and availability communication contract", () => {
       "Não existe recomendação automática implícita neste cadastro.",
     );
     expect(agenda).toContain("Quando você pode jogar?");
-    expect(agenda).toContain("<AthleteAvailabilityForm snapshot={availability} />");
+    expect(agenda).toContain(
+      "<AthleteAvailabilityForm snapshot={availability} />",
+    );
     expect(availabilityActions).toContain(
       "redirect(`/athlete/agenda?${query}#disponibilidade`)",
     );
