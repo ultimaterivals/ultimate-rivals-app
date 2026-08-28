@@ -28,7 +28,10 @@ async function waitForJogar(page: Page) {
     page.getByRole("heading", { name: "Entre em quadra", exact: true }),
   ).toBeVisible({ timeout: 30_000 });
   await expect(
-    page.getByRole("heading", { name: "Oportunidades para jogar", exact: true }),
+    page.getByRole("heading", {
+      name: "Oportunidades para jogar",
+      exact: true,
+    }),
   ).toBeVisible();
   await expect(
     page.getByRole("heading", { name: "Quando você pode jogar?", exact: true }),
