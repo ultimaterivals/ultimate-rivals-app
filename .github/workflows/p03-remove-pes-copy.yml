@@ -1,6 +1,7 @@
 name: P03 Remove PES Copy Once
 
 on:
+  workflow_dispatch:
   push:
     branches:
       - feat/athlete-app-p03-jogar
