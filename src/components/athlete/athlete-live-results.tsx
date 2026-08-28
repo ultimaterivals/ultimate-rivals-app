@@ -26,10 +26,7 @@ type ResultRow = {
   } | null;
 };
 
-function resultLabel(
-  result: MatchResult | null | undefined,
-  sideId: string,
-) {
+function resultLabel(result: MatchResult | null | undefined, sideId: string) {
   if (!result || result.result_status !== "homologated") {
     return "Aguardando homologação";
   }
