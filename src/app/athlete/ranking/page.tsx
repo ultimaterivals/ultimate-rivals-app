@@ -25,7 +25,10 @@ function option(value: string | undefined, values: readonly (string | null)[]) {
   return value && values.includes(value) ? value : undefined;
 }
 
-function pointsDifference(a: number | null | undefined, b: number | null | undefined) {
+function pointsDifference(
+  a: number | null | undefined,
+  b: number | null | undefined,
+) {
   if (typeof a !== "number" || typeof b !== "number") return null;
   return Math.max(0, a - b);
 }
@@ -73,9 +76,14 @@ export default async function AthleteRankingPage({
   const above = mine?.current_position
     ? rows.find((row) => row.current_position === mine.current_position - 1)
     : null;
-  const leader = rows.find((row) => row.current_position === 1) ?? rows[0] ?? null;
-  const gapToAbove = above ? pointsDifference(above.total_points, mine?.total_points) : null;
-  const gapToLeader = leader ? pointsDifference(leader.total_points, mine?.total_points) : null;
+  const leader =
+    rows.find((row) => row.current_position === 1) ?? rows[0] ?? null;
+  const gapToAbove = above
+    ? pointsDifference(above.total_points, mine?.total_points)
+    : null;
+  const gapToLeader = leader
+    ? pointsDifference(leader.total_points, mine?.total_points)
+    : null;
   const leaderStats =
     tab === "individual"
       ? ([
@@ -176,19 +184,22 @@ export default async function AthleteRankingPage({
           <p className="text-xs font-black tracking-[.18em] text-amber-300 uppercase">
             Fonte temporariamente indisponível
           </p>
-          <h2 className="mt-2 text-xl font-black">Não foi possível carregar a classificação.</h2>
+          <h2 className="mt-2 text-xl font-black">
+            Não foi possível carregar a classificação.
+          </h2>
           <p className="mt-2 text-sm text-zinc-400">
-            Nenhuma posição ou ausência de ranking será inferida enquanto a fonte oficial não responder.
+            Nenhuma posição ou ausência de ranking será inferida enquanto a
+            fonte oficial não responder.
           </p>
         </Card>
       ) : mine ? (
         <section
           aria-labelledby="my-ranking-title"
-          className="ranking-hero overflow-hidden rounded-[2rem] border border-ur-gold/30 bg-[#0d0d0d]"
+          className="ranking-hero border-ur-gold/30 overflow-hidden rounded-[2rem] border bg-[#0d0d0d]"
         >
           <div className="grid gap-6 px-5 py-6 sm:px-7 lg:grid-cols-[minmax(0,1.15fr)_minmax(18rem,.85fr)] lg:items-end lg:px-8 lg:py-8">
             <div>
-              <p className="text-xs font-black tracking-[.2em] text-ur-gold uppercase">
+              <p className="text-ur-gold text-xs font-black tracking-[.2em] uppercase">
                 Sua posição agora
               </p>
               <div className="mt-3 flex items-end gap-4">
@@ -196,7 +207,10 @@ export default async function AthleteRankingPage({
                   #{mine.current_position ?? "—"}
                 </p>
                 <div className="pb-1">
-                  <p id="my-ranking-title" className="font-display text-2xl font-black text-ur-gold">
+                  <p
+                    id="my-ranking-title"
+                    className="font-display text-ur-gold text-2xl font-black"
+                  >
                     {mine.total_points} pts
                   </p>
                   <p className="mt-1 text-xs font-bold text-zinc-500 uppercase">
@@ -205,8 +219,8 @@ export default async function AthleteRankingPage({
                 </div>
               </div>
               <p className="mt-5 max-w-2xl text-sm leading-6 text-zinc-300">
-                {mine.games_played} jogos · {mine.wins} vitórias · {mine.losses} derrotas ·{" "}
-                {Number(mine.win_rate).toFixed(1)}% de aproveitamento
+                {mine.games_played} jogos · {mine.wins} vitórias · {mine.losses}{" "}
+                derrotas · {Number(mine.win_rate).toFixed(1)}% de aproveitamento
               </p>
             </div>
 
@@ -222,20 +236,27 @@ export default async function AthleteRankingPage({
                         #{above.current_position} · {above.display_name}
                       </p>
                     </div>
-                    <Target size={18} className="text-ur-gold" aria-hidden="true" />
+                    <Target
+                      size={18}
+                      className="text-ur-gold"
+                      aria-hidden="true"
+                    />
                   </div>
                   {gapToAbove !== null ? (
                     <p className="mt-3 text-sm text-zinc-300">
-                      Diferença de pontos: <strong className="text-ur-gold">{gapToAbove}</strong>
+                      Diferença de pontos:{" "}
+                      <strong className="text-ur-gold">{gapToAbove}</strong>
                     </p>
                   ) : null}
                 </div>
               ) : (
-                <div className="rounded-2xl border border-ur-gold/20 bg-ur-gold/[.05] p-4">
-                  <p className="text-[.62rem] font-black tracking-[.18em] text-ur-gold uppercase">
+                <div className="border-ur-gold/20 bg-ur-gold/[.05] rounded-2xl border p-4">
+                  <p className="text-ur-gold text-[.62rem] font-black tracking-[.18em] uppercase">
                     Posição de referência
                   </p>
-                  <p className="mt-2 font-black">Você está no topo desta classificação publicada.</p>
+                  <p className="mt-2 font-black">
+                    Você está no topo desta classificação publicada.
+                  </p>
                 </div>
               )}
 
@@ -246,9 +267,15 @@ export default async function AthleteRankingPage({
                       <p className="text-[.62rem] font-black tracking-[.18em] text-zinc-500 uppercase">
                         Líder da disputa
                       </p>
-                      <p className="mt-1 font-black">#1 · {leader.display_name}</p>
+                      <p className="mt-1 font-black">
+                        #1 · {leader.display_name}
+                      </p>
                     </div>
-                    <ArrowUpRight size={18} className="text-zinc-500" aria-hidden="true" />
+                    <ArrowUpRight
+                      size={18}
+                      className="text-zinc-500"
+                      aria-hidden="true"
+                    />
                   </div>
                   {gapToLeader !== null ? (
                     <p className="mt-3 text-sm text-zinc-300">
@@ -260,7 +287,8 @@ export default async function AthleteRankingPage({
             </div>
           </div>
           <div className="border-t border-white/10 px-5 py-3 text-xs text-zinc-500 sm:px-7 lg:px-8">
-            Pontos ajudam a mostrar a distância competitiva, mas empates e posições continuam sujeitos aos critérios oficiais de desempate.
+            Pontos ajudam a mostrar a distância competitiva, mas empates e
+            posições continuam sujeitos aos critérios oficiais de desempate.
           </div>
         </section>
       ) : tab === "individual" ? (
@@ -268,9 +296,12 @@ export default async function AthleteRankingPage({
           <p className="text-xs font-black tracking-[.18em] text-zinc-500 uppercase">
             Sua corrida
           </p>
-          <h2 className="mt-2 text-xl font-black">Sem posição publicada neste recorte.</h2>
+          <h2 className="mt-2 text-xl font-black">
+            Sem posição publicada neste recorte.
+          </h2>
           <p className="mt-2 text-sm text-zinc-400">
-            A classificação geral continua visível abaixo. O app não cria uma posição até ela existir na fonte oficial.
+            A classificação geral continua visível abaixo. O app não cria uma
+            posição até ela existir na fonte oficial.
           </p>
         </Card>
       ) : null}
@@ -300,7 +331,10 @@ export default async function AthleteRankingPage({
             }))}
           />
           {leaderStats.some(([, row]) => row) && (
-            <section className="grid gap-3 sm:grid-cols-2" aria-label="Destaques oficiais">
+            <section
+              className="grid gap-3 sm:grid-cols-2"
+              aria-label="Destaques oficiais"
+            >
               {leaderStats.map(
                 ([label, row, field]) =>
                   row && (
@@ -309,7 +343,7 @@ export default async function AthleteRankingPage({
                         Destaque oficial
                       </p>
                       <p className="mt-2 font-bold">{label}</p>
-                      <p className="mt-1 text-xl font-black text-ur-gold">
+                      <p className="text-ur-gold mt-1 text-xl font-black">
                         {row.display_name} · {row[field]}
                       </p>
                     </Card>
@@ -321,9 +355,12 @@ export default async function AthleteRankingPage({
       ) : !allResult.error ? (
         <Card>
           <Trophy className="text-ur-gold" aria-hidden="true" />
-          <h2 className="mt-3 text-xl font-black">Classificação ainda não publicada</h2>
+          <h2 className="mt-3 text-xl font-black">
+            Classificação ainda não publicada
+          </h2>
           <p className="mt-2 text-sm text-zinc-400">
-            Quando existir uma tabela oficial para este recorte, ela aparecerá aqui.
+            Quando existir uma tabela oficial para este recorte, ela aparecerá
+            aqui.
           </p>
         </Card>
       ) : null}
