@@ -42,7 +42,9 @@ async function waitForRanking(page: Page) {
   await expect(
     page.getByRole("heading", { name: "Ranking", exact: true }),
   ).toBeVisible({ timeout: 30_000 });
-  await expect(page.getByRole("navigation", { name: "Tipos de ranking" })).toBeVisible();
+  await expect(
+    page.getByRole("navigation", { name: "Tipos de ranking" }),
+  ).toBeVisible();
 }
 
 async function waitForHunter(page: Page) {
