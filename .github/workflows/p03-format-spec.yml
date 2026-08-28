@@ -1,0 +1,25 @@
+name: P03 Format Spec Once
+
+on:
+  push:
+    branches:
+      - feat/athlete-app-p03-jogar
+
+permissions:
+  contents: read
+
+jobs:
+  format:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npx prettier --write tests/e2e/visual-uat.spec.ts
+      - uses: actions/upload-artifact@v4
+        with:
+          name: p03-formatted-spec
+          path: tests/e2e/visual-uat.spec.ts
