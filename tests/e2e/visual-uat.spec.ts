@@ -60,7 +60,9 @@ async function waitForResults(page: Page) {
       exact: true,
     }),
   ).toBeVisible();
-  await expect(page.getByText("Data não registrada na fonte histórica")).toBeVisible();
+  await expect(
+    page.getByText("Data não registrada na fonte histórica"),
+  ).toBeVisible();
 }
 
 async function waitForHunter(page: Page) {
