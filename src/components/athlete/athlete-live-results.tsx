@@ -3,6 +3,13 @@ import { Card } from "@/components/ui";
 import { requireAthleteViewer } from "@/lib/auth/athlete-viewer";
 import { createClient } from "@/lib/supabase/server";
 
+type MatchResult = {
+  winner_side_id: string | null;
+  score_a: number;
+  score_b: number;
+  result_status: string;
+};
+
 type ResultRow = {
   match_id: string;
   side_id: string;
@@ -10,12 +17,7 @@ type ResultRow = {
     match_code: string;
     ended_at: string | null;
     ur_play_sessions: { name: string } | null;
-    match_results: {
-      winner_side_id: string | null;
-      score_a: number;
-      score_b: number;
-      result_status: string;
-    } | null;
+    match_results: MatchResult | null;
     match_participants: {
       athlete_id: string;
       side_id: string;
@@ -25,11 +27,7 @@ type ResultRow = {
 };
 
 function resultLabel(
-  result: ResultRow["matches"] extends infer T
-    ? T extends { match_results: infer R }
-      ? R
-      : never
-    : never,
+  result: MatchResult | null | undefined,
   sideId: string,
 ) {
   if (!result || result.result_status !== "homologated") {
