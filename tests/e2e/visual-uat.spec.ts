@@ -49,10 +49,14 @@ async function openMobileAndCapture(page: Page, path: string, name: string) {
 async function openAthletePreview(page: Page) {
   await login(page, "admin@test.ur.local");
   await page.goto("/admin/preview");
-  await expect(page.getByRole("heading", { name: "Validar o App como atleta" })).toBeVisible();
+  await expect(
+    page.getByRole("heading", { name: "Validar o App como atleta" }),
+  ).toBeVisible();
   await page.getByRole("button", { name: "Abrir prévia" }).first().click();
   await expect(page).toHaveURL(/\/athlete/, { timeout: 30_000 });
-  await expect(page.getByText("Prévia do Atleta · somente leitura")).toBeVisible();
+  await expect(
+    page.getByText("Prévia do Atleta · somente leitura"),
+  ).toBeVisible();
 }
 
 test("desktop athlete App visual evidence", async ({ page }, testInfo) => {
@@ -77,9 +81,17 @@ test("mobile 390 athlete shell visual evidence", async ({ page }, testInfo) => {
   await expect(
     page.getByRole("navigation", { name: "Navegação principal do atleta" }),
   ).toBeVisible();
-  for (const destination of ["Início", "Jogar", "Ranking", "Hunter", "Perfil"]) {
+  for (const destination of [
+    "Início",
+    "Jogar",
+    "Ranking",
+    "Hunter",
+    "Perfil",
+  ]) {
     await expect(
-      page.getByRole("navigation", { name: "Navegação principal do atleta" }).getByText(destination, { exact: true }),
+      page
+        .getByRole("navigation", { name: "Navegação principal do atleta" })
+        .getByText(destination, { exact: true }),
     ).toBeVisible();
   }
   await expectNoHorizontalOverflow(page);
@@ -89,7 +101,9 @@ test("mobile 390 athlete shell visual evidence", async ({ page }, testInfo) => {
   await openMobileAndCapture(page, "/athlete/perfil", "mobile-390x844-profile");
 });
 
-test("mobile compact 360 athlete shell visual evidence", async ({ page }, testInfo) => {
+test("mobile compact 360 athlete shell visual evidence", async ({
+  page,
+}, testInfo) => {
   test.skip(testInfo.project.name !== "mobile", "mobile evidence only");
   await page.setViewportSize({ width: 360, height: 800 });
   await login(page);
@@ -97,14 +111,18 @@ test("mobile compact 360 athlete shell visual evidence", async ({ page }, testIn
   await capture(page, "mobile-360x800-player-hub");
 });
 
-test("admin Preview remains read-only on desktop", async ({ page }, testInfo) => {
+test("admin Preview remains read-only on desktop", async ({
+  page,
+}, testInfo) => {
   test.skip(testInfo.project.name !== "chromium", "desktop evidence only");
   await page.setViewportSize({ width: 1440, height: 900 });
   await openAthletePreview(page);
   await capture(page, "preview-desktop-1440x900-player-hub");
 });
 
-test("admin Preview remains read-only on mobile", async ({ page }, testInfo) => {
+test("admin Preview remains read-only on mobile", async ({
+  page,
+}, testInfo) => {
   test.skip(testInfo.project.name !== "mobile", "mobile evidence only");
   await page.setViewportSize({ width: 390, height: 844 });
   await openAthletePreview(page);
