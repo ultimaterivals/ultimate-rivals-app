@@ -19,7 +19,7 @@ async function login(page: Page, email = "athlete@test.ur.local") {
 
 async function waitForPlayerHub(page: Page) {
   await expect(
-    page.getByRole("main").getByText("Rumo ao estrelato", { exact: true }),
+    page.getByRole("heading", { name: "Seu ranking está vivo", exact: true }),
   ).toBeVisible({ timeout: 30_000 });
 }
 
@@ -35,6 +35,15 @@ async function waitForJogar(page: Page) {
   ).toBeVisible();
   await expect(
     page.getByRole("heading", { name: "Quando você pode jogar?", exact: true }),
+  ).toBeVisible();
+}
+
+async function waitForRanking(page: Page) {
+  await expect(
+    page.getByRole("heading", { name: "Ranking", exact: true }),
+  ).toBeVisible({ timeout: 30_000 });
+  await expect(
+    page.getByRole("navigation", { name: "Tipos de ranking" }),
   ).toBeVisible();
 }
 
@@ -126,6 +135,12 @@ test("desktop athlete App visual evidence", async ({ page }, testInfo) => {
   );
   await openAndCapture(
     page,
+    "/athlete/ranking",
+    "desktop-1440x900-ranking",
+    waitForRanking,
+  );
+  await openAndCapture(
+    page,
     "/athlete/hunter",
     "desktop-1440x900-hunter",
     waitForHunter,
@@ -171,6 +186,12 @@ test("mobile 390 athlete shell visual evidence", async ({ page }, testInfo) => {
   );
   await openMobileAndCapture(
     page,
+    "/athlete/ranking",
+    "mobile-390x844-ranking",
+    waitForRanking,
+  );
+  await openMobileAndCapture(
+    page,
     "/athlete/hunter",
     "mobile-390x844-hunter",
     waitForHunter,
@@ -199,6 +220,12 @@ test("mobile compact 360 athlete shell visual evidence", async ({
     "mobile-360x800-jogar",
     waitForJogar,
   );
+  await openMobileAndCapture(
+    page,
+    "/athlete/ranking",
+    "mobile-360x800-ranking",
+    waitForRanking,
+  );
 });
 
 test("admin Preview remains read-only on desktop", async ({
@@ -218,6 +245,12 @@ test("admin Preview remains read-only on desktop", async ({
   await expect(
     page.getByText(/Prévia somente leitura\. Interesse, reserva, cancelamento/),
   ).toBeVisible();
+  await openAndCapture(
+    page,
+    "/athlete/ranking",
+    "preview-desktop-1440x900-ranking",
+    waitForRanking,
+  );
 });
 
 test("admin Preview remains read-only on mobile", async ({
@@ -238,4 +271,10 @@ test("admin Preview remains read-only on mobile", async ({
   await expect(
     page.getByText(/Prévia somente leitura\. Interesse, reserva, cancelamento/),
   ).toBeVisible();
+  await openMobileAndCapture(
+    page,
+    "/athlete/ranking",
+    "preview-mobile-390x844-ranking",
+    waitForRanking,
+  );
 });

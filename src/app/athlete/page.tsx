@@ -106,7 +106,7 @@ export default async function AthletePage() {
       <section className="relative -mx-4 overflow-hidden border-y border-white/5 bg-[radial-gradient(circle_at_85%_20%,rgba(234,179,8,.12),transparent_32%),linear-gradient(180deg,rgba(255,255,255,.035),rgba(255,255,255,0))] px-4 py-7 sm:mx-0 sm:rounded-[2rem] sm:border sm:px-8 sm:py-9 lg:px-10">
         <div className="relative grid gap-8 lg:grid-cols-[1fr_auto] lg:items-end">
           <div className="min-w-0">
-            <p className="text-[.65rem] font-black tracking-[.24em] text-ur-gold uppercase">Rumo ao estrelato</p>
+            <p className="text-[.65rem] font-black tracking-[.24em] text-ur-gold uppercase">Sua carreira UR</p>
             <div className="mt-4 flex items-center gap-4">
               <div className="grid size-16 shrink-0 place-items-center overflow-hidden rounded-2xl border border-ur-gold/25 bg-black/50 sm:size-20">
                 {snapshot.identity.avatarUrl ? <Image src={snapshot.identity.avatarUrl} alt={`Foto de ${snapshot.identity.publicName}`} width={160} height={160} className="h-full w-full object-cover" /> : <span className="font-display text-2xl font-black text-ur-gold sm:text-3xl">{initials(snapshot.identity.publicName)}</span>}
