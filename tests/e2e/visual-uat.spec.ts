@@ -47,6 +47,22 @@ async function waitForRanking(page: Page) {
   ).toBeVisible();
 }
 
+async function waitForResults(page: Page) {
+  await expect(
+    page.getByRole("heading", { name: "Resultados", exact: true }),
+  ).toBeVisible({ timeout: 30_000 });
+  await expect(
+    page.getByRole("heading", { name: "Jogos atuais", exact: true }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("heading", {
+      name: "Sua trajetória antes do app",
+      exact: true,
+    }),
+  ).toBeVisible();
+  await expect(page.getByText("Data não registrada na fonte histórica")).toBeVisible();
+}
+
 async function waitForHunter(page: Page) {
   await expect(
     page.getByRole("heading", {
@@ -141,6 +157,12 @@ test("desktop athlete App visual evidence", async ({ page }, testInfo) => {
   );
   await openAndCapture(
     page,
+    "/athlete/results",
+    "desktop-1440x900-results",
+    waitForResults,
+  );
+  await openAndCapture(
+    page,
     "/athlete/hunter",
     "desktop-1440x900-hunter",
     waitForHunter,
@@ -192,6 +214,12 @@ test("mobile 390 athlete shell visual evidence", async ({ page }, testInfo) => {
   );
   await openMobileAndCapture(
     page,
+    "/athlete/results",
+    "mobile-390x844-results",
+    waitForResults,
+  );
+  await openMobileAndCapture(
+    page,
     "/athlete/hunter",
     "mobile-390x844-hunter",
     waitForHunter,
@@ -226,6 +254,12 @@ test("mobile compact 360 athlete shell visual evidence", async ({
     "mobile-360x800-ranking",
     waitForRanking,
   );
+  await openMobileAndCapture(
+    page,
+    "/athlete/results",
+    "mobile-360x800-results",
+    waitForResults,
+  );
 });
 
 test("admin Preview remains read-only on desktop", async ({
@@ -250,6 +284,12 @@ test("admin Preview remains read-only on desktop", async ({
     "/athlete/ranking",
     "preview-desktop-1440x900-ranking",
     waitForRanking,
+  );
+  await openAndCapture(
+    page,
+    "/athlete/results",
+    "preview-desktop-1440x900-results",
+    waitForResults,
   );
 });
 
@@ -276,5 +316,11 @@ test("admin Preview remains read-only on mobile", async ({
     "/athlete/ranking",
     "preview-mobile-390x844-ranking",
     waitForRanking,
+  );
+  await openMobileAndCapture(
+    page,
+    "/athlete/results",
+    "preview-mobile-390x844-results",
+    waitForResults,
   );
 });
