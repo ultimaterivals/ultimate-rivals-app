@@ -1,23 +1,9 @@
-import { CheckCircle2, Coins, ShoppingBag, Target, Trophy } from "lucide-react";
+import { ArrowRight, CalendarDays, CheckCircle2, Target, Trophy } from "lucide-react";
 import Link from "next/link";
-import { Badge, Card, EmptyState, PageHeader } from "@/components/ui";
+import { Badge, Card, EmptyState } from "@/components/ui";
 import { requireAthleteViewer } from "@/lib/auth/athlete-viewer";
 import { getAthleteSnapshotForViewer } from "@/server/services/athlete-viewer-snapshot-service";
 
-const hunterPillars = [
-  "Disciplina",
-  "Leitura de jogo",
-  "Tomada de decisão",
-  "Consistência",
-  "Competitividade",
-  "Evolução contínua",
-  "Liderança",
-  "Trabalho em equipe",
-  "Comportamento",
-  "Preparação mental",
-];
-
-// Contract guard: advanced missions, achievements and progression systems não são simulados nesta V1.
 export default async function AthleteDevelopmentPage() {
   const viewer = await requireAthleteViewer();
   const snapshot = await getAthleteSnapshotForViewer(viewer);
@@ -33,240 +19,133 @@ export default async function AthleteDevelopmentPage() {
 
   const ranking = snapshot.primaryRanking;
   const summary = snapshot.summary;
+  const nextReservation = snapshot.nextReservation;
   const development = snapshot.development;
   const level = summary?.level ?? "Em nivelamento";
-  const hasNextActivity = Boolean(snapshot.nextReservation);
 
   return (
-    <div className="mx-auto grid max-w-7xl gap-6">
-      <PageHeader
-        eyebrow="Missões e evolução"
-        title="Sua progressão"
-        description="Veja seu momento atual, o próximo passo e os marcos que ajudam você a avançar durante a temporada."
-      />
-
-      <Card className="border-ur-gold/30 overflow-hidden">
-        <p className="text-ur-gold text-xs font-black tracking-[.2em] uppercase">
-          Mentalidade Hunter
-        </p>
-        <h2 className="font-display mt-2 text-3xl font-black uppercase sm:text-4xl">
-          Hunter não é olheiro. É mentalidade de desenvolvimento.
-        </h2>
-        <p className="mt-3 max-w-4xl text-sm leading-6 text-zinc-400">
-          A metodologia acompanha como você compete, aprende e evolui. O App só
-          transforma avaliações homologadas em prioridades, missões ou marcos;
-          não cria diagnóstico, recomendação automática ou pontuação sem dado
-          real.
-        </p>
-        <div className="mt-5 grid gap-2 sm:grid-cols-2 lg:grid-cols-5">
-          {hunterPillars.map((pillar) => (
-            <div
-              key={pillar}
-              className="rounded-ur border border-white/10 bg-white/[.02] p-3 text-sm font-black"
-            >
-              {pillar}
-            </div>
-          ))}
-        </div>
-      </Card>
-
-      <section className="grid gap-5 lg:grid-cols-[1.15fr_.85fr]">
-        <Card className="ranking-hero border-ur-gold/40 overflow-hidden">
-          <p className="text-ur-gold text-xs font-black tracking-[.2em] uppercase">
-            Status atual
-          </p>
-          <strong className="font-display mt-3 block text-5xl uppercase sm:text-7xl">
-            {level}
-          </strong>
-          <div className="mt-6 flex flex-wrap gap-2">
-            <Badge>Competir</Badge>
-            <Badge>Evoluir</Badge>
-            <Badge>Conquistar</Badge>
+    <div className="mx-auto grid max-w-6xl gap-7 pb-4">
+      <section className="relative overflow-hidden rounded-[1.75rem] border border-white/10 bg-[radial-gradient(circle_at_top_right,rgba(212,168,59,.12),transparent_38%),linear-gradient(145deg,#141414,#090909_58%)] p-5 sm:p-8">
+        <p className="text-[.65rem] font-black tracking-[.22em] text-ur-gold uppercase">Sua evolução</p>
+        <div className="mt-3 grid gap-6 lg:grid-cols-[1fr_auto] lg:items-end">
+          <div>
+            <h1 className="font-display text-4xl font-black leading-none uppercase sm:text-5xl">
+              Sua carreira está em movimento.
+            </h1>
+            <p className="mt-3 max-w-2xl text-sm leading-6 text-zinc-400">
+              Acompanhe somente aquilo que já foi registrado na sua jornada: nível, participação, ranking e próximos marcos publicados pela operação UR.
+            </p>
           </div>
-        </Card>
-
-        <Card className="border-ur-gold/30">
-          <Target className="text-ur-gold" size={28} />
-          <p className="mt-4 text-xs font-black tracking-[.18em] text-zinc-500 uppercase">
-            Próxima missão
-          </p>
-          <h2 className="mt-2 text-2xl font-black">
-            {development?.hunterMission ??
-              (hasNextActivity
-                ? "Chegue preparado para sua próxima atividade"
-                : "Encontre sua próxima oportunidade")}
-          </h2>
-          <p className="mt-2 text-sm text-zinc-400">
-            {development?.goal30Days ??
-              development?.hunterGoal ??
-              (hasNextActivity
-                ? "Sua próxima atividade já está marcada. Participe, compita e gere mais um capítulo da sua temporada."
-                : "Acesse a Agenda UR, encontre onde jogar e continue sua jornada dentro da temporada.")}
-          </p>
-          <Link
-            href="/athlete/agenda"
-            className="text-ur-gold mt-4 inline-flex font-black"
-          >
-            Abrir Agenda UR →
-          </Link>
-        </Card>
-      </section>
-
-      {development && (
-        <Card className="border-ur-gold/30">
-          <p className="text-xs font-black tracking-[.18em] text-zinc-500 uppercase">
-            Seu plano de evolução
-          </p>
-          <h2 className="mt-2 text-2xl font-black">
-            {development.hunterMission ?? "Jornada em acompanhamento"}
-          </h2>
-          <p className="mt-2 text-sm text-zinc-400">
-            {development.hunterStatus
-              ? `Status atual: ${development.hunterStatus}.`
-              : "Nenhuma missão Hunter está ativa para você neste momento. Continue jogando e acompanhando seus próximos marcos."}
-          </p>
-          {development.priorities.length > 0 && (
-            <ul className="mt-4 grid gap-2 sm:grid-cols-3">
-              {development.priorities.map((priority) => (
-                <li
-                  key={priority}
-                  className="rounded-ur border border-white/10 p-3 text-sm font-bold"
-                >
-                  {priority}
-                </li>
-              ))}
-            </ul>
-          )}
-          {development.reviewAt && (
-            <p className="mt-4 text-sm text-zinc-500">
-              Próxima revisão em{" "}
-              {new Date(development.reviewAt).toLocaleDateString("pt-BR")}.
-            </p>
-          )}
-        </Card>
-      )}
-
-      <section className="grid gap-5 lg:grid-cols-4">
-        <Card>
-          <Trophy className="text-ur-gold" />
-          <p className="mt-4 text-xs font-black tracking-[.18em] text-zinc-500 uppercase">
-            Ranking atual
-          </p>
-          <strong className="font-display mt-2 block text-4xl">
-            {ranking?.currentPosition ? `#${ranking.currentPosition}` : "—"}
-          </strong>
-          <p className="text-sm text-zinc-500">
-            {ranking
-              ? `${ranking.totalPoints} pontos`
-              : "Sua posição aparece após os primeiros resultados"}
-          </p>
-        </Card>
-        <Card>
-          <CheckCircle2 className="text-ur-gold" />
-          <p className="mt-4 text-xs font-black tracking-[.18em] text-zinc-500 uppercase">
-            Participação
-          </p>
-          <strong className="font-display mt-2 block text-4xl">
-            {summary?.games ?? 0}
-          </strong>
-          <p className="text-sm text-zinc-500">jogos na sua jornada</p>
-        </Card>
-        <Card>
-          <Coins className="text-ur-gold" />
-          <p className="mt-4 text-xs font-black tracking-[.18em] text-zinc-500 uppercase">
-            UR Coins
-          </p>
-          <strong className="font-display mt-2 block text-4xl">
-            {summary?.urCoinBalance.toLocaleString("pt-BR") ?? 0}
-          </strong>
-          <Link
-            href="/athlete/wallet"
-            className="text-ur-gold mt-2 inline-flex text-sm font-black"
-          >
-            Abrir Wallet →
-          </Link>
-        </Card>
-        <Card>
-          <Target className="text-ur-gold" />
-          <p className="mt-4 text-xs font-black tracking-[.18em] text-zinc-500 uppercase">
-            Hunter
-          </p>
-          <strong className="font-display mt-2 block text-4xl">
-            {summary?.hunterCompleted ?? 0}
-          </strong>
-          <p className="text-sm text-zinc-500">marcos concluídos</p>
-        </Card>
-      </section>
-
-      <Card>
-        <p className="text-xs font-black tracking-[.18em] text-zinc-500 uppercase">
-          Sua jornada em movimento
-        </p>
-        <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          {[
-            "Jogar",
-            "Ganhar pontos",
-            "Subir no ranking",
-            "Cumprir missões",
-            "Ganhar UR Coins",
-            "Desbloquear e resgatar",
-            "Evoluir",
-            "Jogar novamente",
-          ].map((stage, index) => (
-            <div
-              key={stage}
-              className="rounded-ur border border-white/10 p-4 text-center text-sm font-black"
-            >
-              <span className="text-ur-gold mr-2">{index + 1}.</span>
-              {stage}
+          <div className="flex gap-3">
+            <div className="min-w-28 rounded-[1.2rem] border border-white/10 bg-black/30 p-4">
+              <p className="text-[.6rem] font-black tracking-[.16em] text-zinc-500 uppercase">Nível</p>
+              <p className="font-display mt-2 text-2xl font-black uppercase">{level}</p>
             </div>
-          ))}
+            <div className="min-w-28 rounded-[1.2rem] border border-white/10 bg-black/30 p-4">
+              <p className="text-[.6rem] font-black tracking-[.16em] text-zinc-500 uppercase">Ranking</p>
+              <p className="font-display mt-2 text-3xl font-black text-ur-gold">
+                {ranking?.currentPosition ? `#${ranking.currentPosition}` : "—"}
+              </p>
+            </div>
+          </div>
         </div>
-        <div className="mt-5 flex flex-wrap gap-3">
-          <Link
-            href="/athlete/market"
-            className="bg-ur-gold text-ur-black rounded-ur inline-flex min-h-11 items-center gap-2 px-4 text-sm font-black"
-          >
-            <ShoppingBag size={16} aria-hidden="true" /> Explorar UR Market
-          </Link>
+      </section>
+
+      <section className="grid gap-3 sm:grid-cols-3">
+        <div className="rounded-[1.35rem] border border-white/10 bg-white/[.025] p-4">
+          <p className="text-xs font-black tracking-[.16em] text-zinc-500 uppercase">Jogos</p>
+          <p className="font-display mt-2 text-4xl font-black">{summary?.games ?? 0}</p>
+          <p className="mt-1 text-sm text-zinc-500">registrados na sua jornada</p>
+        </div>
+        <div className="rounded-[1.35rem] border border-white/10 bg-white/[.025] p-4">
+          <p className="text-xs font-black tracking-[.16em] text-zinc-500 uppercase">Pontos</p>
+          <p className="font-display mt-2 text-4xl font-black">{ranking?.totalPoints ?? 0}</p>
+          <p className="mt-1 text-sm text-zinc-500">ranking oficial</p>
+        </div>
+        <div className="rounded-[1.35rem] border border-white/10 bg-white/[.025] p-4">
+          <p className="text-xs font-black tracking-[.16em] text-zinc-500 uppercase">Aproveitamento</p>
+          <p className="font-display mt-2 text-4xl font-black">
+            {ranking ? `${ranking.winRate.toFixed(1)}%` : "—"}
+          </p>
+          <p className="mt-1 text-sm text-zinc-500">resultados homologados</p>
+        </div>
+      </section>
+
+      <section className="grid gap-4 lg:grid-cols-[1.15fr_.85fr]">
+        <div className="rounded-[1.55rem] border border-ur-gold/25 bg-gradient-to-br from-ur-gold/[.06] to-transparent p-5 sm:p-6">
+          <div className="flex items-start justify-between gap-4">
+            <div>
+              <p className="text-[.65rem] font-black tracking-[.2em] text-ur-gold uppercase">Próximo passo</p>
+              <h2 className="font-display mt-2 text-3xl font-black uppercase">
+                {nextReservation ? "Transforme sua próxima presença em evolução" : "Volte para o ciclo de jogo"}
+              </h2>
+            </div>
+            <Target className="shrink-0 text-ur-gold" size={27} aria-hidden="true" />
+          </div>
+          <p className="mt-3 max-w-2xl text-sm leading-6 text-zinc-400">
+            {nextReservation
+              ? `${nextReservation.title} já faz parte da sua agenda. Jogue, gere resultado oficial e continue construindo seu histórico.`
+              : "Sua evolução esportiva precisa de novas evidências reais. Encontre uma oportunidade elegível na Agenda UR e continue sua temporada."}
+          </p>
           <Link
             href="/athlete/agenda"
-            className="rounded-ur inline-flex min-h-11 items-center border px-4 text-sm font-black"
+            className="mt-5 inline-flex min-h-11 items-center gap-2 rounded-ur bg-ur-gold px-4 text-sm font-black text-ur-black"
           >
-            Voltar ao jogo
+            <CalendarDays size={16} aria-hidden="true" /> Abrir Agenda UR
           </Link>
         </div>
-        <p className="mt-4 text-sm text-zinc-500">
-          Novas missões e conquistas aparecem aqui quando fizerem parte da sua
-          temporada.
-        </p>
-      </Card>
 
-      <section className="grid gap-4 lg:grid-cols-3">
-        {[
-          [
-            "UR Series",
-            "Quando esta etapa abrir, você verá aqui como participar e o que precisa cumprir para chegar lá.",
-          ],
-          [
-            "UR Cup",
-            "A Cup faz parte da fase decisiva. Sua situação será atualizada quando os critérios da etapa forem publicados.",
-          ],
-          [
-            "UR Legends",
-            "Se você estiver elegível para a Legends, o App mostrará sua situação e os próximos passos desta etapa.",
-          ],
-        ].map(([title, description]) => (
-          <Card key={title}>
-            <p className="text-xs font-black tracking-[.18em] text-zinc-500 uppercase">
-              Próximas etapas
-            </p>
-            <h2 className="mt-2 text-xl font-black">{title}</h2>
-            <Badge className="mt-3">Ainda não liberado</Badge>
-            <p className="mt-3 text-sm text-zinc-400">{description}</p>
-          </Card>
-        ))}
+        <div className="rounded-[1.55rem] border border-white/10 bg-white/[.025] p-5 sm:p-6">
+          <p className="text-[.65rem] font-black tracking-[.2em] text-zinc-500 uppercase">Seu momento</p>
+          <h2 className="font-display mt-2 text-3xl font-black uppercase">{level}</h2>
+          <div className="mt-4 flex flex-wrap gap-2">
+            <Badge>{ranking?.gamesPlayed ?? summary?.games ?? 0} jogos</Badge>
+            {ranking ? <Badge>{ranking.wins} vitórias</Badge> : null}
+            {ranking?.currentPosition ? <Badge>#{ranking.currentPosition} ranking</Badge> : null}
+          </div>
+          <Link href="/athlete/ranking" className="mt-5 inline-flex items-center gap-2 text-sm font-black text-ur-gold">
+            Ver classificação <ArrowRight size={15} aria-hidden="true" />
+          </Link>
+        </div>
       </section>
+
+      {development?.priorities.length ? (
+        <section className="rounded-[1.55rem] border border-white/10 bg-[#0b0b0b] p-5 sm:p-6">
+          <p className="text-[.65rem] font-black tracking-[.2em] text-zinc-500 uppercase">Prioridades publicadas</p>
+          <h2 className="font-display mt-2 text-3xl font-black uppercase">Foco atual</h2>
+          <div className="mt-4 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+            {development.priorities.map((priority) => (
+              <div key={priority} className="flex items-start gap-3 rounded-ur border border-white/10 p-4 text-sm font-bold text-zinc-300">
+                <CheckCircle2 className="mt-0.5 shrink-0 text-ur-gold" size={16} aria-hidden="true" />
+                {priority}
+              </div>
+            ))}
+          </div>
+          {development.reviewAt ? (
+            <p className="mt-4 text-xs font-bold text-zinc-500">
+              Próxima revisão registrada: {new Date(development.reviewAt).toLocaleDateString("pt-BR")}.
+            </p>
+          ) : null}
+        </section>
+      ) : null}
+
+      <Card className="border-ur-gold/20">
+        <div className="flex items-start gap-4">
+          <span className="grid size-11 shrink-0 place-items-center rounded-full bg-ur-gold/10 text-ur-gold">
+            <Trophy size={21} aria-hidden="true" />
+          </span>
+          <div>
+            <p className="text-[.65rem] font-black tracking-[.2em] text-ur-gold uppercase">Quer ir além?</p>
+            <h2 className="mt-2 text-2xl font-black">Conheça o Hunter</h2>
+            <p className="mt-2 max-w-3xl text-sm leading-6 text-zinc-400">
+              Hunter é um programa separado e voluntário de desenvolvimento para atletas que querem aprofundar mentalidade, leitura de jogo, tomada de decisão, liderança e consistência.
+            </p>
+            <Link href="/athlete/hunter" className="mt-4 inline-flex items-center gap-2 font-black text-ur-gold">
+              Entrar no espaço Hunter <ArrowRight size={15} aria-hidden="true" />
+            </Link>
+          </div>
+        </div>
+      </Card>
     </div>
   );
 }
