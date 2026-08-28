@@ -14,12 +14,25 @@ import { AthleteOpportunityCard } from "@/components/athlete/athlete-opportunity
 import { AthleteSourceHealth } from "@/components/athlete/athlete-source-health";
 import { Badge } from "@/components/ui";
 import { requireAthleteViewer } from "@/lib/auth/athlete-viewer";
+import { createClient } from "@/lib/supabase/server";
 import { getAthleteSnapshotForViewer } from "@/server/services/athlete-viewer-snapshot-service";
 
 const money = new Intl.NumberFormat("pt-BR", {
   style: "currency",
   currency: "BRL",
 });
+
+function safeExternalUrl(value: string | null | undefined) {
+  if (!value) return null;
+  try {
+    const url = new URL(value);
+    return url.protocol === "https:" || url.protocol === "http:"
+      ? url.toString()
+      : null;
+  } catch {
+    return null;
+  }
+}
 
 function initials(name: string) {
   return name
@@ -54,6 +67,24 @@ export default async function AthletePage() {
       </div>
     );
   }
+
+  const client = await createClient();
+  const highlightResult = await client
+    .from("highlight_clips")
+    .select("id,title,status,updated_at,media_assets!inner(title,external_url,status)")
+    .eq("athlete_id", snapshot.identity.id)
+    .in("status", ["publishable", "public"])
+    .in("media_assets.status", ["publishable", "public"])
+    .not("media_assets.external_url", "is", null)
+    .order("updated_at", { ascending: false })
+    .limit(1);
+  const latestHighlight = highlightResult.error ? null : (highlightResult.data?.[0] ?? null);
+  const latestHighlightAsset = latestHighlight
+    ? Array.isArray(latestHighlight.media_assets)
+      ? latestHighlight.media_assets[0]
+      : latestHighlight.media_assets
+    : null;
+  const latestHighlightUrl = safeExternalUrl(latestHighlightAsset?.external_url);
 
   const ranking = snapshot.primaryRanking;
   const summary = snapshot.summary;
@@ -101,6 +132,11 @@ export default async function AthletePage() {
       </section>
 
       <section className="grid gap-4"><div className="flex items-end justify-between gap-4"><div><p className="text-[.64rem] font-black tracking-[.2em] text-ur-gold uppercase">Competição</p><h2 className="font-display mt-1 text-2xl font-black uppercase sm:text-3xl">Seu ranking está vivo</h2></div><Link href="/athlete/ranking" className="text-xs font-black text-ur-gold">Abrir ranking →</Link></div><div className="grid gap-5 rounded-[1.75rem] border border-white/8 bg-white/[.018] p-5 sm:grid-cols-[auto_1fr] sm:items-end sm:p-7"><div><p className="text-xs font-black tracking-[.16em] text-zinc-600 uppercase">Posição atual</p><strong className="font-display mt-1 block text-7xl font-black sm:text-8xl">{ranking?.currentPosition ? `#${ranking.currentPosition}` : "—"}</strong><p className="mt-1 font-black text-ur-gold">{ranking ? `${ranking.totalPoints.toLocaleString("pt-BR")} PTS` : "Ranking ainda não disponível"}</p></div><div className="grid grid-cols-3 gap-4 border-t border-white/8 pt-5 sm:border-t-0 sm:pt-0 sm:text-right"><div><p className="text-xs text-zinc-600 uppercase">Jogos</p><p className="mt-1 text-2xl font-black">{ranking ? ranking.gamesPlayed : "—"}</p></div><div><p className="text-xs text-zinc-600 uppercase">Vitórias</p><p className="mt-1 text-2xl font-black">{ranking ? ranking.wins : "—"}</p></div><div><p className="text-xs text-zinc-600 uppercase">Derrotas</p><p className="mt-1 text-2xl font-black">{ranking ? ranking.losses : "—"}</p></div></div></div></section>
+
+      <section className="grid gap-4 lg:grid-cols-2">
+        <Link href="/athlete/development" className="rounded-[1.75rem] border border-white/8 bg-white/[.02] p-6"><p className="text-[.64rem] font-black tracking-[.2em] text-ur-gold uppercase">Como chegar lá</p><h2 className="font-display mt-2 text-2xl font-black uppercase">Construa sua próxima evolução</h2><p className="mt-2 text-sm leading-6 text-zinc-500">Acompanhe somente objetivos e prioridades publicados para sua trajetória, sem progresso inventado.</p></Link>
+        <Link href="/athlete/highlights" className="rounded-[1.75rem] border border-white/8 bg-white/[.02] p-6"><p className="text-[.64rem] font-black tracking-[.2em] text-ur-gold uppercase">Último destaque</p><h2 className="font-display mt-2 text-2xl font-black uppercase">{latestHighlight?.title ?? "Sua história em evidência"}</h2><p className="mt-2 text-sm leading-6 text-zinc-500">{latestHighlightAsset?.title ?? "Mídia publicada e momentos oficiais aparecem aqui quando disponíveis."}</p>{latestHighlightUrl ? <span className="mt-4 block text-xs font-black text-ur-gold">Mídia externa publicada disponível</span> : null}</Link>
+      </section>
 
       {team ? <section className="grid gap-4"><div className="flex items-end justify-between gap-4"><div><p className="text-[.64rem] font-black tracking-[.2em] text-ur-gold uppercase">Equipe</p><h2 className="font-display mt-1 text-2xl font-black uppercase sm:text-3xl">Você compete por algo maior</h2></div><Link href="/athlete/team" className="text-xs font-black text-ur-gold">Minha equipe →</Link></div><Link href="/athlete/team" className="grid gap-4 rounded-[1.75rem] border border-white/8 bg-white/[.02] p-5 sm:grid-cols-[auto_1fr_auto] sm:items-center sm:p-6"><div className="grid size-14 place-items-center rounded-2xl border border-white/10 bg-black/40"><Shield className="text-ur-gold" size={26} aria-hidden="true" /></div><div><p className="font-display text-2xl font-black uppercase">{team.name}</p><p className="mt-1 text-sm text-zinc-500">Sua equipe faz parte da sua trajetória competitiva UR.</p></div><ArrowRight className="text-ur-gold" size={21} aria-hidden="true" /></Link></section> : null}
 
