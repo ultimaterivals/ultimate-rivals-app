@@ -17,6 +17,26 @@ async function login(page: Page, email = "athlete@test.ur.local") {
   await expect(page).not.toHaveURL(/\/login/, { timeout: 30_000 });
 }
 
+async function waitForPlayerHub(page: Page) {
+  await expect(page.getByText("Objetivo atual", { exact: true })).toBeVisible({
+    timeout: 30_000,
+  });
+}
+
+async function waitForHunter(page: Page) {
+  await expect(
+    page.getByRole("heading", {
+      name: "Desenvolvimento para quem quer ir além do jogo.",
+    }),
+  ).toBeVisible({ timeout: 30_000 });
+}
+
+async function waitForProfile(page: Page) {
+  await expect(
+    page.getByRole("heading", { name: "Meu Perfil", exact: true }),
+  ).toBeVisible({ timeout: 30_000 });
+}
+
 async function capture(page: Page, name: string) {
   await mkdir(evidenceDir, { recursive: true });
   await page.screenshot({
@@ -25,9 +45,15 @@ async function capture(page: Page, name: string) {
   });
 }
 
-async function openAndCapture(page: Page, path: string, name: string) {
+async function openAndCapture(
+  page: Page,
+  path: string,
+  name: string,
+  ready?: (page: Page) => Promise<void>,
+) {
   await page.goto(path);
   await expect(page).toHaveURL(new RegExp(path.replaceAll("/", "\\/")));
+  if (ready) await ready(page);
   await capture(page, name);
 }
 
@@ -39,9 +65,15 @@ async function expectNoHorizontalOverflow(page: Page) {
   expect(dimensions.scrollWidth).toBeLessThanOrEqual(dimensions.innerWidth);
 }
 
-async function openMobileAndCapture(page: Page, path: string, name: string) {
+async function openMobileAndCapture(
+  page: Page,
+  path: string,
+  name: string,
+  ready?: (page: Page) => Promise<void>,
+) {
   await page.goto(path);
   await expect(page).toHaveURL(new RegExp(path.replaceAll("/", "\\/")));
+  if (ready) await ready(page);
   await expectNoHorizontalOverflow(page);
   await capture(page, name);
 }
@@ -57,6 +89,7 @@ async function openAthletePreview(page: Page) {
   await expect(
     page.getByText("Prévia do Atleta · somente leitura"),
   ).toBeVisible();
+  await waitForPlayerHub(page);
 }
 
 test("desktop athlete App visual evidence", async ({ page }, testInfo) => {
@@ -67,10 +100,21 @@ test("desktop athlete App visual evidence", async ({ page }, testInfo) => {
   await expect(
     page.getByRole("navigation", { name: "Navegação do atleta" }),
   ).toBeVisible();
+  await waitForPlayerHub(page);
   await capture(page, "desktop-1440x900-player-hub");
 
-  await openAndCapture(page, "/athlete/hunter", "desktop-1440x900-hunter");
-  await openAndCapture(page, "/athlete/perfil", "desktop-1440x900-profile");
+  await openAndCapture(
+    page,
+    "/athlete/hunter",
+    "desktop-1440x900-hunter",
+    waitForHunter,
+  );
+  await openAndCapture(
+    page,
+    "/athlete/perfil",
+    "desktop-1440x900-profile",
+    waitForProfile,
+  );
 });
 
 test("mobile 390 athlete shell visual evidence", async ({ page }, testInfo) => {
@@ -94,11 +138,22 @@ test("mobile 390 athlete shell visual evidence", async ({ page }, testInfo) => {
         .getByText(destination, { exact: true }),
     ).toBeVisible();
   }
+  await waitForPlayerHub(page);
   await expectNoHorizontalOverflow(page);
   await capture(page, "mobile-390x844-player-hub");
 
-  await openMobileAndCapture(page, "/athlete/hunter", "mobile-390x844-hunter");
-  await openMobileAndCapture(page, "/athlete/perfil", "mobile-390x844-profile");
+  await openMobileAndCapture(
+    page,
+    "/athlete/hunter",
+    "mobile-390x844-hunter",
+    waitForHunter,
+  );
+  await openMobileAndCapture(
+    page,
+    "/athlete/perfil",
+    "mobile-390x844-profile",
+    waitForProfile,
+  );
 });
 
 test("mobile compact 360 athlete shell visual evidence", async ({
@@ -107,6 +162,7 @@ test("mobile compact 360 athlete shell visual evidence", async ({
   test.skip(testInfo.project.name !== "mobile", "mobile evidence only");
   await page.setViewportSize({ width: 360, height: 800 });
   await login(page);
+  await waitForPlayerHub(page);
   await expectNoHorizontalOverflow(page);
   await capture(page, "mobile-360x800-player-hub");
 });
