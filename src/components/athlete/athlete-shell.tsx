@@ -374,9 +374,6 @@ export function AthleteShell({
           </div>
           <div className="min-w-0 text-right lg:ml-auto">
             <p className="truncate text-sm font-black">{userLabel}</p>
-            <p className="text-[.56rem] font-bold tracking-[.18em] text-zinc-600 uppercase">
-              Rumo ao estrelato
-            </p>
           </div>
         </header>
 
