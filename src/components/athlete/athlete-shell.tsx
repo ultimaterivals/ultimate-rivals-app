@@ -27,8 +27,19 @@ const mobilePrimary = [
   { href: "/athlete", label: "Início", icon: House, exact: true },
   { href: "/athlete/agenda", label: "Jogar", icon: CalendarDays, exact: false },
   { href: "/athlete/ranking", label: "Ranking", icon: Trophy, exact: false },
-  { href: "/athlete/hunter", label: "Hunter", icon: GraduationCap, exact: false, special: true },
-  { href: "/athlete/perfil", label: "Perfil", icon: CircleUserRound, exact: false },
+  {
+    href: "/athlete/hunter",
+    label: "Hunter",
+    icon: GraduationCap,
+    exact: false,
+    special: true,
+  },
+  {
+    href: "/athlete/perfil",
+    label: "Perfil",
+    icon: CircleUserRound,
+    exact: false,
+  },
 ] as const;
 
 const desktopPrimary = [
@@ -37,7 +48,12 @@ const desktopPrimary = [
   { href: "/athlete/ranking", label: "Ranking", icon: Trophy },
   { href: "/athlete/season", label: "Temporada", icon: Medal },
   { href: "/athlete/development", label: "Evolução", icon: Target },
-  { href: "/athlete/hunter", label: "Hunter", icon: GraduationCap, special: true },
+  {
+    href: "/athlete/hunter",
+    label: "Hunter",
+    icon: GraduationCap,
+    special: true,
+  },
   { href: "/athlete/team", label: "Equipe", icon: Users },
 ] as const;
 
@@ -48,11 +64,17 @@ const desktopSecondary = [
   { href: "/athlete/wallet", label: "Wallet URC", icon: Coins },
   { href: "/athlete/market", label: "UR Market", icon: ShoppingBag },
   { href: "/athlete/perfil", label: "Perfil", icon: CircleUserRound },
-  { href: "/athlete/feedback", label: "Feedback e suporte", icon: MessageSquareText },
+  {
+    href: "/athlete/feedback",
+    label: "Feedback e suporte",
+    icon: MessageSquareText,
+  },
 ] as const;
 
 function active(pathname: string, href: string, exact?: boolean) {
-  return exact ? pathname === href : pathname === href || pathname.startsWith(`${href}/`);
+  return exact
+    ? pathname === href
+    : pathname === href || pathname.startsWith(`${href}/`);
 }
 
 function NavigationLink({
@@ -65,7 +87,9 @@ function NavigationLink({
 }: {
   href: string;
   label: string;
-  Icon: (typeof desktopPrimary)[number]["icon"] | (typeof desktopSecondary)[number]["icon"];
+  Icon:
+    | (typeof desktopPrimary)[number]["icon"]
+    | (typeof desktopSecondary)[number]["icon"];
   pathname: string;
   exact?: boolean;
   special?: boolean;
@@ -78,7 +102,7 @@ function NavigationLink({
       aria-current={isActive ? "page" : undefined}
       className={cn(
         "rounded-ur flex min-h-11 items-center gap-3 px-3 font-bold transition-colors",
-        special && "border border-ur-gold/25 bg-ur-gold/[.04]",
+        special && "border-ur-gold/25 bg-ur-gold/[.04] border",
         isActive
           ? "bg-ur-gold text-ur-black"
           : special
@@ -89,7 +113,7 @@ function NavigationLink({
       <Icon size={18} aria-hidden="true" />
       {label}
       {special && !isActive ? (
-        <span className="ml-auto text-[.55rem] font-black tracking-[.16em] uppercase text-ur-gold/70">
+        <span className="text-ur-gold/70 ml-auto text-[.55rem] font-black tracking-[.16em] uppercase">
           Academia
         </span>
       ) : null}
@@ -132,7 +156,13 @@ function DesktopNavigation({ preview = false }: { preview?: boolean }) {
   );
 }
 
-function NavigationSection({ label, children }: { label: string; children: ReactNode }) {
+function NavigationSection({
+  label,
+  children,
+}: {
+  label: string;
+  children: ReactNode;
+}) {
   return (
     <section className="mt-6 border-t border-white/10 pt-5 first:mt-0 first:border-t-0 first:pt-0">
       <p className="mb-2 px-3 text-[.65rem] font-black tracking-[.2em] text-zinc-600 uppercase">
@@ -169,18 +199,26 @@ function MobileNavigation() {
               {special ? (
                 <span
                   className={cn(
-                    "grid size-10 place-items-center rounded-full border border-ur-gold/35 bg-gradient-to-b from-ur-gold/15 to-black shadow-[0_0_26px_rgba(212,168,59,.12)]",
-                    isActive && "border-ur-gold bg-ur-gold text-ur-black shadow-[0_0_30px_rgba(212,168,59,.24)]",
+                    "border-ur-gold/35 from-ur-gold/15 grid size-10 place-items-center rounded-full border bg-gradient-to-b to-black shadow-[0_0_26px_rgba(212,168,59,.12)]",
+                    isActive &&
+                      "border-ur-gold bg-ur-gold text-ur-black shadow-[0_0_30px_rgba(212,168,59,.24)]",
                   )}
                 >
                   <Icon size={21} strokeWidth={2.4} aria-hidden="true" />
                 </span>
               ) : (
-                <Icon size={21} strokeWidth={isActive ? 2.5 : 2} aria-hidden="true" />
+                <Icon
+                  size={21}
+                  strokeWidth={isActive ? 2.5 : 2}
+                  aria-hidden="true"
+                />
               )}
               {label}
               {isActive && !special ? (
-                <span className="absolute bottom-1.5 h-0.5 w-5 rounded-full bg-ur-gold" aria-hidden="true" />
+                <span
+                  className="bg-ur-gold absolute bottom-1.5 h-0.5 w-5 rounded-full"
+                  aria-hidden="true"
+                />
               ) : null}
             </Link>
           );
@@ -209,7 +247,9 @@ export function AthleteShell({
           <DesktopNavigation preview={Boolean(preview)} />
         </div>
         <div className="border-t border-white/10 p-4">
-          <p className="truncate text-sm font-bold text-zinc-300">{userLabel}</p>
+          <p className="truncate text-sm font-bold text-zinc-300">
+            {userLabel}
+          </p>
           {!preview && (
             <form action="/auth/signout" method="post">
               <button className="rounded-ur mt-3 flex min-h-11 w-full items-center gap-2 px-3 text-sm text-zinc-400 transition-colors hover:bg-white/5 hover:text-white">
