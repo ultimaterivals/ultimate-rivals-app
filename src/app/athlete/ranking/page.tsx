@@ -51,6 +51,7 @@ export default async function AthleteRankingPage({
       "id,ranking_type,entity_id,display_name,level,category_code,format_code,total_points,games_played,wins,losses,win_rate,current_position,previous_position,position_change,movement,pole_id,pole_name,avatar_url,aces,attacks,blocks,defenses,assists",
     )
     .eq("ranking_type", tab)
+    .is("cycle_id", null)
     .order("current_position", { ascending: true })
     .limit(100);
   const all = allResult.data ?? [];
