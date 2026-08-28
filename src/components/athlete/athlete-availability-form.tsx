@@ -186,8 +186,8 @@ export function AthleteAvailabilityForm({
           <Card>
             <p className="font-bold">Nenhuma disponibilidade registrada.</p>
             <p className="mt-2 text-sm text-zinc-500">
-              Adicione ao menos uma janela para o sistema conseguir sugerir
-              horários compatíveis.
+              Adicione ao menos uma janela para registrar quando você
+              normalmente pode jogar.
             </p>
           </Card>
         ) : (
