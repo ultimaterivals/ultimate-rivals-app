@@ -10,9 +10,9 @@ import {
   reserveAthleteOpportunity,
   setAthleteOpportunityInterest,
 } from "@/app/athlete/agenda/actions";
+import { Badge, Button, Card } from "@/components/ui";
 import { AGENDA_TIME_ZONE } from "@/features/admin-agenda/config";
 import type { AthleteOpportunity } from "@/features/athlete-portal/types";
-import { Badge, Button, Card } from "@/components/ui";
 
 const dateFormatter = new Intl.DateTimeFormat("pt-BR", {
   timeZone: AGENDA_TIME_ZONE,
@@ -41,15 +41,15 @@ function personalStateLabel(status: string | null) {
   switch (status) {
     case "reserved":
     case "confirmed":
-      return "reserva ativa";
+      return "Reserva confirmada";
     case "waitlisted":
-      return "lista de espera";
+      return "Lista de espera";
     case "checked_in":
-      return "check-in realizado";
+      return "Check-in realizado";
     case "consumed":
-      return "participação concluída";
+      return "Participação concluída";
     case "no_show":
-      return "ausência registrada";
+      return "Ausência registrada";
     default:
       return status;
   }
@@ -61,12 +61,12 @@ export function AthleteOpportunityCard({
   readOnly = false,
 }: {
   opportunity: AthleteOpportunity;
-  availableCredits: number;
+  availableCredits: number | null;
   readOnly?: boolean;
 }) {
   const personalState =
     personalStateLabel(opportunity.personalReservationStatus) ??
-    (opportunity.personalInterestStatus ? "interessado" : null);
+    (opportunity.personalInterestStatus ? "Interesse registrado" : null);
   const hasReservation = Boolean(opportunity.personalReservationStatus);
   const canCancel =
     opportunity.personalReservationId !== null &&
@@ -77,8 +77,14 @@ export function AthleteOpportunityCard({
   const canReserve =
     !hasReservation && reservableStatuses.has(opportunity.configuredStatus);
   const willWaitlist = opportunity.remainingCapacity <= 0;
+  const creditsUnknown = availableCredits === null;
   const lacksCreditForDirectReservation =
-    canReserve && !willWaitlist && availableCredits <= 0;
+    canReserve &&
+    !willWaitlist &&
+    availableCredits !== null &&
+    availableCredits <= 0;
+  const blockDirectReservationForUnknownCredit =
+    canReserve && !willWaitlist && creditsUnknown;
 
   return (
     <Card
@@ -134,12 +140,12 @@ export function AthleteOpportunityCard({
         {(opportunity.personalReservationStatus === "reserved" ||
           opportunity.personalReservationStatus === "confirmed") && (
           <p className="text-ur-gold flex items-center gap-2 font-bold">
-            <TicketCheck size={15} aria-hidden="true" /> Reserva ativa
+            <TicketCheck size={15} aria-hidden="true" /> Reserva confirmada
           </p>
         )}
         {opportunity.personalReservationStatus === "checked_in" && (
           <p className="text-ur-gold flex items-center gap-2 font-bold">
-            <TicketCheck size={15} aria-hidden="true" /> Check-in concluído
+            <TicketCheck size={15} aria-hidden="true" /> Check-in realizado
           </p>
         )}
         {opportunity.personalReservationStatus === "consumed" && (
@@ -232,7 +238,10 @@ export function AthleteOpportunityCard({
                 <Button
                   type="submit"
                   className="w-full"
-                  disabled={lacksCreditForDirectReservation}
+                  disabled={
+                    lacksCreditForDirectReservation ||
+                    blockDirectReservationForUnknownCredit
+                  }
                 >
                   {willWaitlist ? "Entrar na lista de espera" : "Reservar vaga"}
                 </Button>
@@ -244,6 +253,14 @@ export function AthleteOpportunityCard({
                 <CircleDollarSign size={14} aria-hidden="true" />
                 Você precisa de pelo menos 1 crédito disponível para reservar
                 uma vaga. Entrar em lista de espera não segura crédito.
+              </p>
+            )}
+
+            {blockDirectReservationForUnknownCredit && (
+              <p className="flex items-center gap-2 text-xs text-zinc-500">
+                <CircleDollarSign size={14} aria-hidden="true" />O saldo de
+                créditos está indisponível. A reserva direta fica bloqueada até
+                a fonte responder, sem assumir saldo zero.
               </p>
             )}
 

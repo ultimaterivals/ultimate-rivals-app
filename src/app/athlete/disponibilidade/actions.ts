@@ -29,6 +29,12 @@ function databaseTime(value: string, asEnd = false) {
   return `${value}:00`;
 }
 
+function finishAvailability(query: string): never {
+  revalidatePath("/athlete/agenda");
+  revalidatePath("/athlete/disponibilidade");
+  redirect(`/athlete/agenda?${query}#disponibilidade`);
+}
+
 async function currentAthleteId(userId: string) {
   const supabase = await createClient();
   const { data, error } = await supabase
@@ -53,16 +59,16 @@ export async function createAvailabilityWindow(formData: FormData) {
     categoryCodes: formData.getAll("categoryCodes"),
   });
 
-  if (!parsed.success) redirect("/athlete/disponibilidade?error=invalid");
+  if (!parsed.success) finishAvailability("error=invalid");
 
   const start = minutes(parsed.data.startsAt);
   const end = minutes(parsed.data.endsAt, true);
   if (start < 6 * 60 || start >= 24 * 60 || end > 24 * 60 || end <= start) {
-    redirect("/athlete/disponibilidade?error=time");
+    finishAvailability("error=time");
   }
 
   const identity = await currentAthleteId(user.userId);
-  if (!identity) redirect("/athlete/disponibilidade?error=profile");
+  if (!identity) finishAvailability("error=profile");
 
   const { error } = await identity.supabase
     .from("athlete_availability_windows")
@@ -78,19 +84,18 @@ export async function createAvailabilityWindow(formData: FormData) {
       active: true,
     });
 
-  if (error) redirect("/athlete/disponibilidade?error=save");
+  if (error) finishAvailability("error=save");
 
-  revalidatePath("/athlete/disponibilidade");
-  redirect("/athlete/disponibilidade?saved=1");
+  finishAvailability("success=availability_saved");
 }
 
 export async function deleteAvailabilityWindow(formData: FormData) {
   const user = await requireRole(["athlete"]);
   const id = z.string().uuid().safeParse(formData.get("id"));
-  if (!id.success) redirect("/athlete/disponibilidade?error=invalid");
+  if (!id.success) finishAvailability("error=invalid");
 
   const identity = await currentAthleteId(user.userId);
-  if (!identity) redirect("/athlete/disponibilidade?error=profile");
+  if (!identity) finishAvailability("error=profile");
 
   const { error } = await identity.supabase
     .from("athlete_availability_windows")
@@ -98,8 +103,7 @@ export async function deleteAvailabilityWindow(formData: FormData) {
     .eq("id", id.data)
     .eq("athlete_id", identity.athleteId);
 
-  if (error) redirect("/athlete/disponibilidade?error=delete");
+  if (error) finishAvailability("error=delete");
 
-  revalidatePath("/athlete/disponibilidade");
-  redirect("/athlete/disponibilidade?deleted=1");
+  finishAvailability("success=availability_deleted");
 }

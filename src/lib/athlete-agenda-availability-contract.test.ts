@@ -7,52 +7,57 @@ const read = (path: string) =>
 
 const agenda = read("src/app/athlete/agenda/page.tsx");
 const availability = read("src/app/athlete/disponibilidade/page.tsx");
+const availabilityActions = read("src/app/athlete/disponibilidade/actions.ts");
 const opportunityCard = read(
   "src/components/athlete/athlete-opportunity-card.tsx",
 );
 
-const reservedMessage =
-  'reserved: "Vaga reservada e 1 crédito colocado em reserva."';
 const waitlistMessage =
   '"Você entrou na lista de espera. Nenhum crédito foi reservado agora."';
 
-describe("athlete agenda and availability communication contract", () => {
-  it("frames Agenda around where to play in the current season phase", () => {
-    expect(agenda).toContain("Encontre onde jogar nesta fase");
+describe("athlete Jogar and availability communication contract", () => {
+  it("frames Jogar around entering the court in the current season phase", () => {
+    expect(agenda).toContain("Entre em quadra");
+    expect(agenda).toContain("Oportunidades para jogar");
     expect(agenda).toContain("getAthleteSeasonContextSnapshot");
     expect(agenda).toContain("season.phaseLabel");
   });
 
   it("keeps athlete participation states distinct", () => {
-    expect(agenda).toContain('"Interesse"');
-    expect(agenda).toContain('"Reserva"');
-    expect(agenda).toContain('"Lista de espera"');
-    expect(agenda).toContain('"Check-in"');
-    expect(agenda).toContain('"Participação"');
-
-    expect(opportunityCard).toContain('return "reserva ativa"');
-    expect(opportunityCard).toContain('return "lista de espera"');
-    expect(opportunityCard).toContain('return "check-in realizado"');
-    expect(opportunityCard).toContain('return "participação concluída"');
+    expect(agenda).toContain(
+      "Interesse, reserva, lista de espera,\n              check-in e participação continuam sendo estados diferentes.",
+    );
+    expect(opportunityCard).toContain('return "Reserva confirmada"');
+    expect(opportunityCard).toContain('return "Lista de espera"');
+    expect(opportunityCard).toContain('return "Check-in realizado"');
+    expect(opportunityCard).toContain('return "Participação concluída"');
+    expect(opportunityCard).toContain('"Interesse registrado"');
   });
 
-  it("preserves precise credit communication", () => {
-    expect(agenda).toContain(reservedMessage);
+  it("preserves precise credit communication without converting unknown to zero", () => {
     expect(agenda).toContain(waitlistMessage);
     expect(agenda).toContain("snapshot.creditBalance");
-    expect(agenda).toContain("snapshot.creditReserved");
-    expect(agenda).toContain("snapshot.creditConsumed");
+    expect(agenda).not.toContain("snapshot.creditBalance ?? 0");
     expect(opportunityCard).toContain(
       "Entrar em lista de espera não segura crédito.",
     );
+    expect(opportunityCard).toContain("A reserva direta fica bloqueada até");
+    expect(opportunityCard).toContain("availableCredits: number | null");
   });
 
-  it("keeps availability athlete-first and non-transactional", () => {
+  it("keeps availability athlete-first, non-transactional and integrated into Jogar", () => {
     expect(availability).toContain("Ela não é reserva, não consome crédito");
     expect(availability).toContain('href="/athlete/agenda"');
     expect(availability).toContain('href="/athlete/season"');
     expect(availability).toContain(
       "Não existe recomendação automática implícita neste cadastro.",
+    );
+    expect(agenda).toContain("Quando você pode jogar?");
+    expect(agenda).toContain(
+      "<AthleteAvailabilityForm snapshot={availability} />",
+    );
+    expect(availabilityActions).toContain(
+      "redirect(`/athlete/agenda?${query}#disponibilidade`)",
     );
   });
 });
