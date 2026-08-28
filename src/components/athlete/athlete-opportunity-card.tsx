@@ -10,9 +10,9 @@ import {
   reserveAthleteOpportunity,
   setAthleteOpportunityInterest,
 } from "@/app/athlete/agenda/actions";
+import { Badge, Button, Card } from "@/components/ui";
 import { AGENDA_TIME_ZONE } from "@/features/admin-agenda/config";
 import type { AthleteOpportunity } from "@/features/athlete-portal/types";
-import { Badge, Button, Card } from "@/components/ui";
 
 const dateFormatter = new Intl.DateTimeFormat("pt-BR", {
   timeZone: AGENDA_TIME_ZONE,
@@ -41,15 +41,15 @@ function personalStateLabel(status: string | null) {
   switch (status) {
     case "reserved":
     case "confirmed":
-      return "reserva ativa";
+      return "Reserva confirmada";
     case "waitlisted":
-      return "lista de espera";
+      return "Lista de espera";
     case "checked_in":
-      return "check-in realizado";
+      return "Check-in realizado";
     case "consumed":
-      return "participação concluída";
+      return "Participação concluída";
     case "no_show":
-      return "ausência registrada";
+      return "Ausência registrada";
     default:
       return status;
   }
@@ -61,12 +61,12 @@ export function AthleteOpportunityCard({
   readOnly = false,
 }: {
   opportunity: AthleteOpportunity;
-  availableCredits: number;
+  availableCredits: number | null;
   readOnly?: boolean;
 }) {
   const personalState =
     personalStateLabel(opportunity.personalReservationStatus) ??
-    (opportunity.personalInterestStatus ? "interessado" : null);
+    (opportunity.personalInterestStatus ? "Interesse registrado" : null);
   const hasReservation = Boolean(opportunity.personalReservationStatus);
   const canCancel =
     opportunity.personalReservationId !== null &&
@@ -77,8 +77,11 @@ export function AthleteOpportunityCard({
   const canReserve =
     !hasReservation && reservableStatuses.has(opportunity.configuredStatus);
   const willWaitlist = opportunity.remainingCapacity <= 0;
+  const creditsUnknown = availableCredits === null;
   const lacksCreditForDirectReservation =
-    canReserve && !willWaitlist && availableCredits <= 0;
+    canReserve && !willWaitlist && availableCredits !== null && availableCredits <= 0;
+  const blockDirectReservationForUnknownCredit =
+    canReserve && !willWaitlist && creditsUnknown;
 
   return (
     <Card
@@ -123,7 +126,7 @@ export function AthleteOpportunityCard({
         </p>
 
         {opportunity.personalReservationStatus === "waitlisted" && (
-          <p className="text-ur-gold flex items-center gap-2 font-bold">
+          <p className="flex items-center gap-2 font-bold text-ur-gold">
             <UsersRound size={15} aria-hidden="true" />
             Lista de espera
             {opportunity.waitlistPosition
@@ -133,17 +136,17 @@ export function AthleteOpportunityCard({
         )}
         {(opportunity.personalReservationStatus === "reserved" ||
           opportunity.personalReservationStatus === "confirmed") && (
-          <p className="text-ur-gold flex items-center gap-2 font-bold">
-            <TicketCheck size={15} aria-hidden="true" /> Reserva ativa
+          <p className="flex items-center gap-2 font-bold text-ur-gold">
+            <TicketCheck size={15} aria-hidden="true" /> Reserva confirmada
           </p>
         )}
         {opportunity.personalReservationStatus === "checked_in" && (
-          <p className="text-ur-gold flex items-center gap-2 font-bold">
-            <TicketCheck size={15} aria-hidden="true" /> Check-in concluído
+          <p className="flex items-center gap-2 font-bold text-ur-gold">
+            <TicketCheck size={15} aria-hidden="true" /> Check-in realizado
           </p>
         )}
         {opportunity.personalReservationStatus === "consumed" && (
-          <p className="text-ur-gold flex items-center gap-2 font-bold">
+          <p className="flex items-center gap-2 font-bold text-ur-gold">
             <TicketCheck size={15} aria-hidden="true" /> Participação concluída
           </p>
         )}
@@ -171,18 +174,12 @@ export function AthleteOpportunityCard({
             {canExpressInterest &&
               opportunity.personalInterestStatus === "active" && (
                 <form action={setAthleteOpportunityInterest}>
-                  <input
-                    type="hidden"
-                    name="opportunityId"
-                    value={opportunity.id}
-                  />
+                  <input type="hidden" name="opportunityId" value={opportunity.id} />
                   <input type="hidden" name="active" value="false" />
                   <input
                     type="hidden"
                     name="interestMode"
-                    value={
-                      opportunity.personalInterestMode ?? "individual_interest"
-                    }
+                    value={opportunity.personalInterestMode ?? "individual_interest"}
                   />
                   <Button type="submit" variant="ghost" className="w-full">
                     Retirar interesse
@@ -191,29 +188,20 @@ export function AthleteOpportunityCard({
               )}
 
             {canExpressInterest && !opportunity.personalInterestStatus && (
-              <form
-                action={setAthleteOpportunityInterest}
-                className="grid gap-2"
-              >
-                <input
-                  type="hidden"
-                  name="opportunityId"
-                  value={opportunity.id}
-                />
+              <form action={setAthleteOpportunityInterest} className="grid gap-2">
+                <input type="hidden" name="opportunityId" value={opportunity.id} />
                 <input type="hidden" name="active" value="true" />
                 <label className="grid gap-1 text-xs font-bold tracking-wider text-zinc-500 uppercase">
                   Como você quer participar?
                   <select
                     name="interestMode"
                     defaultValue="individual_interest"
-                    className="rounded-ur bg-ur-panel min-h-11 border px-3 text-sm text-white"
+                    className="min-h-11 rounded-ur border bg-ur-panel px-3 text-sm text-white"
                   >
                     <option value="individual_interest">Tenho interesse</option>
                     <option value="looking_for_partner">Procuro dupla</option>
                     <option value="have_formation">Já tenho formação</option>
-                    <option value="available_to_join">
-                      Posso completar uma formação
-                    </option>
+                    <option value="available_to_join">Posso completar uma formação</option>
                   </select>
                 </label>
                 <Button type="submit" variant="secondary" className="w-full">
@@ -224,15 +212,14 @@ export function AthleteOpportunityCard({
 
             {canReserve && (
               <form action={reserveAthleteOpportunity}>
-                <input
-                  type="hidden"
-                  name="opportunityId"
-                  value={opportunity.id}
-                />
+                <input type="hidden" name="opportunityId" value={opportunity.id} />
                 <Button
                   type="submit"
                   className="w-full"
-                  disabled={lacksCreditForDirectReservation}
+                  disabled={
+                    lacksCreditForDirectReservation ||
+                    blockDirectReservationForUnknownCredit
+                  }
                 >
                   {willWaitlist ? "Entrar na lista de espera" : "Reservar vaga"}
                 </Button>
@@ -244,6 +231,14 @@ export function AthleteOpportunityCard({
                 <CircleDollarSign size={14} aria-hidden="true" />
                 Você precisa de pelo menos 1 crédito disponível para reservar
                 uma vaga. Entrar em lista de espera não segura crédito.
+              </p>
+            )}
+
+            {blockDirectReservationForUnknownCredit && (
+              <p className="flex items-center gap-2 text-xs text-zinc-500">
+                <CircleDollarSign size={14} aria-hidden="true" />
+                O saldo de créditos está indisponível. A reserva direta fica
+                bloqueada até a fonte responder, sem assumir saldo zero.
               </p>
             )}
 
