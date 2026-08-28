@@ -29,7 +29,7 @@ function databaseTime(value: string, asEnd = false) {
   return `${value}:00`;
 }
 
-function finishAvailability(query: string) {
+function finishAvailability(query: string): never {
   revalidatePath("/athlete/agenda");
   revalidatePath("/athlete/disponibilidade");
   redirect(`/athlete/agenda?${query}#disponibilidade`);
