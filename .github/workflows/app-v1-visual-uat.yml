@@ -5,6 +5,7 @@ on:
   push:
     branches:
       - integration/app-v1-command-data
+      - feat/athlete-app-p01-shell-v2
     paths:
       - ".github/workflows/app-v1-visual-uat.yml"
       - "src/**"

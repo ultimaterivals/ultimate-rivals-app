@@ -18,7 +18,7 @@ export async function SeasonContextBanner() {
           <p className="text-[.65rem] font-black tracking-[.18em] text-zinc-500 uppercase">
             {season.title}
           </p>
-          <p className="truncate text-sm font-black text-zinc-200">
+          <p className="text-sm leading-5 font-black text-zinc-200">
             Fase atual · {season.phaseLabel}
           </p>
         </div>

@@ -15,11 +15,22 @@ describe("App V1 ↔ Command integration contracts", () => {
     expect(athleteLayout).not.toContain("PortalShell");
     expect(athleteShell).toContain("App do Atleta");
     expect(athleteShell).toContain('aria-label="Navegação do atleta"');
-    expect(athleteShell).toContain("Meu jogo");
-    expect(athleteShell).toContain("Minha jornada");
+    expect(athleteShell).toContain("Carreira");
     expect(athleteShell).toContain("Ecossistema");
-    expect(athleteShell).toContain('aria-label="Mais opções do atleta"');
-    expect(athleteShell).toContain("Feedback e suporte");
+    expect(athleteShell).toContain(
+      'aria-label="Navegação principal do atleta"',
+    );
+    expect(athleteShell).toContain('aria-label="Atalhos da área atual"');
+    for (const destination of [
+      "Início",
+      "Jogar",
+      "Ranking",
+      "Hunter",
+      "Perfil",
+    ]) {
+      expect(athleteShell).toContain(`label: "${destination}"`);
+    }
+    expect(athleteShell).toContain("/athlete/feedback");
   });
 
   it("keeps Preview admin-only, read-only and without Auth impersonation", () => {
