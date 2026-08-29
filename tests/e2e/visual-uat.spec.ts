@@ -103,6 +103,18 @@ async function waitForHunter(page: Page) {
       name: "Desenvolvimento para quem quer ir além do jogo.",
     }),
   ).toBeVisible({ timeout: 30_000 });
+  await expect(
+    page.getByRole("heading", { name: "Adesão ainda não conectada ao Athlete App" }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("heading", { name: "Quatro trilhas de desenvolvimento" }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("heading", { name: "Quatro estados, sem progresso inventado" }),
+  ).toBeVisible();
+  await expect(
+    page.getByText(/o App não presume estado e não grava interesse em uma fonte provisória/),
+  ).toBeVisible();
 }
 
 async function waitForProfile(page: Page) {
@@ -330,6 +342,12 @@ test("mobile compact 360 athlete shell visual evidence", async ({
     "mobile-360x800-development",
     waitForDevelopment,
   );
+  await openMobileAndCapture(
+    page,
+    "/athlete/hunter",
+    "mobile-360x800-hunter",
+    waitForHunter,
+  );
 });
 
 test("admin Preview remains read-only on desktop", async ({
@@ -372,6 +390,12 @@ test("admin Preview remains read-only on desktop", async ({
     "/athlete/development",
     "preview-desktop-1440x900-development",
     waitForDevelopment,
+  );
+  await openAndCapture(
+    page,
+    "/athlete/hunter",
+    "preview-desktop-1440x900-hunter",
+    waitForHunter,
   );
 });
 
@@ -416,5 +440,11 @@ test("admin Preview remains read-only on mobile", async ({
     "/athlete/development",
     "preview-mobile-390x844-development",
     waitForDevelopment,
+  );
+  await openMobileAndCapture(
+    page,
+    "/athlete/hunter",
+    "preview-mobile-390x844-hunter",
+    waitForHunter,
   );
 });
