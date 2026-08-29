@@ -47,9 +47,11 @@ export async function AthleteHistoricalResults() {
         <p className="mt-2 max-w-3xl text-sm leading-6 text-zinc-400">
           Jogos homologados e importados para preservar sua carreira no Ultimate
           Rivals. Eles participam da trajetória competitiva conforme as regras
-          oficiais, sem alterar automaticamente ranking ou UR Coins, nem fabricar
-          reserva, check-in, equipe ou qualquer outro dado retroativo que não
-          exista na fonte.
+          oficiais, sem fabricar reserva, check-in, equipe, UR Coins ou qualquer
+          outro dado retroativo que não exista na fonte.
+        </p>
+        <p className="mt-2 text-sm font-bold text-zinc-300">
+          Não alteram automaticamente ranking ou UR Coins.
         </p>
       </div>
 
