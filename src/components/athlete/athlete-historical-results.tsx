@@ -82,7 +82,7 @@ export async function AthleteHistoricalResults() {
           id="historical-results-title"
           className="font-display mt-1 text-3xl font-black sm:text-4xl"
         >
-          Sua história começou antes do app
+          Sua trajetória antes do app
         </h2>
         <p className="mt-2 max-w-3xl text-sm leading-6 text-zinc-400">
           Jogos já homologados continuam compondo sua trajetória esportiva. O
