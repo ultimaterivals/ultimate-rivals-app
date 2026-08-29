@@ -79,7 +79,9 @@ async function expectDevelopmentEvidence(page: Page) {
   await expect(
     page.getByText(/Hunter é a escola de desenvolvimento opt-in/),
   ).toBeVisible();
-  await expect(page.getByText(/score, radar ou diagnóstico automático/)).toBeVisible();
+  await expect(
+    page.getByText(/score, radar ou diagnóstico automático/),
+  ).toBeVisible();
 }
 
 test("real athlete completes the final desktop UAT route matrix", async ({

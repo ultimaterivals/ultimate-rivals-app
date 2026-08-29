@@ -69,8 +69,12 @@ export default async function AthleteDevelopmentPage() {
   );
 
   const milestones = [
-    games > 0 ? `${games} ${games === 1 ? "jogo oficial registrado" : "jogos oficiais registrados"}` : null,
-    wins > 0 ? `${wins} ${wins === 1 ? "vitória homologada" : "vitórias homologadas"}` : null,
+    games > 0
+      ? `${games} ${games === 1 ? "jogo oficial registrado" : "jogos oficiais registrados"}`
+      : null,
+    wins > 0
+      ? `${wins} ${wins === 1 ? "vitória homologada" : "vitórias homologadas"}`
+      : null,
     ranking?.currentPosition
       ? `Posição #${ranking.currentPosition} no ranking atual`
       : null,
@@ -156,7 +160,9 @@ export default async function AthleteDevelopmentPage() {
             <p className="text-xs font-black tracking-[.16em] text-zinc-500 uppercase">
               Jogos
             </p>
-            <strong className="font-display mt-2 block text-4xl">{games}</strong>
+            <strong className="font-display mt-2 block text-4xl">
+              {games}
+            </strong>
           </Card>
           <Card>
             <p className="text-xs font-black tracking-[.16em] text-zinc-500 uppercase">
@@ -168,7 +174,9 @@ export default async function AthleteDevelopmentPage() {
             <p className="text-xs font-black tracking-[.16em] text-zinc-500 uppercase">
               Derrotas
             </p>
-            <strong className="font-display mt-2 block text-4xl">{losses}</strong>
+            <strong className="font-display mt-2 block text-4xl">
+              {losses}
+            </strong>
           </Card>
           <Card>
             <p className="text-xs font-black tracking-[.16em] text-zinc-500 uppercase">
