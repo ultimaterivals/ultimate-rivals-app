@@ -1,4 +1,13 @@
-import { Brain, GraduationCap, Target, UsersRound } from "lucide-react";
+import {
+  BookOpen,
+  Brain,
+  CheckCircle2,
+  Clock3,
+  GraduationCap,
+  ShieldCheck,
+  Target,
+  UsersRound,
+} from "lucide-react";
 
 const tracks = [
   {
@@ -27,9 +36,54 @@ const tracks = [
   },
 ] as const;
 
+const pillars = [
+  "Disciplina",
+  "Leitura de jogo",
+  "Tomada de decisão",
+  "Consistência",
+  "Competitividade",
+  "Evolução contínua",
+  "Liderança",
+  "Equipe",
+  "Comportamento",
+  "Preparação mental",
+] as const;
+
+const participationStates = [
+  {
+    title: "Não participante",
+    description:
+      "Conhece a metodologia. A manifestação de interesse será liberada quando o canal oficial de adesão estiver disponível.",
+  },
+  {
+    title: "Interessado",
+    description:
+      "Acompanha o status da solicitação quando a adesão Hunter estiver disponível no App.",
+  },
+  {
+    title: "Participante",
+    description:
+      "Vê plano, ciclo, objetivo, prioridades, conteúdos ou atividades publicados e a próxima revisão.",
+  },
+  {
+    title: "Pausado ou concluído",
+    description:
+      "Mantém o histórico do ciclo e suas evidências publicadas sem apagar o que já aconteceu.",
+  },
+] as const;
+
+const participantFields = [
+  "Plano de desenvolvimento",
+  "Ciclo atual",
+  "Objetivo publicado",
+  "Prioridades",
+  "Conteúdos e atividades",
+  "Próxima revisão",
+] as const;
+
 export default function AthleteHunterPage() {
   return (
-    <div className="mx-auto max-w-6xl pb-6">
+    <div className="mx-auto max-w-6xl pb-8">
       <section className="border-ur-gold/20 relative overflow-hidden border-b pt-2 pb-8 sm:pb-10">
         <div
           className="bg-ur-gold/[.07] pointer-events-none absolute top-0 right-0 size-56 rounded-full blur-3xl"
@@ -42,10 +96,10 @@ export default function AthleteHunterPage() {
             </span>
             <div>
               <p className="text-ur-gold text-[.62rem] font-black tracking-[.22em] uppercase">
-                Hunter · Desenvolvimento UR
+                Hunter · Escola de desenvolvimento UR
               </p>
               <p className="mt-1 text-xs font-bold text-zinc-500">
-                Escola de desenvolvimento do atleta
+                Opt-in · separado da participação normal no UR Play
               </p>
             </div>
           </div>
@@ -53,15 +107,40 @@ export default function AthleteHunterPage() {
             Desenvolvimento para quem quer ir além do jogo.
           </h1>
           <p className="mt-5 max-w-2xl text-sm leading-6 text-zinc-400 sm:text-base sm:leading-7">
-            Hunter é uma jornada voluntária de desenvolvimento. Nesta fase do
-            aplicativo, a rota apresenta a estrutura da metodologia sem inferir
-            adesão, plano, nota, missão ou progresso que ainda não tenham sido
-            publicados por uma fonte canônica.
+            Hunter é a escola de desenvolvimento do Ultimate Rivals. A jornada é
+            voluntária e trabalha preparação, inteligência de jogo, liderança e
+            evolução contínua sem criar XP geral, score ou progressão fictícia.
           </p>
         </div>
       </section>
 
-      <section className="py-7 sm:py-9" aria-labelledby="hunter-tracks-title">
+      <section className="py-7 sm:py-9" aria-labelledby="hunter-status-title">
+        <div className="rounded-3xl border border-amber-400/20 bg-amber-400/[.035] p-5 sm:p-6">
+          <div className="flex items-start gap-4">
+            <ShieldCheck
+              className="mt-0.5 shrink-0 text-amber-300"
+              size={24}
+              aria-hidden="true"
+            />
+            <div>
+              <p className="text-xs font-black tracking-[.18em] text-amber-300 uppercase">
+                Seu estado Hunter
+              </p>
+              <h2 id="hunter-status-title" className="mt-2 text-2xl font-black">
+                Adesão ainda não conectada ao Athlete App
+              </h2>
+              <p className="mt-2 max-w-3xl text-sm leading-6 text-zinc-400">
+                A adesão Hunter ainda não está disponível nesta versão do App.
+                Por isso, seu status não é presumido e nenhuma solicitação de
+                interesse é criada automaticamente. Quando o canal oficial
+                estiver conectado, seu estado passa a aparecer aqui.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="pb-8 sm:pb-10" aria-labelledby="hunter-tracks-title">
         <div className="mb-5">
           <p className="text-[.62rem] font-black tracking-[.2em] text-zinc-600 uppercase">
             Metodologia
@@ -93,12 +172,131 @@ export default function AthleteHunterPage() {
         </div>
       </section>
 
-      <section className="border-t border-white/[.07] pt-6">
-        <p className="text-sm leading-6 text-zinc-500">
-          Adesão, plano individual, conteúdos, atividades, avaliações e
-          acompanhamento serão conectados no P08 aos contratos canônicos do
-          Hunter. Nenhum estado de participação é presumido nesta fundação.
-        </p>
+      <section
+        className="border-t border-white/[.07] py-8"
+        aria-labelledby="hunter-pillars-title"
+      >
+        <div className="max-w-3xl">
+          <p className="text-[.62rem] font-black tracking-[.2em] text-zinc-600 uppercase">
+            Pilares
+          </p>
+          <h2
+            id="hunter-pillars-title"
+            className="font-display mt-2 text-3xl font-black uppercase"
+          >
+            O que a metodologia desenvolve
+          </h2>
+        </div>
+        <div className="mt-5 flex flex-wrap gap-2">
+          {pillars.map((pillar) => (
+            <span
+              key={pillar}
+              className="rounded-full border border-white/[.09] bg-white/[.025] px-3 py-2 text-xs font-black text-zinc-300"
+            >
+              {pillar}
+            </span>
+          ))}
+        </div>
+      </section>
+
+      <section
+        className="border-t border-white/[.07] py-8"
+        aria-labelledby="hunter-journey-title"
+      >
+        <div className="mb-5 max-w-3xl">
+          <p className="text-[.62rem] font-black tracking-[.2em] text-zinc-600 uppercase">
+            Jornada opt-in
+          </p>
+          <h2
+            id="hunter-journey-title"
+            className="font-display mt-2 text-3xl font-black uppercase"
+          >
+            Quatro estados, sem progresso inventado
+          </h2>
+          <p className="mt-3 text-sm leading-6 text-zinc-500">
+            Estes são os estados previstos para o Hunter. O App só exibirá um
+            deles como seu estado quando houver uma fonte oficial de adesão.
+          </p>
+        </div>
+        <div className="grid gap-3 sm:grid-cols-2">
+          {participationStates.map((state, index) => (
+            <article
+              key={state.title}
+              className="rounded-3xl border border-white/[.08] bg-white/[.02] p-5"
+            >
+              <div className="flex items-center gap-3">
+                <span className="bg-ur-gold/[.07] text-ur-gold grid size-8 place-items-center rounded-full text-xs font-black">
+                  {index + 1}
+                </span>
+                <h3 className="font-black">{state.title}</h3>
+              </div>
+              <p className="mt-3 text-sm leading-6 text-zinc-500">
+                {state.description}
+              </p>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section
+        className="border-t border-white/[.07] py-8"
+        aria-labelledby="hunter-plan-title"
+      >
+        <div className="grid gap-6 lg:grid-cols-[1fr_.9fr]">
+          <div>
+            <p className="text-[.62rem] font-black tracking-[.2em] text-zinc-600 uppercase">
+              Participante
+            </p>
+            <h2
+              id="hunter-plan-title"
+              className="font-display mt-2 text-3xl font-black uppercase"
+            >
+              O plano aparece quando for publicado
+            </h2>
+            <p className="mt-3 max-w-2xl text-sm leading-6 text-zinc-500">
+              Para um atleta participante, a V1 está preparada para apresentar
+              somente informações realmente publicadas. Campo ausente permanece
+              ausente; nenhuma nota, missão, porcentagem ou recomendação é
+              calculada automaticamente.
+            </p>
+          </div>
+          <div className="grid gap-2">
+            {participantFields.map((field) => (
+              <div
+                key={field}
+                className="flex items-center gap-3 rounded-2xl border border-white/[.08] px-4 py-3 text-sm font-bold text-zinc-300"
+              >
+                <CheckCircle2
+                  className="text-ur-gold shrink-0"
+                  size={16}
+                  aria-hidden="true"
+                />
+                {field}
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="grid gap-3 border-t border-white/[.07] pt-8 md:grid-cols-2">
+        <div className="rounded-3xl border border-white/[.08] p-5">
+          <BookOpen className="text-ur-gold" size={22} aria-hidden="true" />
+          <h2 className="mt-4 text-xl font-black">Conteúdo sem LMS fictício</h2>
+          <p className="mt-2 text-sm leading-6 text-zinc-500">
+            Conteúdos e atividades só entram nesta área quando forem publicados
+            por uma fonte oficial. Até lá, a metodologia existe sem simular
+            aulas concluídas ou porcentagens de curso.
+          </p>
+        </div>
+        <div className="rounded-3xl border border-white/[.08] p-5">
+          <Clock3 className="text-ur-gold" size={22} aria-hidden="true" />
+          <h2 className="mt-4 text-xl font-black">Ciclo preserva histórico</h2>
+          <p className="mt-2 text-sm leading-6 text-zinc-500">
+            Quando houver ciclos Hunter publicados, pausas e conclusões não
+            apagarão evidências já registradas. Histórico de desenvolvimento
+            permanece rastreável.
+          </p>
+        </div>
       </section>
     </div>
   );
