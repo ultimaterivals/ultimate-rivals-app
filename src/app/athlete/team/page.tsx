@@ -110,9 +110,7 @@ export default async function AthleteTeamPage() {
     teamIds.length && seasonResult.data?.id
       ? await client
           .from("competition_formations")
-          .select(
-            "id,team_id,display_name,format_id,category_id,level,pole_id",
-          )
+          .select("id,team_id,display_name,format_id,category_id,level,pole_id")
           .eq("season_id", seasonResult.data.id)
           .eq("status", "active")
           .in("team_id", teamIds)
@@ -146,7 +144,7 @@ export default async function AthleteTeamPage() {
     <div className="mx-auto grid max-w-7xl gap-6">
       <PageHeader
         eyebrow="Equipe · núcleo do ecossistema"
-        title="Minha equipe"
+        title="Seu time em campo"
         description="Sua carreira no UR também é coletiva. Aqui você acompanha identidade, elenco, formações, ranking e contribuição competitiva sem apagar a história temporal de cada vínculo."
       />
 
@@ -253,7 +251,9 @@ export default async function AthleteTeamPage() {
                       </p>
                     </div>
                     <div>
-                      <p className="text-xs text-zinc-500 uppercase">Campanha</p>
+                      <p className="text-xs text-zinc-500 uppercase">
+                        Campanha
+                      </p>
                       <p className="mt-1 font-black">
                         {ranking.wins}V · {ranking.losses}D
                       </p>
@@ -415,7 +415,9 @@ export default async function AthleteTeamPage() {
               <div className="grid gap-4 lg:grid-cols-2">
                 <Card className="border-ur-gold/20">
                   <Target className="text-ur-gold" aria-hidden="true" />
-                  <h3 className="mt-3 text-xl font-black">Próximos objetivos</h3>
+                  <h3 className="mt-3 text-xl font-black">
+                    Próximos objetivos
+                  </h3>
                   <p className="mt-2 text-sm leading-6 text-zinc-400">
                     Continue jogando, fortalecendo as formações e acompanhando o
                     ranking. Critérios de estágio, vaga, repasse ou oportunidade
@@ -450,7 +452,9 @@ export default async function AthleteTeamPage() {
 
       {officialTeams.length > 0 && (
         <Card>
-          <h2 className="text-xl font-black">Equipes oficiais do ecossistema</h2>
+          <h2 className="text-xl font-black">
+            Equipes oficiais do ecossistema
+          </h2>
           <p className="mt-2 text-sm text-zinc-400">
             Visão pública mínima das equipes ativas cadastradas no UR. Nenhum
             dado interno, candidatura ou operação administrativa é exposto.
