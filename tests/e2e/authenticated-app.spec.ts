@@ -209,7 +209,7 @@ test("athlete interest is reflected back into Command demand", async ({
     .getByRole("button", { name: "Registrar interesse" })
     .click();
   await expect(
-    opportunity.getByText("interessado", { exact: true }),
+    opportunity.getByText("Interesse registrado", { exact: true }),
   ).toBeVisible({ timeout: 20_000 });
 
   await login(page, "admin@test.ur.local", /\/admin/);
