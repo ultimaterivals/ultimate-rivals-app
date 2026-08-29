@@ -324,7 +324,8 @@ test("official check-in consumes the held credit and reflects completion back in
   await expect(
     page
       .getByTestId(`athlete-opportunity-${reservationOpportunity}`)
-      .getByText("Participação concluída", { exact: true }),
+      .getByText("Participação concluída", { exact: true })
+      .first(),
   ).toBeVisible({ timeout: 20_000 });
 });
 
