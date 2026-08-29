@@ -21,6 +21,14 @@ type TechnicalSummaryRow = {
   assists: number | null;
 };
 
+type TechnicalTotals = {
+  aces: number;
+  attacks: number;
+  blocks: number;
+  defenses: number;
+  assists: number;
+};
+
 function formatReviewDate(value: string) {
   return new Date(value).toLocaleDateString("pt-BR", { timeZone: "UTC" });
 }
@@ -57,7 +65,7 @@ export default async function AthleteDevelopmentPage() {
   const winRate = ranking?.winRate ?? null;
   const technicalRows = (technicalResult.data ?? []) as TechnicalSummaryRow[];
   const hasTechnicalData = technicalRows.length > 0 && !technicalResult.error;
-  const technicalTotals = technicalRows.reduce(
+  const technicalTotals = technicalRows.reduce<TechnicalTotals>(
     (total, row) => ({
       aces: total.aces + Number(row.aces ?? 0),
       attacks: total.attacks + Number(row.attacks ?? 0),
