@@ -59,7 +59,7 @@ export async function AthleteHistoricalResults() {
               Vencedor: <strong>{winnerLabel}</strong>
             </p>
           </div>
-          <div className="rounded-2xl border border-ur-gold/20 bg-ur-gold/[.035] px-5 py-4 text-center sm:text-right">
+          <div className="border-ur-gold/20 bg-ur-gold/[.035] rounded-2xl border px-5 py-4 text-center sm:text-right">
             <p className="font-display text-4xl font-black text-white">
               {match.score_a} × {match.score_b}
             </p>
@@ -85,17 +85,22 @@ export async function AthleteHistoricalResults() {
           Sua história começou antes do app
         </h2>
         <p className="mt-2 max-w-3xl text-sm leading-6 text-zinc-400">
-          Jogos já homologados continuam compondo sua trajetória esportiva. O app
-          preserva o que existe na fonte e não reconstrói retroativamente data,
-          equipe, formação, check-in, arena, UR Coins ou qualquer outro fato sem
-          evidência.
+          Jogos já homologados continuam compondo sua trajetória esportiva. O
+          app preserva o que existe na fonte e não reconstrói retroativamente
+          data, equipe, formação, check-in, arena, UR Coins ou qualquer outro
+          fato sem evidência.
         </p>
         <div className="mt-4 flex items-center gap-2 text-sm font-bold text-zinc-300">
-          <ShieldCheck size={16} className="text-emerald-400" aria-hidden="true" />
+          <ShieldCheck
+            size={16}
+            className="text-emerald-400"
+            aria-hidden="true"
+          />
           Histórico homologado integra a carreira.
         </div>
         <p className="mt-2 text-xs leading-5 text-zinc-500">
-          Estes registros não atribuem Ranking Points ou UR Coins automaticamente.
+          Estes registros não atribuem Ranking Points ou UR Coins
+          automaticamente.
         </p>
       </div>
 
@@ -138,8 +143,8 @@ export async function AthleteHistoricalResults() {
                   Registros sem data comprovada
                 </p>
                 <p className="mt-1 text-xs leading-5 text-zinc-500">
-                  Permanecem separados para não atribuir mês ou ordem cronológica
-                  artificialmente.
+                  Permanecem separados para não atribuir mês ou ordem
+                  cronológica artificialmente.
                 </p>
               </div>
               {undatedMatches.map(renderMatch)}

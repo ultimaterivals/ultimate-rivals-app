@@ -184,13 +184,13 @@ export async function AthleteLiveResults() {
                 }`}
               >
                 {highlighted && (
-                  <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-ur-gold to-transparent" />
+                  <div className="via-ur-gold absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent to-transparent" />
                 )}
                 <div className="grid gap-5 sm:grid-cols-[1fr_auto] sm:items-start">
                   <div>
                     <div className="flex flex-wrap items-center gap-2">
                       {highlighted && (
-                        <span className="rounded-full border border-ur-gold/30 bg-ur-gold/10 px-2.5 py-1 text-[10px] font-black tracking-[.12em] text-ur-gold uppercase">
+                        <span className="border-ur-gold/30 bg-ur-gold/10 text-ur-gold rounded-full border px-2.5 py-1 text-[10px] font-black tracking-[.12em] uppercase">
                           Último jogo
                         </span>
                       )}
@@ -214,10 +214,18 @@ export async function AthleteLiveResults() {
                       </p>
                       {(partners.length > 0 || opponents.length > 0) && (
                         <p className="flex items-start gap-2">
-                          <Users size={15} className="mt-0.5" aria-hidden="true" />
+                          <Users
+                            size={15}
+                            className="mt-0.5"
+                            aria-hidden="true"
+                          />
                           <span>
-                            {partners.length > 0 && <>Com {partners.join(", ")}</>}
-                            {partners.length > 0 && opponents.length > 0 && " · "}
+                            {partners.length > 0 && (
+                              <>Com {partners.join(", ")}</>
+                            )}
+                            {partners.length > 0 &&
+                              opponents.length > 0 &&
+                              " · "}
                             {opponents.length > 0 && (
                               <>Contra {opponents.join(", ")}</>
                             )}
@@ -274,9 +282,10 @@ export async function AthleteLiveResults() {
             Fonte parcialmente indisponível
           </p>
           <p className="mt-2 text-sm leading-6 text-zinc-400">
-            Uma fonte de jogos, estatísticas ou impacto competitivo não respondeu.
-            O app preserva os fatos disponíveis, não transforma ausência em zero e
-            não inventa resultado enquanto a fonte oficial estiver indisponível.
+            Uma fonte de jogos, estatísticas ou impacto competitivo não
+            respondeu. O app preserva os fatos disponíveis, não transforma
+            ausência em zero e não inventa resultado enquanto a fonte oficial
+            estiver indisponível.
           </p>
         </Card>
       )}
