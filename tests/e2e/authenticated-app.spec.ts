@@ -153,20 +153,25 @@ function creditTotals() {
   };
 }
 
-test("athlete opens preserved Player Hub and core destinations", async ({
+test("athlete opens preserved career hub and core destinations", async ({
   page,
 }) => {
   await login(page, "athlete@test.ur.local", /\/athlete/);
 
-  await expect(page.getByText(/Ultimate Rivals · Player Hub/i)).toBeVisible();
+  await expect(
+    page.getByRole("main").getByText("Sua carreira UR", { exact: true }),
+  ).toBeVisible();
   await expect(
     page.getByRole("navigation", { name: "Navegação do atleta" }),
   ).toBeVisible();
 
   for (const destination of [
-    { path: "/athlete/agenda", heading: "Agenda" },
+    { path: "/athlete/agenda", heading: "Entre em quadra" },
     { path: "/athlete/ranking", heading: "Ranking" },
-    { path: "/athlete/season", heading: "Sua campanha UR" },
+    {
+      path: "/athlete/season",
+      heading: "Sua temporada, do começo ao fim",
+    },
     { path: "/athlete/perfil", heading: "Meu Perfil" },
   ]) {
     await page.goto(destination.path);
@@ -204,7 +209,7 @@ test("athlete interest is reflected back into Command demand", async ({
     .getByRole("button", { name: "Registrar interesse" })
     .click();
   await expect(
-    opportunity.getByText("interessado", { exact: true }),
+    opportunity.getByText("Interesse registrado", { exact: true }),
   ).toBeVisible({ timeout: 20_000 });
 
   await login(page, "admin@test.ur.local", /\/admin/);
@@ -236,7 +241,8 @@ test("athlete reservation holds credit, Command reflects it, and cancellation re
   await expect(
     page
       .getByTestId(`athlete-opportunity-${reservationOpportunity}`)
-      .getByText("Reserva ativa", { exact: true }),
+      .getByText("Reserva confirmada", { exact: true })
+      .first(),
   ).toBeVisible({ timeout: 20_000 });
 
   await expect.poll(() => creditTotals().available).toBe(2);
@@ -318,7 +324,8 @@ test("official check-in consumes the held credit and reflects completion back in
   await expect(
     page
       .getByTestId(`athlete-opportunity-${reservationOpportunity}`)
-      .getByText("Participação concluída", { exact: true }),
+      .getByText("Participação concluída", { exact: true })
+      .first(),
   ).toBeVisible({ timeout: 20_000 });
 });
 
@@ -373,7 +380,7 @@ test("admin Preview renders athlete App read-only without replacing admin Auth",
   await page.goto("/athlete/agenda");
   await expect(
     page.getByText(
-      "Prévia somente leitura: interesse, reserva e cancelamento estão desabilitados.",
+      "Prévia somente leitura. Interesse, reserva, cancelamento e alterações de disponibilidade estão desabilitados.",
       { exact: true },
     ),
   ).toBeVisible();

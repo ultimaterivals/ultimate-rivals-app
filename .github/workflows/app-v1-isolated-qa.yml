@@ -6,6 +6,7 @@ on:
     branches:
       - main
       - integration/app-v1-command-data
+      - "feat/athlete-app-*"
     paths:
       - ".github/workflows/app-v1-isolated-qa.yml"
       - "src/**"

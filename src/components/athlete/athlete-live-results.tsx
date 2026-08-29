@@ -1,7 +1,14 @@
 import { CalendarDays, ShieldCheck, Trophy, Users } from "lucide-react";
-import { Card, PageHeader } from "@/components/ui";
+import { Card } from "@/components/ui";
 import { requireAthleteViewer } from "@/lib/auth/athlete-viewer";
 import { createClient } from "@/lib/supabase/server";
+
+type MatchResult = {
+  winner_side_id: string | null;
+  score_a: number;
+  score_b: number;
+  result_status: string;
+};
 
 type ResultRow = {
   match_id: string;
@@ -10,12 +17,7 @@ type ResultRow = {
     match_code: string;
     ended_at: string | null;
     ur_play_sessions: { name: string } | null;
-    match_results: {
-      winner_side_id: string | null;
-      score_a: number;
-      score_b: number;
-      result_status: string;
-    } | null;
+    match_results: MatchResult | null;
     match_participants: {
       athlete_id: string;
       side_id: string;
@@ -23,6 +25,14 @@ type ResultRow = {
     }[];
   } | null;
 };
+
+function resultLabel(result: MatchResult | null | undefined, sideId: string) {
+  if (!result || result.result_status !== "homologated") {
+    return "Aguardando homologação";
+  }
+  if (!result.winner_side_id) return "Resultado homologado";
+  return result.winner_side_id === sideId ? "Vitória" : "Derrota";
+}
 
 export async function AthleteLiveResults() {
   const viewer = await requireAthleteViewer();
@@ -55,37 +65,52 @@ export async function AthleteLiveResults() {
   );
   const impacts = new Map<string, number>();
   for (const impact of impactsResult.data ?? []) {
-    if (impact.match_id)
+    if (impact.match_id) {
       impacts.set(
         impact.match_id,
         (impacts.get(impact.match_id) ?? 0) + impact.points_applied,
       );
+    }
   }
+  const sourceUnavailable = Boolean(
+    matchesResult.error || statisticsResult.error || impactsResult.error,
+  );
 
   return (
-    <div className="grid gap-6">
-      <PageHeader
-        eyebrow="Resultados"
-        title="Seus jogos oficiais"
-        description="Placares e estatísticas dos seus jogos. Seu ranking é atualizado com os resultados confirmados."
-      />
-      {matches.length === 0 ? (
+    <section aria-labelledby="current-results-title" className="grid gap-4">
+      <div>
+        <p className="text-ur-gold text-xs font-black tracking-[.18em] uppercase">
+          Operação atual
+        </p>
+        <h2
+          id="current-results-title"
+          className="font-display mt-1 text-2xl font-black sm:text-3xl"
+        >
+          Jogos atuais
+        </h2>
+        <p className="mt-2 max-w-3xl text-sm leading-6 text-zinc-400">
+          Partidas registradas pelo aplicativo, com placar, formação,
+          estatísticas disponíveis e homologação publicada pela operação.
+        </p>
+      </div>
+
+      {matches.length === 0 && !matchesResult.error ? (
         <Card>
           <Trophy className="text-ur-gold" aria-hidden="true" />
-          <h2 className="mt-3 text-xl font-black">
-            Nenhum resultado publicado
-          </h2>
+          <h3 className="mt-3 text-xl font-black">
+            Nenhum resultado atual publicado
+          </h3>
           <p className="mt-2 text-sm text-zinc-400">
-            Seus jogos aparecerão aqui depois de registrados e disponibilizados
-            pela operação.
+            Quando um jogo registrado pelo aplicativo for disponibilizado pela
+            operação, ele aparecerá aqui. Seu histórico oficial continua
+            separado abaixo.
           </p>
         </Card>
       ) : (
-        <section className="grid gap-4">
+        <div className="grid gap-4">
           {matches.map((entry) => {
             const match = entry.matches;
             const result = match?.match_results;
-            const won = result?.winner_side_id === entry.side_id;
             const stat = stats.get(entry.match_id);
             const participants = match?.match_participants ?? [];
             const partners = participants
@@ -101,6 +126,8 @@ export async function AthleteLiveResults() {
               .map((participant) => participant.athletes?.public_name)
               .filter(Boolean);
             const points = impacts.get(entry.match_id);
+            const status = resultLabel(result, entry.side_id);
+
             return (
               <Card
                 key={entry.match_id}
@@ -108,15 +135,17 @@ export async function AthleteLiveResults() {
               >
                 <div>
                   <p className="text-xs font-black tracking-[.16em] text-zinc-500 uppercase">
-                    {match?.ur_play_sessions?.name ?? "Evento UR"}
+                    {match?.ur_play_sessions?.name ?? "Jogo oficial"}
                   </p>
-                  <h2 className="mt-1 text-xl font-black">
-                    {match?.match_code ?? "Partida"}
-                  </h2>
+                  <h3 className="mt-1 text-xl font-black">
+                    {match?.match_code ?? "Partida oficial"}
+                  </h3>
                   <p className="mt-2 flex items-center gap-2 text-sm text-zinc-400">
                     <CalendarDays size={15} aria-hidden="true" />
                     {match?.ended_at
-                      ? new Date(match.ended_at).toLocaleString("pt-BR")
+                      ? new Date(match.ended_at).toLocaleString("pt-BR", {
+                          timeZone: "America/Sao_Paulo",
+                        })
                       : "Data ainda não publicada"}
                   </p>
                   {(partners.length > 0 || opponents.length > 0) && (
@@ -132,35 +161,43 @@ export async function AthleteLiveResults() {
                     </p>
                   )}
                   {stat && (
-                    <p className="mt-3 flex flex-wrap gap-x-3 gap-y-1 text-xs font-bold text-zinc-400">
-                      <span>Aces: {stat.aces}</span>
-                      <span>Ataques: {stat.attacks}</span>
-                      <span>Bloqueios: {stat.blocks}</span>
-                      <span>Defesas: {stat.defenses}</span>
-                      <span>Assistências: {stat.assists}</span>
-                    </p>
+                    <div className="mt-4 flex flex-wrap gap-2 text-xs font-bold text-zinc-300">
+                      <span className="rounded-full border border-white/10 px-3 py-1.5">
+                        Aces {stat.aces}
+                      </span>
+                      <span className="rounded-full border border-white/10 px-3 py-1.5">
+                        Ataques {stat.attacks}
+                      </span>
+                      <span className="rounded-full border border-white/10 px-3 py-1.5">
+                        Bloqueios {stat.blocks}
+                      </span>
+                      <span className="rounded-full border border-white/10 px-3 py-1.5">
+                        Defesas {stat.defenses}
+                      </span>
+                      <span className="rounded-full border border-white/10 px-3 py-1.5">
+                        Assistências {stat.assists}
+                      </span>
+                    </div>
                   )}
                 </div>
-                <div className="rounded-ur border border-white/10 p-4 text-right">
+
+                <div className="rounded-ur border border-white/10 bg-black/20 p-4 text-right">
                   <p className="font-display text-3xl font-black">
                     {result ? `${result.score_a} × ${result.score_b}` : "—"}
                   </p>
                   <p className="text-ur-gold mt-1 text-sm font-black">
-                    {result?.result_status === "homologated"
-                      ? won
-                        ? "Vitória oficial"
-                        : "Resultado oficial"
-                      : "Aguardando homologação"}
+                    {status}
                   </p>
                 </div>
+
                 {(points !== undefined ||
                   result?.result_status === "homologated") && (
                   <div className="rounded-ur border border-white/10 bg-white/[.02] p-4 sm:col-span-2">
                     <p className="text-xs font-black tracking-[.16em] text-zinc-500 uppercase">
-                      Impacto
+                      Impacto competitivo publicado
                     </p>
                     <div className="mt-2 flex flex-wrap gap-4 text-sm">
-                      {points !== undefined && (
+                      {points !== undefined && !impactsResult.error && (
                         <span>
                           <strong className="text-ur-gold">
                             {points > 0 ? `+${points}` : points} pts
@@ -174,7 +211,7 @@ export async function AthleteLiveResults() {
                             size={15}
                             className="text-emerald-400"
                             aria-hidden="true"
-                          />{" "}
+                          />
                           Resultado homologado
                         </span>
                       )}
@@ -184,13 +221,21 @@ export async function AthleteLiveResults() {
               </Card>
             );
           })}
-        </section>
+        </div>
       )}
-      {(matchesResult.error || statisticsResult.error) && (
-        <p className="text-sm text-zinc-500">
-          Uma fonte de resultados está temporariamente indisponível.
-        </p>
+
+      {sourceUnavailable && (
+        <Card className="border-amber-400/20 bg-amber-400/[.04]">
+          <p className="text-xs font-black tracking-[.18em] text-amber-300 uppercase">
+            Fonte parcialmente indisponível
+          </p>
+          <p className="mt-2 text-sm leading-6 text-zinc-400">
+            Uma fonte de jogos, estatísticas ou impacto competitivo não
+            respondeu. O app não transforma ausência de dados em zero nem
+            inventa resultado enquanto a fonte oficial estiver indisponível.
+          </p>
+        </Card>
       )}
-    </div>
+    </section>
   );
 }
