@@ -10,6 +10,15 @@ type MatchResult = {
   result_status: string;
 };
 
+type TechnicalSummary = {
+  match_id: string;
+  aces: number | null;
+  attacks: number | null;
+  blocks: number | null;
+  defenses: number | null;
+  assists: number | null;
+};
+
 type ResultRow = {
   match_id: string;
   side_id: string;
@@ -32,6 +41,37 @@ function resultLabel(result: MatchResult | null | undefined, sideId: string) {
   }
   if (!result.winner_side_id) return "Resultado homologado";
   return result.winner_side_id === sideId ? "Vitória" : "Derrota";
+}
+
+function statValue(value: number | null | undefined) {
+  return value === null || value === undefined ? "—" : String(value);
+}
+
+function ResultStatistics({ stat }: { stat: TechnicalSummary | undefined }) {
+  if (!stat) return null;
+
+  const values = [
+    ["Aces", stat.aces],
+    ["Ataques", stat.attacks],
+    ["Bloqueios", stat.blocks],
+    ["Defesas", stat.defenses],
+    ["Assistências", stat.assists],
+  ] as const;
+
+  return (
+    <div className="mt-5 grid grid-cols-2 gap-px overflow-hidden rounded-2xl border border-white/10 bg-white/10 sm:grid-cols-5">
+      {values.map(([label, value]) => (
+        <div key={label} className="bg-black/70 px-3 py-3 text-center">
+          <p className="text-[10px] font-black tracking-[.14em] text-zinc-500 uppercase">
+            {label}
+          </p>
+          <p className="font-display mt-1 text-xl font-black text-white">
+            {statValue(value)}
+          </p>
+        </div>
+      ))}
+    </div>
+  );
 }
 
 export async function AthleteLiveResults() {
@@ -60,8 +100,11 @@ export async function AthleteLiveResults() {
   ]);
 
   const matches = (matchesResult.data ?? []) as unknown as ResultRow[];
-  const stats = new Map(
-    (statisticsResult.data ?? []).map((row) => [row.match_id, row]),
+  const stats = new Map<string, TechnicalSummary>(
+    ((statisticsResult.data ?? []) as TechnicalSummary[]).map((row) => [
+      row.match_id,
+      row,
+    ]),
   );
   const impacts = new Map<string, number>();
   for (const impact of impactsResult.data ?? []) {
@@ -78,37 +121,39 @@ export async function AthleteLiveResults() {
 
   return (
     <section aria-labelledby="current-results-title" className="grid gap-4">
-      <div>
-        <p className="text-ur-gold text-xs font-black tracking-[.18em] uppercase">
-          Operação atual
-        </p>
-        <h2
-          id="current-results-title"
-          className="font-display mt-1 text-2xl font-black sm:text-3xl"
-        >
-          Jogos atuais
-        </h2>
-        <p className="mt-2 max-w-3xl text-sm leading-6 text-zinc-400">
-          Partidas registradas pelo aplicativo, com placar, formação,
-          estatísticas disponíveis e homologação publicada pela operação.
-        </p>
+      <div className="flex items-end justify-between gap-4">
+        <div>
+          <p className="text-ur-gold text-xs font-black tracking-[.18em] uppercase">
+            Últimos resultados
+          </p>
+          <h2
+            id="current-results-title"
+            className="font-display mt-1 text-3xl font-black sm:text-4xl"
+          >
+            O que aconteceu em quadra
+          </h2>
+        </div>
+        {matches.length > 0 && (
+          <p className="hidden text-xs font-bold tracking-[.12em] text-zinc-500 uppercase sm:block">
+            Operação nativa atual
+          </p>
+        )}
       </div>
 
       {matches.length === 0 && !matchesResult.error ? (
-        <Card>
+        <Card className="rounded-[24px] border-white/10 bg-white/[.025] p-6">
           <Trophy className="text-ur-gold" aria-hidden="true" />
           <h3 className="mt-3 text-xl font-black">
             Nenhum resultado atual publicado
           </h3>
-          <p className="mt-2 text-sm text-zinc-400">
-            Quando um jogo registrado pelo aplicativo for disponibilizado pela
-            operação, ele aparecerá aqui. Seu histórico oficial continua
-            separado abaixo.
+          <p className="mt-2 text-sm leading-6 text-zinc-400">
+            Seus resultados homologados aparecerão aqui depois das partidas. Se
+            houver histórico oficial anterior, ele continua preservado abaixo.
           </p>
         </Card>
       ) : (
         <div className="grid gap-4">
-          {matches.map((entry) => {
+          {matches.map((entry, index) => {
             const match = entry.matches;
             const result = match?.match_results;
             const stat = stats.get(entry.match_id);
@@ -127,98 +172,97 @@ export async function AthleteLiveResults() {
               .filter(Boolean);
             const points = impacts.get(entry.match_id);
             const status = resultLabel(result, entry.side_id);
+            const highlighted = index === 0;
 
             return (
-              <Card
+              <article
                 key={entry.match_id}
-                className="grid gap-4 sm:grid-cols-[1fr_auto]"
+                className={`relative overflow-hidden rounded-[26px] border bg-[linear-gradient(145deg,rgba(18,18,18,.98),rgba(5,5,5,.98))] p-5 shadow-xl sm:p-6 ${
+                  highlighted
+                    ? "border-ur-gold/40 shadow-ur-gold/5"
+                    : "border-white/10"
+                }`}
               >
-                <div>
-                  <p className="text-xs font-black tracking-[.16em] text-zinc-500 uppercase">
-                    {match?.ur_play_sessions?.name ?? "Jogo oficial"}
-                  </p>
-                  <h3 className="mt-1 text-xl font-black">
-                    {match?.match_code ?? "Partida oficial"}
-                  </h3>
-                  <p className="mt-2 flex items-center gap-2 text-sm text-zinc-400">
-                    <CalendarDays size={15} aria-hidden="true" />
-                    {match?.ended_at
-                      ? new Date(match.ended_at).toLocaleString("pt-BR", {
-                          timeZone: "America/Sao_Paulo",
-                        })
-                      : "Data ainda não publicada"}
-                  </p>
-                  {(partners.length > 0 || opponents.length > 0) && (
-                    <p className="mt-2 flex items-start gap-2 text-sm text-zinc-400">
-                      <Users size={15} aria-hidden="true" />
-                      <span>
-                        {partners.length > 0 && <>Com {partners.join(", ")}</>}
-                        {partners.length > 0 && opponents.length > 0 && " · "}
-                        {opponents.length > 0 && (
-                          <>Contra {opponents.join(", ")}</>
-                        )}
-                      </span>
-                    </p>
-                  )}
-                  {stat && (
-                    <div className="mt-4 flex flex-wrap gap-2 text-xs font-bold text-zinc-300">
-                      <span className="rounded-full border border-white/10 px-3 py-1.5">
-                        Aces {stat.aces}
-                      </span>
-                      <span className="rounded-full border border-white/10 px-3 py-1.5">
-                        Ataques {stat.attacks}
-                      </span>
-                      <span className="rounded-full border border-white/10 px-3 py-1.5">
-                        Bloqueios {stat.blocks}
-                      </span>
-                      <span className="rounded-full border border-white/10 px-3 py-1.5">
-                        Defesas {stat.defenses}
-                      </span>
-                      <span className="rounded-full border border-white/10 px-3 py-1.5">
-                        Assistências {stat.assists}
-                      </span>
-                    </div>
-                  )}
-                </div>
-
-                <div className="rounded-ur border border-white/10 bg-black/20 p-4 text-right">
-                  <p className="font-display text-3xl font-black">
-                    {result ? `${result.score_a} × ${result.score_b}` : "—"}
-                  </p>
-                  <p className="text-ur-gold mt-1 text-sm font-black">
-                    {status}
-                  </p>
-                </div>
-
-                {(points !== undefined ||
-                  result?.result_status === "homologated") && (
-                  <div className="rounded-ur border border-white/10 bg-white/[.02] p-4 sm:col-span-2">
-                    <p className="text-xs font-black tracking-[.16em] text-zinc-500 uppercase">
-                      Impacto competitivo publicado
-                    </p>
-                    <div className="mt-2 flex flex-wrap gap-4 text-sm">
-                      {points !== undefined && !impactsResult.error && (
-                        <span>
-                          <strong className="text-ur-gold">
-                            {points > 0 ? `+${points}` : points} pts
-                          </strong>{" "}
-                          no ranking
+                {highlighted && (
+                  <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-ur-gold to-transparent" />
+                )}
+                <div className="grid gap-5 sm:grid-cols-[1fr_auto] sm:items-start">
+                  <div>
+                    <div className="flex flex-wrap items-center gap-2">
+                      {highlighted && (
+                        <span className="rounded-full border border-ur-gold/30 bg-ur-gold/10 px-2.5 py-1 text-[10px] font-black tracking-[.12em] text-ur-gold uppercase">
+                          Último jogo
                         </span>
                       )}
-                      {result?.result_status === "homologated" && (
-                        <span className="flex items-center gap-1">
-                          <ShieldCheck
-                            size={15}
-                            className="text-emerald-400"
-                            aria-hidden="true"
-                          />
-                          Resultado homologado
-                        </span>
+                      <p className="text-xs font-black tracking-[.16em] text-zinc-500 uppercase">
+                        {match?.ur_play_sessions?.name ?? "Jogo oficial"}
+                      </p>
+                    </div>
+
+                    <h3 className="font-display mt-3 text-2xl font-black text-white sm:text-3xl">
+                      {match?.match_code ?? "Partida oficial"}
+                    </h3>
+
+                    <div className="mt-4 grid gap-2 text-sm text-zinc-400">
+                      <p className="flex items-center gap-2">
+                        <CalendarDays size={15} aria-hidden="true" />
+                        {match?.ended_at
+                          ? new Date(match.ended_at).toLocaleString("pt-BR", {
+                              timeZone: "America/Sao_Paulo",
+                            })
+                          : "Data ainda não publicada"}
+                      </p>
+                      {(partners.length > 0 || opponents.length > 0) && (
+                        <p className="flex items-start gap-2">
+                          <Users size={15} className="mt-0.5" aria-hidden="true" />
+                          <span>
+                            {partners.length > 0 && <>Com {partners.join(", ")}</>}
+                            {partners.length > 0 && opponents.length > 0 && " · "}
+                            {opponents.length > 0 && (
+                              <>Contra {opponents.join(", ")}</>
+                            )}
+                          </span>
+                        </p>
                       )}
                     </div>
                   </div>
+
+                  <div className="min-w-36 rounded-2xl border border-white/10 bg-black/35 px-5 py-4 text-center sm:text-right">
+                    <p className="font-display text-4xl font-black text-white sm:text-5xl">
+                      {result ? `${result.score_a} × ${result.score_b}` : "—"}
+                    </p>
+                    <p className="text-ur-gold mt-1 text-sm font-black uppercase">
+                      {status}
+                    </p>
+                  </div>
+                </div>
+
+                <ResultStatistics stat={stat} />
+
+                {(points !== undefined ||
+                  result?.result_status === "homologated") && (
+                  <div className="mt-4 flex flex-wrap items-center gap-x-5 gap-y-2 border-t border-white/10 pt-4 text-sm text-zinc-300">
+                    {points !== undefined && !impactsResult.error && (
+                      <span>
+                        Impacto oficial no ranking:{" "}
+                        <strong className="text-ur-gold">
+                          {points > 0 ? `+${points}` : points} pts
+                        </strong>
+                      </span>
+                    )}
+                    {result?.result_status === "homologated" && (
+                      <span className="flex items-center gap-1.5">
+                        <ShieldCheck
+                          size={15}
+                          className="text-emerald-400"
+                          aria-hidden="true"
+                        />
+                        Resultado homologado
+                      </span>
+                    )}
+                  </div>
                 )}
-              </Card>
+              </article>
             );
           })}
         </div>
@@ -230,9 +274,9 @@ export async function AthleteLiveResults() {
             Fonte parcialmente indisponível
           </p>
           <p className="mt-2 text-sm leading-6 text-zinc-400">
-            Uma fonte de jogos, estatísticas ou impacto competitivo não
-            respondeu. O app não transforma ausência de dados em zero nem
-            inventa resultado enquanto a fonte oficial estiver indisponível.
+            Uma fonte de jogos, estatísticas ou impacto competitivo não respondeu.
+            O app preserva os fatos disponíveis, não transforma ausência em zero e
+            não inventa resultado enquanto a fonte oficial estiver indisponível.
           </p>
         </Card>
       )}
