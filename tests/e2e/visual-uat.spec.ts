@@ -104,16 +104,22 @@ async function waitForHunter(page: Page) {
     }),
   ).toBeVisible({ timeout: 30_000 });
   await expect(
-    page.getByRole("heading", { name: "Adesão ainda não conectada ao Athlete App" }),
+    page.getByRole("heading", {
+      name: "Adesão ainda não conectada ao Athlete App",
+    }),
   ).toBeVisible();
   await expect(
     page.getByRole("heading", { name: "Quatro trilhas de desenvolvimento" }),
   ).toBeVisible();
   await expect(
-    page.getByRole("heading", { name: "Quatro estados, sem progresso inventado" }),
+    page.getByRole("heading", {
+      name: "Quatro estados, sem progresso inventado",
+    }),
   ).toBeVisible();
   await expect(
-    page.getByText(/o App não presume estado e não grava interesse em uma fonte provisória/),
+    page.getByText(
+      /o App não presume estado e não grava interesse em uma fonte provisória/,
+    ),
   ).toBeVisible();
 }
 

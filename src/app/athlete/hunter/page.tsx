@@ -115,7 +115,7 @@ export default function AthleteHunterPage() {
       </section>
 
       <section className="py-7 sm:py-9" aria-labelledby="hunter-status-title">
-        <div className="border-amber-400/20 bg-amber-400/[.035] rounded-3xl border p-5 sm:p-6">
+        <div className="rounded-3xl border border-amber-400/20 bg-amber-400/[.035] p-5 sm:p-6">
           <div className="flex items-start gap-4">
             <ShieldCheck
               className="mt-0.5 shrink-0 text-amber-300"
@@ -173,7 +173,10 @@ export default function AthleteHunterPage() {
         </div>
       </section>
 
-      <section className="border-t border-white/[.07] py-8" aria-labelledby="hunter-pillars-title">
+      <section
+        className="border-t border-white/[.07] py-8"
+        aria-labelledby="hunter-pillars-title"
+      >
         <div className="max-w-3xl">
           <p className="text-[.62rem] font-black tracking-[.2em] text-zinc-600 uppercase">
             Pilares
@@ -197,7 +200,10 @@ export default function AthleteHunterPage() {
         </div>
       </section>
 
-      <section className="border-t border-white/[.07] py-8" aria-labelledby="hunter-journey-title">
+      <section
+        className="border-t border-white/[.07] py-8"
+        aria-labelledby="hunter-journey-title"
+      >
         <div className="mb-5 max-w-3xl">
           <p className="text-[.62rem] font-black tracking-[.2em] text-zinc-600 uppercase">
             Jornada opt-in
@@ -233,7 +239,10 @@ export default function AthleteHunterPage() {
         </div>
       </section>
 
-      <section className="border-t border-white/[.07] py-8" aria-labelledby="hunter-plan-title">
+      <section
+        className="border-t border-white/[.07] py-8"
+        aria-labelledby="hunter-plan-title"
+      >
         <div className="grid gap-6 lg:grid-cols-[1fr_.9fr]">
           <div>
             <p className="text-[.62rem] font-black tracking-[.2em] text-zinc-600 uppercase">

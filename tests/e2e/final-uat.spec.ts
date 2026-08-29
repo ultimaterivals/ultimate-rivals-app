@@ -93,19 +93,27 @@ async function expectHunterSkeleton(page: Page) {
     }),
   ).toBeVisible();
   await expect(
-    page.getByRole("heading", { name: "Adesão ainda não conectada ao Athlete App" }),
+    page.getByRole("heading", {
+      name: "Adesão ainda não conectada ao Athlete App",
+    }),
   ).toBeVisible();
   await expect(
     page.getByRole("heading", { name: "Quatro trilhas de desenvolvimento" }),
   ).toBeVisible();
   await expect(
-    page.getByRole("heading", { name: "Quatro estados, sem progresso inventado" }),
+    page.getByRole("heading", {
+      name: "Quatro estados, sem progresso inventado",
+    }),
   ).toBeVisible();
   await expect(
-    page.getByText(/o App não presume estado e não grava interesse em uma fonte provisória/),
+    page.getByText(
+      /o App não presume estado e não grava interesse em uma fonte provisória/,
+    ),
   ).toBeVisible();
   await expect(
-    page.getByText(/nenhuma nota, missão, porcentagem ou recomendação é calculada automaticamente/),
+    page.getByText(
+      /nenhuma nota, missão, porcentagem ou recomendação é calculada automaticamente/,
+    ),
   ).toBeVisible();
 }
 
