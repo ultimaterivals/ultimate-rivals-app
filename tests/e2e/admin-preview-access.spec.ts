@@ -23,5 +23,7 @@ test("athlete cannot access the admin athlete Preview", async ({ page }) => {
   await expect(
     page.getByRole("heading", { name: "Validar o App como atleta" }),
   ).toHaveCount(0);
-  await expect(page.getByText(/Ultimate Rivals · Player Hub/i)).toBeVisible();
+  await expect(
+    page.getByRole("main").getByText("Sua carreira UR", { exact: true }),
+  ).toBeVisible();
 });
