@@ -78,7 +78,7 @@ async function waitForSeason(page: Page) {
     page.getByText("Campeão R$ 1.200 · Vice R$ 800 · 3º R$ 500 · MVP R$ 700."),
   ).toBeVisible();
   await expect(
-    page.getByText(/Nenhum percentual de classificação é estimado/),
+    page.getByText(/Nenhum percentual de classificação é estimado/).first(),
   ).toBeVisible();
 }
 
