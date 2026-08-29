@@ -99,7 +99,7 @@ export async function AthleteHistoricalResults() {
           Histórico homologado integra a carreira.
         </div>
         <p className="mt-2 text-xs leading-5 text-zinc-500">
-          Estes registros não alteram automaticamente ranking ou UR Coins.
+          Não alteram automaticamente ranking ou UR Coins.
         </p>
       </div>
 
