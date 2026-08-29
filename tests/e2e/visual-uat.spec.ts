@@ -92,7 +92,9 @@ async function waitForDevelopment(page: Page) {
   await expect(
     page.getByRole("heading", { name: "Série histórica ainda não publicada" }),
   ).toBeVisible();
-  await expect(page.getByText(/Hunter permanece uma área separada e opcional/)).toBeVisible();
+  await expect(
+    page.getByText(/Hunter permanece uma área separada e opcional/),
+  ).toBeVisible();
 }
 
 async function waitForHunter(page: Page) {
