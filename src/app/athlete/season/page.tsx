@@ -74,8 +74,7 @@ const stageDetails = {
     reward: "Campeão R$ 800 · Vice R$ 400 · 3º R$ 300 · MVP R$ 500.",
   },
   cup: {
-    audience:
-      "Classificados e equipes elegíveis conforme o ciclo competitivo.",
+    audience: "Classificados e equipes elegíveis conforme o ciclo competitivo.",
     criteria:
       "Ranking, equipe, polo e demais critérios somente quando publicados oficialmente.",
     reward: "Campeão R$ 1.200 · Vice R$ 800 · 3º R$ 500 · MVP R$ 700.",
@@ -384,7 +383,7 @@ export default async function AthleteSeasonPage() {
                         <dt className="text-[.65rem] font-black tracking-[.14em] text-zinc-500 uppercase">
                           Premiação ou benefício conhecido
                         </dt>
-                        <dd className="text-ur-gold mt-1 text-sm font-bold leading-6">
+                        <dd className="text-ur-gold mt-1 text-sm leading-6 font-bold">
                           {details.reward}
                         </dd>
                       </div>
