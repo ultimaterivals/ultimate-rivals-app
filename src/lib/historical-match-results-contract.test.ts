@@ -24,18 +24,29 @@ const staging = source(
 const safeRead = source(
   "supabase/migrations/20260827065000_harden_historical_athlete_read_model.sql",
 );
+const dateCorrection = source(
+  "supabase/migrations/20260829194500_correct_ur_play_historical_date_policy.sql",
+);
 const athleteUi = source(
   "src/components/athlete/athlete-historical-results.tsx",
 );
 
 describe("historical match results contract", () => {
-  it("keeps unknown historical dates nullable and rejects the 28/08 placeholder", () => {
+  it("keeps dates evidence-first and records UR Play start as 28/07/2026", () => {
     expect(base).toContain("occurred_at timestamptz,");
-    expect(hardening).toContain("PLACEHOLDER_DATE_FORBIDDEN");
-    expect(hardening).toContain("date '2026-08-28'");
-    expect(hardening).not.toContain("OCCURRED_AT_REQUIRED");
     expect(staging).toContain("v_occurred_at := null");
-    expect(staging).toContain("PLACEHOLDER_DATE_FORBIDDEN");
+    expect(dateCorrection).toContain("UR Play began on");
+    expect(dateCorrection).toContain("28/07/2026");
+    expect(dateCorrection).toContain("2026-07-28");
+    expect(dateCorrection).toContain(
+      "drop constraint if exists historical_match_results_no_placeholder_20260828",
+    );
+    expect(dateCorrection).toContain(
+      "drop constraint if exists historical_import_rows_no_placeholder_20260828",
+    );
+    expect(dateCorrection).not.toContain("HISTORICAL_PLACEHOLDER_DATE_FORBIDDEN");
+    expect(dateCorrection).not.toContain("PLACEHOLDER_DATE_FORBIDDEN");
+    expect(dateCorrection).not.toContain("date '2026-08-28'");
     expect(safeRead).toContain("occurred_at timestamptz");
     expect(athleteUi).toContain("Data não registrada na fonte histórica");
   });
@@ -46,11 +57,11 @@ describe("historical match results contract", () => {
       "historical_match_results_provenance_legacy_idx",
     );
     expect(hardening).toContain("legacy_game_id");
-    expect(hardening).toContain("admin_upsert_historical_match_result");
-    expect(hardening).toContain(
+    expect(dateCorrection).toContain("admin_upsert_historical_match_result");
+    expect(dateCorrection).toContain(
       "on conflict (provenance, legacy_game_id) do update",
     );
-    expect(hardening).toContain(
+    expect(dateCorrection).toContain(
       "on conflict (historical_match_id, athlete_id) do update",
     );
   });
@@ -89,7 +100,7 @@ describe("historical match results contract", () => {
   });
 
   it("keeps the historical projection inert until an explicit downstream flow", () => {
-    const isolatedSql = `${hardening}\n${safeRead}`;
+    const isolatedSql = `${hardening}\n${safeRead}\n${dateCorrection}`;
 
     expect(isolatedSql).not.toMatch(/insert into public\.matches\b/i);
     expect(isolatedSql).not.toMatch(
