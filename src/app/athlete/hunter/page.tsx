@@ -53,12 +53,12 @@ const participationStates = [
   {
     title: "Não participante",
     description:
-      "Conhece a metodologia. A manifestação de interesse só será liberada quando existir contrato seguro de adesão.",
+      "Conhece a metodologia. A manifestação de interesse será liberada quando o canal oficial de adesão estiver disponível.",
   },
   {
     title: "Interessado",
     description:
-      "Acompanha o status da solicitação quando a adesão Hunter estiver conectada a um contrato canônico.",
+      "Acompanha o status da solicitação quando a adesão Hunter estiver disponível no App.",
   },
   {
     title: "Participante",
@@ -130,11 +130,10 @@ export default function AthleteHunterPage() {
                 Adesão ainda não conectada ao Athlete App
               </h2>
               <p className="mt-2 max-w-3xl text-sm leading-6 text-zinc-400">
-                O repositório atual não possui um contrato canônico de adesão,
-                LMS ou conteúdo Hunter que permita afirmar se você está
-                interessado, participante, pausado ou concluído. Por segurança,
-                o App não presume estado e não grava interesse em uma fonte
-                provisória.
+                A adesão Hunter ainda não está disponível nesta versão do App.
+                Por isso, seu status não é presumido e nenhuma solicitação de
+                interesse é criada automaticamente. Quando o canal oficial
+                estiver conectado, seu estado passa a aparecer aqui.
               </p>
             </div>
           </div>
@@ -215,8 +214,8 @@ export default function AthleteHunterPage() {
             Quatro estados, sem progresso inventado
           </h2>
           <p className="mt-3 text-sm leading-6 text-zinc-500">
-            Estes são os estados oficiais previstos para o Hunter. O App só
-            exibirá um deles como seu estado quando a fonte canônica existir.
+            Estes são os estados previstos para o Hunter. O App só exibirá um
+            deles como seu estado quando houver uma fonte oficial de adesão.
           </p>
         </div>
         <div className="grid gap-3 sm:grid-cols-2">
@@ -293,8 +292,8 @@ export default function AthleteHunterPage() {
           <Clock3 className="text-ur-gold" size={22} aria-hidden="true" />
           <h2 className="mt-4 text-xl font-black">Ciclo preserva histórico</h2>
           <p className="mt-2 text-sm leading-6 text-zinc-500">
-            Quando houver ciclos Hunter canônicos, pausas e conclusões não
-            apagarão evidências já publicadas. Histórico de desenvolvimento
+            Quando houver ciclos Hunter publicados, pausas e conclusões não
+            apagarão evidências já registradas. Histórico de desenvolvimento
             permanece rastreável.
           </p>
         </div>
