@@ -5,7 +5,6 @@ import { createClient } from "@/lib/supabase/server";
 
 type HistoricalResultRow = {
   id: string;
-  legacy_game_id: number;
   occurred_at: string | null;
   side_a_label: string;
   side_b_label: string;
@@ -31,26 +30,75 @@ export async function AthleteHistoricalResults() {
     { p_athlete_id: viewer.athleteId },
   );
   const matches = (historicalResult.data ?? []) as HistoricalResultRow[];
+  const datedMatches = matches.filter((match) => match.occurred_at !== null);
+  const undatedMatches = matches.filter((match) => match.occurred_at === null);
+
+  const renderMatch = (match: HistoricalResultRow) => {
+    const winnerLabel =
+      match.winner_side === "A" ? match.side_a_label : match.side_b_label;
+
+    return (
+      <article
+        key={match.id}
+        className="relative overflow-hidden rounded-[22px] border border-white/10 bg-[linear-gradient(145deg,rgba(17,17,17,.96),rgba(5,5,5,.98))] p-5"
+      >
+        <div className="grid gap-4 sm:grid-cols-[1fr_auto] sm:items-center">
+          <div>
+            <p className="text-xs font-black tracking-[.16em] text-zinc-500 uppercase">
+              Resultado oficial
+            </p>
+            <h3 className="font-display mt-2 text-2xl font-black text-white">
+              {match.side_a_label} × {match.side_b_label}
+            </h3>
+            <p className="mt-3 flex items-center gap-2 text-sm text-zinc-400">
+              <CalendarDays size={15} aria-hidden="true" />
+              {historicalDateLabel(match.occurred_at)}
+            </p>
+            <p className="mt-2 flex items-center gap-2 text-sm text-zinc-300">
+              <Trophy size={15} className="text-ur-gold" aria-hidden="true" />
+              Vencedor: <strong>{winnerLabel}</strong>
+            </p>
+          </div>
+          <div className="border-ur-gold/20 bg-ur-gold/[.035] rounded-2xl border px-5 py-4 text-center sm:text-right">
+            <p className="font-display text-4xl font-black text-white">
+              {match.score_a} × {match.score_b}
+            </p>
+            <p className="text-ur-gold mt-1 text-xs font-black tracking-[.12em] uppercase">
+              Homologado
+            </p>
+          </div>
+        </div>
+      </article>
+    );
+  };
 
   return (
-    <section aria-labelledby="historical-results-title" className="grid gap-4">
-      <div>
-        <p className="text-xs font-black tracking-[.18em] text-zinc-500 uppercase">
-          Histórico oficial
+    <section aria-labelledby="historical-results-title" className="grid gap-5">
+      <div className="border-t border-white/10 pt-7">
+        <p className="text-ur-gold text-xs font-black tracking-[.18em] uppercase">
+          Histórico oficial anterior
         </p>
         <h2
           id="historical-results-title"
-          className="font-display mt-1 text-2xl font-black sm:text-3xl"
+          className="font-display mt-1 text-3xl font-black sm:text-4xl"
         >
           Sua trajetória antes do app
         </h2>
         <p className="mt-2 max-w-3xl text-sm leading-6 text-zinc-400">
-          Jogos homologados e importados para preservar sua carreira no Ultimate
-          Rivals. Eles participam da trajetória competitiva conforme as regras
-          oficiais, sem fabricar reserva, check-in, equipe, UR Coins ou qualquer
-          outro dado retroativo que não exista na fonte.
+          Jogos já homologados continuam compondo sua trajetória esportiva. O
+          app preserva o que existe na fonte e não reconstrói retroativamente
+          data, equipe, formação, check-in, arena, UR Coins ou qualquer outro
+          fato sem evidência.
         </p>
-        <p className="mt-2 text-sm font-bold text-zinc-300">
+        <div className="mt-4 flex items-center gap-2 text-sm font-bold text-zinc-300">
+          <ShieldCheck
+            size={16}
+            className="text-emerald-400"
+            aria-hidden="true"
+          />
+          Histórico homologado integra a carreira.
+        </div>
+        <p className="mt-2 text-xs leading-5 text-zinc-500">
           Não alteram automaticamente ranking ou UR Coins.
         </p>
       </div>
@@ -66,7 +114,7 @@ export async function AthleteHistoricalResults() {
           </p>
         </Card>
       ) : matches.length === 0 ? (
-        <Card>
+        <Card className="rounded-[22px] border-white/10 bg-white/[.025] p-6">
           <ShieldCheck className="text-ur-gold" aria-hidden="true" />
           <h3 className="mt-3 text-xl font-black">
             Nenhum jogo histórico disponível
@@ -77,57 +125,30 @@ export async function AthleteHistoricalResults() {
           </p>
         </Card>
       ) : (
-        <div className="grid gap-4">
-          {matches.map((match) => {
-            const winnerLabel =
-              match.winner_side === "A"
-                ? match.side_a_label
-                : match.side_b_label;
+        <div className="grid gap-6">
+          {datedMatches.length > 0 && (
+            <div className="grid gap-3">
+              <p className="text-xs font-black tracking-[.16em] text-zinc-500 uppercase">
+                Registros com data comprovada
+              </p>
+              {datedMatches.map(renderMatch)}
+            </div>
+          )}
 
-            return (
-              <Card
-                key={match.id}
-                className="grid gap-4 sm:grid-cols-[1fr_auto]"
-              >
-                <div>
-                  <p className="text-xs font-black tracking-[.16em] text-zinc-500 uppercase">
-                    Registro histórico homologado
-                  </p>
-                  <h3 className="mt-1 text-xl font-black">
-                    {match.side_a_label} × {match.side_b_label}
-                  </h3>
-                  <p className="mt-2 flex items-center gap-2 text-sm text-zinc-400">
-                    <CalendarDays size={15} aria-hidden="true" />
-                    {historicalDateLabel(match.occurred_at)}
-                  </p>
-                  <p className="mt-2 flex items-center gap-2 text-sm text-zinc-300">
-                    <Trophy
-                      size={15}
-                      className="text-ur-gold"
-                      aria-hidden="true"
-                    />
-                    Vencedor do jogo: <strong>{winnerLabel}</strong>
-                  </p>
-                </div>
-                <div className="rounded-ur border border-white/10 bg-black/20 p-4 text-right">
-                  <p className="font-display text-3xl font-black">
-                    {match.score_a} × {match.score_b}
-                  </p>
-                  <p className="text-ur-gold mt-1 text-sm font-black">
-                    Resultado homologado
-                  </p>
-                  <p className="mt-2 flex items-center justify-end gap-1 text-xs text-zinc-500">
-                    <ShieldCheck
-                      size={14}
-                      className="text-emerald-400"
-                      aria-hidden="true"
-                    />
-                    Base oficial
-                  </p>
-                </div>
-              </Card>
-            );
-          })}
+          {undatedMatches.length > 0 && (
+            <div className="grid gap-3">
+              <div>
+                <p className="text-xs font-black tracking-[.16em] text-zinc-500 uppercase">
+                  Registros sem data comprovada
+                </p>
+                <p className="mt-1 text-xs leading-5 text-zinc-500">
+                  Permanecem separados para não atribuir mês ou ordem
+                  cronológica artificialmente.
+                </p>
+              </div>
+              {undatedMatches.map(renderMatch)}
+            </div>
+          )}
         </div>
       )}
     </section>
