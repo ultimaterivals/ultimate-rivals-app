@@ -9,6 +9,7 @@ const teamPage = readFileSync(
 
 describe("athlete team core contract", () => {
   const normalizedTeamPage = teamPage.replace(/\s+/g, " ");
+
   it("keeps team membership temporal and athlete scoped", () => {
     expect(teamPage).toContain('.from("team_memberships")');
     expect(teamPage).toContain('.eq("athlete_id", viewer.athleteId)');
@@ -21,7 +22,7 @@ describe("athlete team core contract", () => {
     expect(teamPage).toContain('.from("competition_formations")');
     expect(teamPage).toContain("get_athlete_team_contributions");
     expect(teamPage).toContain("Duplas e quartetos oficiais");
-    expect(teamPage).toContain("Contribuição competitiva");
+    expect(teamPage).toContain("Contribuição das formações");
   });
 
   it("does not invent professionalization scores, rewards or eligibility", () => {
