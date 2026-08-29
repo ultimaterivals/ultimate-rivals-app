@@ -159,7 +159,9 @@ test("athlete opens preserved career hub and core destinations", async ({
   await login(page, "athlete@test.ur.local", /\/athlete/);
 
   await expect(
-    page.getByText("Sua carreira UR", { exact: true }),
+    page
+      .getByRole("main")
+      .getByText("Sua carreira UR", { exact: true }),
   ).toBeVisible();
   await expect(
     page.getByRole("navigation", { name: "Navegação do atleta" }),
