@@ -153,12 +153,12 @@ function creditTotals() {
   };
 }
 
-test("athlete opens preserved Player Hub and core destinations", async ({
+test("athlete opens preserved career hub and core destinations", async ({
   page,
 }) => {
   await login(page, "athlete@test.ur.local", /\/athlete/);
 
-  await expect(page.getByText(/Ultimate Rivals · Player Hub/i)).toBeVisible();
+  await expect(page.getByText("Sua carreira UR", { exact: true })).toBeVisible();
   await expect(
     page.getByRole("navigation", { name: "Navegação do atleta" }),
   ).toBeVisible();
