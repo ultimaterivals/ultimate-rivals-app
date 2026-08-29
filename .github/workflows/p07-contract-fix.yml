@@ -16,18 +16,23 @@ jobs:
         uses: actions/checkout@v4
         with:
           ref: feat/athlete-app-p07-development-evidence
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Install dependencies
+        run: npm ci
       - name: Align stale progression contract with P07 separation
-        shell: python
         run: |
+          python - <<'PY'
           import re
           from pathlib import Path
 
           path = Path("src/lib/app-command-integration-contract.test.ts")
           text = path.read_text()
-          pattern = re.compile(
-              r'  it\("keeps the complete athlete progression loop tied to canonical economy", \(\) => \{.*?\n  \}\);\n\n(?=  it\("keeps the league ranking visible)',
-              re.S,
-          )
+          start = text.index('  it("keeps the complete athlete progression loop tied to canonical economy"')
+          end = text.index('  it("keeps the league ranking visible', start)
           replacement = '''  it("keeps athlete progression canonical while Evolution stays separate from Hunter and economy", () => {
             const development = source("src/app/athlete/development/page.tsx");
             const playerHub = source("src/app/athlete/page.tsx");
@@ -50,17 +55,8 @@ jobs:
           });
 
 '''
-          updated, count = pattern.subn(replacement, text, count=1)
-          if count != 1:
-              raise SystemExit(f"Expected one stale progression contract block, found {count}")
-          path.write_text(updated)
-      - name: Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          cache: npm
-      - name: Install dependencies
-        run: npm ci
+          path.write_text(text[:start] + replacement + text[end:])
+          PY
       - name: Format contract test
         run: npx prettier --write src/lib/app-command-integration-contract.test.ts
       - name: Run integration contract
