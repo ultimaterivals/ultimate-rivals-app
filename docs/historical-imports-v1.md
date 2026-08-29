@@ -6,7 +6,9 @@ Este pipeline preserva o importador existente de atletas (`admin_stage_athlete_i
 
 - Todo lote declara `source_type`, `source_ref`, `source_version`, responsável/origem em `metadata` e data de staging.
 - Toda linha declara `legacy_id` ou `source_id`, `canonical_keys`, `evidence` e, quando a fonte conhecer a data competitiva, `occurred_at`.
-- `occurred_at` pode ser `null`. Data desconhecida permanece desconhecida: nunca inferir uma data para completar o histórico e nunca usar `28/08/2026` como placeholder histórico.
+- O UR Play começou em **28/07/2026**. Essa é a referência cronológica oficial de início do UR Play, não uma data genérica para preencher jogos sem data conhecida.
+- `occurred_at` pode ser `null`. Data desconhecida permanece desconhecida: nunca inferir 28/07/2026, 28/08/2026 ou qualquer outra data apenas para completar o histórico.
+- `28/08/2026` não é uma data globalmente inválida. Se uma fonte confiável comprovar que um jogo ocorreu nessa data, ela deve ser preservada normalmente.
 - O dry-run não escreve dados. O staging é idempotente por domínio, origem, versão e conteúdo.
 - O read model final identifica uma partida histórica por `provenance + legacy_game_id`; o upsert explícito preserva a mesma identidade em reprocessamentos.
 - Lotes bloqueados ficam em revisão; não há carga direta para `ranking_entries` nem `ur_coin_transactions`.
@@ -21,8 +23,8 @@ A superfície do App usa `get_athlete_historical_match_results(athlete_id)`, que
 
 - autoriza o próprio atleta ou uma Prévia do Atleta administrada;
 - retorna apenas partidas em que o `athlete_id` informado consta em `historical_match_participants`;
-- expõe somente o shape público necessário: ID do registro, `legacy_game_id`, `occurred_at`, `provenance`, lados, placar e vencedor;
-- não expõe `source_metadata`, IDs dos demais participantes, timestamps internos ou campos de governança.
+- expõe somente o shape público necessário: ID do registro, `legacy_game_id`, `occurred_at`, lados, placar e vencedor;
+- não expõe `provenance`, `source_ref`, `source_metadata`, IDs dos demais participantes, timestamps internos ou campos de governança.
 
 ## Ordem de carga
 
@@ -57,7 +59,7 @@ select public.admin_stage_historical_import_batch(
 );
 ```
 
-O relatório de inconsistências é `historical_import_rows.issues`, filtrado por `validation_status = 'blocked'`. Registros prontos continuam apenas em staging até revisão/aprovação operacional. Uma linha com `occurred_at = null` pode seguir para revisão; uma linha que tente usar `28/08/2026` como data histórica é rejeitada.
+O relatório de inconsistências é `historical_import_rows.issues`, filtrado por `validation_status = 'blocked'`. Registros prontos continuam apenas em staging até revisão/aprovação operacional. Uma linha com `occurred_at = null` pode seguir para revisão. Datas conhecidas são aceitas quando sustentadas pela fonte; datas inválidas sintaticamente continuam bloqueadas.
 
 ## Import final do read model
 
