@@ -241,7 +241,8 @@ test("athlete reservation holds credit, Command reflects it, and cancellation re
   await expect(
     page
       .getByTestId(`athlete-opportunity-${reservationOpportunity}`)
-      .getByText("Reserva ativa", { exact: true }),
+      .getByText("Reserva confirmada", { exact: true })
+      .first(),
   ).toBeVisible({ timeout: 20_000 });
 
   await expect.poll(() => creditTotals().available).toBe(2);
@@ -378,7 +379,7 @@ test("admin Preview renders athlete App read-only without replacing admin Auth",
   await page.goto("/athlete/agenda");
   await expect(
     page.getByText(
-      "Prévia somente leitura: interesse, reserva e cancelamento estão desabilitados.",
+      "Prévia somente leitura. Interesse, reserva, cancelamento e alterações de disponibilidade estão desabilitados.",
       { exact: true },
     ),
   ).toBeVisible();
