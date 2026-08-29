@@ -12,6 +12,7 @@ import {
   UsersRound,
 } from "lucide-react";
 import Link from "next/link";
+
 import { Badge, Card, PageHeader } from "@/components/ui";
 import { requireAthleteViewer } from "@/lib/auth/athlete-viewer";
 import type { SeasonStageState } from "@/server/services/athlete-season-context-service";
@@ -31,12 +32,12 @@ const guideCards = [
   },
   {
     title: "Como chegar às próximas etapas",
-    body: "Acompanhe seu nível, participação, posição e os critérios publicados. O App mostra o que já foi cumprido e o que ainda falta.",
+    body: "Acompanhe seu nível, participação, posição e os critérios publicados. O App mostra o que já foi cumprido somente quando essa regra estiver disponível de forma oficial.",
     icon: Medal,
   },
   {
     title: "Como funcionam as equipes",
-    body: "Sua jornada pode ser individual e coletiva. Quando houver vínculo, seus resultados também passam a fazer parte da história da equipe.",
+    body: "Sua jornada pode ser individual e coletiva. Quando houver vínculo oficial, seus resultados também passam a fazer parte da história da equipe.",
     icon: UsersRound,
   },
   {
@@ -51,16 +52,93 @@ const guideCards = [
   },
 ] as const;
 
+const stageDetails = {
+  opening: {
+    audience: "Atletas entrando ou se consolidando na temporada.",
+    criteria:
+      "Cadastro, contexto competitivo, disponibilidade e entrada nas atividades oficiais quando publicadas.",
+    reward: "Entrada oficial na campanha e construção da base competitiva.",
+  },
+  ur_play_ranking: {
+    audience:
+      "Atletas elegíveis às atividades publicadas da modalidade e categoria.",
+    criteria:
+      "Participações e resultados homologados alimentam a carreira e o ranking conforme as regras oficiais.",
+    reward:
+      "Ranking, dados competitivos e benefícios que tenham regra oficial vigente.",
+  },
+  series: {
+    audience: "Faixas e níveis definidos pelo regulamento vigente da etapa.",
+    criteria:
+      "Classificação conforme critérios oficiais publicados. O App não antecipa elegibilidade sem regra canônica.",
+    reward: "Campeão R$ 800 · Vice R$ 400 · 3º R$ 300 · MVP R$ 500.",
+  },
+  cup: {
+    audience: "Classificados e equipes elegíveis conforme o ciclo competitivo.",
+    criteria:
+      "Ranking, equipe, polo e demais critérios somente quando publicados oficialmente.",
+    reward: "Campeão R$ 1.200 · Vice R$ 800 · 3º R$ 500 · MVP R$ 700.",
+  },
+  legends: {
+    audience: "Top atletas elegíveis por polo e nível conforme a temporada.",
+    criteria:
+      "Ranking e critérios técnicos/competitivos publicados para a etapa.",
+    reward: "Campeão R$ 800 · Vice R$ 400 · 3º R$ 300 · MVP R$ 500.",
+  },
+  turnover: {
+    audience:
+      "Atletas e equipes alcançados pelos reconhecimentos oficiais do ciclo.",
+    criteria:
+      "Fechamento e homologação do trimestre conforme ranking, categoria, nível e regras publicadas.",
+    reward:
+      "Equipes N3: 1º R$ 1.500 · 2º R$ 1.000 · 3º R$ 800. Melhor atleta do ranking: R$ 1.000.",
+  },
+} as const;
+
 function StageIcon({ state }: { state: SeasonStageState }) {
-  if (state === "active") return <CircleDot size={18} aria-hidden="true" />;
-  if (state === "next") return <Flag size={18} aria-hidden="true" />;
+  if (state === "active") {
+    return <CircleDot size={18} aria-hidden="true" />;
+  }
+  if (state === "next") {
+    return <Flag size={18} aria-hidden="true" />;
+  }
   return <LockKeyhole size={17} aria-hidden="true" />;
 }
 
 function stateLabel(state: SeasonStageState) {
-  if (state === "active") return "Em andamento";
+  if (state === "active") return "Em disputa agora";
   if (state === "next") return "Próxima etapa";
   return "Ainda não liberado";
+}
+
+function situationCopy(state: SeasonStageState) {
+  if (state === "active") {
+    return "Você está dentro desta parte da campanha. Continue gerando participação e resultado oficial.";
+  }
+  if (state === "next") {
+    return "Sua elegibilidade ainda não é declarada pelo App. Ela só aparecerá quando os critérios oficiais estiverem publicados e calculáveis.";
+  }
+  return "Esta etapa ainda não está aberta para avaliação de elegibilidade.";
+}
+
+function missingCopy(state: SeasonStageState) {
+  if (state === "active") {
+    return "Jogar, acompanhar homologações e manter sua posição competitiva em movimento.";
+  }
+  return "Aguardar a publicação oficial dos critérios da etapa. Nenhum percentual de classificação é estimado.";
+}
+
+function formatOfficialDate(value: string | null) {
+  if (!value) return null;
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return null;
+
+  return new Intl.DateTimeFormat("pt-BR", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+    timeZone: "UTC",
+  }).format(date);
 }
 
 export default async function AthleteSeasonPage() {
@@ -69,10 +147,13 @@ export default async function AthleteSeasonPage() {
     getAthleteSnapshotForViewer(viewer),
     getAthleteSeasonContextSnapshot(),
   ]);
+
   const ranking = snapshot.primaryRanking;
   const summary = snapshot.summary;
   const next = snapshot.nextReservation;
   const development = snapshot.development;
+  const seasonStartsAt = formatOfficialDate(season.startsAt);
+  const seasonEndsAt = formatOfficialDate(season.endsAt);
 
   const personalNextStep = next
     ? {
@@ -104,9 +185,22 @@ export default async function AthleteSeasonPage() {
       <PageHeader
         eyebrow={season.title}
         title="Sua temporada, do começo ao fim"
-        description="Você não está entrando em jogos isolados. Cada participação faz parte de um trimestre com evolução, ranking, etapas competitivas e um fechamento oficial."
+        description="Abertura → UR Play + Ranking → UR Series → UR Cup → UR Legends → Virada. Cada etapa pertence à mesma campanha competitiva."
         action={ranking?.level ? <Badge>{ranking.level}</Badge> : undefined}
       />
+
+      {season.source === "fallback" ? (
+        <Card className="border-amber-400/30 bg-amber-400/[.04]">
+          <p className="text-xs font-black tracking-[.18em] text-amber-300 uppercase">
+            Contexto parcial
+          </p>
+          <p className="mt-2 text-sm leading-6 text-zinc-300">
+            O calendário canônico da temporada não está disponível neste
+            momento. O App preserva o mapa estrutural sem inventar datas,
+            elegibilidade ou progresso.
+          </p>
+        </Card>
+      ) : null}
 
       <section className="ranking-hero border-ur-gold/40 rounded-ur border p-5 sm:p-7">
         <div className="flex flex-wrap items-start justify-between gap-4">
@@ -118,10 +212,17 @@ export default async function AthleteSeasonPage() {
               Você está na fase de {season.phaseLabel}
             </h2>
             <p className="mt-2 max-w-3xl text-sm leading-6 text-zinc-400">
-              Este é o momento de jogar, gerar histórico, concluir seu
-              nivelamento e acompanhar a formação do ranking. As próximas etapas
-              aparecem aqui conforme forem liberadas.
+              Jogue, gere histórico oficial, acompanhe o ranking e veja aqui o
+              que está em disputa. Critérios futuros só aparecem como cumpridos
+              quando houver regra oficial calculável.
             </p>
+            {seasonStartsAt || seasonEndsAt ? (
+              <p className="mt-3 text-xs font-bold text-zinc-500">
+                {seasonStartsAt ? `Início oficial: ${seasonStartsAt}` : null}
+                {seasonStartsAt && seasonEndsAt ? " · " : null}
+                {seasonEndsAt ? `Fim oficial: ${seasonEndsAt}` : null}
+              </p>
+            ) : null}
           </div>
           <Badge>Temporada em andamento</Badge>
         </div>
@@ -180,64 +281,132 @@ export default async function AthleteSeasonPage() {
       <section aria-labelledby="season-roadmap-title" className="grid gap-4">
         <div>
           <p className="text-ur-gold text-xs font-black tracking-[.2em] uppercase">
-            O trimestre
+            Caminho competitivo
           </p>
           <h2
             id="season-roadmap-title"
             className="font-display mt-1 text-3xl font-black uppercase"
           >
-            Entenda onde estamos e o que vem depois
+            O que é, quem entra e o que está em disputa
           </h2>
           <p className="mt-2 max-w-3xl text-sm leading-6 text-zinc-400">
-            As etapas fazem parte da mesma temporada. Nem todas precisam estar
-            liberadas agora: o App vai mostrar quando cada uma estiver
-            disponível e quais critérios passam a valer.
+            Premiações conhecidas da Temporada 1 ficam visíveis como objetivo
+            esportivo. Elas não significam valor ganho, homologado ou recebido.
           </p>
         </div>
 
         <div className="grid gap-3 lg:grid-cols-2">
-          {season.stages.map((stage, index) => (
-            <Card
-              key={stage.code}
-              className={
-                stage.state === "active"
-                  ? "border-ur-gold/50 bg-ur-gold/[.035]"
-                  : stage.state === "next"
-                    ? "border-white/20"
-                    : "border-white/10"
-              }
-            >
-              <div className="flex items-start gap-4">
-                <div
-                  className={`flex size-10 shrink-0 items-center justify-center rounded-full border ${
-                    stage.state === "active"
-                      ? "border-ur-gold/50 bg-ur-gold/10 text-ur-gold"
-                      : stage.state === "next"
-                        ? "border-white/20 text-zinc-300"
-                        : "border-white/10 text-zinc-600"
-                  }`}
-                >
-                  <StageIcon state={stage.state} />
-                </div>
-                <div className="min-w-0 flex-1">
-                  <div className="flex flex-wrap items-center justify-between gap-2">
-                    <p className="text-xs font-black tracking-[.16em] text-zinc-500 uppercase">
-                      Etapa {index + 1} · {stage.period}
-                    </p>
-                    <span
-                      className={`text-[.65rem] font-black uppercase ${stage.state === "active" ? "text-ur-gold" : "text-zinc-500"}`}
-                    >
-                      {stateLabel(stage.state)}
-                    </span>
+          {season.stages.map((stage, index) => {
+            const details = stageDetails[stage.code];
+            const stageStartsAt = formatOfficialDate(stage.startsAt);
+            const stageEndsAt = formatOfficialDate(stage.endsAt);
+
+            return (
+              <Card
+                key={stage.code}
+                className={
+                  stage.state === "active"
+                    ? "border-ur-gold/50 bg-ur-gold/[.035]"
+                    : stage.state === "next"
+                      ? "border-white/20"
+                      : "border-white/10"
+                }
+              >
+                <div className="flex items-start gap-4">
+                  <div
+                    className={`flex size-10 shrink-0 items-center justify-center rounded-full border ${
+                      stage.state === "active"
+                        ? "border-ur-gold/50 bg-ur-gold/10 text-ur-gold"
+                        : stage.state === "next"
+                          ? "border-white/20 text-zinc-300"
+                          : "border-white/10 text-zinc-600"
+                    }`}
+                  >
+                    <StageIcon state={stage.state} />
                   </div>
-                  <h3 className="mt-1 text-xl font-black">{stage.name}</h3>
-                  <p className="mt-2 text-sm leading-6 text-zinc-400">
-                    {stage.description}
-                  </p>
+
+                  <div className="min-w-0 flex-1">
+                    <div className="flex flex-wrap items-center justify-between gap-2">
+                      <p className="text-xs font-black tracking-[.16em] text-zinc-500 uppercase">
+                        Etapa {index + 1} · {stage.period}
+                      </p>
+                      <span
+                        className={`text-[.65rem] font-black uppercase ${
+                          stage.state === "active"
+                            ? "text-ur-gold"
+                            : "text-zinc-500"
+                        }`}
+                      >
+                        {stateLabel(stage.state)}
+                      </span>
+                    </div>
+
+                    <h3 className="mt-1 text-xl font-black">{stage.name}</h3>
+                    <p className="mt-2 text-sm leading-6 text-zinc-400">
+                      {stage.description}
+                    </p>
+
+                    <dl className="mt-5 grid gap-4 border-t border-white/10 pt-4">
+                      <div>
+                        <dt className="text-[.65rem] font-black tracking-[.14em] text-zinc-500 uppercase">
+                          Quem participa
+                        </dt>
+                        <dd className="mt-1 text-sm leading-6 text-zinc-300">
+                          {details.audience}
+                        </dd>
+                      </div>
+                      <div>
+                        <dt className="text-[.65rem] font-black tracking-[.14em] text-zinc-500 uppercase">
+                          Critérios
+                        </dt>
+                        <dd className="mt-1 text-sm leading-6 text-zinc-300">
+                          {details.criteria}
+                        </dd>
+                      </div>
+                      <div>
+                        <dt className="text-[.65rem] font-black tracking-[.14em] text-zinc-500 uppercase">
+                          Sua situação
+                        </dt>
+                        <dd className="mt-1 text-sm leading-6 text-zinc-300">
+                          {situationCopy(stage.state)}
+                        </dd>
+                      </div>
+                      <div>
+                        <dt className="text-[.65rem] font-black tracking-[.14em] text-zinc-500 uppercase">
+                          O que falta
+                        </dt>
+                        <dd className="mt-1 text-sm leading-6 text-zinc-300">
+                          {missingCopy(stage.state)}
+                        </dd>
+                      </div>
+                      <div>
+                        <dt className="text-[.65rem] font-black tracking-[.14em] text-zinc-500 uppercase">
+                          Premiação ou benefício conhecido
+                        </dt>
+                        <dd className="text-ur-gold mt-1 text-sm leading-6 font-bold">
+                          {details.reward}
+                        </dd>
+                      </div>
+                    </dl>
+
+                    {stageStartsAt || stageEndsAt ? (
+                      <p className="mt-4 text-xs font-bold text-zinc-500">
+                        {stageStartsAt
+                          ? `Início oficial: ${stageStartsAt}`
+                          : null}
+                        {stageStartsAt && stageEndsAt ? " · " : null}
+                        {stageEndsAt ? `Fim oficial: ${stageEndsAt}` : null}
+                      </p>
+                    ) : (
+                      <p className="mt-4 text-xs text-zinc-600">
+                        Data oficial ainda não publicada no contexto canônico.
+                      </p>
+                    )}
+                  </div>
                 </div>
-              </div>
-            </Card>
-          ))}
+              </Card>
+            );
+          })}
         </div>
       </section>
 
@@ -331,8 +500,8 @@ export default async function AthleteSeasonPage() {
             </h2>
             <p className="mt-2 max-w-3xl text-sm leading-6 text-zinc-400">
               Jogue, acompanhe sua evolução e volte ao App para descobrir o
-              próximo passo. O calendário, os critérios e as etapas serão
-              comunicados aqui à medida que a temporada avança.
+              próximo passo. Datas, critérios e elegibilidade só são tratados
+              como oficiais quando existirem na fonte canônica.
             </p>
           </div>
         </div>

@@ -65,6 +65,23 @@ async function waitForResults(page: Page) {
   ).toBeVisible();
 }
 
+async function waitForSeason(page: Page) {
+  await expect(
+    page.getByRole("heading", { name: "Sua temporada, do começo ao fim" }),
+  ).toBeVisible({ timeout: 30_000 });
+  await expect(
+    page.getByRole("heading", {
+      name: "O que é, quem entra e o que está em disputa",
+    }),
+  ).toBeVisible();
+  await expect(
+    page.getByText("Campeão R$ 1.200 · Vice R$ 800 · 3º R$ 500 · MVP R$ 700."),
+  ).toBeVisible();
+  await expect(
+    page.getByText(/Nenhum percentual de classificação é estimado/).first(),
+  ).toBeVisible();
+}
+
 async function waitForHunter(page: Page) {
   await expect(
     page.getByRole("heading", {
@@ -165,6 +182,12 @@ test("desktop athlete App visual evidence", async ({ page }, testInfo) => {
   );
   await openAndCapture(
     page,
+    "/athlete/season",
+    "desktop-1440x900-season",
+    waitForSeason,
+  );
+  await openAndCapture(
+    page,
     "/athlete/hunter",
     "desktop-1440x900-hunter",
     waitForHunter,
@@ -222,6 +245,12 @@ test("mobile 390 athlete shell visual evidence", async ({ page }, testInfo) => {
   );
   await openMobileAndCapture(
     page,
+    "/athlete/season",
+    "mobile-390x844-season",
+    waitForSeason,
+  );
+  await openMobileAndCapture(
+    page,
     "/athlete/hunter",
     "mobile-390x844-hunter",
     waitForHunter,
@@ -262,6 +291,12 @@ test("mobile compact 360 athlete shell visual evidence", async ({
     "mobile-360x800-results",
     waitForResults,
   );
+  await openMobileAndCapture(
+    page,
+    "/athlete/season",
+    "mobile-360x800-season",
+    waitForSeason,
+  );
 });
 
 test("admin Preview remains read-only on desktop", async ({
@@ -292,6 +327,12 @@ test("admin Preview remains read-only on desktop", async ({
     "/athlete/results",
     "preview-desktop-1440x900-results",
     waitForResults,
+  );
+  await openAndCapture(
+    page,
+    "/athlete/season",
+    "preview-desktop-1440x900-season",
+    waitForSeason,
   );
 });
 
@@ -324,5 +365,11 @@ test("admin Preview remains read-only on mobile", async ({
     "/athlete/results",
     "preview-mobile-390x844-results",
     waitForResults,
+  );
+  await openMobileAndCapture(
+    page,
+    "/athlete/season",
+    "preview-mobile-390x844-season",
+    waitForSeason,
   );
 });
