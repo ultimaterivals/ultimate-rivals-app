@@ -107,7 +107,7 @@ async function expectHunterSkeleton(page: Page) {
   ).toBeVisible();
   await expect(
     page.getByText(
-      /o App não presume estado e não grava interesse em uma fonte provisória/,
+      /seu status não é presumido e nenhuma solicitação de interesse é criada automaticamente/,
     ),
   ).toBeVisible();
   await expect(
