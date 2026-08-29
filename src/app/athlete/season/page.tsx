@@ -12,6 +12,7 @@ import {
   UsersRound,
 } from "lucide-react";
 import Link from "next/link";
+
 import { Badge, Card, PageHeader } from "@/components/ui";
 import { requireAthleteViewer } from "@/lib/auth/athlete-viewer";
 import type { SeasonStageState } from "@/server/services/athlete-season-context-service";
@@ -59,10 +60,12 @@ const stageDetails = {
     reward: "Entrada oficial na campanha e construção da base competitiva.",
   },
   ur_play_ranking: {
-    audience: "Atletas elegíveis às atividades publicadas da modalidade e categoria.",
+    audience:
+      "Atletas elegíveis às atividades publicadas da modalidade e categoria.",
     criteria:
       "Participações e resultados homologados alimentam a carreira e o ranking conforme as regras oficiais.",
-    reward: "Ranking, dados competitivos e benefícios que tenham regra oficial vigente.",
+    reward:
+      "Ranking, dados competitivos e benefícios que tenham regra oficial vigente.",
   },
   series: {
     audience: "Faixas e níveis definidos pelo regulamento vigente da etapa.",
@@ -71,7 +74,8 @@ const stageDetails = {
     reward: "Campeão R$ 800 · Vice R$ 400 · 3º R$ 300 · MVP R$ 500.",
   },
   cup: {
-    audience: "Classificados e equipes elegíveis conforme o ciclo competitivo.",
+    audience:
+      "Classificados e equipes elegíveis conforme o ciclo competitivo.",
     criteria:
       "Ranking, equipe, polo e demais critérios somente quando publicados oficialmente.",
     reward: "Campeão R$ 1.200 · Vice R$ 800 · 3º R$ 500 · MVP R$ 700.",
@@ -83,7 +87,8 @@ const stageDetails = {
     reward: "Campeão R$ 800 · Vice R$ 400 · 3º R$ 300 · MVP R$ 500.",
   },
   turnover: {
-    audience: "Atletas e equipes alcançados pelos reconhecimentos oficiais do ciclo.",
+    audience:
+      "Atletas e equipes alcançados pelos reconhecimentos oficiais do ciclo.",
     criteria:
       "Fechamento e homologação do trimestre conforme ranking, categoria, nível e regras publicadas.",
     reward:
@@ -92,8 +97,12 @@ const stageDetails = {
 } as const;
 
 function StageIcon({ state }: { state: SeasonStageState }) {
-  if (state === "active") return <CircleDot size={18} aria-hidden="true" />;
-  if (state === "next") return <Flag size={18} aria-hidden="true" />;
+  if (state === "active") {
+    return <CircleDot size={18} aria-hidden="true" />;
+  }
+  if (state === "next") {
+    return <Flag size={18} aria-hidden="true" />;
+  }
   return <LockKeyhole size={17} aria-hidden="true" />;
 }
 
@@ -124,6 +133,7 @@ function formatOfficialDate(value: string | null) {
   if (!value) return null;
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return null;
+
   return new Intl.DateTimeFormat("pt-BR", {
     day: "2-digit",
     month: "short",
@@ -138,6 +148,7 @@ export default async function AthleteSeasonPage() {
     getAthleteSnapshotForViewer(viewer),
     getAthleteSeasonContextSnapshot(),
   ]);
+
   const ranking = snapshot.primaryRanking;
   const summary = snapshot.summary;
   const next = snapshot.nextReservation;
@@ -314,17 +325,23 @@ export default async function AthleteSeasonPage() {
                   >
                     <StageIcon state={stage.state} />
                   </div>
+
                   <div className="min-w-0 flex-1">
                     <div className="flex flex-wrap items-center justify-between gap-2">
                       <p className="text-xs font-black tracking-[.16em] text-zinc-500 uppercase">
                         Etapa {index + 1} · {stage.period}
                       </p>
                       <span
-                        className={`text-[.65rem] font-black uppercase ${stage.state === "active" ? "text-ur-gold" : "text-zinc-500"}`}
+                        className={`text-[.65rem] font-black uppercase ${
+                          stage.state === "active"
+                            ? "text-ur-gold"
+                            : "text-zinc-500"
+                        }`}
                       >
                         {stateLabel(stage.state)}
                       </span>
                     </div>
+
                     <h3 className="mt-1 text-xl font-black">{stage.name}</h3>
                     <p className="mt-2 text-sm leading-6 text-zinc-400">
                       {stage.description}
@@ -363,20 +380,15 @@ export default async function AthleteSeasonPage() {
                           {missingCopy(stage.state)}
                         </dd>
                       </div>
+                      <div>
+                        <dt className="text-[.65rem] font-black tracking-[.14em] text-zinc-500 uppercase">
+                          Premiação ou benefício conhecido
+                        </dt>
+                        <dd className="text-ur-gold mt-1 text-sm font-bold leading-6">
+                          {details.reward}
+                        </dd>
+                      </div>
                     </dl>
-
-                    <div className="mt-5 rounded-xl border border-ur-gold/20 bg-ur-gold/[.04] p-4">
-                      <p className="text-[.65rem] font-black tracking-[.14em] text-ur-gold uppercase">
-                        Premiação / benefício da etapa
-                      </p>
-                      <p className="mt-2 text-sm font-bold leading-6 text-zinc-200">
-                        {details.reward}
-                      </p>
-                      <p className="mt-2 text-xs leading-5 text-zinc-500">
-                        Valor potencial da etapa. Não representa prêmio homologado
-                        nem recebido pelo atleta.
-                      </p>
-                    </div>
 
                     {stageStartsAt || stageEndsAt ? (
                       <p className="mt-4 text-xs font-bold text-zinc-500">
@@ -388,7 +400,7 @@ export default async function AthleteSeasonPage() {
                       </p>
                     ) : (
                       <p className="mt-4 text-xs text-zinc-600">
-                        Data da etapa não publicada no contexto canônico.
+                        Data oficial ainda não publicada no contexto canônico.
                       </p>
                     )}
                   </div>
@@ -398,21 +410,6 @@ export default async function AthleteSeasonPage() {
           })}
         </div>
       </section>
-
-      <Card className="border-white/10">
-        <p className="text-xs font-black tracking-[.18em] text-zinc-500 uppercase">
-          Regulamento e classificação
-        </p>
-        <h2 className="mt-2 text-2xl font-black">
-          Regra publicada vale mais do que estimativa.
-        </h2>
-        <p className="mt-2 max-w-3xl text-sm leading-6 text-zinc-400">
-          O App não cria percentual de classificação, não presume vaga e não
-          transforma prêmio potencial em valor devido. Quando critérios e
-          regulamentos estiverem disponíveis de forma canônica, eles passam a
-          compor esta campanha.
-        </p>
-      </Card>
 
       <section aria-labelledby="season-guide-title" className="grid gap-4">
         <div>
@@ -504,8 +501,8 @@ export default async function AthleteSeasonPage() {
             </h2>
             <p className="mt-2 max-w-3xl text-sm leading-6 text-zinc-400">
               Jogue, acompanhe sua evolução e volte ao App para descobrir o
-              próximo passo. Calendário, critérios e etapas só são apresentados
-              como oficiais quando houver fonte confiável para isso.
+              próximo passo. Datas, critérios e elegibilidade só são tratados
+              como oficiais quando existirem na fonte canônica.
             </p>
           </div>
         </div>
