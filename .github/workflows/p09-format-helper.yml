@@ -1,0 +1,42 @@
+name: P09 Format Helper
+
+on:
+  push:
+    branches:
+      - feat/athlete-app-p09-team-core
+
+permissions:
+  contents: write
+
+jobs:
+  format:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feat/athlete-app-p09-team-core
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npx prettier --write src/app/athlete/team/page.tsx
+      - name: Restore contractual heading
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p = Path('src/app/athlete/team/page.tsx')
+          text = p.read_text()
+          text = text.replace('title="Minha equipe"', 'title="Seu time em campo"')
+          p.write_text(text)
+          PY
+          npx prettier --write src/app/athlete/team/page.tsx
+      - name: Commit formatting
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add src/app/athlete/team/page.tsx
+          if git diff --cached --quiet; then exit 0; fi
+          git commit -m "fix: format P09 team page and preserve contract heading"
+          git push origin HEAD:feat/athlete-app-p09-team-core
