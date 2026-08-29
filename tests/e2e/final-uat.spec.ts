@@ -75,13 +75,15 @@ test("real athlete completes the final desktop UAT route matrix", async ({
 
   await page.goto("/athlete/results");
   await expect(
-    page.getByRole("heading", { name: "Seus jogos oficiais" }),
+    page.getByRole("heading", { name: "Jogos atuais" }),
   ).toBeVisible();
   await expect(
-    page.getByText("Histórico validado", { exact: true }),
+    page.getByRole("heading", { name: "Sua trajetória antes do app" }),
   ).toBeVisible();
   await expect(
-    page.getByRole("heading", { name: "Jogos do seu histórico UR" }),
+    page.getByText("Não alteram automaticamente ranking ou UR Coins.", {
+      exact: true,
+    }),
   ).toBeVisible();
 });
 
