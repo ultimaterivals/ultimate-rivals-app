@@ -147,28 +147,24 @@ describe("App V1 ↔ Command integration contracts", () => {
     expect(types).toContain("gender: string");
   });
 
-  it("keeps the complete athlete progression loop tied to canonical economy", () => {
+  it("keeps athlete progression canonical while Evolution stays separate from Hunter and economy", () => {
     const development = source("src/app/athlete/development/page.tsx");
     const playerHub = source("src/app/athlete/page.tsx");
     const athleteRepository = source(
       "src/server/repositories/athlete-portal-repository.ts",
     );
 
-    for (const stage of [
-      "Jogar",
-      "Ganhar pontos",
-      "Subir no ranking",
-      "Cumprir missões",
-      "Ganhar UR Coins",
-      "Desbloquear e resgatar",
-      "Evoluir",
-      "Jogar novamente",
-    ]) {
-      expect(development).toContain(stage);
-    }
-    expect(development).toContain("/athlete/market");
-    expect(development).toContain("/athlete/wallet");
-    expect(development).toContain("não são simulados nesta V1");
+    expect(development).toContain("Evolução esportiva");
+    expect(development).toContain(
+      "Hunter permanece uma área separada e opcional",
+    );
+    expect(development).toContain('from("match_technical_summary")');
+    expect(development).toContain("resultados homologados");
+    expect(development).toContain("Série histórica ainda não publicada");
+    expect(development).toContain("/athlete/hunter");
+    expect(development).not.toContain("/athlete/market");
+    expect(development).not.toContain("/athlete/wallet");
+    expect(development).not.toContain("hunterMission");
     expect(playerHub).toContain("Como chegar lá");
     expect(athleteRepository).toContain("athlete_development_summary");
     expect(playerHub).toContain("Último destaque");
