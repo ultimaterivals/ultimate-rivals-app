@@ -14,6 +14,7 @@ const athleteRoutes = [
   { label: "Ranking", path: "/athlete/ranking" },
   { label: "Temporada", path: "/athlete/season" },
   { label: "Development", path: "/athlete/development" },
+  { label: "Hunter", path: "/athlete/hunter" },
   { label: "Equipe", path: "/athlete/team" },
   { label: "Wallet", path: "/athlete/wallet" },
   { label: "Market", path: "/athlete/market" },
@@ -84,6 +85,30 @@ async function expectDevelopmentEvidence(page: Page) {
   ).toBeVisible();
 }
 
+async function expectHunterSkeleton(page: Page) {
+  await page.goto("/athlete/hunter");
+  await expect(
+    page.getByRole("heading", {
+      name: "Desenvolvimento para quem quer ir além do jogo.",
+    }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("heading", { name: "Adesão ainda não conectada ao Athlete App" }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("heading", { name: "Quatro trilhas de desenvolvimento" }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("heading", { name: "Quatro estados, sem progresso inventado" }),
+  ).toBeVisible();
+  await expect(
+    page.getByText(/o App não presume estado e não grava interesse em uma fonte provisória/),
+  ).toBeVisible();
+  await expect(
+    page.getByText(/nenhuma nota, missão, porcentagem ou recomendação é calculada automaticamente/),
+  ).toBeVisible();
+}
+
 test("real athlete completes the final desktop UAT route matrix", async ({
   page,
 }) => {
@@ -112,6 +137,8 @@ test("real athlete completes the final desktop UAT route matrix", async ({
 
   await expectDevelopmentEvidence(page);
   await expectNoHorizontalOverflow(page);
+  await expectHunterSkeleton(page);
+  await expectNoHorizontalOverflow(page);
 });
 
 test("real athlete completes the final mobile UAT route matrix", async ({
@@ -128,6 +155,8 @@ test("real athlete completes the final mobile UAT route matrix", async ({
   }
 
   await expectDevelopmentEvidence(page);
+  await expectNoHorizontalOverflow(page);
+  await expectHunterSkeleton(page);
   await expectNoHorizontalOverflow(page);
   await expect(
     page.getByRole("navigation", { name: "Navegação principal do atleta" }),
@@ -168,6 +197,11 @@ test("admin-athlete surfaces and read-only Preview pass desktop UAT", async ({
     });
   }
 
+  await expectHunterSkeleton(page);
+  await expect(
+    page.getByText("Prévia do Atleta · somente leitura"),
+  ).toBeVisible();
+
   await page.goto("/athlete/feedback");
   await expect(page).toHaveURL(/\/admin\/preview$/, { timeout: 20_000 });
 });
@@ -192,6 +226,7 @@ test("admin Preview remains usable and read-only on mobile", async ({
     "/athlete/ranking",
     "/athlete/season",
     "/athlete/development",
+    "/athlete/hunter",
     "/athlete/team",
     "/athlete/wallet",
     "/athlete/market",
@@ -200,4 +235,10 @@ test("admin Preview remains usable and read-only on mobile", async ({
     await expectHealthyPage(page, path);
     await expectNoHorizontalOverflow(page);
   }
+
+  await expectHunterSkeleton(page);
+  await expectNoHorizontalOverflow(page);
+  await expect(
+    page.getByText("Prévia do Atleta · somente leitura"),
+  ).toBeVisible();
 });
