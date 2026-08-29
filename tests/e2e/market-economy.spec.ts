@@ -379,6 +379,7 @@ test("official no-show consumes held credit and reflects absence back into the a
   await expect(
     page
       .getByTestId(`athlete-opportunity-${reservationOpportunity}`)
-      .getByText("Ausência registrada", { exact: true }),
+      .getByText("Ausência registrada", { exact: true })
+      .first(),
   ).toBeVisible({ timeout: 20_000 });
 });
