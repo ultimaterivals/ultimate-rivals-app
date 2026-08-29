@@ -14,7 +14,7 @@ type HistoricalResultRow = {
 };
 
 function historicalDateLabel(occurredAt: string | null) {
-  if (!occurredAt) return "Data não registrada no histórico";
+  if (!occurredAt) return "Data não registrada na fonte histórica";
 
   return new Intl.DateTimeFormat("pt-BR", {
     dateStyle: "medium",
@@ -99,8 +99,7 @@ export async function AthleteHistoricalResults() {
           Histórico homologado integra a carreira.
         </div>
         <p className="mt-2 text-xs leading-5 text-zinc-500">
-          Estes registros não atribuem Ranking Points ou UR Coins
-          automaticamente.
+          Estes registros não alteram automaticamente ranking ou UR Coins.
         </p>
       </div>
 
