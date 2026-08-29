@@ -1,0 +1,30 @@
+name: P05 Format Helper
+
+on:
+  push:
+    branches:
+      - feat/athlete-app-p05-results-career-history
+
+permissions:
+  contents: read
+
+jobs:
+  format:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Format P05 files
+        run: npx prettier --write src/components/athlete/athlete-results-content.tsx src/components/athlete/athlete-live-results.tsx src/components/athlete/athlete-historical-results.tsx
+      - name: Print formatted files
+        run: |
+          printf '\n===== athlete-results-content.tsx =====\n'
+          cat src/components/athlete/athlete-results-content.tsx
+          printf '\n===== athlete-live-results.tsx =====\n'
+          cat src/components/athlete/athlete-live-results.tsx
+          printf '\n===== athlete-historical-results.tsx =====\n'
+          cat src/components/athlete/athlete-historical-results.tsx
