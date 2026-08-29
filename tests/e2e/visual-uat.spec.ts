@@ -82,6 +82,19 @@ async function waitForSeason(page: Page) {
   ).toBeVisible();
 }
 
+async function waitForDevelopment(page: Page) {
+  await expect(
+    page.getByRole("heading", { name: "Como seu jogo está avançando" }),
+  ).toBeVisible({ timeout: 30_000 });
+  await expect(
+    page.getByRole("heading", { name: "Seu momento em números" }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("heading", { name: "Série histórica ainda não publicada" }),
+  ).toBeVisible();
+  await expect(page.getByText(/Hunter permanece uma área separada e opcional/)).toBeVisible();
+}
+
 async function waitForHunter(page: Page) {
   await expect(
     page.getByRole("heading", {
@@ -188,6 +201,12 @@ test("desktop athlete App visual evidence", async ({ page }, testInfo) => {
   );
   await openAndCapture(
     page,
+    "/athlete/development",
+    "desktop-1440x900-development",
+    waitForDevelopment,
+  );
+  await openAndCapture(
+    page,
     "/athlete/hunter",
     "desktop-1440x900-hunter",
     waitForHunter,
@@ -251,6 +270,12 @@ test("mobile 390 athlete shell visual evidence", async ({ page }, testInfo) => {
   );
   await openMobileAndCapture(
     page,
+    "/athlete/development",
+    "mobile-390x844-development",
+    waitForDevelopment,
+  );
+  await openMobileAndCapture(
+    page,
     "/athlete/hunter",
     "mobile-390x844-hunter",
     waitForHunter,
@@ -297,6 +322,12 @@ test("mobile compact 360 athlete shell visual evidence", async ({
     "mobile-360x800-season",
     waitForSeason,
   );
+  await openMobileAndCapture(
+    page,
+    "/athlete/development",
+    "mobile-360x800-development",
+    waitForDevelopment,
+  );
 });
 
 test("admin Preview remains read-only on desktop", async ({
@@ -333,6 +364,12 @@ test("admin Preview remains read-only on desktop", async ({
     "/athlete/season",
     "preview-desktop-1440x900-season",
     waitForSeason,
+  );
+  await openAndCapture(
+    page,
+    "/athlete/development",
+    "preview-desktop-1440x900-development",
+    waitForDevelopment,
   );
 });
 
@@ -371,5 +408,11 @@ test("admin Preview remains read-only on mobile", async ({
     "/athlete/season",
     "preview-mobile-390x844-season",
     waitForSeason,
+  );
+  await openMobileAndCapture(
+    page,
+    "/athlete/development",
+    "preview-mobile-390x844-development",
+    waitForDevelopment,
   );
 });
