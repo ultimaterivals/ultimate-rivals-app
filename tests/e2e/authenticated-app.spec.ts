@@ -166,9 +166,12 @@ test("athlete opens preserved career hub and core destinations", async ({
   ).toBeVisible();
 
   for (const destination of [
-    { path: "/athlete/agenda", heading: "Agenda" },
+    { path: "/athlete/agenda", heading: "Entre em quadra" },
     { path: "/athlete/ranking", heading: "Ranking" },
-    { path: "/athlete/season", heading: "Sua campanha UR" },
+    {
+      path: "/athlete/season",
+      heading: "Sua temporada, do começo ao fim",
+    },
     { path: "/athlete/perfil", heading: "Meu Perfil" },
   ]) {
     await page.goto(destination.path);
