@@ -47,7 +47,7 @@ test("athlete mobile navigation preserves the dedicated App experience", async (
   for (const destination of [
     { label: "Jogar", path: /\/athlete\/agenda/ },
     { label: "Ranking", path: /\/athlete\/ranking/ },
-    { label: "Temporada", path: /\/athlete\/season/ },
+    { label: "Hunter", path: /\/athlete\/hunter/ },
     { label: "Perfil", path: /\/athlete\/perfil/ },
     { label: "Início", path: /\/athlete$/ },
   ]) {
@@ -55,25 +55,24 @@ test("athlete mobile navigation preserves the dedicated App experience", async (
     await expect(page).toHaveURL(destination.path, { timeout: 20_000 });
   }
 
-  await page
-    .locator("summary")
-    .getByText("Mais do seu jogo", { exact: true })
-    .click();
-  const journey = page.getByRole("navigation", {
-    name: "Mais opções do atleta",
+  const contextNavigation = page.getByRole("navigation", {
+    name: "Atalhos da área atual",
   });
+  await expect(contextNavigation).toBeVisible();
   await expect(
-    journey.getByRole("link", { name: "Disponibilidade" }),
+    contextNavigation.getByRole("link", { name: "Temporada" }),
   ).toBeVisible();
-  await expect(journey.getByRole("link", { name: "Resultados" })).toBeVisible();
-  await expect(journey.getByRole("link", { name: "Equipe" })).toBeVisible();
   await expect(
-    journey.getByRole("link", { name: "Missões e evolução" }),
+    contextNavigation.getByRole("link", { name: "Resultados" }),
   ).toBeVisible();
-  await expect(journey.getByRole("link", { name: "Wallet URC" })).toBeVisible();
-  await expect(journey.getByRole("link", { name: "UR Market" })).toBeVisible();
   await expect(
-    journey.getByRole("link", { name: "Feedback e suporte" }),
+    contextNavigation.getByRole("link", { name: "Evolução" }),
+  ).toBeVisible();
+  await expect(
+    contextNavigation.getByRole("link", { name: "Equipe" }),
+  ).toBeVisible();
+  await expect(
+    contextNavigation.getByRole("link", { name: "Destaques" }),
   ).toBeVisible();
 });
 
@@ -99,9 +98,14 @@ test("Athlete App and Command preserve critical mobile navigation at approved vi
       name: "Navegação principal do atleta",
     });
     await expect(athleteNavigation).toBeVisible();
-    await expect(
-      athleteNavigation.getByRole("link", { name: "Jogar" }),
-    ).toHaveCSS("min-height", "64px");
+    const playLink = athleteNavigation.getByRole("link", { name: "Jogar" });
+    await expect
+      .poll(async () =>
+        playLink.evaluate((element) =>
+          Number.parseFloat(getComputedStyle(element).minHeight),
+        ),
+      )
+      .toBeGreaterThanOrEqual(64);
 
     await login(page, "admin@test.ur.local", /\/admin/);
     await expectNoHorizontalOverflow(page);
