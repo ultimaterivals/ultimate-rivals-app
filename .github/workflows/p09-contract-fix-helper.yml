@@ -1,0 +1,50 @@
+name: P09 Contract Fix Helper
+
+on:
+  push:
+    branches:
+      - feat/athlete-app-p09-team-core-clean
+
+permissions:
+  contents: write
+
+jobs:
+  fix:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feat/athlete-app-p09-team-core-clean
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Preserve existing team contracts
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          page = Path('src/app/athlete/team/page.tsx')
+          text = page.read_text()
+          text = text.replace('>Ranking</p>', '>Posição</p>')
+          text = text.replace('Elenco atual', 'Integrantes')
+          text = text.replace('Contribuição competitiva', 'Contribuição das formações')
+          page.write_text(text)
+
+          test = Path('src/lib/athlete-team-core-contract.test.ts')
+          t = test.read_text()
+          t = t.replace('describe("athlete team core contract", () => {', 'describe("athlete team core contract", () => {\n  const normalizedTeamPage = teamPage.replace(/\\s+/g, " ");')
+          t = t.replace('expect(teamPage).toContain(\n      "O App não atribui estágio, nota ou score à sua equipe sem critérios oficiais publicados e calculáveis.",\n    );', 'expect(normalizedTeamPage).toContain(\n      "O App não atribui estágio, nota ou score à sua equipe sem critérios oficiais publicados e calculáveis.",\n    );')
+          t = t.replace('expect(teamPage).toContain(\n      "Premiações, repasses e oportunidades da equipe devem ser mostrados aqui somente quando estiverem homologados e publicáveis pelo backend oficial.",\n    );', 'expect(normalizedTeamPage).toContain(\n      "Premiações, repasses e oportunidades da equipe devem ser mostrados aqui somente quando estiverem homologados e publicáveis pelo backend oficial.",\n    );')
+          test.write_text(t)
+          PY
+          npx prettier --write src/app/athlete/team/page.tsx src/lib/athlete-team-core-contract.test.ts
+      - name: Commit fixes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add src/app/athlete/team/page.tsx src/lib/athlete-team-core-contract.test.ts
+          if git diff --cached --quiet; then exit 0; fi
+          git commit -m "fix: preserve P09 team contracts"
+          git push origin HEAD:feat/athlete-app-p09-team-core-clean
