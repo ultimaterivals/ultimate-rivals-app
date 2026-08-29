@@ -130,7 +130,7 @@ export async function AthleteLiveResults() {
             id="current-results-title"
             className="font-display mt-1 text-3xl font-black sm:text-4xl"
           >
-            O que aconteceu em quadra
+            Jogos atuais
           </h2>
         </div>
         {matches.length > 0 && (
