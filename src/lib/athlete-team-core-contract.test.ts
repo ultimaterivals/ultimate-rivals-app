@@ -8,6 +8,7 @@ const teamPage = readFileSync(
 );
 
 describe("athlete team core contract", () => {
+  const normalizedTeamPage = teamPage.replace(/\s+/g, " ");
   it("keeps team membership temporal and athlete scoped", () => {
     expect(teamPage).toContain('.from("team_memberships")');
     expect(teamPage).toContain('.eq("athlete_id", viewer.athleteId)');
@@ -24,10 +25,10 @@ describe("athlete team core contract", () => {
   });
 
   it("does not invent professionalization scores, rewards or eligibility", () => {
-    expect(teamPage).toContain(
+    expect(normalizedTeamPage).toContain(
       "O App não atribui estágio, nota ou score à sua equipe sem critérios oficiais publicados e calculáveis.",
     );
-    expect(teamPage).toContain(
+    expect(normalizedTeamPage).toContain(
       "Premiações, repasses e oportunidades da equipe devem ser mostrados aqui somente quando estiverem homologados e publicáveis pelo backend oficial.",
     );
     expect(teamPage).not.toContain("progressPercent");

@@ -239,7 +239,7 @@ export default async function AthleteTeamPage() {
                 {ranking ? (
                   <div className="mt-6 grid gap-3 border-y border-white/10 py-4 sm:grid-cols-4">
                     <div>
-                      <p className="text-xs text-zinc-500 uppercase">Ranking</p>
+                      <p className="text-xs text-zinc-500 uppercase">Posição</p>
                       <p className="font-display text-ur-gold text-3xl font-black">
                         #{ranking.current_position ?? "—"}
                       </p>
@@ -280,7 +280,7 @@ export default async function AthleteTeamPage() {
                     <UsersRound className="text-ur-gold" aria-hidden="true" />
                     <div>
                       <p className="text-xs font-black tracking-[.16em] text-zinc-500 uppercase">
-                        Elenco atual
+                        Integrantes
                       </p>
                       <h3 className="mt-1 text-xl font-black">
                         Quem representa a equipe agora
@@ -367,7 +367,7 @@ export default async function AthleteTeamPage() {
                 <div className="flex items-start justify-between gap-4">
                   <div>
                     <p className="text-xs font-black tracking-[.16em] text-zinc-500 uppercase">
-                      Contribuição competitiva
+                      Contribuição das formações
                     </p>
                     <h3 className="mt-1 text-xl font-black">
                       Como as formações ajudam a equipe
