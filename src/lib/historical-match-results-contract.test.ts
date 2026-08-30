@@ -44,7 +44,9 @@ describe("historical match results contract", () => {
     expect(dateCorrection).toContain(
       "drop constraint if exists historical_import_rows_no_placeholder_20260828",
     );
-    expect(dateCorrection).not.toContain("HISTORICAL_PLACEHOLDER_DATE_FORBIDDEN");
+    expect(dateCorrection).not.toContain(
+      "HISTORICAL_PLACEHOLDER_DATE_FORBIDDEN",
+    );
     expect(dateCorrection).not.toContain("PLACEHOLDER_DATE_FORBIDDEN");
     expect(dateCorrection).not.toContain("date '2026-08-28'");
     expect(safeRead).toContain("occurred_at timestamptz");
