@@ -1,6 +1,7 @@
 import { ArrowUpRight, DatabaseZap } from "lucide-react";
 import Link from "next/link";
 import { CommandLaunchDesk } from "@/components/admin/command-launch-desk";
+import { CommandExecutivePulse } from "@/components/admin/command-executive-pulse";
 import { CommandPilotReadiness } from "@/components/admin/command-pilot-readiness";
 import { CommandSection } from "@/components/admin/command-section";
 import {
@@ -18,15 +19,17 @@ import {
 } from "@/lib/auth/admin-modules";
 import { requireRole } from "@/lib/auth/session";
 import { getAdminCommandSnapshot } from "@/server/services/admin-command-service";
+import { getAdminExecutiveSnapshot } from "@/server/services/admin-executive-service";
 import { getAdminPilotReadinessSnapshot } from "@/server/services/admin-pilot-readiness-service";
 
 export default async function AdminPage() {
   const user = await requireRole(adminPortalRoles);
-  const [snapshot, pilotReadiness, modules] = await Promise.all([
+  const [snapshot, pilotReadiness, executive, modules] = await Promise.all([
     getAdminCommandSnapshot(),
     user.role === "admin"
       ? getAdminPilotReadinessSnapshot()
       : Promise.resolve(null),
+    user.role === "admin" ? getAdminExecutiveSnapshot() : Promise.resolve(null),
     Promise.resolve(
       getAdminModulesForRole(user.role).filter(
         (item) => item.key !== "command",
@@ -65,6 +68,8 @@ export default async function AdminPage() {
       </div>
 
       {pilotReadiness && <CommandLaunchDesk snapshot={pilotReadiness} />}
+
+      {executive && <CommandExecutivePulse snapshot={executive} />}
 
       <CommandSection
         title="O que está acontecendo"

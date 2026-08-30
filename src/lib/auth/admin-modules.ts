@@ -26,10 +26,12 @@ export type AdminModuleIcon =
   | "finance"
   | "ecosystem"
   | "commercial"
+  | "people"
   | "intelligence";
 
 export type AdminModuleKey =
   | "command"
+  | "management"
   | "agenda"
   | "athletes"
   | "preview"
@@ -75,6 +77,16 @@ export const adminModules: readonly AdminModuleDefinition[] = [
     group: "Comando",
     allowedRoles: allAdminRoles,
     icon: "dashboard",
+  },
+  {
+    key: "management",
+    label: "Gestão Executiva",
+    href: "/admin/gestao",
+    description:
+      "Funções, responsáveis, prioridades, bloqueios e entregas do comando único.",
+    group: "Comando",
+    allowedRoles: ["admin"],
+    icon: "people",
   },
   {
     key: "agenda",
