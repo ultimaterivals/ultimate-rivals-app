@@ -476,6 +476,7 @@ test("Command executive management remains usable on mobile", async ({
     await expect(
       page.getByRole("heading", { name: "Gestão Executiva", exact: true }),
     ).toBeVisible({ timeout: 30_000 });
+    await expect(page.locator("main")).toBeVisible();
     await expect(
       page.getByRole("button", { name: "Abrir navegação" }),
     ).toBeVisible();
