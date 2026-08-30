@@ -1,11 +1,13 @@
 name: App V1 Visual UAT
 
 on:
+  workflow_call:
   workflow_dispatch:
   push:
     branches:
       - integration/app-v1-command-data
       - "feat/athlete-app-p*"
+      - "feat/command-*"
     paths:
       - ".github/workflows/app-v1-visual-uat.yml"
       - "src/**"

@@ -43,3 +43,7 @@ jobs:
 
       - name: Production build
         run: npm run build
+
+  command-mobile-visual-uat:
+    if: github.event_name == 'pull_request' && startsWith(github.head_ref, 'feat/command-')
+    uses: ./.github/workflows/app-v1-visual-uat.yml

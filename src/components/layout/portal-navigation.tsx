@@ -40,6 +40,7 @@ const iconMap: Record<AdminModuleIcon, LucideIcon> = {
   ecosystem: Network,
   commercial: Handshake,
   intelligence: BrainCircuit,
+  people: UsersRound,
 };
 
 function isActivePath(pathname: string, href: string) {
