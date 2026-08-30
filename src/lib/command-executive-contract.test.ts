@@ -62,4 +62,14 @@ describe("C40 executive management contracts", () => {
     ).toHaveLength(1);
     expect(migration).not.toMatch(/insert into public\.command_work_items/i);
   });
+
+  it("includes the operational data and technical development ownership seats", () => {
+    const migration = source(
+      "supabase/migrations/20260830152000_complete_command_function_catalog.sql",
+    );
+
+    expect(migration).toContain("Coordenação de Dados e Ranking");
+    expect(migration).toContain("Coordenação Técnica e Desenvolvimento");
+    expect(migration).toContain("on conflict (code) do update");
+  });
 });
