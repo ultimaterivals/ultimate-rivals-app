@@ -72,4 +72,20 @@ describe("C40 executive management contracts", () => {
     expect(migration).toContain("Coordenação Técnica e Desenvolvimento");
     expect(migration).toContain("on conflict (code) do update");
   });
+
+  it("renders the complete performance contract and excludes athletes from executive seats", () => {
+    const page = source("src/app/admin/gestao/page.tsx");
+    const migration = source(
+      "supabase/migrations/20260830160000_restrict_executive_assignment_eligibility.sql",
+    );
+
+    expect(page).toContain("fn.expectedOutcomes.map");
+    expect(page).toContain("fn.performanceIndicators.map");
+    expect(page).toContain("fn.weeklyRitual");
+    expect(page).toContain('profile.role !== "athlete"');
+    expect(page).toContain('critical: "Crítica"');
+    expect(migration).toContain("role = 'athlete'::public.app_role");
+    expect(migration).toContain("target profile is not eligible");
+    expect(migration).toContain("security invoker");
+  });
 });

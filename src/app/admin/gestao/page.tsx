@@ -180,6 +180,14 @@ export default async function ExecutiveManagementPage({
       : snapshot.status === "partial"
         ? "Leitura parcial"
         : "Estrutura aguardando migration";
+  const assignableProfiles = snapshot.profiles.filter(
+    (profile) => profile.role !== "athlete",
+  );
+  const criticalityLabels = {
+    critical: "Crítica",
+    essential: "Essencial",
+    support: "Apoio",
+  } as const;
   const metrics = [
     ["Frentes", snapshot.metrics.workstreams, ListTodo],
     ["Funções", snapshot.metrics.functions, UsersRound],
@@ -294,7 +302,7 @@ export default async function ExecutiveManagementPage({
                       <div>
                         <p className="font-bold">{fn.title}</p>
                         <p className="mt-1 text-xs text-zinc-500">
-                          {fn.criticality}
+                          {criticalityLabels[fn.criticality]}
                         </p>
                       </div>
                       <Badge>
@@ -307,7 +315,47 @@ export default async function ExecutiveManagementPage({
                     <p className="mt-3 text-xs text-zinc-500">
                       Autoridade: {fn.decisionAuthority}
                     </p>
-                    {snapshot.profiles.length > 0 && (
+                    <div className="mt-4 grid gap-4 border-t pt-4 sm:grid-cols-2">
+                      <div>
+                        <p className="text-xs font-bold text-zinc-500 uppercase">
+                          Resultados esperados
+                        </p>
+                        <ul className="mt-2 grid gap-2 text-sm text-zinc-400">
+                          {fn.expectedOutcomes.length > 0 ? (
+                            fn.expectedOutcomes.map((outcome) => (
+                              <li key={outcome}>• {outcome}</li>
+                            ))
+                          ) : (
+                            <li>Não definido.</li>
+                          )}
+                        </ul>
+                      </div>
+                      <div>
+                        <p className="text-xs font-bold text-zinc-500 uppercase">
+                          Indicadores de desempenho
+                        </p>
+                        <ul className="mt-2 grid gap-2 text-sm text-zinc-400">
+                          {fn.performanceIndicators.length > 0 ? (
+                            fn.performanceIndicators.map((indicator) => (
+                              <li key={indicator}>• {indicator}</li>
+                            ))
+                          ) : (
+                            <li>Não definido.</li>
+                          )}
+                        </ul>
+                      </div>
+                    </div>
+                    {fn.weeklyRitual && (
+                      <div className="rounded-ur mt-4 border bg-white/[0.02] p-3">
+                        <p className="text-xs font-bold text-zinc-500 uppercase">
+                          Ritual semanal
+                        </p>
+                        <p className="mt-2 text-sm text-zinc-400">
+                          {fn.weeklyRitual}
+                        </p>
+                      </div>
+                    )}
+                    {assignableProfiles.length > 0 && (
                       <details className="mt-4 border-t pt-4">
                         <summary className="cursor-pointer text-sm font-bold">
                           Designar responsável
@@ -328,7 +376,7 @@ export default async function ExecutiveManagementPage({
                             required
                           >
                             <option value="">Selecione</option>
-                            {snapshot.profiles.map((profile) => (
+                            {assignableProfiles.map((profile) => (
                               <option key={profile.id} value={profile.id}>
                                 {profile.displayName} · {profile.role}
                               </option>

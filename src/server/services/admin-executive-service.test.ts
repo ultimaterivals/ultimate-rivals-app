@@ -105,6 +105,11 @@ describe("admin executive snapshot", () => {
     expect(snapshot.focusItems.map((item) => item.id)).toEqual(["p1"]);
     expect(snapshot.criticalItems.map((item) => item.id)).toEqual(["p0", "p1"]);
     expect(snapshot.functions[0]?.assignment?.displayName).toBe("Matheus");
+    expect(snapshot.functions[0]?.expectedOutcomes).toEqual([
+      "Sessões prontas",
+    ]);
+    expect(snapshot.functions[0]?.performanceIndicators).toEqual(["Prontidão"]);
+    expect(snapshot.functions[0]?.weeklyRitual).toBe("Revisão semanal.");
   });
 
   it("reports a partial snapshot when any canonical source fails", () => {
