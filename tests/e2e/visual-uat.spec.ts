@@ -525,3 +525,36 @@ test("Command executive management remains usable on mobile", async ({
   ).toBeVisible();
   await capture(page, "command-executive-mobile-412x915-navigation");
 });
+
+test("C42 report and learnings renders with an honest operational state", async ({
+  page,
+}, testInfo) => {
+  const viewport =
+    testInfo.project.name === "mobile"
+      ? { width: 390, height: 844 }
+      : { width: 1440, height: 1000 };
+
+  await page.setViewportSize(viewport);
+  await login(page, "admin@test.ur.local");
+  await page.goto("/admin/ur-play/relatorio");
+
+  await expect(
+    page.getByRole("heading", {
+      name: "Relatório & Aprendizados",
+      exact: true,
+    }),
+  ).toBeVisible({ timeout: 30_000 });
+  await expect(page.getByText("Relatórios", { exact: true })).toBeVisible();
+  await expect(page.getByText("Ações abertas", { exact: true })).toBeVisible();
+
+  const reportState = page
+    .getByText("Nenhuma sessão pronta para retrospectiva.", { exact: true })
+    .or(page.getByText("O que funcionou", { exact: true }).first());
+  await expect(reportState).toBeVisible();
+  await expectNoHorizontalOverflow(page);
+
+  await capture(
+    page,
+    `command-c42-report-${testInfo.project.name}-${viewport.width}x${viewport.height}`,
+  );
+});
