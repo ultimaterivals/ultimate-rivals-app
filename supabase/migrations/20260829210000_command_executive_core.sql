@@ -226,6 +226,7 @@ set search_path = ''
 as $$
 declare
   result public.command_function_assignments;
+  assignment_time timestamptz := clock_timestamp();
 begin
   if not private.has_any_role(array['admin']::public.app_role[]) then
     raise exception 'forbidden' using errcode = '42501';
@@ -241,7 +242,8 @@ begin
   end if;
 
   update public.command_function_assignments
-  set status = 'ended', ends_at = now()
+  set status = 'ended',
+      ends_at = greatest(assignment_time, starts_at + interval '1 microsecond')
   where function_id = target_function_id
     and status in ('planned', 'active', 'paused')
     and ends_at is null;
@@ -250,7 +252,7 @@ begin
     function_id, profile_id, status, starts_at, review_due_at,
     allocation_percent, mandate, assigned_by
   ) values (
-    target_function_id, target_profile_id, target_status, now(),
+    target_function_id, target_profile_id, target_status, assignment_time,
     target_review_due_at, target_allocation_percent, nullif(trim(target_mandate), ''), auth.uid()
   ) returning * into result;
 

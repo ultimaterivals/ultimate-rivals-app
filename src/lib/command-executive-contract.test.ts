@@ -39,6 +39,10 @@ describe("C40 executive management contracts", () => {
       /create table public\.command_work_items[\s\S]*constraint command_work_items_function_workstream_fk[\s\S]*foreign key \(function_id, workstream_id\)/,
     );
     expect(migration).toContain("security invoker");
+    expect(migration).toContain(
+      "assignment_time timestamptz := clock_timestamp()",
+    );
+    expect(migration).toContain("starts_at + interval '1 microsecond'");
     expect(migration).not.toContain("service_role_key");
   });
 
