@@ -16,8 +16,7 @@ create table public.command_workstreams (
   position smallint not null unique check (position between 1 and 100),
   active boolean not null default true,
   created_at timestamptz not null default now(),
-  updated_at timestamptz not null default now(),
-  constraint command_functions_id_workstream_unique unique (id, workstream_id)
+  updated_at timestamptz not null default now()
 );
 
 create table public.command_functions (
@@ -33,7 +32,8 @@ create table public.command_functions (
   weekly_ritual text check (weekly_ritual is null or char_length(trim(weekly_ritual)) between 5 and 500),
   active boolean not null default true,
   created_at timestamptz not null default now(),
-  updated_at timestamptz not null default now()
+  updated_at timestamptz not null default now(),
+  constraint command_functions_id_workstream_unique unique (id, workstream_id)
 );
 
 create table public.command_function_assignments (
@@ -49,9 +49,6 @@ create table public.command_function_assignments (
   assigned_by uuid not null default auth.uid() references public.profiles(id) on delete restrict,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
-  constraint command_work_items_function_workstream_fk
-    foreign key (function_id, workstream_id)
-    references public.command_functions(id, workstream_id) on delete restrict,
   constraint command_function_assignments_valid_period check (ends_at is null or ends_at > starts_at),
   constraint command_function_assignments_status_period check (
     (status = 'ended' and ends_at is not null) or
@@ -116,6 +113,9 @@ create table public.command_work_items (
   completed_at timestamptz,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
+  constraint command_work_items_function_workstream_fk
+    foreign key (function_id, workstream_id)
+    references public.command_functions(id, workstream_id) on delete restrict,
   constraint command_work_items_blocked_reason check (
     (status = 'blocked' and blocked_reason is not null) or status <> 'blocked'
   ),

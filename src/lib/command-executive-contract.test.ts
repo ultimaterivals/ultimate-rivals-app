@@ -32,6 +32,12 @@ describe("C40 executive management contracts", () => {
     expect(migration).toContain("command focus limit exceeded");
     expect(migration).toContain("invalid command work item transition");
     expect(migration).toContain("command_work_items_function_workstream_fk");
+    expect(migration).toMatch(
+      /create table public\.command_functions[\s\S]*constraint command_functions_id_workstream_unique unique \(id, workstream_id\)[\s\S]*create table public\.command_function_assignments/,
+    );
+    expect(migration).toMatch(
+      /create table public\.command_work_items[\s\S]*constraint command_work_items_function_workstream_fk[\s\S]*foreign key \(function_id, workstream_id\)/,
+    );
     expect(migration).toContain("security invoker");
     expect(migration).not.toContain("service_role_key");
   });
