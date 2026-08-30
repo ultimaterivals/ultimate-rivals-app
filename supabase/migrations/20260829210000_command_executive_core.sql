@@ -97,7 +97,7 @@ revoke all on function private.enforce_command_work_item_transition() from publi
 create table public.command_work_items (
   id uuid primary key default gen_random_uuid(),
   workstream_id uuid not null references public.command_workstreams(id) on delete restrict,
-  function_id uuid references public.command_functions(id) on delete set null,
+  function_id uuid,
   assignee_profile_id uuid references public.profiles(id) on delete set null,
   title text not null check (char_length(trim(title)) between 3 and 180),
   description text check (description is null or char_length(trim(description)) between 3 and 4000),
@@ -131,10 +131,13 @@ create unique index command_function_assignments_one_current_idx
 
 create index command_functions_workstream_idx on public.command_functions(workstream_id, active, criticality);
 create index command_assignments_profile_idx on public.command_function_assignments(profile_id, status);
+create index command_assignments_assigned_by_idx on public.command_function_assignments(assigned_by);
 create index command_assignments_review_idx on public.command_function_assignments(review_due_at) where status = 'active';
 create index command_work_items_execution_idx on public.command_work_items(status, priority, due_at);
 create index command_work_items_workstream_idx on public.command_work_items(workstream_id, status);
+create index command_work_items_function_idx on public.command_work_items(function_id, workstream_id);
 create index command_work_items_assignee_idx on public.command_work_items(assignee_profile_id, status) where assignee_profile_id is not null;
+create index command_work_items_created_by_idx on public.command_work_items(created_by);
 
 create trigger command_workstreams_set_updated_at before update on public.command_workstreams
 for each row execute function private.set_updated_at();
