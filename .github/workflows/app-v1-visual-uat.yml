@@ -6,6 +6,7 @@ on:
     branches:
       - integration/app-v1-command-data
       - "feat/athlete-app-p*"
+      - "feat/command-*"
     paths:
       - ".github/workflows/app-v1-visual-uat.yml"
       - "src/**"

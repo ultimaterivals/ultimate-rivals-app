@@ -454,3 +454,73 @@ test("admin Preview remains read-only on mobile", async ({
     waitForHunter,
   );
 });
+
+test("Command executive management remains usable on mobile", async ({
+  page,
+}, testInfo) => {
+  test.skip(testInfo.project.name !== "mobile", "mobile evidence only");
+
+  const viewports = [
+    { width: 375, height: 667 },
+    { width: 390, height: 844 },
+    { width: 412, height: 915 },
+  ] as const;
+
+  await page.setViewportSize(viewports[1]);
+  await login(page, "admin@test.ur.local");
+
+  for (const viewport of viewports) {
+    await page.setViewportSize(viewport);
+    await page.goto("/admin/gestao");
+
+    await expect(
+      page.getByRole("heading", { name: "Gestão Executiva", exact: true }),
+    ).toBeVisible({ timeout: 30_000 });
+    await expect(
+      page.getByRole("button", { name: "Abrir navegação" }),
+    ).toBeVisible();
+    await expect(
+      page.getByText("Resultados esperados", { exact: true }),
+    ).toHaveCount(18);
+    await expect(
+      page.getByText("Indicadores de desempenho", { exact: true }),
+    ).toHaveCount(18);
+    await expect(page.getByText("Ritual semanal", { exact: true })).toHaveCount(
+      18,
+    );
+    await expect(page.locator('select[name="profileId"]')).toHaveCount(18);
+
+    const athleteExecutiveOptions = await page
+      .locator('select[name="profileId"] option')
+      .evaluateAll(
+        (options) =>
+          options.filter((option) => /athlete/i.test(option.textContent ?? ""))
+            .length,
+      );
+    expect(athleteExecutiveOptions).toBe(0);
+
+    await page
+      .getByText("Direção e Estratégia", { exact: true })
+      .first()
+      .click();
+    await expect(
+      page.getByText("Resultados esperados", { exact: true }).first(),
+    ).toBeVisible();
+    await expect(
+      page.getByText("Crítica", { exact: true }).first(),
+    ).toBeVisible();
+    await expectNoHorizontalOverflow(page);
+
+    await capture(
+      page,
+      `command-executive-mobile-${viewport.width}x${viewport.height}`,
+    );
+  }
+
+  const menu = page.getByRole("button", { name: "Abrir navegação" });
+  await menu.click();
+  await expect(
+    page.getByRole("dialog", { name: "Menu de navegação" }),
+  ).toBeVisible();
+  await capture(page, "command-executive-mobile-412x915-navigation");
+});
