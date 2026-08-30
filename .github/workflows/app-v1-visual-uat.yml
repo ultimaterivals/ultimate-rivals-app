@@ -73,6 +73,7 @@ jobs:
             supabase/config.toml \
             scripts/qa-local-test-seed.sql \
             scripts/p05-visual-uat-seed.sql \
+            scripts/qa-competition-formation-read-security.sql \
             scripts/production-reference-data.sql
           do
             test -f "$path"
@@ -151,6 +152,9 @@ jobs:
           where p.id = u.id
             and u.email like '%@test.ur.local';
           SQL
+
+      - name: Prove competition formation read scopes
+        run: psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f scripts/qa-competition-formation-read-security.sql
 
       - name: Build application against disposable Supabase
         run: npm run build
