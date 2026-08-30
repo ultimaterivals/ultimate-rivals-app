@@ -47,30 +47,31 @@ on conflict (formation_id, athlete_id) do update set
   position_order = excluded.position_order;
 
 do $$
+declare
+  target_table regclass;
 begin
-  if not has_table_privilege(
-    'authenticated',
-    'public.competition_formations',
-    'select'
-  ) or not has_table_privilege(
-    'authenticated',
-    'public.competition_formation_members',
-    'select'
-  ) then
-    raise exception 'authenticated SELECT grant missing';
-  end if;
+  foreach target_table in array array[
+    'public.athlete_activation_wave_members'::regclass,
+    'public.athlete_activation_waves'::regclass,
+    'public.athlete_import_batches'::regclass,
+    'public.athlete_import_rows'::regclass,
+    'public.competition_formation_members'::regclass,
+    'public.competition_formations'::regclass,
+    'public.season_weeks'::regclass,
+    'public.ur_play_session_preflight_checks'::regclass
+  ] loop
+    if not has_table_privilege('authenticated', target_table, 'select') then
+      raise exception 'authenticated SELECT grant missing for %', target_table;
+    end if;
 
-  if has_table_privilege(
-    'authenticated',
-    'public.competition_formations',
-    'insert,update,delete'
-  ) or has_table_privilege(
-    'authenticated',
-    'public.competition_formation_members',
-    'insert,update,delete'
-  ) then
-    raise exception 'authenticated formation write privilege detected';
-  end if;
+    if has_table_privilege(
+      'authenticated',
+      target_table,
+      'insert,update,delete'
+    ) then
+      raise exception 'authenticated write privilege detected for %', target_table;
+    end if;
+  end loop;
 
   if not exists (
     select 1
@@ -192,5 +193,4 @@ end;
 $$;
 rollback;
 
-select 'COMPETITION_FORMATION_READ_SECURITY_PASS' as result;
-
+select 'SCOPED_ADMIN_READ_SECURITY_PASS' as result;

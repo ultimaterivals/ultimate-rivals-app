@@ -1,8 +1,17 @@
 -- Restore the minimum Data API privilege required by the existing Command and
--- Athlete App readers. RLS remains forced and limits every visible row.
+-- Athlete App readers. Existing RLS policies continue to limit every visible
+-- row; the formation tables receive their scoped policies below.
 
-grant select on table public.competition_formations to authenticated;
-grant select on table public.competition_formation_members to authenticated;
+grant select on table
+  public.athlete_activation_wave_members,
+  public.athlete_activation_waves,
+  public.athlete_import_batches,
+  public.athlete_import_rows,
+  public.competition_formation_members,
+  public.competition_formations,
+  public.season_weeks,
+  public.ur_play_session_preflight_checks
+to authenticated;
 
 drop policy if exists competition_formations_scoped_select
 on public.competition_formations;
@@ -69,10 +78,15 @@ using (
   )
 );
 
--- Preserve the canonical write boundary. Formation creation and team linkage
--- continue through audited backend functions rather than direct client writes.
-revoke insert, update, delete on table public.competition_formations
+-- Preserve the canonical write boundary. Mutations continue through audited
+-- backend functions rather than direct client writes.
+revoke insert, update, delete on table
+  public.athlete_activation_wave_members,
+  public.athlete_activation_waves,
+  public.athlete_import_batches,
+  public.athlete_import_rows,
+  public.competition_formation_members,
+  public.competition_formations,
+  public.season_weeks,
+  public.ur_play_session_preflight_checks
 from anon, authenticated;
-revoke insert, update, delete on table public.competition_formation_members
-from anon, authenticated;
-

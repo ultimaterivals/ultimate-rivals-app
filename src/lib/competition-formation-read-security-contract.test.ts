@@ -10,20 +10,24 @@ const migration = readFileSync(
   "utf8",
 );
 
-describe("competition formation read security", () => {
+describe("protected operational read security", () => {
   it("restores only the authenticated SELECT privilege required by the Data API", () => {
-    expect(migration).toContain(
-      "grant select on table public.competition_formations to authenticated",
-    );
-    expect(migration).toContain(
-      "grant select on table public.competition_formation_members to authenticated",
-    );
-    expect(migration).toContain(
-      "revoke insert, update, delete on table public.competition_formations",
-    );
-    expect(migration).toContain(
-      "revoke insert, update, delete on table public.competition_formation_members",
-    );
+    const protectedReadSources = [
+      "public.athlete_activation_wave_members",
+      "public.athlete_activation_waves",
+      "public.athlete_import_batches",
+      "public.athlete_import_rows",
+      "public.competition_formation_members",
+      "public.competition_formations",
+      "public.season_weeks",
+      "public.ur_play_session_preflight_checks",
+    ];
+
+    expect(migration).toContain("grant select on table");
+    expect(migration).toContain("revoke insert, update, delete on table");
+    for (const source of protectedReadSources) {
+      expect(migration).toContain(source);
+    }
     expect(migration).not.toContain("grant all");
   });
 
