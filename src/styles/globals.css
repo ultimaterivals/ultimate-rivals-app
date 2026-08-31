@@ -166,6 +166,12 @@ body {
     0 0 0 5.4rem rgba(244, 196, 48, 0.02);
 }
 
+.athlete-stage.athlete-stage-flat {
+  border-width: 0 0 1px;
+  border-radius: 0;
+  box-shadow: none;
+}
+
 .athlete-panel {
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 0.35rem 1.45rem 0.35rem 1.45rem;

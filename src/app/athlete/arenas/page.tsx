@@ -92,7 +92,7 @@ export default async function AthleteArenasPage() {
         description="Quadras e locais aparecem para você a partir da operação oficial e das oportunidades abertas. Mídia só é exibida quando estiver publicada para consumo externo."
       />
 
-      <section className="ranking-hero border-ur-gold/40 rounded-ur border p-5 sm:p-7">
+      <section className="athlete-stage p-5 sm:p-7">
         <p className="text-ur-gold text-xs font-black tracking-[.22em] uppercase">
           Próxima arena
         </p>

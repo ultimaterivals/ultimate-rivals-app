@@ -131,7 +131,7 @@ export default async function AthleteMarketPage({
         </Card>
       ) : null}
 
-      <section className="ranking-hero border-ur-gold/40 rounded-ur overflow-hidden border p-5 sm:p-7">
+      <section className="athlete-stage p-5 sm:p-7">
         <div className="grid gap-6 lg:grid-cols-[1fr_auto] lg:items-end">
           <div>
             <div className="text-ur-gold flex items-center gap-2">

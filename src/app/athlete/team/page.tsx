@@ -203,7 +203,7 @@ export default async function AthleteTeamPage() {
 
           return (
             <section key={membership.team_id} className="grid gap-4">
-              <Card className="ranking-hero border-ur-gold/25 overflow-hidden">
+              <Card className="athlete-stage overflow-hidden">
                 <div className="flex flex-wrap items-start justify-between gap-4">
                   <div className="flex items-center gap-4">
                     {team.logo_url ? (

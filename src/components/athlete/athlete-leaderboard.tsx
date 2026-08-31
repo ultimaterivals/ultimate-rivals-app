@@ -53,9 +53,9 @@ export function AthleteLeaderboard({
   return (
     <section
       aria-labelledby="leaderboard-title"
-      className="ur-brand-panel overflow-hidden rounded-[2rem] border border-white/10 bg-[#0d0d0d]"
+      className="athlete-panel overflow-hidden"
     >
-      <div className="ranking-hero border-b border-white/10 px-5 py-6 sm:px-7">
+      <div className="athlete-stage athlete-stage-flat border-b border-white/10 px-5 py-6 sm:px-7">
         <div className="flex items-start justify-between gap-5">
           <div>
             <p className="text-ur-gold text-xs font-black tracking-[.2em] uppercase">
