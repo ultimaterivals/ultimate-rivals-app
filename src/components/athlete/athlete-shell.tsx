@@ -224,7 +224,7 @@ function MobileContextNavigation({ preview = false }: { preview?: boolean }) {
   return (
     <nav
       aria-label="Atalhos da área atual"
-      className="border-b border-white/[.05] bg-[#090909]/92 lg:hidden"
+      className="athlete-context-nav lg:hidden"
     >
       <div className="flex [scrollbar-width:none] gap-2 overflow-x-auto px-4 py-2.5 [&::-webkit-scrollbar]:hidden">
         {items
@@ -260,7 +260,7 @@ function MobileNavigation() {
   return (
     <nav
       aria-label="Navegação principal do atleta"
-      className="relative z-50 shrink-0 border-t border-white/[.08] bg-[#080808]/95 pb-[env(safe-area-inset-bottom)] shadow-[0_-20px_50px_rgba(0,0,0,.38)] backdrop-blur-xl lg:hidden"
+      className="athlete-bottom-nav relative z-50 shrink-0 pb-[env(safe-area-inset-bottom)] lg:hidden"
     >
       <div className="mx-auto grid max-w-lg grid-cols-5 px-1">
         {mobilePrimary.map((item) => {
@@ -275,17 +275,13 @@ function MobileNavigation() {
               href={item.href}
               aria-current={isActive ? "page" : undefined}
               className={cn(
-                "focus-visible:ring-ur-gold relative flex min-h-[4.4rem] flex-col items-center justify-center gap-1 px-1 text-[.62rem] font-black transition-colors focus-visible:ring-2 focus-visible:outline-none focus-visible:ring-inset",
+                "focus-visible:ring-ur-gold relative flex min-h-[4.6rem] flex-col items-center justify-center gap-1 px-1 text-[.58rem] font-black tracking-[.06em] uppercase transition-colors focus-visible:ring-2 focus-visible:outline-none focus-visible:ring-inset",
                 isActive ? "text-ur-gold" : "text-zinc-500 active:text-white",
               )}
             >
               {item.special ? (
                 <span
-                  className={cn(
-                    "border-ur-gold/30 from-ur-gold/10 text-ur-gold grid size-10 place-items-center rounded-full border bg-gradient-to-b to-black shadow-[0_0_24px_rgba(212,168,59,.1)]",
-                    isActive &&
-                      "border-ur-gold bg-ur-gold text-ur-black shadow-[0_0_30px_rgba(212,168,59,.2)]",
-                  )}
+                  className={cn("athlete-nav-hunter", isActive && "is-active")}
                 >
                   <Icon size={21} strokeWidth={2.3} aria-hidden="true" />
                 </span>
@@ -349,7 +345,7 @@ export function AthleteShell({
         </div>
       </aside>
 
-      <div className="min-h-0 min-w-0 overflow-y-auto overscroll-y-contain lg:overflow-visible">
+      <div className="athlete-game-canvas min-h-0 min-w-0 overflow-y-auto overscroll-y-contain lg:overflow-visible">
         {preview && (
           <div className="border-ur-gold/30 sticky top-0 z-[60] flex flex-wrap items-center justify-between gap-3 border-b bg-[#181407]/95 px-4 py-3 backdrop-blur-xl sm:px-6 lg:px-10">
             <div>
@@ -368,12 +364,17 @@ export function AthleteShell({
           </div>
         )}
 
-        <header className="sticky top-0 z-40 flex min-h-14 items-center justify-between border-b border-white/[.05] bg-[#070707]/90 px-4 backdrop-blur-xl sm:px-6 lg:min-h-16 lg:px-10">
+        <header className="athlete-topbar sticky top-0 z-40 flex min-h-16 items-center justify-between px-4 sm:px-6 lg:min-h-18 lg:px-10">
           <div className="min-w-0 lg:hidden">
             <BrandMark compact />
           </div>
-          <div className="min-w-0 text-right lg:ml-auto">
-            <p className="truncate text-sm font-black">{userLabel}</p>
+          <div className="ml-auto flex min-w-0 items-center">
+            <div className="min-w-0 text-right">
+              <p className="text-[.55rem] font-black tracking-[.18em] text-zinc-600 uppercase">
+                Atleta UR
+              </p>
+              <p className="truncate text-sm font-black">{userLabel}</p>
+            </div>
           </div>
         </header>
 
@@ -381,7 +382,7 @@ export function AthleteShell({
 
         <main
           className={cn(
-            "min-w-0 px-4 py-5 sm:px-6 sm:py-7 lg:px-10 lg:py-9",
+            "min-w-0 px-4 pt-4 pb-7 sm:px-6 sm:pt-6 sm:pb-9 lg:px-10 lg:py-9",
             preview &&
               "[&_button]:pointer-events-none [&_button]:opacity-60 [&_form]:pointer-events-none [&_form]:opacity-75 [&_input]:pointer-events-none [&_select]:pointer-events-none [&_textarea]:pointer-events-none",
           )}

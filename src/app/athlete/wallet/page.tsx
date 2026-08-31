@@ -16,7 +16,7 @@ export default async function AthleteWalletPage() {
         description="UR Coins e créditos são saldos diferentes. O App apenas lê os registros oficiais e nunca recalcula a economia localmente."
       />
 
-      <section className="ranking-hero border-ur-gold/40 rounded-ur border p-5 sm:p-7">
+      <section className="athlete-stage p-5 sm:p-7">
         <div className="flex flex-wrap items-end justify-between gap-6">
           <div>
             <p className="text-ur-gold text-xs font-black tracking-[.22em] uppercase">

@@ -194,10 +194,7 @@ export default async function AthleteRankingPage({
           </p>
         </Card>
       ) : mine ? (
-        <section
-          aria-labelledby="my-ranking-title"
-          className="ranking-hero border-ur-gold/30 overflow-hidden rounded-[2rem] border bg-[#0d0d0d]"
-        >
+        <section aria-labelledby="my-ranking-title" className="athlete-stage">
           <div className="grid gap-6 px-5 py-6 sm:px-7 lg:grid-cols-[minmax(0,1.15fr)_minmax(18rem,.85fr)] lg:items-end lg:px-8 lg:py-8">
             <div>
               <p className="text-ur-gold text-xs font-black tracking-[.2em] uppercase">
@@ -227,7 +224,7 @@ export default async function AthleteRankingPage({
 
             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-1">
               {above ? (
-                <div className="rounded-2xl border border-white/10 bg-black/30 p-4">
+                <div className="athlete-panel bg-black/30 p-4">
                   <div className="flex items-start justify-between gap-4">
                     <div>
                       <p className="text-[.62rem] font-black tracking-[.18em] text-zinc-500 uppercase">
@@ -251,7 +248,7 @@ export default async function AthleteRankingPage({
                   ) : null}
                 </div>
               ) : (
-                <div className="border-ur-gold/20 bg-ur-gold/[.05] rounded-2xl border p-4">
+                <div className="athlete-panel athlete-panel-gold p-4">
                   <p className="text-ur-gold text-[.62rem] font-black tracking-[.18em] uppercase">
                     Posição de referência
                   </p>
@@ -262,7 +259,7 @@ export default async function AthleteRankingPage({
               )}
 
               {leader && mine.current_position !== 1 ? (
-                <div className="rounded-2xl border border-white/10 bg-black/30 p-4">
+                <div className="athlete-panel bg-black/30 p-4">
                   <div className="flex items-start justify-between gap-4">
                     <div>
                       <p className="text-[.62rem] font-black tracking-[.18em] text-zinc-500 uppercase">

@@ -1,18 +1,21 @@
 import {
   ArrowRight,
   CalendarDays,
+  ChevronRight,
   Clapperboard,
   Coins,
   CreditCard,
+  GraduationCap,
   Shield,
   Sparkles,
+  Target,
   Trophy,
+  Users,
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { AthleteOpportunityCard } from "@/components/athlete/athlete-opportunity-card";
 import { AthleteSourceHealth } from "@/components/athlete/athlete-source-health";
-import { Badge } from "@/components/ui";
 import { requireAthleteViewer } from "@/lib/auth/athlete-viewer";
 import { createClient } from "@/lib/supabase/server";
 import { getAthleteSnapshotForViewer } from "@/server/services/athlete-viewer-snapshot-service";
@@ -21,6 +24,15 @@ const money = new Intl.NumberFormat("pt-BR", {
   style: "currency",
   currency: "BRL",
 });
+
+function initials(name: string) {
+  return name
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part[0]?.toUpperCase())
+    .join("");
+}
 
 function safeExternalUrl(value: string | null | undefined) {
   if (!value) return null;
@@ -34,23 +46,44 @@ function safeExternalUrl(value: string | null | undefined) {
   }
 }
 
-function initials(name: string) {
-  return name
-    .split(/\s+/)
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((part) => part[0]?.toUpperCase())
-    .join("");
-}
-
 function movementLabel(movement: string | null | undefined) {
   if (movement === "up") return "Subindo";
   if (movement === "down") return "Em disputa";
   if (movement === "stable") return "Estável";
-  return "—";
+  return "Sem leitura";
 }
 
-// prettier-ignore
+function SectionHeading({
+  eyebrow,
+  title,
+  href,
+  linkLabel,
+}: {
+  eyebrow: string;
+  title: string;
+  href?: string;
+  linkLabel?: string;
+}) {
+  return (
+    <div className="flex items-end justify-between gap-4">
+      <div>
+        <p className="athlete-kicker">{eyebrow}</p>
+        <h2 className="font-display mt-1 text-2xl leading-none font-black tracking-tight uppercase sm:text-3xl">
+          {title}
+        </h2>
+      </div>
+      {href && linkLabel ? (
+        <Link
+          href={href}
+          className="text-ur-gold flex min-h-11 shrink-0 items-center gap-1 text-[.64rem] font-black tracking-[.08em] uppercase"
+        >
+          {linkLabel} <ChevronRight size={15} aria-hidden="true" />
+        </Link>
+      ) : null}
+    </div>
+  );
+}
+
 export default async function AthletePage() {
   const viewer = await requireAthleteViewer();
   const snapshot = await getAthleteSnapshotForViewer(viewer);
@@ -58,10 +91,16 @@ export default async function AthletePage() {
   if (!snapshot.identity) {
     return (
       <div className="mx-auto grid max-w-3xl gap-6 py-8">
-        <section className="rounded-ur border border-ur-gold/20 bg-white/[.025] p-6 sm:p-8">
-          <p className="text-xs font-black tracking-[.2em] text-ur-gold uppercase">Sua carreira UR</p>
-          <h1 className="font-display mt-3 text-4xl font-black tracking-tight uppercase">Perfil esportivo ainda não vinculado</h1>
-          <p className="mt-4 max-w-2xl leading-7 text-zinc-400">Sua conta está autenticada, mas ainda não encontramos um registro de atleta ligado a ela. Nenhum dado esportivo será inventado enquanto o vínculo oficial não for concluído.</p>
+        <section className="athlete-stage p-6 sm:p-8">
+          <p className="athlete-kicker">Sua carreira UR</p>
+          <h1 className="font-display mt-3 text-4xl font-black tracking-tight uppercase">
+            Perfil esportivo ainda não vinculado
+          </h1>
+          <p className="mt-4 max-w-2xl leading-7 text-zinc-400">
+            Sua conta está autenticada, mas ainda não encontramos um registro de
+            atleta ligado a ela. Nenhum dado esportivo será inventado enquanto o
+            vínculo oficial não for concluído.
+          </p>
         </section>
         <AthleteSourceHealth errors={snapshot.sourceErrors} />
       </div>
@@ -71,84 +110,438 @@ export default async function AthletePage() {
   const client = await createClient();
   const highlightResult = await client
     .from("highlight_clips")
-    .select("id,title,status,updated_at,media_assets!inner(title,external_url,status)")
+    .select(
+      "id,title,status,updated_at,media_assets!inner(title,external_url,status)",
+    )
     .eq("athlete_id", snapshot.identity.id)
     .in("status", ["publishable", "public"])
     .in("media_assets.status", ["publishable", "public"])
     .not("media_assets.external_url", "is", null)
     .order("updated_at", { ascending: false })
     .limit(1);
-  const latestHighlight = highlightResult.error ? null : (highlightResult.data?.[0] ?? null);
+  const latestHighlight = highlightResult.error
+    ? null
+    : (highlightResult.data?.[0] ?? null);
   const latestHighlightAsset = latestHighlight
     ? Array.isArray(latestHighlight.media_assets)
       ? latestHighlight.media_assets[0]
       : latestHighlight.media_assets
     : null;
-  const latestHighlightUrl = safeExternalUrl(latestHighlightAsset?.external_url);
+  const latestHighlightUrl = safeExternalUrl(
+    latestHighlightAsset?.external_url,
+  );
 
   const ranking = snapshot.primaryRanking;
   const summary = snapshot.summary;
   const nextReservation = snapshot.nextReservation;
   const team = snapshot.teams?.[0] ?? null;
-  const opportunities = (snapshot.opportunities ?? []).filter((item) => item.id !== nextReservation?.id).slice(0, 3);
+  const opportunities = (snapshot.opportunities ?? [])
+    .filter((item) => item.id !== nextReservation?.id)
+    .slice(0, 3);
   const creditsKnown = snapshot.creditBalance !== null;
   const economyReliable = snapshot.state === "ready" && summary !== null;
-  const location = [snapshot.identity.city, snapshot.identity.state].filter(Boolean).join("/");
+  const location = [snapshot.identity.city, snapshot.identity.state]
+    .filter(Boolean)
+    .join("/");
+  const identityMeta = [snapshot.identity.athleteCode, summary?.level, location]
+    .filter(Boolean)
+    .join(" · ");
 
   const nextAction = nextReservation
-    ? { title: nextReservation.title, description: [nextReservation.poleName, nextReservation.venueName].filter(Boolean).join(" · "), href: "/athlete/agenda", cta: "Abrir atividade" }
+    ? {
+        title: nextReservation.title,
+        description: [nextReservation.poleName, nextReservation.venueName]
+          .filter(Boolean)
+          .join(" · "),
+        href: "/athlete/agenda",
+        cta: "Abrir atividade",
+      }
     : opportunities.length > 0
-      ? { title: "Escolha onde jogar agora", description: `${opportunities.length} oportunidade${opportunities.length > 1 ? "s" : ""} disponível${opportunities.length > 1 ? "eis" : ""} na sua agenda UR.`, href: "/athlete/agenda", cta: "Explorar oportunidades" }
-      : { title: "Prepare sua próxima entrada em quadra", description: "A agenda ainda não apresenta uma oportunidade disponível para você. Mantenha sua disponibilidade atualizada.", href: "/athlete/disponibilidade", cta: "Atualizar disponibilidade" };
+      ? {
+          title: "Escolha onde jogar agora",
+          description: `${opportunities.length} oportunidade${opportunities.length > 1 ? "s" : ""} disponível${opportunities.length > 1 ? "eis" : ""} na sua agenda UR.`,
+          href: "/athlete/agenda",
+          cta: "Ver oportunidades",
+        }
+      : {
+          title: "Prepare sua próxima entrada em quadra",
+          description:
+            "A agenda ainda não apresenta uma oportunidade disponível. Mantenha sua disponibilidade atualizada.",
+          href: "/athlete/disponibilidade",
+          cta: "Atualizar disponibilidade",
+        };
 
   return (
-    <div className="mx-auto grid max-w-7xl gap-8 pb-6 sm:gap-10">
-      <section className="relative -mx-4 overflow-hidden border-y border-white/5 bg-[radial-gradient(circle_at_85%_20%,rgba(234,179,8,.12),transparent_32%),linear-gradient(180deg,rgba(255,255,255,.035),rgba(255,255,255,0))] px-4 py-7 sm:mx-0 sm:rounded-[2rem] sm:border sm:px-8 sm:py-9 lg:px-10">
-        <div className="relative grid gap-8 lg:grid-cols-[1fr_auto] lg:items-end">
+    <div className="mx-auto grid max-w-7xl gap-8 pb-5 sm:gap-10">
+      <section className="athlete-stage -mx-1 px-5 py-6 sm:mx-0 sm:px-8 sm:py-8 lg:px-10 lg:py-10">
+        <div className="grid gap-8 lg:grid-cols-[1.25fr_.75fr] lg:items-end">
           <div className="min-w-0">
-            <p className="text-[.65rem] font-black tracking-[.24em] text-ur-gold uppercase">Sua carreira UR</p>
-            <div className="mt-4 flex items-center gap-4">
-              <div className="grid size-16 shrink-0 place-items-center overflow-hidden rounded-2xl border border-ur-gold/25 bg-black/50 sm:size-20">
-                {snapshot.identity.avatarUrl ? <Image src={snapshot.identity.avatarUrl} alt={`Foto de ${snapshot.identity.publicName}`} width={160} height={160} className="h-full w-full object-cover" /> : <span className="font-display text-2xl font-black text-ur-gold sm:text-3xl">{initials(snapshot.identity.publicName)}</span>}
+            <p className="athlete-kicker">Sua carreira está em jogo</p>
+            <div className="mt-4 flex items-center gap-4 sm:gap-5">
+              <div className="border-ur-gold/45 relative grid size-[4.75rem] shrink-0 place-items-center overflow-hidden rounded-[.25rem_1.5rem_.25rem_1.5rem] border bg-black/55 shadow-[0_0_40px_rgba(244,196,48,.1)] sm:size-24">
+                {snapshot.identity.avatarUrl ? (
+                  <Image
+                    src={snapshot.identity.avatarUrl}
+                    alt={`Foto de ${snapshot.identity.publicName}`}
+                    fill
+                    priority
+                    sizes="(max-width: 640px) 76px, 96px"
+                    className="object-cover"
+                  />
+                ) : (
+                  <span className="font-display text-ur-gold text-2xl font-black sm:text-3xl">
+                    {initials(snapshot.identity.publicName)}
+                  </span>
+                )}
               </div>
               <div className="min-w-0">
-                <h1 className="font-display truncate text-4xl font-black tracking-tight uppercase sm:text-6xl">{snapshot.identity.publicName}</h1>
-                <p className="mt-1 truncate text-sm font-bold text-zinc-500">{[snapshot.identity.athleteCode, summary?.level, location].filter(Boolean).join(" · ")}</p>
+                <p className="text-[.62rem] font-black tracking-[.16em] text-zinc-500 uppercase">
+                  Bem-vindo de volta
+                </p>
+                <h1 className="font-display mt-1 truncate text-4xl leading-[.88] font-black tracking-[-.025em] uppercase sm:text-6xl">
+                  {snapshot.identity.publicName}
+                </h1>
+                <p className="mt-2 truncate text-xs font-bold text-zinc-400 sm:text-sm">
+                  {identityMeta || "Atleta Ultimate Rivals"}
+                </p>
               </div>
             </div>
-            <div className="mt-5 flex flex-wrap gap-2">{team ? <Badge>Equipe · {team.name}</Badge> : null}{ranking?.categoryCode ? <Badge>{ranking.categoryCode}</Badge> : null}{ranking?.formatCode ? <Badge>{ranking.formatCode}</Badge> : null}</div>
+
+            <div className="mt-7 max-w-2xl">
+              <p className="athlete-kicker">Próximo movimento</p>
+              <h2 className="font-display mt-2 text-3xl leading-[.94] font-black tracking-tight uppercase sm:text-5xl">
+                {nextAction.title}
+              </h2>
+              <p className="mt-3 max-w-xl text-sm leading-6 text-zinc-400">
+                {nextAction.description}
+              </p>
+              <Link href={nextAction.href} className="athlete-action mt-5">
+                {nextAction.cta} <ArrowRight size={17} aria-hidden="true" />
+              </Link>
+            </div>
           </div>
-          <div className="grid grid-cols-3 gap-4 border-t border-white/10 pt-5 lg:min-w-[28rem] lg:border-t-0 lg:border-l lg:pt-0 lg:pl-7">
-            <div><p className="text-[.62rem] font-black tracking-[.16em] text-zinc-600 uppercase">Ranking</p><p className="font-display mt-1 text-3xl font-black text-ur-gold">{ranking?.currentPosition ? `#${ranking.currentPosition}` : "—"}</p></div>
-            <div><p className="text-[.62rem] font-black tracking-[.16em] text-zinc-600 uppercase">Pontos</p><p className="font-display mt-1 text-3xl font-black">{ranking ? ranking.totalPoints.toLocaleString("pt-BR") : "—"}</p></div>
-            <div><p className="text-[.62rem] font-black tracking-[.16em] text-zinc-600 uppercase">Jogos</p><p className="font-display mt-1 text-3xl font-black">{summary ? summary.games.toLocaleString("pt-BR") : "—"}</p></div>
+
+          <div className="athlete-panel athlete-panel-gold grid grid-cols-[1fr_auto] gap-5 p-5 sm:p-6 lg:grid-cols-1">
+            <div>
+              <p className="text-[.6rem] font-black tracking-[.18em] text-zinc-500 uppercase">
+                Posição atual
+              </p>
+              <p className="font-display text-ur-gold mt-1 text-7xl leading-none font-black sm:text-8xl">
+                {ranking?.currentPosition ?? "—"}
+                {ranking?.currentPosition ? (
+                  <sup className="ml-1 text-2xl">º</sup>
+                ) : null}
+              </p>
+              <p className="mt-1 text-xs font-black tracking-[.1em] uppercase">
+                {ranking
+                  ? `${ranking.totalPoints.toLocaleString("pt-BR")} pontos oficiais`
+                  : "Ranking ainda não publicado"}
+              </p>
+            </div>
+            <div className="border-l border-white/10 pl-5 lg:grid lg:grid-cols-3 lg:border-t lg:border-l-0 lg:pt-5 lg:pl-0">
+              {[
+                ["Jogos", ranking?.gamesPlayed ?? "—"],
+                ["Vitórias", ranking?.wins ?? "—"],
+                ["Movimento", movementLabel(ranking?.movement)],
+              ].map(([label, value], index) => (
+                <div key={label} className={index > 0 ? "mt-3 lg:mt-0" : ""}>
+                  <p className="text-[.56rem] font-black text-zinc-600 uppercase">
+                    {label}
+                  </p>
+                  <p className="font-display text-ur-gold mt-1 text-xl font-black lg:text-2xl">
+                    {value}
+                  </p>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </section>
 
-      <section className="grid gap-5 lg:grid-cols-[1.35fr_.65fr]">
-        <div className="rounded-[1.75rem] border border-ur-gold/25 bg-ur-gold/[.055] p-6 sm:p-8"><p className="text-[.65rem] font-black tracking-[.2em] text-ur-gold uppercase">Seu próximo movimento</p><h2 className="font-display mt-2 text-3xl font-black tracking-tight uppercase sm:text-4xl">{nextAction.title}</h2><p className="mt-3 max-w-2xl text-sm leading-6 text-zinc-400 sm:text-base">{nextAction.description}</p><Link href={nextAction.href} className="mt-6 inline-flex min-h-12 items-center gap-2 rounded-full bg-ur-gold px-5 text-sm font-black text-black">{nextAction.cta} <ArrowRight size={17} aria-hidden="true" /></Link></div>
-        <div className="rounded-[1.75rem] border border-white/8 bg-white/[.025] p-6"><p className="text-[.64rem] font-black tracking-[.18em] text-zinc-600 uppercase">Seu momento</p><div className="mt-5 grid grid-cols-2 gap-5"><div><p className="text-xs text-zinc-600 uppercase">Vitórias</p><p className="font-display mt-1 text-3xl font-black">{ranking ? ranking.wins : "—"}</p></div><div><p className="text-xs text-zinc-600 uppercase">Derrotas</p><p className="font-display mt-1 text-3xl font-black">{ranking ? ranking.losses : "—"}</p></div><div><p className="text-xs text-zinc-600 uppercase">Aproveitamento</p><p className="font-display mt-1 text-3xl font-black text-ur-gold">{ranking ? `${ranking.winRate.toFixed(1)}%` : "—"}</p></div><div><p className="text-xs text-zinc-600 uppercase">Movimento</p><p className="font-display mt-1 text-3xl font-black">{movementLabel(ranking?.movement)}</p></div></div></div>
+      <section className="athlete-panel p-5 sm:p-6">
+        <div className="flex items-center justify-between gap-4">
+          <div>
+            <p className="athlete-kicker">Temporada atual</p>
+            <h2 className="font-display mt-1 text-2xl font-black uppercase">
+              Sua jornada competitiva
+            </h2>
+          </div>
+          <Link
+            href="/athlete/season"
+            className="text-ur-gold flex min-h-11 items-center gap-1 text-[.62rem] font-black uppercase"
+          >
+            Ver temporada <ChevronRight size={15} aria-hidden="true" />
+          </Link>
+        </div>
+        <div className="relative mt-6 grid grid-cols-4 gap-2">
+          <span className="athlete-season-track absolute top-5 right-[12%] left-[12%] h-px" />
+          {[
+            { label: "Jogar", href: "/athlete/agenda", Icon: CalendarDays },
+            { label: "Ranking", href: "/athlete/ranking", Icon: Trophy },
+            { label: "Equipe", href: "/athlete/team", Icon: Users },
+            { label: "Evolução", href: "/athlete/development", Icon: Target },
+          ].map(({ label, href, Icon }, index) => (
+            <Link
+              key={label}
+              href={href}
+              className="relative z-10 flex min-w-0 flex-col items-center gap-2 text-center"
+            >
+              <span
+                className={`grid size-10 place-items-center rounded-full border ${index === 0 ? "border-ur-gold bg-ur-gold text-black shadow-[0_0_30px_rgba(244,196,48,.18)]" : "border-white/15 bg-[#0a0a0a] text-zinc-500"}`}
+              >
+                <Icon size={18} aria-hidden="true" />
+              </span>
+              <span className="truncate text-[.57rem] font-black tracking-[.05em] uppercase sm:text-[.68rem]">
+                {label}
+              </span>
+            </Link>
+          ))}
+        </div>
       </section>
 
-      <section className="grid gap-4"><div className="flex items-end justify-between gap-4"><div><p className="text-[.64rem] font-black tracking-[.2em] text-ur-gold uppercase">Competição</p><h2 className="font-display mt-1 text-2xl font-black uppercase sm:text-3xl">Seu ranking está vivo</h2></div><Link href="/athlete/ranking" className="text-xs font-black text-ur-gold">Abrir ranking →</Link></div><div className="grid gap-5 rounded-[1.75rem] border border-white/8 bg-white/[.018] p-5 sm:grid-cols-[auto_1fr] sm:items-end sm:p-7"><div><p className="text-xs font-black tracking-[.16em] text-zinc-600 uppercase">Posição atual</p><strong className="font-display mt-1 block text-7xl font-black sm:text-8xl">{ranking?.currentPosition ? `#${ranking.currentPosition}` : "—"}</strong><p className="mt-1 font-black text-ur-gold">{ranking ? `${ranking.totalPoints.toLocaleString("pt-BR")} PTS` : "Ranking ainda não disponível"}</p></div><div className="grid grid-cols-3 gap-4 border-t border-white/8 pt-5 sm:border-t-0 sm:pt-0 sm:text-right"><div><p className="text-xs text-zinc-600 uppercase">Jogos</p><p className="mt-1 text-2xl font-black">{ranking ? ranking.gamesPlayed : "—"}</p></div><div><p className="text-xs text-zinc-600 uppercase">Vitórias</p><p className="mt-1 text-2xl font-black">{ranking ? ranking.wins : "—"}</p></div><div><p className="text-xs text-zinc-600 uppercase">Derrotas</p><p className="mt-1 text-2xl font-black">{ranking ? ranking.losses : "—"}</p></div></div></div></section>
+      {nextReservation ? (
+        <section className="grid gap-4">
+          <SectionHeading
+            eyebrow="Você está dentro"
+            title="Próximo compromisso"
+            href="/athlete/agenda"
+            linkLabel="Agenda"
+          />
+          {creditsKnown ? (
+            <AthleteOpportunityCard
+              opportunity={nextReservation}
+              availableCredits={snapshot.creditBalance}
+              readOnly={viewer.isPreview}
+            />
+          ) : (
+            <div className="athlete-panel p-5">
+              <p className="font-black">{nextReservation.title}</p>
+              <p className="mt-3 text-xs leading-5 text-zinc-500">
+                Os créditos estão temporariamente indisponíveis. A atividade é
+                exibida sem assumir saldo financeiro.
+              </p>
+            </div>
+          )}
+        </section>
+      ) : null}
+
+      {opportunities.length > 0 ? (
+        <section className="grid gap-4">
+          <SectionHeading
+            eyebrow="Entre em quadra"
+            title="Oportunidades para jogar"
+            href="/athlete/agenda"
+            linkLabel="Ver todas"
+          />
+          <div className="grid gap-4 lg:grid-cols-3">
+            {opportunities.map((opportunity) =>
+              creditsKnown ? (
+                <AthleteOpportunityCard
+                  key={opportunity.id}
+                  opportunity={opportunity}
+                  availableCredits={snapshot.creditBalance}
+                  readOnly={viewer.isPreview}
+                />
+              ) : (
+                <Link
+                  key={opportunity.id}
+                  href="/athlete/agenda"
+                  className="athlete-panel p-5"
+                >
+                  <p className="font-black">{opportunity.title}</p>
+                  <p className="mt-3 text-xs text-zinc-500">
+                    Abra a agenda para consultar o estado completo.
+                  </p>
+                </Link>
+              ),
+            )}
+          </div>
+        </section>
+      ) : null}
+
+      <section className="grid gap-4">
+        <SectionHeading
+          eyebrow="Sua temporada"
+          title="Desempenho oficial"
+          href="/athlete/ranking"
+          linkLabel="Ranking"
+        />
+        <div className="athlete-panel grid grid-cols-2 overflow-hidden sm:grid-cols-4">
+          {[
+            ["Jogos", summary?.games ?? null],
+            ["Vitórias", ranking?.wins ?? null],
+            [
+              "Aproveitamento",
+              ranking ? `${ranking.winRate.toFixed(1)}%` : null,
+            ],
+            ["Competições", summary?.competitions ?? null],
+          ].map(([label, value]) => (
+            <div
+              key={label as string}
+              className="border-r border-b border-white/[.07] p-5 last:border-r-0 sm:border-b-0"
+            >
+              <p className="text-[.58rem] font-black tracking-[.12em] text-zinc-600 uppercase">
+                {label}
+              </p>
+              <p className="font-display mt-2 text-4xl font-black">
+                {value ?? "—"}
+              </p>
+            </div>
+          ))}
+        </div>
+      </section>
 
       <section className="grid gap-4 lg:grid-cols-2">
-        <Link href="/athlete/development" className="rounded-[1.75rem] border border-white/8 bg-white/[.02] p-6"><p className="text-[.64rem] font-black tracking-[.2em] text-ur-gold uppercase">Como chegar lá</p><h2 className="font-display mt-2 text-2xl font-black uppercase">Construa sua próxima evolução</h2><p className="mt-2 text-sm leading-6 text-zinc-500">Acompanhe somente objetivos e prioridades publicados para sua trajetória, sem progresso inventado.</p></Link>
-        <Link href="/athlete/highlights" className="rounded-[1.75rem] border border-white/8 bg-white/[.02] p-6"><p className="text-[.64rem] font-black tracking-[.2em] text-ur-gold uppercase">Último destaque</p><h2 className="font-display mt-2 text-2xl font-black uppercase">{latestHighlight?.title ?? "Sua história em evidência"}</h2><p className="mt-2 text-sm leading-6 text-zinc-500">{latestHighlightAsset?.title ?? "Mídia publicada e momentos oficiais aparecem aqui quando disponíveis."}</p>{latestHighlightUrl ? <span className="mt-4 block text-xs font-black text-ur-gold">Mídia externa publicada disponível</span> : null}</Link>
+        <Link
+          href="/athlete/team"
+          className="athlete-panel athlete-panel-gold group grid min-h-48 grid-cols-[auto_1fr_auto] items-center gap-4 p-5 sm:p-6"
+        >
+          <span className="border-ur-gold/30 grid size-16 place-items-center overflow-hidden rounded-[.25rem_1.2rem_.25rem_1.2rem] border bg-black/40">
+            {team?.logoUrl ? (
+              <Image
+                src={team.logoUrl}
+                alt={`Escudo ${team.name}`}
+                width={96}
+                height={96}
+                className="size-full object-contain p-2"
+              />
+            ) : (
+              <Shield className="text-ur-gold" size={28} aria-hidden="true" />
+            )}
+          </span>
+          <span>
+            <span className="athlete-kicker block">Sua equipe</span>
+            <strong className="font-display mt-2 block text-3xl leading-none font-black uppercase">
+              {team?.name ?? "Formações da temporada"}
+            </strong>
+            <span className="mt-2 block text-xs text-zinc-500">
+              {team
+                ? "Sua formação dentro da temporada UR."
+                : "Convites e formações aparecem quando publicados."}
+            </span>
+          </span>
+          <ArrowRight
+            className="text-ur-gold transition-transform group-hover:translate-x-1"
+            size={21}
+            aria-hidden="true"
+          />
+        </Link>
+
+        <Link
+          href="/athlete/development"
+          className="athlete-panel group min-h-48 p-6"
+        >
+          <Target className="text-ur-gold" size={24} aria-hidden="true" />
+          <p className="athlete-kicker mt-7">Como chegar lá</p>
+          <h2 className="font-display mt-2 text-2xl font-black uppercase">
+            Seu próximo passo nasce da evidência
+          </h2>
+          <p className="mt-2 text-sm leading-6 text-zinc-500">
+            Acompanhe somente prioridades e revisões oficialmente publicadas.
+          </p>
+        </Link>
       </section>
 
-      {team ? <section className="grid gap-4"><div className="flex items-end justify-between gap-4"><div><p className="text-[.64rem] font-black tracking-[.2em] text-ur-gold uppercase">Equipe</p><h2 className="font-display mt-1 text-2xl font-black uppercase sm:text-3xl">Você compete por algo maior</h2></div><Link href="/athlete/team" className="text-xs font-black text-ur-gold">Minha equipe →</Link></div><Link href="/athlete/team" className="grid gap-4 rounded-[1.75rem] border border-white/8 bg-white/[.02] p-5 sm:grid-cols-[auto_1fr_auto] sm:items-center sm:p-6"><div className="grid size-14 place-items-center rounded-2xl border border-white/10 bg-black/40"><Shield className="text-ur-gold" size={26} aria-hidden="true" /></div><div><p className="font-display text-2xl font-black uppercase">{team.name}</p><p className="mt-1 text-sm text-zinc-500">Sua equipe faz parte da sua trajetória competitiva UR.</p></div><ArrowRight className="text-ur-gold" size={21} aria-hidden="true" /></Link></section> : null}
+      <section className="grid gap-4">
+        <SectionHeading eyebrow="Explore" title="Universo Ultimate Rivals" />
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <Link href="/athlete/season" className="athlete-panel min-h-44 p-5">
+            <CalendarDays
+              className="text-ur-gold"
+              size={22}
+              aria-hidden="true"
+            />
+            <p className="athlete-kicker mt-8">Temporada</p>
+            <h3 className="font-display mt-2 text-xl font-black uppercase">
+              Entenda a campanha
+            </h3>
+          </Link>
+          <Link
+            href="/athlete/hunter"
+            className="athlete-panel athlete-panel-gold min-h-44 p-5"
+          >
+            <GraduationCap
+              className="text-ur-gold"
+              size={22}
+              aria-hidden="true"
+            />
+            <p className="athlete-kicker mt-8">Hunter</p>
+            <h3 className="font-display mt-2 text-xl font-black uppercase">
+              Desenvolvimento opt-in
+            </h3>
+          </Link>
+          <Link href="/athlete/market" className="athlete-panel min-h-44 p-5">
+            <Sparkles className="text-ur-gold" size={22} aria-hidden="true" />
+            <p className="athlete-kicker mt-8">UR Market</p>
+            <h3 className="font-display mt-2 text-xl font-black uppercase">
+              Benefícios do ecossistema
+            </h3>
+          </Link>
+          <Link
+            href="/athlete/highlights"
+            className="athlete-panel min-h-44 p-5"
+          >
+            <Clapperboard
+              className="text-ur-gold"
+              size={22}
+              aria-hidden="true"
+            />
+            <p className="athlete-kicker mt-8">Último destaque</p>
+            <h3 className="font-display mt-2 text-xl font-black uppercase">
+              {latestHighlight?.title ?? "Sua história em evidência"}
+            </h3>
+            {latestHighlightUrl ? (
+              <span className="mt-2 block text-xs font-bold text-zinc-500">
+                Mídia publicada disponível
+              </span>
+            ) : null}
+          </Link>
+        </div>
+      </section>
 
-      {nextReservation ? <section className="grid gap-4"><div className="flex items-end justify-between gap-4"><h2 className="font-display text-2xl font-black uppercase">Próximo compromisso</h2><Link href="/athlete/agenda" className="text-xs font-black text-ur-gold">Ver agenda →</Link></div>{creditsKnown ? <AthleteOpportunityCard opportunity={nextReservation} availableCredits={snapshot.creditBalance ?? 0} readOnly={viewer.isPreview} /> : <div className="rounded-[1.5rem] border border-white/8 bg-white/[.02] p-5"><p className="font-black">{nextReservation.title}</p><p className="mt-3 text-xs leading-5 text-zinc-600">Os créditos estão temporariamente indisponíveis. A atividade é exibida sem assumir saldo financeiro.</p></div>}</section> : null}
+      <section className="grid gap-4">
+        <SectionHeading
+          eyebrow="Economia"
+          title="Moedas e créditos"
+          href="/athlete/wallet"
+          linkLabel="Wallet"
+        />
+        <div className="grid gap-4 sm:grid-cols-2">
+          <div className="athlete-panel p-5">
+            <Coins className="text-ur-gold" size={21} aria-hidden="true" />
+            <p className="mt-5 text-[.58rem] font-black tracking-[.15em] text-zinc-600 uppercase">
+              UR Coins
+            </p>
+            <p className="font-display mt-1 text-4xl font-black">
+              {economyReliable
+                ? summary.urCoinBalance.toLocaleString("pt-BR")
+                : "Indisponível"}
+            </p>
+          </div>
+          <div className="athlete-panel p-5">
+            <CreditCard className="text-ur-gold" size={21} aria-hidden="true" />
+            <p className="mt-5 text-[.58rem] font-black tracking-[.15em] text-zinc-600 uppercase">
+              Créditos livres
+            </p>
+            <p className="font-display mt-1 text-4xl font-black">
+              {snapshot.creditBalance === null
+                ? "Indisponível"
+                : snapshot.creditBalance.toLocaleString("pt-BR")}
+            </p>
+          </div>
+        </div>
+      </section>
 
-      {opportunities.length > 0 ? <section className="grid gap-4"><div className="flex items-end justify-between gap-4"><h2 className="font-display text-2xl font-black uppercase">Oportunidades abertas</h2><Link href="/athlete/agenda" className="text-xs font-black text-ur-gold">Ver todas →</Link></div><div className="grid gap-4 lg:grid-cols-3">{opportunities.map((opportunity) => creditsKnown ? <AthleteOpportunityCard key={opportunity.id} opportunity={opportunity} availableCredits={snapshot.creditBalance ?? 0} readOnly={viewer.isPreview} /> : <Link key={opportunity.id} href="/athlete/agenda" className="rounded-[1.5rem] border border-white/8 bg-white/[.02] p-5"><p className="font-black">{opportunity.title}</p><p className="mt-3 text-xs text-zinc-600">Abra a agenda para consultar o estado completo.</p></Link>)}</div></section> : null}
+      {snapshot.billing && snapshot.billing.openItems > 0 ? (
+        <section className="athlete-panel athlete-panel-gold p-5">
+          <p className="font-bold">Financeiro pendente</p>
+          <p className="mt-1 text-sm text-zinc-400">
+            {snapshot.billing.openItems} item(ns) em aberto ·{" "}
+            {money.format(snapshot.billing.openAmount)}.
+          </p>
+        </section>
+      ) : null}
 
-      <section className="grid gap-5 lg:grid-cols-3"><Link href="/athlete/season" className="min-h-48 rounded-[1.75rem] border border-white/8 bg-white/[.02] p-6"><CalendarDays className="text-ur-gold" size={24} aria-hidden="true" /><p className="mt-6 text-[.62rem] font-black tracking-[.18em] text-ur-gold uppercase">Temporada</p><h2 className="font-display mt-2 text-2xl font-black uppercase">Entenda sua campanha</h2><p className="mt-2 text-sm leading-6 text-zinc-500">Veja fases, critérios e o caminho competitivo da temporada.</p></Link><Link href="/athlete/hunter" className="min-h-48 rounded-[1.75rem] border border-ur-gold/20 bg-ur-gold/[.035] p-6"><Sparkles className="text-ur-gold" size={24} aria-hidden="true" /><p className="mt-6 text-[.62rem] font-black tracking-[.18em] text-ur-gold uppercase">Hunter</p><h2 className="font-display mt-2 text-2xl font-black uppercase">Desenvolvimento para quem quer ir além</h2><p className="mt-2 text-sm leading-6 text-zinc-500">Conheça a metodologia de desenvolvimento do Ultimate Rivals.</p></Link><Link href="/athlete/highlights" className="min-h-48 rounded-[1.75rem] border border-white/8 bg-white/[.02] p-6"><Clapperboard className="text-ur-gold" size={24} aria-hidden="true" /><p className="mt-6 text-[.62rem] font-black tracking-[.18em] text-ur-gold uppercase">Destaques</p><h2 className="font-display mt-2 text-2xl font-black uppercase">Sua história em evidência</h2><p className="mt-2 text-sm leading-6 text-zinc-500">Mídia publicada e momentos oficiais aparecem aqui quando disponíveis.</p></Link></section>
-
-      <section className="grid gap-4"><div className="flex items-end justify-between gap-4"><div><p className="text-[.64rem] font-black tracking-[.2em] text-ur-gold uppercase">Recompensas</p><h2 className="font-display mt-1 text-2xl font-black uppercase sm:text-3xl">Economia vem depois do jogo</h2></div><Link href="/athlete/wallet" className="text-xs font-black text-ur-gold">Abrir Wallet →</Link></div><div className="grid gap-4 sm:grid-cols-3"><div className="rounded-[1.5rem] border border-white/8 bg-white/[.018] p-5"><Coins className="text-ur-gold" size={20} aria-hidden="true" /><p className="mt-4 text-xs font-black text-zinc-600 uppercase">UR Coins</p><p className="font-display mt-1 text-3xl font-black">{economyReliable ? summary.urCoinBalance.toLocaleString("pt-BR") : "Indisponível"}</p>{!economyReliable ? <p className="mt-2 text-xs text-zinc-600">A fonte econômica não será tratada como saldo zero.</p> : null}</div><div className="rounded-[1.5rem] border border-white/8 bg-white/[.018] p-5"><CreditCard className="text-ur-gold" size={20} aria-hidden="true" /><p className="mt-4 text-xs font-black text-zinc-600 uppercase">Créditos livres</p><p className="font-display mt-1 text-3xl font-black">{snapshot.creditBalance === null ? "Indisponível" : snapshot.creditBalance.toLocaleString("pt-BR")}</p></div><Link href="/athlete/market" className="rounded-[1.5rem] border border-white/8 bg-white/[.018] p-5"><Trophy className="text-ur-gold" size={20} aria-hidden="true" /><p className="mt-4 text-xs font-black text-zinc-600 uppercase">UR Market</p><p className="font-display mt-1 text-3xl font-black">Resgatar</p><p className="mt-2 text-xs text-zinc-600">Produtos, benefícios e experiências disponíveis no ecossistema.</p></Link></div></section>
-
-      {snapshot.billing && snapshot.billing.openItems > 0 ? <section className="rounded-[1.5rem] border border-ur-gold/20 bg-ur-gold/[.04] p-5"><p className="font-bold">Financeiro pendente</p><p className="mt-1 text-sm text-zinc-400">{snapshot.billing.openItems} item(ns) em aberto · {money.format(snapshot.billing.openAmount)}.</p></section> : null}
       <AthleteSourceHealth errors={snapshot.sourceErrors} />
     </div>
   );
