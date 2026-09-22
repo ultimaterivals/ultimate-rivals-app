@@ -332,6 +332,31 @@ test("UR Coins redemption debits Wallet and appears reserved in Command", async 
     .locator("..");
   await expect(redemption).toContainText(marketOfferName);
   await expect(redemption).toContainText("reserved");
+
+  // Only the disposable fixture receives synthetic funds. The admin redeems as their own athlete.
+  const ownAdminAthlete = "b0000000-0000-4000-8000-000000000007";
+  runDisposableSql(`
+    insert into public.ur_coin_transactions (athlete_id,transaction_type,direction,amount,source_type,idempotency_key,reason)
+    values ('${ownAdminAthlete}', 'grant','credit',100,'qa_market_fixture','qa-admin-athlete-market','Saldo sintético para QA admin-atleta');
+  `);
+  await login(page, "admin-athlete@test.ur.local", /\/athlete/);
+  await page.goto("/athlete/market");
+  await page
+    .getByRole("heading", { name: marketOfferName, exact: true })
+    .locator("xpath=ancestor::div[contains(@class,'rounded-ur')][1]")
+    .getByRole("button", { name: "Resgatar com UR Coins" })
+    .click();
+  await expect(page).toHaveURL(/redeemed=1/, { timeout: 20_000 });
+  expect(
+    runDisposableSql(
+      `select count(*) from public.market_redemptions where athlete_id='${ownAdminAthlete}' and offer_id='${marketOffer}'`,
+    ),
+  ).toBe("1");
+  await page.goto("/athlete/wallet");
+  await expect(
+    page.getByRole("heading", { name: "Extrato de UR Coins" }),
+  ).toBeVisible();
+  await expect(page.getByText("−40 URC", { exact: true })).toBeVisible();
 });
 
 test("official no-show consumes held credit and reflects absence back into the athlete App", async ({

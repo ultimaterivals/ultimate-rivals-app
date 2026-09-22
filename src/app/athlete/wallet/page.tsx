@@ -1,12 +1,21 @@
 import { Coins, CreditCard, LockKeyhole, WalletCards } from "lucide-react";
 import { Card, PageHeader } from "@/components/ui";
+import { createClient } from "@/lib/supabase/server";
 import { requireAthleteViewer } from "@/lib/auth/athlete-viewer";
 import { getAthleteSnapshotForViewer } from "@/server/services/athlete-viewer-snapshot-service";
 
 export default async function AthleteWalletPage() {
   const viewer = await requireAthleteViewer();
   const snapshot = await getAthleteSnapshotForViewer(viewer);
-  const balance = snapshot.summary?.urCoinBalance ?? 0;
+  const balance = snapshot.summary?.urCoinBalance ?? null;
+
+  const client = await createClient();
+  const { data: transactions, error: ledgerError } = await client
+    .from("ur_coin_transactions")
+    .select("id,direction,amount,created_at")
+    .eq("athlete_id", viewer.athleteId)
+    .order("created_at", { ascending: false })
+    .limit(50);
 
   return (
     <div className="mx-auto grid max-w-7xl gap-6">
@@ -23,7 +32,9 @@ export default async function AthleteWalletPage() {
               Saldo disponível
             </p>
             <p className="font-display text-ur-gold mt-2 text-6xl font-black sm:text-7xl">
-              {balance.toLocaleString("pt-BR")}
+              {balance === null
+                ? "Indisponível"
+                : balance.toLocaleString("pt-BR")}
             </p>
             <p className="mt-1 font-bold text-zinc-400">UR Coins</p>
           </div>
@@ -38,7 +49,9 @@ export default async function AthleteWalletPage() {
             UR Coins
           </p>
           <p className="font-display mt-2 text-3xl font-black">
-            {balance.toLocaleString("pt-BR")}
+            {balance === null
+              ? "Indisponível"
+              : balance.toLocaleString("pt-BR")}
           </p>
           <p className="mt-2 text-sm text-zinc-500">
             moeda do ecossistema para utilidades e resgates autorizados
@@ -69,6 +82,49 @@ export default async function AthleteWalletPage() {
           </p>
         </Card>
       </section>
+
+      <Card>
+        <h2 className="text-xl font-black">Extrato de UR Coins</h2>
+        <p className="mt-2 text-sm text-zinc-400">
+          Até 50 movimentações mais recentes do registro oficial.
+        </p>
+        {ledgerError ? (
+          <p className="mt-4 text-sm text-zinc-400">
+            Extrato indisponível. Tente novamente mais tarde.
+          </p>
+        ) : transactions?.length ? (
+          <ul className="mt-4 divide-y divide-white/10">
+            {transactions.map((transaction) => (
+              <li
+                key={transaction.id}
+                className="flex flex-wrap items-center justify-between gap-3 py-3"
+              >
+                <div>
+                  <p className="font-bold">
+                    {transaction.direction === "credit" ? "Entrada" : "Saída"}
+                  </p>
+                  <time
+                    dateTime={transaction.created_at}
+                    className="text-sm text-zinc-400"
+                  >
+                    {new Date(transaction.created_at).toLocaleString("pt-BR", {
+                      timeZone: "America/Sao_Paulo",
+                    })}
+                  </time>
+                </div>
+                <span className="font-bold">
+                  {transaction.direction === "credit" ? "+" : "−"}
+                  {transaction.amount.toLocaleString("pt-BR")} URC
+                </span>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p className="mt-4 text-sm text-zinc-400">
+            Nenhuma movimentação registrada.
+          </p>
+        )}
+      </Card>
 
       <Card>
         <h2 className="text-xl font-black">Regra econômica</h2>

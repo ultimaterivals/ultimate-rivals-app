@@ -272,6 +272,22 @@ for (const viewport of [
         await expectNoHorizontalOverflow(page);
       });
     }
+    if (viewport.width === 1440) {
+      await page.goto("/athlete/perfil");
+      await page.locator('select[name="gender"]').selectOption("undisclosed");
+      await page.getByRole("button", { name: "Salvar no perfil" }).click();
+      await expect(page).toHaveURL(/saved=1/);
+      await page.goto("/athlete/agenda");
+      await page
+        .getByRole("button", { name: "Salvar disponibilidade" })
+        .click();
+      await expect(page).toHaveURL(/success=availability_saved/);
+      await page
+        .getByRole("button", { name: /Remover disponibilidade/ })
+        .first()
+        .click();
+      await expect(page).toHaveURL(/success=availability_deleted/);
+    }
     await page.goto("/admin/atletas");
     await expect(page).toHaveURL(/\/admin\/atletas$/);
     await expect(page.locator("h1").first()).toBeVisible();

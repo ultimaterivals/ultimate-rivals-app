@@ -3,13 +3,13 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
-import { requireRole } from "@/lib/auth/session";
+import { requireWritableAthleteViewer } from "@/lib/auth/athlete-viewer";
 import { createClient } from "@/lib/supabase/server";
 
 const genderSchema = z.enum(["female", "male", "non_binary", "undisclosed"]);
 
 export async function updateMatchmakingIdentityAction(formData: FormData) {
-  await requireRole(["athlete"]);
+  await requireWritableAthleteViewer();
   const parsed = genderSchema.safeParse(formData.get("gender"));
   if (!parsed.success) redirect("/athlete/perfil?error=invalid");
 

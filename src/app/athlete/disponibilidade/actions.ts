@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
-import { requireRole } from "@/lib/auth/session";
+import { requireWritableAthleteViewer } from "@/lib/auth/athlete-viewer";
 import { createClient } from "@/lib/supabase/server";
 
 const availabilitySchema = z.object({
@@ -48,7 +48,7 @@ async function currentAthleteId(userId: string) {
 }
 
 export async function createAvailabilityWindow(formData: FormData) {
-  const user = await requireRole(["athlete"]);
+  const user = await requireWritableAthleteViewer();
   const parsed = availabilitySchema.safeParse({
     dayOfWeek: formData.get("dayOfWeek"),
     startsAt: formData.get("startsAt"),
@@ -90,7 +90,7 @@ export async function createAvailabilityWindow(formData: FormData) {
 }
 
 export async function deleteAvailabilityWindow(formData: FormData) {
-  const user = await requireRole(["athlete"]);
+  const user = await requireWritableAthleteViewer();
   const id = z.string().uuid().safeParse(formData.get("id"));
   if (!id.success) finishAvailability("error=invalid");
 

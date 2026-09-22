@@ -176,7 +176,15 @@ async function openAthletePreview(page: Page) {
   await expect(
     page.getByRole("heading", { name: "Validar o App como atleta" }),
   ).toBeVisible();
-  await page.getByRole("button", { name: "Abrir prévia" }).first().click();
+  await page
+    .locator("form")
+    .filter({
+      has: page.locator(
+        'input[name="athleteId"][value="b0000000-0000-4000-8000-000000000001"]',
+      ),
+    })
+    .getByRole("button", { name: "Abrir prévia" })
+    .click();
   await expect(page).toHaveURL(/\/athlete/, { timeout: 30_000 });
   await expect(
     page.getByText("Prévia do Atleta · somente leitura"),
@@ -495,8 +503,9 @@ test("Command executive management remains usable on mobile", async ({
       .locator('select[name="profileId"] option')
       .evaluateAll(
         (options) =>
-          options.filter((option) => /athlete/i.test(option.textContent ?? ""))
-            .length,
+          options.filter((option) =>
+            /·\s*athlete\s*$/i.test(option.textContent ?? ""),
+          ).length,
       );
     expect(athleteExecutiveOptions).toBe(0);
 
