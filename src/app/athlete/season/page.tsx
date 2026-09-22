@@ -102,22 +102,27 @@ function StageIcon({ state }: { state: SeasonStageState }) {
   if (state === "next") {
     return <Flag size={18} aria-hidden="true" />;
   }
+  if (state === "unpublished")
+    return <CalendarDays size={17} aria-hidden="true" />;
   return <LockKeyhole size={17} aria-hidden="true" />;
 }
 
 function stateLabel(state: SeasonStageState) {
   if (state === "active") return "Em disputa agora";
   if (state === "next") return "Próxima etapa";
+  if (state === "unpublished") return "Aguardando publicação";
   return "Ainda não liberado";
 }
 
 function situationCopy(state: SeasonStageState) {
   if (state === "active") {
-    return "Você está dentro desta parte da campanha. Continue gerando participação e resultado oficial.";
+    return "Esta etapa está ativa na temporada. Sua participação depende das oportunidades e dos critérios oficiais.";
   }
   if (state === "next") {
     return "Sua elegibilidade ainda não é declarada pelo App. Ela só aparecerá quando os critérios oficiais estiverem publicados e calculáveis.";
   }
+  if (state === "unpublished")
+    return "A situação desta etapa ainda não foi publicada. Isso não indica classificação ou bloqueio do atleta.";
   return "Esta etapa ainda não está aberta para avaliação de elegibilidade.";
 }
 
@@ -195,9 +200,9 @@ export default async function AthleteSeasonPage() {
             Contexto parcial
           </p>
           <p className="mt-2 text-sm leading-6 text-zinc-300">
-            O calendário canônico da temporada não está disponível neste
-            momento. O App preserva o mapa estrutural sem inventar datas,
-            elegibilidade ou progresso.
+            O calendário oficial da temporada não está disponível neste momento.
+            O App preserva o mapa estrutural sem inventar datas, elegibilidade
+            ou progresso.
           </p>
         </Card>
       ) : null}
@@ -209,7 +214,8 @@ export default async function AthleteSeasonPage() {
               Sua campanha
             </p>
             <h2 className="font-display mt-2 text-3xl font-black uppercase sm:text-4xl">
-              Você está na fase de {season.phaseLabel}
+              {season.phasePublished ? "Fase atual" : "Referência da jornada"}:{" "}
+              {season.phaseLabel}
             </h2>
             <p className="mt-2 max-w-3xl text-sm leading-6 text-zinc-400">
               Jogue, gere histórico oficial, acompanhe o ranking e veja aqui o

@@ -194,3 +194,31 @@ $$;
 rollback;
 
 select 'SCOPED_ADMIN_READ_SECURITY_PASS' as result;
+
+-- Release closure: verify the previously missing incident domain in a clean replay.
+do $$
+begin
+  if to_regclass('public.ur_play_incidents') is null
+    or to_regclass('public.ur_play_incident_reviews') is null then
+    raise exception 'INCIDENT_REPLAY_MISSING';
+  end if;
+  if exists (
+    select 1 from pg_class c join pg_namespace n on n.oid=c.relnamespace
+    where n.nspname='public'
+      and c.relname in ('ur_play_incidents','ur_play_incident_reviews')
+      and not c.relrowsecurity
+  ) then raise exception 'INCIDENT_RLS_MISSING'; end if;
+  if has_function_privilege('anon',
+    'private.insert_historical_ranking_events(uuid,uuid,uuid,text,public.ranking_transaction_scope,uuid,uuid,uuid,uuid,text,text,integer)',
+    'EXECUTE') or has_function_privilege('authenticated',
+    'private.insert_historical_ranking_events(uuid,uuid,uuid,text,public.ranking_transaction_scope,uuid,uuid,uuid,uuid,text,text,integer)',
+    'EXECUTE') then raise exception 'HISTORICAL_HELPER_CLIENT_ACCESS'; end if;
+  if has_table_privilege('authenticated','public.ur_coin_transactions','INSERT') then
+    raise exception 'DIRECT_URC_WRITE_ALLOWED';
+  end if;
+  if position('report' in pg_get_functiondef('private.admin_refresh_ur_play_post_session(uuid)'::regprocedure)) = 0 then
+    raise exception 'LATEST_REPORT_PROCESSOR_WAS_REPLACED';
+  end if;
+end;
+$$;
+select 'V1_REPLAY_SECURITY_PASS' as result;
