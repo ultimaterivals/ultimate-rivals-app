@@ -19,7 +19,8 @@ export async function SeasonContextBanner() {
             {season.title}
           </p>
           <p className="text-sm leading-5 font-black text-zinc-200">
-            Fase atual · {season.phaseLabel}
+            {season.phasePublished ? "Fase atual" : "Referência da jornada"} ·{" "}
+            {season.phaseLabel}
           </p>
         </div>
       </div>

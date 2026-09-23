@@ -49,9 +49,9 @@ describe("athlete season context contract", () => {
     expect(service).toContain('source: "fallback"');
     expect(service).toContain('source: "canonical"');
     expect(service).toContain(
-      "if (result.error || !result.data) return fallback",
+      "if (result.error || !result.data) return resolveAthleteSeasonContext(null)",
     );
-    expect(service).toContain("seasonId: result.data.id");
+    expect(service).toContain("seasonId: season.id");
   });
 
   it("keeps stage dates nullable and never invents the placeholder date", () => {

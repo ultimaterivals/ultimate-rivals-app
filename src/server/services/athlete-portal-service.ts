@@ -224,7 +224,7 @@ export async function getAthletePortalSnapshot({
     summary: raw.report
       ? {
           level: raw.report.level,
-          urCoinBalance: raw.report.ur_coin_balance ?? 0,
+          urCoinBalance: raw.report.ur_coin_balance,
           games: raw.report.games ?? 0,
           competitions: raw.report.competitions ?? 0,
           trainingAttendance: raw.report.training_attendance ?? 0,

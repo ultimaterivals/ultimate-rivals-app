@@ -26,7 +26,10 @@ const athleteRoutes = [
 
 async function login(
   page: Page,
-  email: "athlete@test.ur.local" | "admin@test.ur.local",
+  email:
+    | "athlete@test.ur.local"
+    | "admin@test.ur.local"
+    | "admin-athlete@test.ur.local",
   expectedPath: RegExp,
 ) {
   await page.context().clearCookies();
@@ -171,7 +174,7 @@ test("real athlete completes the final mobile UAT route matrix", async ({
   ).toBeVisible();
 });
 
-test("admin-athlete surfaces and read-only Preview pass desktop UAT", async ({
+test("admin surfaces and read-only Preview pass desktop UAT", async ({
   page,
 }) => {
   await page.setViewportSize({ width: 1440, height: 1000 });
@@ -250,3 +253,47 @@ test("admin Preview remains usable and read-only on mobile", async ({
     page.getByText("Prévia do Atleta · somente leitura"),
   ).toBeVisible();
 });
+
+for (const viewport of [
+  { width: 1440, height: 1000 },
+  { width: 390, height: 844 },
+]) {
+  test(`admin with own athlete identity completes UAT at ${viewport.width}px`, async ({
+    page,
+  }) => {
+    await page.setViewportSize(viewport);
+    await login(page, "admin-athlete@test.ur.local", /\/athlete$/);
+    for (const route of athleteRoutes) {
+      await test.step(`Own identity · ${route.label}`, async () => {
+        await expectHealthyPage(page, route.path);
+        await expect(
+          page.getByText("Prévia do Atleta · somente leitura"),
+        ).toHaveCount(0);
+        await expectNoHorizontalOverflow(page);
+      });
+    }
+    if (viewport.width === 1440) {
+      await page.goto("/athlete/perfil");
+      await page.locator('select[name="gender"]').selectOption("undisclosed");
+      await page.getByRole("button", { name: "Salvar no perfil" }).click();
+      await expect(page).toHaveURL(/saved=1/);
+      await page.goto("/athlete/agenda");
+      await page
+        .getByRole("button", { name: "Salvar disponibilidade" })
+        .click();
+      await expect(page).toHaveURL(/success=availability_saved/);
+      await page
+        .getByRole("button", { name: /Remover disponibilidade/ })
+        .first()
+        .click();
+      await expect(page).toHaveURL(/success=availability_deleted/);
+    }
+    await page.goto("/admin/atletas");
+    await expect(page).toHaveURL(/\/admin\/atletas$/);
+    await expect(page.locator("h1").first()).toBeVisible();
+    await expectHealthyPage(page, "/athlete");
+    await expect(
+      page.getByRole("heading", { name: "[QA] Admin Athlete", exact: true }),
+    ).toBeVisible();
+  });
+}

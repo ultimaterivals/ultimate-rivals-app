@@ -5,7 +5,7 @@ import { Coins, Gift, ShoppingBag, Sparkles } from "lucide-react";
 import Link from "next/link";
 import { Badge, Button, Card, EmptyState, PageHeader } from "@/components/ui";
 import { requireAthleteViewer } from "@/lib/auth/athlete-viewer";
-import { requireRole } from "@/lib/auth/session";
+import { requireWritableAthleteViewer } from "@/lib/auth/athlete-viewer";
 import { createClient } from "@/lib/supabase/server";
 import { getAthleteSnapshotForViewer } from "@/server/services/athlete-viewer-snapshot-service";
 
@@ -40,7 +40,7 @@ const marketErrorMessage: Record<string, string> = {
 async function redeemMarketOfferUrc(formData: FormData) {
   "use server";
 
-  await requireRole(["athlete"]);
+  await requireWritableAthleteViewer();
 
   const offerId = String(formData.get("offerId") ?? "");
   const operationId = String(formData.get("operationId") ?? "");
@@ -99,7 +99,7 @@ export default async function AthleteMarketPage({
   if (error) throw error;
 
   const offers = data ?? [];
-  const balance = snapshot.summary?.urCoinBalance ?? 0;
+  const balance = snapshot.summary?.urCoinBalance ?? null;
 
   return (
     <div className="mx-auto grid max-w-7xl gap-7">
@@ -152,7 +152,7 @@ export default async function AthleteMarketPage({
               Seu saldo
             </p>
             <strong className="font-display text-ur-gold mt-2 block text-5xl">
-              {balance}
+              {balance ?? "Indisponível"}
             </strong>
             <span className="font-black">URC</span>
             <Link href="/athlete/wallet" className="mt-4 block font-black">
@@ -203,7 +203,11 @@ export default async function AthleteMarketPage({
           <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
             {offers.map((offer) => {
               const urc = Number(offer.urc_amount ?? 0);
-              const canAfford = offer.accepts_urc && urc > 0 && urc <= balance;
+              const canAfford =
+                offer.accepts_urc &&
+                urc > 0 &&
+                balance !== null &&
+                urc <= balance;
 
               return (
                 <Card key={offer.id} className="overflow-hidden">
@@ -223,9 +227,11 @@ export default async function AthleteMarketPage({
 
                     {offer.accepts_urc ? (
                       <p className="mt-2 text-xs font-bold text-zinc-500">
-                        {canAfford
-                          ? "Saldo suficiente para esta oferta."
-                          : `Faltam ${Math.max(0, urc - balance)} URC.`}
+                        {balance === null
+                          ? "Saldo indisponível."
+                          : canAfford
+                            ? "Saldo suficiente para esta oferta."
+                            : `Faltam ${Math.max(0, urc - balance)} URC.`}
                       </p>
                     ) : null}
 
@@ -247,9 +253,11 @@ export default async function AthleteMarketPage({
                           className="w-full"
                           disabled={!canAfford}
                         >
-                          {canAfford
-                            ? "Resgatar com UR Coins"
-                            : "Saldo insuficiente"}
+                          {balance === null
+                            ? "Saldo indisponível"
+                            : canAfford
+                              ? "Resgatar com UR Coins"
+                              : "Saldo insuficiente"}
                         </Button>
                       </form>
                     ) : null}

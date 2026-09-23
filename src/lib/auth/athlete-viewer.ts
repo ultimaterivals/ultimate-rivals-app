@@ -72,3 +72,11 @@ export async function requireAthleteViewer(): Promise<AthleteViewerContext> {
   if (identity.role !== "admin") redirect("/admin");
   redirect("/admin/preview");
 }
+
+/** Mutations always target the signed-in athlete; a Preview never grants write access. */
+export async function requireWritableAthleteViewer() {
+  const viewer = await requireAthleteViewer();
+  if (viewer.isPreview || !viewer.userId)
+    throw new Error("ATHLETE_PREVIEW_READ_ONLY");
+  return { ...viewer, userId: viewer.userId };
+}

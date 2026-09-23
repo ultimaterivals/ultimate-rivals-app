@@ -141,7 +141,7 @@ describe("App V1 ↔ Command integration contracts", () => {
     expect(profile).toContain("viewer.isPreview");
     expect(profile).toContain("getAthleteSnapshotForViewer");
     expect(profile).toContain("getAthleteAvailabilitySnapshot");
-    expect(action).toContain('requireRole(["athlete"])');
+    expect(action).toContain("requireWritableAthleteViewer()");
     expect(action).toContain("update_own_athlete_matchmaking_identity");
     expect(repository).toContain("primary_pole_id,gender");
     expect(types).toContain("gender: string");
@@ -212,7 +212,7 @@ describe("App V1 ↔ Command integration contracts", () => {
   it("keeps athlete Market writes behind the transactional RPC", () => {
     const athleteMarket = source("src/app/athlete/market/page.tsx");
 
-    expect(athleteMarket).toContain('requireRole(["athlete"])');
+    expect(athleteMarket).toContain("requireWritableAthleteViewer()");
     expect(athleteMarket).toContain('.rpc("redeem_market_offer_urc"');
     expect(athleteMarket).not.toMatch(
       /\.from\("ur_coin_transactions"\)\.insert/,

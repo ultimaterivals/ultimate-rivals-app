@@ -169,4 +169,46 @@ describe("athlete portal service", () => {
     );
     expect(snapshot.opportunities?.[1]?.remainingCapacity).toBe(0);
   });
+  it("preserves unavailable UR Coins instead of manufacturing a zero balance", async () => {
+    repositoryMock.mockResolvedValue({
+      athlete: {
+        id: "athlete-1",
+        public_name: "Atleta",
+        athlete_code: "UR001",
+        avatar_url: null,
+        city: null,
+        state: null,
+        bio: null,
+        instagram_handle: null,
+        status: "active",
+        primary_pole_id: null,
+        gender: "undisclosed",
+      },
+      report: {
+        athlete_id: "athlete-1",
+        athlete_code: "UR001",
+        public_name: "Atleta",
+        level: null,
+        ur_coin_balance: null,
+        games: 0,
+        competitions: 0,
+        training_attendance: 0,
+        hunter_completed: 0,
+      },
+      development: null,
+      rankings: [],
+      athletePackages: [],
+      creditBalances: [],
+      packageDefinitions: [],
+      memberships: [],
+      teams: [],
+      reservations: [],
+      interests: [],
+      opportunities: [],
+      billingItems: [],
+      errors: [],
+    });
+    const snapshot = await getAthletePortalSnapshot({ userId: "user-1" });
+    expect(snapshot.summary?.urCoinBalance).toBeNull();
+  });
 });

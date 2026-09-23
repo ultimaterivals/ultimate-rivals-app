@@ -51,5 +51,36 @@ insert into public.historical_match_participants (
 )
 values
   ('91000000-0000-4000-8000-000000000001','b0000000-0000-4000-8000-000000000001','A'),
+  ('91000000-0000-4000-8000-000000000001','b0000000-0000-4000-8000-000000000003','A'),
   ('91000000-0000-4000-8000-000000000001','b0000000-0000-4000-8000-000000000002','B')
 on conflict (historical_match_id, athlete_id) do nothing;
+
+-- Dedicated dual-capability account. Keep the existing admin fixture unchanged.
+insert into auth.users (
+  instance_id, id, aud, role, email, encrypted_password, email_confirmed_at,
+  created_at, updated_at, raw_app_meta_data, raw_user_meta_data, is_super_admin,
+  confirmation_token, recovery_token, email_change, email_change_token_new,
+  email_change_token_current, phone_change
+)
+select instance_id, 'a0000000-0000-4000-8000-000000000007'::uuid,
+  aud, role, 'admin-athlete@test.ur.local', encrypted_password, email_confirmed_at,
+  now(), now(), raw_app_meta_data, '{}'::jsonb, false, '', '', '', '', '', ''
+from auth.users where email = 'admin@test.ur.local'
+on conflict (id) do nothing;
+
+insert into auth.identities (id, user_id, identity_data, provider, provider_id,
+  last_sign_in_at, created_at, updated_at)
+select id, id, jsonb_build_object('sub',id::text,'email',email), 'email', id::text,
+  now(), now(), now()
+from auth.users where email = 'admin-athlete@test.ur.local'
+on conflict (provider, provider_id) do nothing;
+
+insert into public.profiles (id, display_name, role, status)
+values ('a0000000-0000-4000-8000-000000000007','[QA] Admin Athlete','admin','active')
+on conflict (id) do update set role=excluded.role, status=excluded.status;
+
+insert into public.athletes (id, profile_id, public_name, full_name,
+  birth_date, gender, dominant_hand, status)
+values ('b0000000-0000-4000-8000-000000000007','a0000000-0000-4000-8000-000000000007',
+  '[QA] Admin Athlete','QA Admin Athlete','2000-01-07','male','right','active')
+on conflict (id) do nothing;

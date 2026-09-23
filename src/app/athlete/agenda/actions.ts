@@ -4,7 +4,7 @@ import { randomUUID } from "node:crypto";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
-import { requireRole } from "@/lib/auth/session";
+import { requireWritableAthleteViewer } from "@/lib/auth/athlete-viewer";
 import { createClient } from "@/lib/supabase/server";
 
 const idSchema = z.string().uuid();
@@ -46,7 +46,7 @@ function fail(message: string) {
 }
 
 export async function setAthleteOpportunityInterest(formData: FormData) {
-  await requireRole(["athlete"]);
+  await requireWritableAthleteViewer();
   const opportunityId = idSchema.safeParse(formData.get("opportunityId"));
   const active = formData.get("active") === "true";
   const mode = interestModeSchema.safeParse(
@@ -69,7 +69,7 @@ export async function setAthleteOpportunityInterest(formData: FormData) {
 }
 
 export async function reserveAthleteOpportunity(formData: FormData) {
-  await requireRole(["athlete"]);
+  await requireWritableAthleteViewer();
   const opportunityId = idSchema.safeParse(formData.get("opportunityId"));
   if (!opportunityId.success) {
     redirect("/athlete/agenda?error=invalid_request");
@@ -89,7 +89,7 @@ export async function reserveAthleteOpportunity(formData: FormData) {
 }
 
 export async function cancelAthleteReservation(formData: FormData) {
-  await requireRole(["athlete"]);
+  await requireWritableAthleteViewer();
   const reservationId = idSchema.safeParse(formData.get("reservationId"));
   if (!reservationId.success) {
     redirect("/athlete/agenda?error=invalid_request");
