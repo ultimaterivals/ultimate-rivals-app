@@ -35,7 +35,9 @@ test("an invited returning player claims her own validated game on mobile", asyn
   ).toBeVisible({ timeout: 30_000 });
   await page.getByRole("button", { name: "Concluir primeiro acesso" }).click();
   await expect(page).toHaveURL(/\/athlete$/, { timeout: 30_000 });
-  await expect(page.getByText("[QA] Athlete C").first()).toBeVisible();
+  await expect(
+    page.getByRole("heading", { name: "[QA] Athlete C" }),
+  ).toBeVisible();
 
   await page.goto("/athlete/results");
   await expect(
