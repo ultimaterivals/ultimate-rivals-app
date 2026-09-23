@@ -191,8 +191,8 @@ jobs:
       - name: Build application against disposable Supabase
         run: npm run build
 
-      - name: Install Playwright Chromium
-        run: npx playwright install --with-deps chromium
+      - name: Install Playwright Chromium and WebKit
+        run: npx playwright install --with-deps chromium webkit
 
       - name: Run public E2E smoke
         run: npx playwright test tests/e2e/public.spec.ts --project=chromium --project=mobile
@@ -208,6 +208,12 @@ jobs:
 
       - name: Run final athlete, admin-athlete and Preview UAT
         run: npx playwright test tests/e2e/final-uat.spec.ts --project=chromium
+
+      - name: Prove first access reveals only the athlete's validated history
+        run: npx playwright test tests/e2e/first-access-history.spec.ts --project=chromium
+
+      - name: Run cross-device athlete exploration matrix
+        run: npx playwright test tests/e2e/mobile-matrix.spec.ts --project=mobile --project=mobile-safari
 
       - name: Run authenticated Market economy E2E
         run: npx playwright test tests/e2e/market-economy.spec.ts --project=chromium
