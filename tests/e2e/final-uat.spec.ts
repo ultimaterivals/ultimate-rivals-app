@@ -196,6 +196,12 @@ test("admin-athlete surfaces and read-only Preview pass desktop UAT", async ({
   await expect(page.locator("h1").first()).toBeVisible();
   await expectNoHorizontalOverflow(page);
 
+  await page.goto("/admin/hunter");
+  await expect(
+    page.getByRole("heading", { name: "Interesse Hunter" }),
+  ).toBeVisible();
+  await expectNoHorizontalOverflow(page);
+
   await page.goto("/admin/preview");
   await expect(
     page.getByRole("heading", { name: "Validar o App como atleta" }),

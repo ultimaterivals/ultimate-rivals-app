@@ -19,7 +19,9 @@ async function login(page: Page, email = "athlete@test.ur.local") {
 
 async function waitForPlayerHub(page: Page) {
   await expect(
-    page.getByRole("heading", { name: "Seu ranking está vivo", exact: true }),
+    page
+      .getByRole("main")
+      .getByText("Sua carreira está em jogo", { exact: true }),
   ).toBeVisible({ timeout: 30_000 });
 }
 

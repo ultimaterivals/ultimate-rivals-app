@@ -24,6 +24,8 @@ test("athlete cannot access the admin athlete Preview", async ({ page }) => {
     page.getByRole("heading", { name: "Validar o App como atleta" }),
   ).toHaveCount(0);
   await expect(
-    page.getByRole("main").getByText("Sua carreira UR", { exact: true }),
+    page
+      .getByRole("main")
+      .getByText("Sua carreira está em jogo", { exact: true }),
   ).toBeVisible();
 });
