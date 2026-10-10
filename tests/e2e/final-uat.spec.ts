@@ -85,7 +85,7 @@ async function expectDevelopmentEvidence(page: Page) {
   ).toBeVisible();
 }
 
-async function expectHunterSkeleton(page: Page) {
+async function expectHunter(page: Page) {
   await page.goto("/athlete/hunter");
   await expect(
     page.getByRole("heading", {
@@ -94,7 +94,7 @@ async function expectHunterSkeleton(page: Page) {
   ).toBeVisible();
   await expect(
     page.getByRole("heading", {
-      name: "Adesão ainda não conectada ao Athlete App",
+      name: /Conheça o Hunter e manifeste seu interesse|Interesse registrado|Missões Hunter registradas/,
     }),
   ).toBeVisible();
   await expect(
@@ -107,12 +107,7 @@ async function expectHunterSkeleton(page: Page) {
   ).toBeVisible();
   await expect(
     page.getByText(
-      /seu status não é presumido e nenhuma solicitação de interesse é criada automaticamente/,
-    ),
-  ).toBeVisible();
-  await expect(
-    page.getByText(
-      /nenhuma nota, missão, porcentagem ou recomendação é calculada automaticamente/,
+      /nenhuma nota, porcentagem ou recomendação é calculada automaticamente/,
     ),
   ).toBeVisible();
 }
@@ -145,7 +140,7 @@ test("real athlete completes the final desktop UAT route matrix", async ({
 
   await expectDevelopmentEvidence(page);
   await expectNoHorizontalOverflow(page);
-  await expectHunterSkeleton(page);
+  await expectHunter(page);
   await expectNoHorizontalOverflow(page);
 });
 
@@ -164,11 +159,29 @@ test("real athlete completes the final mobile UAT route matrix", async ({
 
   await expectDevelopmentEvidence(page);
   await expectNoHorizontalOverflow(page);
-  await expectHunterSkeleton(page);
+  await expectHunter(page);
   await expectNoHorizontalOverflow(page);
   await expect(
     page.getByRole("navigation", { name: "Navegação principal do atleta" }),
   ).toBeVisible();
+});
+
+test("athlete explicitly registers Hunter interest", async ({ page }) => {
+  await login(page, "athlete@test.ur.local", /\/athlete/);
+  await page.goto("/athlete/hunter");
+
+  const optIn = page.getByRole("button", { name: "Tenho interesse no Hunter" });
+  if (await optIn.isVisible()) {
+    await optIn.click();
+    await expect(page).toHaveURL(/\/athlete\/hunter\?saved=1/);
+  }
+
+  await expect(
+    page.getByRole("heading", {
+      name: /Interesse registrado|Missões Hunter registradas/,
+    }),
+  ).toBeVisible();
+  await expect(optIn).toHaveCount(0);
 });
 
 test("admin-athlete surfaces and read-only Preview pass desktop UAT", async ({
@@ -205,7 +218,10 @@ test("admin-athlete surfaces and read-only Preview pass desktop UAT", async ({
     });
   }
 
-  await expectHunterSkeleton(page);
+  await expectHunter(page);
+  await expect(
+    page.getByRole("button", { name: "Tenho interesse no Hunter" }),
+  ).toHaveCount(0);
   await expect(
     page.getByText("Prévia do Atleta · somente leitura"),
   ).toBeVisible();
@@ -244,7 +260,10 @@ test("admin Preview remains usable and read-only on mobile", async ({
     await expectNoHorizontalOverflow(page);
   }
 
-  await expectHunterSkeleton(page);
+  await expectHunter(page);
+  await expect(
+    page.getByRole("button", { name: "Tenho interesse no Hunter" }),
+  ).toHaveCount(0);
   await expectNoHorizontalOverflow(page);
   await expect(
     page.getByText("Prévia do Atleta · somente leitura"),

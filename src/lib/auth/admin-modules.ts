@@ -34,6 +34,7 @@ export type AdminModuleKey =
   | "management"
   | "agenda"
   | "athletes"
+  | "hunter"
   | "preview"
   | "teams"
   | "urPlay"
@@ -105,6 +106,15 @@ export const adminModules: readonly AdminModuleDefinition[] = [
       "Ciclo de vida, recorrência, desenvolvimento e relacionamento.",
     group: "Esportivo",
     allowedRoles: allAdminRoles,
+    icon: "athletes",
+  },
+  {
+    key: "hunter",
+    label: "Hunter",
+    href: "/admin/hunter",
+    description: "Atletas que manifestaram interesse na escola Hunter.",
+    group: "Esportivo",
+    allowedRoles: ["admin", "operator"],
     icon: "athletes",
   },
   {

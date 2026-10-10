@@ -3,7 +3,7 @@ import { resolve } from "node:path";
 import { describe, expect, it } from "vitest";
 
 const read = (path: string) =>
-  readFileSync(resolve(process.cwd(), path), "utf8");
+  readFileSync(resolve(process.cwd(), path), "utf8").replace(/\r\n/g, "\n");
 
 const agenda = read("src/app/athlete/agenda/page.tsx");
 const availability = read("src/app/athlete/disponibilidade/page.tsx");

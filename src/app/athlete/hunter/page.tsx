@@ -1,13 +1,15 @@
 import {
   BookOpen,
   Brain,
-  CheckCircle2,
   Clock3,
   GraduationCap,
   ShieldCheck,
   Target,
   UsersRound,
 } from "lucide-react";
+import { registerHunterInterestAction } from "@/app/athlete/hunter/actions";
+import { requireAthleteViewer } from "@/lib/auth/athlete-viewer";
+import { createClient } from "@/lib/supabase/server";
 
 const tracks = [
   {
@@ -53,12 +55,12 @@ const participationStates = [
   {
     title: "Não participante",
     description:
-      "Conhece a metodologia. A manifestação de interesse será liberada quando o canal oficial de adesão estiver disponível.",
+      "Conhece a metodologia e pode manifestar interesse quando quiser.",
   },
   {
     title: "Interessado",
     description:
-      "Acompanha o status da solicitação quando a adesão Hunter estiver disponível no App.",
+      "Seu interesse foi registrado; a equipe UR ainda não confirmou a entrada no programa.",
   },
   {
     title: "Participante",
@@ -72,16 +74,41 @@ const participationStates = [
   },
 ] as const;
 
-const participantFields = [
-  "Plano de desenvolvimento",
-  "Ciclo atual",
-  "Objetivo publicado",
-  "Prioridades",
-  "Conteúdos e atividades",
-  "Próxima revisão",
-] as const;
+function missionDetails(
+  value:
+    | { title: string; description: string }
+    | { title: string; description: string }[]
+    | null,
+) {
+  return Array.isArray(value) ? (value[0] ?? null) : value;
+}
 
-export default function AthleteHunterPage() {
+export default async function AthleteHunterPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ saved?: string; error?: string }>;
+}) {
+  const viewer = await requireAthleteViewer();
+  const client = await createClient();
+  const [interestResult, progressResult, params] = await Promise.all([
+    client
+      .from("athlete_hunter_interests")
+      .select("created_at")
+      .eq("athlete_id", viewer.athleteId)
+      .maybeSingle(),
+    client
+      .from("athlete_hunter_progress")
+      .select("id,status,hunter_missions!inner(title,description)")
+      .eq("athlete_id", viewer.athleteId)
+      .order("updated_at", { ascending: false }),
+    searchParams,
+  ]);
+  const interest = interestResult.data;
+  const interestError = interestResult.error;
+  const missions = progressResult.data ?? [];
+  const hasPublishedMissions = missions.length > 0;
+  const statusUnavailable = Boolean(interestError || progressResult.error);
+
   return (
     <div className="mx-auto max-w-6xl pb-8">
       <section className="border-ur-gold/20 relative overflow-hidden border-b pt-2 pb-8 sm:pb-10">
@@ -127,14 +154,49 @@ export default function AthleteHunterPage() {
                 Seu estado Hunter
               </p>
               <h2 id="hunter-status-title" className="mt-2 text-2xl font-black">
-                Adesão ainda não conectada ao Athlete App
+                {statusUnavailable
+                  ? "Estado Hunter indisponível"
+                  : hasPublishedMissions
+                    ? "Missões Hunter registradas"
+                    : interest
+                      ? "Interesse registrado"
+                      : "Conheça o Hunter e manifeste seu interesse"}
               </h2>
               <p className="mt-2 max-w-3xl text-sm leading-6 text-zinc-400">
-                A adesão Hunter ainda não está disponível nesta versão do App.
-                Por isso, seu status não é presumido e nenhuma solicitação de
-                interesse é criada automaticamente. Quando o canal oficial
-                estiver conectado, seu estado passa a aparecer aqui.
+                {statusUnavailable
+                  ? "Não foi possível consultar seu interesse agora. Tente novamente mais tarde."
+                  : hasPublishedMissions
+                    ? "Sua equipe de desenvolvimento atribuiu missões ao seu perfil. Consulte abaixo as informações publicadas."
+                    : interest
+                      ? "Seu interesse está registrado. Isso não confirma a entrada no programa; a equipe UR conduzirá as próximas etapas."
+                      : "A participação é voluntária. Registrar interesse não garante uma vaga nem cria um plano de desenvolvimento."}
               </p>
+              {params.saved === "1" && interest && (
+                <p
+                  className="mt-3 text-sm font-bold text-emerald-300"
+                  role="status"
+                >
+                  Seu interesse foi recebido.
+                </p>
+              )}
+              {params.error === "save" && (
+                <p className="mt-3 text-sm font-bold text-red-300" role="alert">
+                  Não foi possível registrar o interesse. Tente novamente.
+                </p>
+              )}
+              {!viewer.isPreview &&
+                !statusUnavailable &&
+                !interest &&
+                !hasPublishedMissions && (
+                  <form action={registerHunterInterestAction} className="mt-5">
+                    <button
+                      type="submit"
+                      className="bg-ur-gold text-ur-black focus-visible:ring-ur-gold min-h-11 rounded-xl px-5 py-2 text-sm font-black focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none"
+                    >
+                      Tenho interesse no Hunter
+                    </button>
+                  </form>
+                )}
             </div>
           </div>
         </div>
@@ -214,8 +276,8 @@ export default function AthleteHunterPage() {
             Quatro estados, sem progresso inventado
           </h2>
           <p className="mt-3 text-sm leading-6 text-zinc-500">
-            Estes são os estados previstos para o Hunter. O App só exibirá um
-            deles como seu estado quando houver uma fonte oficial de adesão.
+            Estes são os estados da jornada Hunter. Interesse registrado ainda
+            não significa participação; a equipe UR confirma cada etapa.
           </p>
         </div>
         <div className="grid gap-3 sm:grid-cols-2">
@@ -254,26 +316,54 @@ export default function AthleteHunterPage() {
               O plano aparece quando for publicado
             </h2>
             <p className="mt-3 max-w-2xl text-sm leading-6 text-zinc-500">
-              Para um atleta participante, a V1 está preparada para apresentar
-              somente informações realmente publicadas. Campo ausente permanece
-              ausente; nenhuma nota, missão, porcentagem ou recomendação é
-              calculada automaticamente.
+              Atribuições oficiais aparecem aqui quando publicadas. Campo
+              ausente permanece ausente; nenhuma nota, porcentagem ou
+              recomendação é calculada automaticamente.
             </p>
           </div>
-          <div className="grid gap-2">
-            {participantFields.map((field) => (
-              <div
-                key={field}
-                className="flex items-center gap-3 rounded-2xl border border-white/[.08] px-4 py-3 text-sm font-bold text-zinc-300"
-              >
-                <CheckCircle2
-                  className="text-ur-gold shrink-0"
-                  size={16}
-                  aria-hidden="true"
-                />
-                {field}
-              </div>
-            ))}
+          <div className="grid gap-2" aria-live="polite">
+            {progressResult.error ? (
+              <p className="text-sm text-amber-300">
+                Não foi possível consultar suas missões agora.
+              </p>
+            ) : missions.length === 0 ? (
+              <p className="text-sm text-zinc-400">
+                Nenhuma missão Hunter foi atribuída ao seu perfil.
+              </p>
+            ) : (
+              missions.map((mission) => {
+                const details = missionDetails(mission.hunter_missions);
+                return (
+                  <div
+                    key={mission.id}
+                    className="rounded-2xl border border-white/[.08] px-4 py-3"
+                  >
+                    <p className="flex items-center gap-3 text-sm font-bold text-zinc-200">
+                      <Target
+                        className="text-ur-gold shrink-0"
+                        size={16}
+                        aria-hidden="true"
+                      />
+                      {details?.title ?? "Missão sem título publicado"}
+                    </p>
+                    {details?.description && (
+                      <p className="mt-2 text-sm leading-6 text-zinc-400">
+                        {details.description}
+                      </p>
+                    )}
+                    <p className="mt-2 text-xs text-zinc-500">
+                      {mission.status === "in_progress"
+                        ? "Em andamento"
+                        : mission.status === "completed"
+                          ? "Concluída"
+                          : mission.status === "not_completed"
+                            ? "Não concluída"
+                            : "Atribuída"}
+                    </p>
+                  </div>
+                );
+              })
+            )}
           </div>
         </div>
       </section>

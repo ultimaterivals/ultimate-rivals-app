@@ -67,6 +67,12 @@ O checklist preserva os contratos aprovados: Production só pode ser alterada na
 | P1               | Não há divergência P1 aberta para o release candidato.                                                                   | `PENDENTE` | —         | A definir | —    | —   |
 | SHA              | O SHA candidato é imutável, está identificado e coincide com o artefato aprovado e o deployment auditado.                | `PENDENTE` | —         | A definir | —    | —   |
 
+## Evidência parcial — Hunter (2026-10-10)
+
+O incremento de opt-in permite ao atleta registrar interesse explicitamente e à equipe autorizada consultá-lo no Command. A migração `20261010233147_athlete_hunter_interest.sql` foi aplicada somente no projeto de desenvolvimento. Testes transacionais confirmaram inserção própria, bloqueio de inserção em nome de outro atleta, isolamento de leitura e acesso de operador sem acesso de gestor de polo. A tela mostra apenas missões oficiais atribuídas e mantém o Preview sem ação de gravação.
+
+O gate Hunter permanece `PENDENTE`: faltam UAT com contas reais em mobile e desktop, regras operacionais de admissão (DEC-05), publicação de plano quando aplicável e evidência de Isolated QA vinculada ao SHA candidato. Esta evidência parcial não aprova o lançamento.
+
 ## Launch gate
 
 O lançamento só pode receber decisão favorável quando:
