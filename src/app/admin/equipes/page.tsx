@@ -113,9 +113,9 @@ export default async function TeamsPage({
           <div>
             <p className="font-bold">Vínculo com efeito temporal</p>
             <p className="mt-2 text-sm leading-6 text-zinc-400">
-              Cada atleta deve aceitar antes o convite da equipe. A formação
-              só a representa a partir da data efetiva homologada; jogos
-              anteriores não mudam de equipe nem de pontuação.
+              Cada atleta deve aceitar antes o convite da equipe. A formação só
+              a representa a partir da data efetiva homologada; jogos anteriores
+              não mudam de equipe nem de pontuação.
             </p>
           </div>
         </div>
