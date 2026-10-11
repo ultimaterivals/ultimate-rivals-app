@@ -89,14 +89,19 @@ export function AthleteOpportunityCard({
   return (
     <Card
       data-testid={`athlete-opportunity-${opportunity.id}`}
-      className={
-        opportunity.personalReservationStatus ? "border-ur-gold/60" : undefined
-      }
+      className={`athlete-panel relative overflow-hidden p-5 sm:p-6 ${opportunity.personalReservationStatus ? "athlete-panel-gold border-ur-gold/60" : ""}`}
     >
+      <span
+        className="border-ur-gold/10 pointer-events-none absolute -top-10 -right-10 size-28 rounded-full border"
+        aria-hidden="true"
+      />
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
-          <p className="font-bold">{opportunity.title}</p>
-          <p className="mt-1 text-xs text-zinc-500">
+          <p className="athlete-kicker">Oportunidade oficial</p>
+          <p className="font-display mt-2 text-2xl leading-none font-black uppercase">
+            {opportunity.title}
+          </p>
+          <p className="mt-2 text-xs font-bold tracking-[.04em] text-zinc-500 uppercase">
             {[
               opportunity.categoryCode,
               opportunity.level,
@@ -109,20 +114,24 @@ export function AthleteOpportunityCard({
         <Badge>{personalState ?? opportunity.status}</Badge>
       </div>
 
-      <div className="mt-4 grid gap-2 text-sm text-zinc-400">
+      <div className="mt-5 grid gap-2.5 border-t border-white/[.07] pt-4 text-sm text-zinc-400">
         {opportunity.startsAt && (
           <p className="flex items-center gap-2">
-            <CalendarClock size={15} aria-hidden="true" />
+            <CalendarClock
+              className="text-ur-gold"
+              size={15}
+              aria-hidden="true"
+            />
             {dateFormatter.format(new Date(opportunity.startsAt))}
           </p>
         )}
         <p className="flex items-center gap-2">
-          <MapPin size={15} aria-hidden="true" />
+          <MapPin className="text-ur-gold" size={15} aria-hidden="true" />
           {opportunity.poleName ?? "Polo a definir"}
           {opportunity.venueName ? ` · ${opportunity.venueName}` : ""}
         </p>
         <p className="flex items-center gap-2">
-          <UsersRound size={15} aria-hidden="true" />
+          <UsersRound className="text-ur-gold" size={15} aria-hidden="true" />
           {opportunity.remainingCapacity > 0
             ? `${opportunity.remainingCapacity} vaga(s) disponível(is)`
             : "Capacidade preenchida · próximas entradas vão para a lista"}
@@ -166,7 +175,7 @@ export function AthleteOpportunityCard({
         )}
       </div>
 
-      <div className="mt-5 grid gap-3 border-t pt-4">
+      <div className="mt-5 grid gap-3 border-t border-white/[.07] pt-4">
         {readOnly ? (
           <p className="text-xs leading-5 text-zinc-500">
             Prévia somente leitura. As ações de interesse, reserva e
@@ -237,7 +246,7 @@ export function AthleteOpportunityCard({
                 />
                 <Button
                   type="submit"
-                  className="w-full"
+                  className="athlete-action w-full"
                   disabled={
                     lacksCreditForDirectReservation ||
                     blockDirectReservationForUnknownCredit

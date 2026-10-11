@@ -44,6 +44,7 @@ export type RawAthleteIdentity = {
   id: string;
   public_name: string;
   full_name: string;
+  profile_id: string | null;
 };
 export type RawMembershipAthlete = { athlete_id: string };
 export type RawSeason = {
@@ -146,7 +147,7 @@ export async function fetchAdminTeamsRepositoryData(): Promise<AdminTeamsReposit
       .limit(5000),
     supabase
       .from("athletes")
-      .select("id,public_name,full_name")
+      .select("id,public_name,full_name,profile_id")
       .is("archived_at", null)
       .limit(5000),
     supabase

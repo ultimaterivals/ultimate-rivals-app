@@ -202,7 +202,7 @@ export default async function AthleteSeasonPage() {
         </Card>
       ) : null}
 
-      <section className="ranking-hero border-ur-gold/40 rounded-ur border p-5 sm:p-7">
+      <section className="athlete-stage p-5 sm:p-7">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
             <p className="text-ur-gold text-xs font-black tracking-[.22em] uppercase">

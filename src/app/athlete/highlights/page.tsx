@@ -95,7 +95,7 @@ export default async function AthleteHighlightsPage() {
           </div>
         </section>
       ) : (
-        <Card className="ranking-hero border-ur-gold/40">
+        <Card className="athlete-stage">
           <Clapperboard className="text-ur-gold" size={30} />
           <h2 className="font-display mt-4 text-3xl font-black uppercase">
             Sua temporada também vira história

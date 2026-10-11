@@ -4,7 +4,8 @@ import { canAccessAdminModule, getAdminModulesForRole } from "./admin-modules";
 describe("admin module access", () => {
   it("gives admin access to every current module including athlete preview and market", () => {
     const modules = getAdminModulesForRole("admin");
-    expect(modules).toHaveLength(15);
+    expect(modules).toHaveLength(16);
+    expect(canAccessAdminModule("admin", "hunter")).toBe(true);
     expect(modules.some((module) => module.key === "preview")).toBe(true);
     expect(modules.some((module) => module.key === "market")).toBe(true);
     expect(modules.some((module) => module.key === "feedback")).toBe(true);
@@ -25,6 +26,12 @@ describe("admin module access", () => {
     expect(canAccessAdminModule("operator", "management")).toBe(false);
     expect(canAccessAdminModule("pole_manager", "management")).toBe(false);
     expect(canAccessAdminModule("team_manager", "management")).toBe(false);
+  });
+
+  it("shows Hunter interest only to staff who may read it", () => {
+    expect(canAccessAdminModule("operator", "hunter")).toBe(true);
+    expect(canAccessAdminModule("pole_manager", "hunter")).toBe(false);
+    expect(canAccessAdminModule("team_manager", "hunter")).toBe(false);
   });
 
   it("keeps finance unavailable to operator", () => {

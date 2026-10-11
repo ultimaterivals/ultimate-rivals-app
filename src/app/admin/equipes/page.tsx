@@ -10,20 +10,37 @@ import {
 } from "lucide-react";
 import {
   createTeamAction,
+  inviteAthleteToTeamAction,
   linkFormationToTeamAction,
 } from "@/app/admin/equipes/actions";
 import { TeamCard } from "@/components/admin/teams/team-card";
 import { Badge, Card, PageHeader } from "@/components/ui";
 import { requireAdminModule } from "@/lib/auth/admin-module-access";
+import { createClient } from "@/lib/supabase/server";
 import { fetchAdminTeamsRepositoryData } from "@/server/repositories/admin-teams-repository";
 import { getAdminTeamsSnapshot } from "@/server/services/admin-teams-service";
 
-export default async function TeamsPage() {
-  await requireAdminModule("teams");
+export default async function TeamsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ result?: string }>;
+}) {
+  const identity = await requireAdminModule("teams");
   const [snapshot, raw] = await Promise.all([
     getAdminTeamsSnapshot(),
     fetchAdminTeamsRepositoryData(),
   ]);
+  const pendingInvitationsResult =
+    identity.role === "admin"
+      ? await (await createClient())
+          .from("team_invitations")
+          .select("id,created_at,expires_at,athletes(public_name),teams(name)")
+          .eq("status", "pending")
+          .gt("expires_at", new Date().toISOString())
+          .order("created_at", { ascending: false })
+          .limit(100)
+      : { data: [], error: null };
+  const params = await searchParams;
   const metrics = [
     ["Equipes", snapshot.metrics.officialTeams, Shield],
     ["Atletas vinculados", snapshot.metrics.activeAthletes, UsersRound],
@@ -43,6 +60,10 @@ export default async function TeamsPage() {
     (raw.poles ?? []).map((pole) => [pole.id, pole.name]),
   );
   const activeTeams = snapshot.teams.filter((team) => team.status === "active");
+  const activeAthleteIds = new Set((raw.athletes ?? []).map((item) => item.id));
+  const inviteableAthletes = (raw.athleteIdentities ?? []).filter(
+    (athlete) => athlete.profile_id && activeAthleteIds.has(athlete.id),
+  );
   const unlinkedFormations = (raw.formations ?? []).filter(
     (formation) =>
       formation.team_id === null && doublesFormatIds.has(formation.format_id),
@@ -55,6 +76,19 @@ export default async function TeamsPage() {
         title="Equipes Oficiais"
         description="Cadastre equipes, acompanhe sua estrutura e homologue quais duplas passam a representá-las durante a temporada."
       />
+      {params.result === "invitation-sent" ? (
+        <Card className="border-emerald-500/30 text-emerald-300">
+          Convite registrado. O atleta precisa aceitar antes de entrar na
+          equipe.
+        </Card>
+      ) : null}
+      {params.result === "invitation-error" ||
+      params.result === "invalid-invitation" ? (
+        <Card className="border-red-500/30 text-red-300">
+          Convite não enviado. Confira se o atleta está ativo, tem acesso
+          vinculado e ainda não pertence a uma equipe nesta temporada.
+        </Card>
+      ) : null}
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
         {metrics.map(([label, value, Icon]) => (
           <Card key={label}>
@@ -79,13 +113,139 @@ export default async function TeamsPage() {
           <div>
             <p className="font-bold">Vínculo com efeito temporal</p>
             <p className="mt-2 text-sm leading-6 text-zinc-400">
-              A dupla só representa a equipe a partir da data efetiva
-              homologada. Vincular hoje não transforma automaticamente jogos
-              anteriores em pontos da equipe.
+              Cada atleta deve aceitar antes o convite da equipe. A formação só
+              a representa a partir da data efetiva homologada; jogos anteriores
+              não mudam de equipe nem de pontuação.
             </p>
           </div>
         </div>
       </Card>
+
+      {identity.role === "admin" ? (
+        <section
+          className="grid gap-4"
+          aria-labelledby="team-invitations-title"
+        >
+          <div>
+            <p className="text-xs font-black tracking-[0.16em] text-zinc-500 uppercase">
+              Recrutamento com aceite
+            </p>
+            <h2
+              id="team-invitations-title"
+              className="font-display mt-1 text-2xl font-black uppercase"
+            >
+              Convites para equipe
+            </h2>
+          </div>
+          <Card>
+            <p className="mb-4 text-sm leading-6 text-zinc-400">
+              Enviar um convite não cria vínculo. O atleta decide no aplicativo;
+              cada convite vence em até 14 dias ou no fim da temporada.
+            </p>
+            {raw.activeSeason &&
+            activeTeams.length &&
+            inviteableAthletes.length ? (
+              <form
+                action={inviteAthleteToTeamAction}
+                className="grid gap-3 md:grid-cols-2"
+              >
+                <input
+                  type="hidden"
+                  name="seasonId"
+                  value={raw.activeSeason.id}
+                />
+                <label className="grid gap-1.5 text-xs font-bold text-zinc-500 uppercase">
+                  Atleta
+                  <select
+                    name="athleteId"
+                    required
+                    defaultValue=""
+                    className="rounded-ur border bg-black/20 px-3 py-2.5 text-sm text-zinc-200"
+                  >
+                    <option value="" disabled>
+                      Selecione o atleta
+                    </option>
+                    {inviteableAthletes.map((athlete) => (
+                      <option key={athlete.id} value={athlete.id}>
+                        {athlete.public_name}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                <label className="grid gap-1.5 text-xs font-bold text-zinc-500 uppercase">
+                  Equipe
+                  <select
+                    name="teamId"
+                    required
+                    defaultValue=""
+                    className="rounded-ur border bg-black/20 px-3 py-2.5 text-sm text-zinc-200"
+                  >
+                    <option value="" disabled>
+                      Selecione a equipe
+                    </option>
+                    {activeTeams.map((team) => (
+                      <option key={team.id} value={team.id}>
+                        {team.name}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                <button
+                  type="submit"
+                  className="bg-ur-gold text-ur-black rounded-ur min-h-11 px-4 py-2.5 text-sm font-black md:col-span-2"
+                >
+                  Enviar convite
+                </button>
+              </form>
+            ) : (
+              <p className="text-sm text-zinc-500">
+                É preciso ter temporada ativa, equipe homologada e atleta com
+                acesso vinculado para enviar convites.
+              </p>
+            )}
+          </Card>
+          <Card>
+            <h3 className="font-black">Aguardando resposta</h3>
+            {pendingInvitationsResult.error ? (
+              <p className="mt-2 text-sm text-zinc-500">
+                Não foi possível consultar os convites agora.
+              </p>
+            ) : pendingInvitationsResult.data?.length ? (
+              <ul className="mt-3 grid gap-2">
+                {pendingInvitationsResult.data.map((invitation) => {
+                  const athlete = invitation.athletes as unknown as {
+                    public_name: string;
+                  } | null;
+                  const team = invitation.teams as unknown as {
+                    name: string;
+                  } | null;
+                  return (
+                    <li
+                      key={invitation.id}
+                      className="flex flex-wrap justify-between gap-2 border-t border-white/10 pt-2 text-sm"
+                    >
+                      <span>
+                        {athlete?.public_name ?? "Atleta"} →{" "}
+                        {team?.name ?? "Equipe"}
+                      </span>
+                      <span className="text-zinc-500">
+                        Até{" "}
+                        {new Date(invitation.expires_at).toLocaleDateString(
+                          "pt-BR",
+                        )}
+                      </span>
+                    </li>
+                  );
+                })}
+              </ul>
+            ) : (
+              <p className="mt-2 text-sm text-zinc-500">
+                Nenhum convite aguardando resposta.
+              </p>
+            )}
+          </Card>
+        </section>
+      ) : null}
 
       <section className="grid gap-4">
         <div>

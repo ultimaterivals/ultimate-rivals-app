@@ -114,7 +114,7 @@ export default async function AthleteDevelopmentPage() {
       />
 
       <section className="grid gap-5 lg:grid-cols-[1.15fr_.85fr]">
-        <Card className="ranking-hero border-ur-gold/40 overflow-hidden">
+        <Card className="athlete-stage overflow-hidden">
           <p className="text-ur-gold text-xs font-black tracking-[.2em] uppercase">
             Nível e nivelamento
           </p>

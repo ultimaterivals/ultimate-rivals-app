@@ -113,10 +113,8 @@ export default async function AthleteAgendaPage({
 
   return (
     <div className="mx-auto grid max-w-7xl gap-10 pb-8">
-      <section className="border-ur-gold/30 relative overflow-hidden rounded-[2rem] border bg-[radial-gradient(circle_at_top_right,rgba(212,168,59,.14),transparent_42%),linear-gradient(145deg,#111,#080808)] p-6 sm:p-8 lg:p-10">
-        <p className="text-ur-gold text-[.65rem] font-black tracking-[.24em] uppercase">
-          Jogar · {season.phaseLabel}
-        </p>
+      <section className="athlete-stage p-6 sm:p-8 lg:p-10">
+        <p className="athlete-kicker">Jogar · {season.phaseLabel}</p>
         <div className="mt-3 grid gap-8 lg:grid-cols-[1.2fr_.8fr] lg:items-end">
           <div>
             <h1 className="font-display text-5xl font-black tracking-tight uppercase sm:text-6xl">
@@ -131,14 +129,14 @@ export default async function AthleteAgendaPage({
           <div className="grid gap-2 text-sm text-zinc-400 sm:grid-cols-2 lg:grid-cols-1">
             <Link
               href="#oportunidades"
-              className="flex min-h-12 items-center justify-between rounded-2xl border border-white/10 bg-white/[.035] px-4 font-black text-white"
+              className="athlete-panel athlete-panel-gold flex min-h-12 items-center justify-between px-4 font-black text-white"
             >
               Oportunidades para jogar{" "}
               <ChevronRight size={18} aria-hidden="true" />
             </Link>
             <Link
               href="#disponibilidade"
-              className="flex min-h-12 items-center justify-between rounded-2xl border border-white/10 bg-white/[.02] px-4 font-black"
+              className="athlete-panel flex min-h-12 items-center justify-between px-4 font-black"
             >
               Quando você pode jogar{" "}
               <ChevronRight size={18} aria-hidden="true" />
@@ -185,7 +183,7 @@ export default async function AthleteAgendaPage({
               {next.title}
             </h2>
           </div>
-          <div className="border-ur-gold/30 bg-ur-gold/[.03] grid gap-5 rounded-[1.8rem] border p-6 lg:grid-cols-[1fr_auto] lg:items-end">
+          <div className="athlete-panel athlete-panel-gold grid gap-5 p-6 lg:grid-cols-[1fr_auto] lg:items-end">
             <div className="grid gap-3 text-sm text-zinc-300 sm:grid-cols-2">
               {next.startsAt ? (
                 <p className="flex items-center gap-2">
@@ -218,16 +216,13 @@ export default async function AthleteAgendaPage({
                   "Estado disponível na agenda"}
               </p>
             </div>
-            <Link
-              href="#oportunidades"
-              className="bg-ur-gold inline-flex min-h-12 items-center justify-center rounded-full px-5 text-sm font-black text-black"
-            >
+            <Link href="#oportunidades" className="athlete-action">
               Ver detalhes
             </Link>
           </div>
         </section>
       ) : (
-        <section className="rounded-[1.75rem] border border-white/8 bg-white/[.02] p-6">
+        <section className="athlete-panel p-6">
           <p className="text-[.64rem] font-black tracking-[.2em] text-zinc-500 uppercase">
             Seu próximo jogo
           </p>
@@ -360,10 +355,7 @@ export default async function AthleteAgendaPage({
       </section>
 
       <section className="grid gap-4 sm:grid-cols-2">
-        <Link
-          href="/athlete/arenas"
-          className="rounded-[1.5rem] border border-white/8 bg-white/[.02] p-5"
-        >
+        <Link href="/athlete/arenas" className="athlete-panel p-5">
           <MapPin className="text-ur-gold" size={20} aria-hidden="true" />
           <p className="font-display mt-4 text-xl font-black uppercase">
             Arenas da sua jornada
@@ -373,10 +365,7 @@ export default async function AthleteAgendaPage({
             publicada.
           </p>
         </Link>
-        <Link
-          href="/athlete/results"
-          className="rounded-[1.5rem] border border-white/8 bg-white/[.02] p-5"
-        >
+        <Link href="/athlete/results" className="athlete-panel p-5">
           <CalendarClock
             className="text-ur-gold"
             size={20}

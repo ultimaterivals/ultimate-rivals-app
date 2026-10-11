@@ -19,7 +19,9 @@ async function login(page: Page, email = "athlete@test.ur.local") {
 
 async function waitForPlayerHub(page: Page) {
   await expect(
-    page.getByRole("heading", { name: "Seu ranking está vivo", exact: true }),
+    page
+      .getByRole("main")
+      .getByText("Sua carreira está em jogo", { exact: true }),
   ).toBeVisible({ timeout: 30_000 });
 }
 
@@ -105,7 +107,7 @@ async function waitForHunter(page: Page) {
   ).toBeVisible({ timeout: 30_000 });
   await expect(
     page.getByRole("heading", {
-      name: "Adesão ainda não conectada ao Athlete App",
+      name: /Conheça o Hunter e manifeste seu interesse|Interesse registrado|Missões Hunter registradas/,
     }),
   ).toBeVisible();
   await expect(
@@ -115,11 +117,6 @@ async function waitForHunter(page: Page) {
     page.getByRole("heading", {
       name: "Quatro estados, sem progresso inventado",
     }),
-  ).toBeVisible();
-  await expect(
-    page.getByText(
-      /seu status não é presumido e nenhuma solicitação de interesse é criada automaticamente/,
-    ),
   ).toBeVisible();
 }
 

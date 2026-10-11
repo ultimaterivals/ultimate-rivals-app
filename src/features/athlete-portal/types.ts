@@ -80,7 +80,7 @@ export type AthleteOpportunity = {
 
 export type AthleteSeasonSummary = {
   level: string | null;
-  urCoinBalance: number;
+  urCoinBalance: number | null;
   games: number;
   competitions: number;
   trainingAttendance: number;

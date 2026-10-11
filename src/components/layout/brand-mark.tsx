@@ -14,7 +14,7 @@ export function BrandMark({
       aria-label="Ultimate Rivals"
     >
       <span
-        className="relative grid size-11 shrink-0 place-items-center overflow-hidden rounded-2xl bg-white p-1.5 ring-1 ring-white/10"
+        className="ring-ur-gold/20 relative grid size-11 shrink-0 place-items-center overflow-hidden rounded-xl bg-black/35 p-1 ring-1"
         aria-hidden="true"
       >
         <Image

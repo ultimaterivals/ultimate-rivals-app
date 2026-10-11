@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 
+import { respondToTeamInvitationAction } from "@/app/athlete/team/actions";
 import { Badge, Card, PageHeader } from "@/components/ui";
 import { requireAthleteViewer } from "@/lib/auth/athlete-viewer";
 import { createClient } from "@/lib/supabase/server";
@@ -43,10 +44,15 @@ const professionalizationTrack = [
   "Tornar-se referência",
 ] as const;
 
-export default async function AthleteTeamPage() {
+export default async function AthleteTeamPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ invitation?: string }>;
+}) {
   const viewer = await requireAthleteViewer();
   const client = await createClient();
   const now = new Date().toISOString();
+  const params = await searchParams;
 
   const membershipResult = await client
     .from("team_memberships")
@@ -71,6 +77,14 @@ export default async function AthleteTeamPage() {
     .order("starts_at", { ascending: false })
     .limit(1)
     .maybeSingle();
+
+  const invitationResult = await client
+    .from("team_invitations")
+    .select("id,expires_at,teams(name),seasons(name)")
+    .eq("athlete_id", viewer.athleteId)
+    .eq("status", "pending")
+    .gt("expires_at", now)
+    .order("created_at", { ascending: false });
 
   const memberships = membershipResult.data ?? [];
   const officialTeams = officialTeamsResult.data ?? [];
@@ -148,6 +162,95 @@ export default async function AthleteTeamPage() {
         description="Sua carreira no UR também é coletiva. Aqui você acompanha identidade, elenco, formações, ranking e contribuição competitiva sem apagar a história temporal de cada vínculo."
       />
 
+      {params.invitation === "accepted" || params.invitation === "declined" ? (
+        <Card className="border-emerald-500/30 text-emerald-300">
+          {params.invitation === "accepted"
+            ? "Convite aceito. Seu vínculo com a equipe começou agora."
+            : "Convite recusado. Nenhum vínculo foi criado."}
+        </Card>
+      ) : null}
+      {params.invitation === "error" || params.invitation === "invalid" ? (
+        <Card className="border-red-500/30 text-red-300">
+          Não foi possível responder ao convite. Atualize a página e confira se
+          ele ainda está disponível.
+        </Card>
+      ) : null}
+
+      {invitationResult.error ? (
+        <Card>
+          <p className="text-sm text-zinc-400">
+            Seus convites de equipe não estão disponíveis agora.
+          </p>
+        </Card>
+      ) : invitationResult.data?.length ? (
+        <section className="grid gap-3" aria-labelledby="team-invites-title">
+          <h2 id="team-invites-title" className="text-xl font-black">
+            Convites para você
+          </h2>
+          {invitationResult.data.map((invitation) => {
+            const team = invitation.teams as unknown as {
+              name: string;
+            } | null;
+            const season = invitation.seasons as unknown as {
+              name: string;
+            } | null;
+            return (
+              <Card key={invitation.id} className="border-ur-gold/25">
+                <p className="text-ur-gold text-xs font-black tracking-wider uppercase">
+                  Convite de equipe
+                </p>
+                <h3 className="mt-2 text-xl font-black">
+                  {team?.name ?? "Equipe UR"}
+                </h3>
+                <p className="mt-2 text-sm text-zinc-400">
+                  {season?.name ?? "Temporada atual"} · válido até{" "}
+                  {new Date(invitation.expires_at).toLocaleDateString("pt-BR")}.
+                  Aceitar cria um vínculo a partir de agora; jogos anteriores
+                  não mudam de equipe.
+                </p>
+                {viewer.isPreview ? (
+                  <p className="mt-4 text-xs font-bold text-zinc-500">
+                    Prévia somente leitura: o atleta precisa responder na
+                    própria conta.
+                  </p>
+                ) : (
+                  <div className="mt-4 flex flex-wrap gap-3">
+                    <form action={respondToTeamInvitationAction}>
+                      <input
+                        type="hidden"
+                        name="invitationId"
+                        value={invitation.id}
+                      />
+                      <input type="hidden" name="response" value="accept" />
+                      <button
+                        type="submit"
+                        className="bg-ur-gold text-ur-black min-h-11 rounded-xl px-4 text-sm font-black"
+                      >
+                        Aceitar convite
+                      </button>
+                    </form>
+                    <form action={respondToTeamInvitationAction}>
+                      <input
+                        type="hidden"
+                        name="invitationId"
+                        value={invitation.id}
+                      />
+                      <input type="hidden" name="response" value="decline" />
+                      <button
+                        type="submit"
+                        className="min-h-11 rounded-xl border border-white/15 px-4 text-sm font-black text-zinc-300"
+                      >
+                        Recusar
+                      </button>
+                    </form>
+                  </div>
+                )}
+              </Card>
+            );
+          })}
+        </section>
+      ) : null}
+
       <Card className="border-ur-gold/25">
         <p className="text-ur-gold text-xs font-black tracking-[.18em] uppercase">
           Trilha de profissionalização
@@ -203,7 +306,7 @@ export default async function AthleteTeamPage() {
 
           return (
             <section key={membership.team_id} className="grid gap-4">
-              <Card className="ranking-hero border-ur-gold/25 overflow-hidden">
+              <Card className="athlete-stage overflow-hidden">
                 <div className="flex flex-wrap items-start justify-between gap-4">
                   <div className="flex items-center gap-4">
                     {team.logo_url ? (

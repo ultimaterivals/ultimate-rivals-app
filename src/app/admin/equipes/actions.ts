@@ -23,6 +23,12 @@ const activateTeamSchema = z.object({
   teamId: z.string().uuid(),
 });
 
+const inviteAthleteSchema = z.object({
+  athleteId: z.string().uuid(),
+  teamId: z.string().uuid(),
+  seasonId: z.string().uuid(),
+});
+
 function resultUrl(result: string) {
   return `/admin/equipes?result=${encodeURIComponent(result)}`;
 }
@@ -64,6 +70,29 @@ export async function activateTeamAction(formData: FormData) {
   revalidatePath("/admin/equipes");
   revalidatePath("/athlete/team");
   redirect(resultUrl("team-activated"));
+}
+
+export async function inviteAthleteToTeamAction(formData: FormData) {
+  await requireRole(["admin"]);
+  const parsed = inviteAthleteSchema.safeParse({
+    athleteId: formData.get("athleteId"),
+    teamId: formData.get("teamId"),
+    seasonId: formData.get("seasonId"),
+  });
+  if (!parsed.success) redirect(resultUrl("invalid-invitation"));
+
+  const { error } = await (
+    await createClient()
+  ).rpc("admin_invite_athlete_to_team", {
+    p_athlete_id: parsed.data.athleteId,
+    p_team_id: parsed.data.teamId,
+    p_season_id: parsed.data.seasonId,
+  });
+  if (error) redirect(resultUrl("invitation-error"));
+
+  revalidatePath("/admin/equipes");
+  revalidatePath("/athlete/team");
+  redirect(resultUrl("invitation-sent"));
 }
 
 export async function linkFormationToTeamAction(formData: FormData) {
