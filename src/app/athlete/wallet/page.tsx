@@ -6,7 +6,9 @@ import { getAthleteSnapshotForViewer } from "@/server/services/athlete-viewer-sn
 export default async function AthleteWalletPage() {
   const viewer = await requireAthleteViewer();
   const snapshot = await getAthleteSnapshotForViewer(viewer);
-  const balance = snapshot.summary?.urCoinBalance ?? 0;
+  const balance = snapshot.summary?.urCoinBalance ?? null;
+  const balanceLabel =
+    balance === null ? "Indisponível" : balance.toLocaleString("pt-BR");
 
   return (
     <div className="mx-auto grid max-w-7xl gap-6">
@@ -23,7 +25,7 @@ export default async function AthleteWalletPage() {
               Saldo disponível
             </p>
             <p className="font-display text-ur-gold mt-2 text-6xl font-black sm:text-7xl">
-              {balance.toLocaleString("pt-BR")}
+              {balanceLabel}
             </p>
             <p className="mt-1 font-bold text-zinc-400">UR Coins</p>
           </div>
@@ -38,7 +40,7 @@ export default async function AthleteWalletPage() {
             UR Coins
           </p>
           <p className="font-display mt-2 text-3xl font-black">
-            {balance.toLocaleString("pt-BR")}
+            {balanceLabel}
           </p>
           <p className="mt-2 text-sm text-zinc-500">
             moeda do ecossistema para utilidades e resgates autorizados

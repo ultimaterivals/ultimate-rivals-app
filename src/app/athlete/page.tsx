@@ -139,7 +139,6 @@ export default async function AthletePage() {
     .filter((item) => item.id !== nextReservation?.id)
     .slice(0, 3);
   const creditsKnown = snapshot.creditBalance !== null;
-  const economyReliable = snapshot.state === "ready" && summary !== null;
   const location = [snapshot.identity.city, snapshot.identity.state]
     .filter(Boolean)
     .join("/");
@@ -513,7 +512,7 @@ export default async function AthletePage() {
               UR Coins
             </p>
             <p className="font-display mt-1 text-4xl font-black">
-              {economyReliable
+              {snapshot.state === "ready" && summary?.urCoinBalance != null
                 ? summary.urCoinBalance.toLocaleString("pt-BR")
                 : "Indisponível"}
             </p>

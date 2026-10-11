@@ -5,6 +5,8 @@
 - **Escopo:** Ultimate Rivals Athlete App
 - **Repositório:** `ultimaterivals/ultimate-rivals-app`
 
+As prioridades e decisões de trabalho podem ser editadas em [ATHLETE_APP_PRIORIDADES_EDITAVEIS.md](ATHLETE_APP_PRIORIDADES_EDITAVEIS.md). Este checklist continua sendo o registro de aprovação por SHA.
+
 ## Finalidade
 
 Este checklist registra os gates obrigatórios de release do Athlete App. Ele não autoriza deploy, alteração de dados, mudança de secrets, bypass de RLS nem correção direta de ledger. Cada gate precisa ser decidido para um SHA candidato específico e sustentado por evidência verificável.
